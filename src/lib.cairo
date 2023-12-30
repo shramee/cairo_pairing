@@ -1,28 +1,24 @@
-fn main() -> felt252 {
-    fib(16)
-}
+mod ec {
+    type Point = (u256, u256);
 
-fn fib(mut n: felt252) -> felt252 {
-    let mut a: felt252 = 0;
-    let mut b: felt252 = 1;
-    loop {
-        if n == 0 {
-            break a;
-        }
-        n = n - 1;
-        let temp = b;
-        b = a + b;
-        a = temp;
+    fn point(x: u256, y: u256) -> Point {
+        (x, y)
+    }
+
+    fn add(a: Point, b: Point, field: u256) -> Point {
+        let (x, y) = a;
+        (0, 0)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::fib;
+    use super::ec::{point, add};
 
     #[test]
     #[available_gas(100000)]
-    fn it_works() {
-        assert(fib(16) == 987, 'it works!');
+    fn test_add() {
+        let (x, y) = add(point(1, 5), point(1, 5), 11);
+        assert(x == 0, 'it works!');
     }
 }
