@@ -1,9 +1,26 @@
 mod ec {
     type Point = (u256, u256);
 mod traits;
+use traits::{EllipticCurveOperations};
+use alexandria_math::mod_arithmetics::{
+    add_mod, sub_mod, mult_mod, div_mod, pow_mod, add_inverse_mod
+};
+type Point = (u256, u256);
 
-    fn point(x: u256, y: u256) -> Point {
-        (x, y)
+#[derive(Copy, Drop)]
+struct EC256Def {
+    field: u256,
+    a: u256,
+    b: u256,
+}
+
+#[generate_trait]
+impl EC256DefUtils of EC256DefUtilsTrait {
+    fn new(field: u256, a: u256, b: u256,) -> EC256Def {
+        EC256Def { field, a, b }
+    }
+}
+
     }
 
     fn add(a: Point, b: Point, field: u256) -> Point {
