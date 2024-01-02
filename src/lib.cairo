@@ -1,5 +1,6 @@
 mod ec {
     type Point = (u256, u256);
+mod traits;
 
     fn point(x: u256, y: u256) -> Point {
         (x, y)
