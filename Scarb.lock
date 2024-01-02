@@ -2,5 +2,41 @@
 version = 1
 
 [[package]]
-name = "cairo_pairing"
+name = "alexandria_data_structures"
+version = "0.2.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria?rev=ecc881e2aee668332441bdfa32336e3404cf8eb1#ecc881e2aee668332441bdfa32336e3404cf8eb1"
+dependencies = [
+ "alexandria_encoding",
+]
+
+[[package]]
+name = "alexandria_encoding"
 version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria?rev=ecc881e2aee668332441bdfa32336e3404cf8eb1#ecc881e2aee668332441bdfa32336e3404cf8eb1"
+dependencies = [
+ "alexandria_math",
+ "alexandria_numeric",
+]
+
+[[package]]
+name = "alexandria_math"
+version = "0.2.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria?rev=ecc881e2aee668332441bdfa32336e3404cf8eb1#ecc881e2aee668332441bdfa32336e3404cf8eb1"
+dependencies = [
+ "alexandria_data_structures",
+]
+
+[[package]]
+name = "alexandria_numeric"
+version = "0.1.0"
+source = "git+https://github.com/keep-starknet-strange/alexandria?rev=ecc881e2aee668332441bdfa32336e3404cf8eb1#ecc881e2aee668332441bdfa32336e3404cf8eb1"
+dependencies = [
+ "alexandria_math",
+]
+
+[[package]]
+name = "cairo_ec"
+version = "0.1.0"
+dependencies = [
+ "alexandria_math",
+]
