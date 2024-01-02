@@ -25,6 +25,19 @@ impl EC256AffineImpl of EllipticCurveOperations<EC256Def, Point> {
     }
 
     fn double(self: @EC256Def, point: Point) -> Point {
+        let EC256Def{field, a, b } = *self;
+        let (x, y) = point;
+
+        // λ = (3x^2 + a) / 2y
+        let lambda_numerator = add_mod(mult_mod(3, mult_mod(x, x, field), field), a, field);
+        let lambda = div_mod(lambda_numerator, mult_mod(2, y, field), field);
+
+        // v = y - λx
+        let v = sub_mod(y, mult_mod(lambda, x, field), field);
+        let res_x = sub_mod(mult_mod(lambda, lambda, field), mult_mod(2, x, field), field);
+        let res_y = sub_mod(add_inverse_mod(mult_mod(lambda, res_x, field), field), v, field);
+
+        // (res_x, res_y)
         (0, 0)
     }
 
