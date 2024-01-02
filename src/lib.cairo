@@ -37,7 +37,20 @@ fn bn254() -> BNCurve {
 
 impl AffineBNOps of ECOperations<BNCurve, AffinePoint> {
     fn add(self: @BNCurve, lhs: AffinePoint, rhs: AffinePoint) -> AffinePoint {
-        AffinePoint { x: 0, y: 0 }
+        let BNCurve{field, b } = *self;
+        let AffinePoint{x: x1, y: y1 } = lhs;
+        let AffinePoint{x: x2, y: y2 } = rhs;
+
+        // λ = (y2 - y1) / (x2 - x1)
+        let lambda = div_mod(sub_mod(y2, y1, field), sub_mod(x2, x1, field), field);
+
+        // v = y - λx
+        let v = sub_mod(y1, mult_mod(lambda, x1, field), field);
+
+        // New point
+        let x = sub_mod(sub_mod(mult_mod(lambda, lambda, field), x1, field), x2, field);
+        let y = sub_mod(add_inverse_mod(mult_mod(lambda, x, field), field), v, field);
+        AffinePoint { x, y }
     }
 
     fn double(self: @BNCurve, point: AffinePoint) -> AffinePoint {
