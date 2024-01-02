@@ -1,5 +1,3 @@
-mod ec {
-    type Point = (u256, u256);
 mod traits;
 use traits::{EllipticCurveOperations};
 use alexandria_math::mod_arithmetics::{
@@ -21,10 +19,16 @@ impl EC256DefUtils of EC256DefUtilsTrait {
     }
 }
 
+impl EC256AffineImpl of EllipticCurveOperations<EC256Def, Point> {
+    fn add(self: @EC256Def, lhs: Point, rhs: Point) -> Point {
+        (0, 0)
     }
 
-    fn add(a: Point, b: Point, field: u256) -> Point {
-        let (x, y) = a;
+    fn double(self: @EC256Def, point: Point) -> Point {
+        (0, 0)
+    }
+
+    fn scalar_mult(self: @EC256Def, point: Point, multiplier: u256) -> Point {
         (0, 0)
     }
 }
