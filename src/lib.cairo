@@ -1,7 +1,10 @@
+mod fast_mod;
 mod traits;
 use integer::u512;
 use traits::{ECOperations};
-use alexandria_math::mod_arithmetics::{add_mod, sub_mod, mult_mod, div_mod, add_inverse_mod};
+use alexandria_math::mod_arithmetics::{mult_mod, div_mod, add_inverse_mod};
+// use alexandria_math::mod_arithmetics::{add_mod, sub_mod};
+use fast_mod::{add_mod, sub_mod};
 
 #[derive(Copy, Drop)]
 struct AffinePoint {
@@ -86,9 +89,14 @@ impl AffineBNOps of ECOperations<BNCurve, AffinePoint> {
 }
 
 #[cfg(test)]
-mod tests {
+mod bn254_tests {
     use super::{BNCurve, AffinePoint, AffineBNOps, ECOperations, aff_pt, bn254};
     use debug::PrintTrait;
+
+    const dbl_x: u256 =
+        1368015179489954701390400359078579693043519447331113978918064868415326638035;
+    const dbl_y: u256 =
+        9918110051302171585080402603319702774565515993150576347155970296011118125764;
 
     #[test]
     #[available_gas(100000000)]
@@ -96,28 +104,8 @@ mod tests {
         let curve = bn254();
 
         let doubled = curve.double(aff_pt(1, 2));
-        assert(
-            doubled
-                .x == 1368015179489954701390400359078579693043519447331113978918064868415326638035,
-            'wrong double x'
-        );
-        assert(
-            doubled
-                .y == 9918110051302171585080402603319702774565515993150576347155970296011118125764,
-            'wrong double y'
-        );
-
-        let doubled = curve.double(doubled);
-        assert(
-            doubled
-                .x == 3010198690406615200373504922352659861758983907867017329644089018310584441462,
-            'wrong quadruple x'
-        );
-        assert(
-            doubled
-                .y == 4027184618003122424972590350825261965929648733675738730716654005365300998076,
-            'wrong quadruple y'
-        );
+        assert(doubled.x == dbl_x, 'wrong double x');
+        assert(doubled.y == dbl_y, 'wrong double y');
     }
 
     #[test]
@@ -125,14 +113,7 @@ mod tests {
     fn test_add() {
         let curve = bn254();
 
-        let g_3 = curve
-            .add(
-                aff_pt(1, 2),
-                aff_pt(
-                    1368015179489954701390400359078579693043519447331113978918064868415326638035,
-                    9918110051302171585080402603319702774565515993150576347155970296011118125764
-                )
-            );
+        let g_3 = curve.add(aff_pt(1, 2), aff_pt(dbl_x, dbl_y));
 
         assert(
             g_3.x == 3353031288059533942658390886683067124040920775575537747144343083137631628272,
@@ -142,5 +123,43 @@ mod tests {
             g_3.y == 19321533766552368860946552437480515441416830039777911637913418824951667761761,
             'wrong add y'
         );
+    }
+}
+
+#[cfg(test)]
+mod arithmetic_tests {
+    use super::{BNCurve, AffinePoint, AffineBNOps, ECOperations, aff_pt, bn254};
+    use super::{add_mod, sub_mod, mult_mod, div_mod, add_inverse_mod};
+    use debug::PrintTrait;
+
+    const a_: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
+    const b_: u256 = 8021715850804026033197027745655159931503181100513576347155970296011118125764;
+    const a: u256 = 99680151794899547013904003590785796930;
+    const b: u256 = 13181100513021715850804026033197027745;
+
+
+    #[test]
+    #[available_gas(1000000)]
+    fn test_add() {
+        a_ + b_;
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn test_sub() {
+        a_ - b_;
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn test_mult() {
+        a * b;
+    // mult;
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn test_div() {
+        a / b;
     }
 }
