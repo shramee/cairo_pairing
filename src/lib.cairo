@@ -1,4 +1,5 @@
 mod fast_mod;
+mod i257;
 mod traits;
 use integer::u512;
 use traits::{ECOperations};
