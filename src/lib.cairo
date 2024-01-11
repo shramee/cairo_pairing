@@ -128,39 +128,45 @@ mod bn254_tests {
 }
 
 #[cfg(test)]
-mod arithmetic_tests {
+mod mod_ops_tests {
+    // REFERENCE: u128 operations in u256
+    // plain_arithmetic::div gas usage: 11450
+    // plain_arithmetic::add gas usage: 6830
+    // plain_arithmetic::mul gas usage: 21190
+    // plain_arithmetic::sub gas usage: 6830
+
+    use core::option::OptionTrait;
+    use core::traits::TryInto;
+    use super::fast_mod;
     use super::{BNCurve, AffinePoint, AffineBNOps, ECOperations, aff_pt, bn254};
     use super::{add_mod, sub_mod, mult_mod, div_mod, add_inverse_mod};
     use debug::PrintTrait;
 
-    const a_: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
-    const b_: u256 = 8021715850804026033197027745655159931503181100513576347155970296011118125764;
-    const a: u256 = 99680151794899547013904003590785796930;
-    const b: u256 = 13181100513021715850804026033197027745;
+    const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
+    const b: u256 = 8021715850804026033197027745655159931503181100513576347155970296011118125764;
 
 
     #[test]
     #[available_gas(1000000)]
-    fn test_add() {
-        a_ + b_;
+    fn test_add_mod() {
+        add_mod(a, b, bn254().field);
     }
 
     #[test]
     #[available_gas(1000000)]
-    fn test_sub() {
-        a_ - b_;
+    fn test_sub_mod() {
+        sub_mod(a, b, bn254().field);
     }
 
     #[test]
     #[available_gas(1000000)]
-    fn test_mult() {
-        a * b;
-    // mult;
+    fn test_mult_mod() {
+        let m = mult_mod(a, b, bn254().field);
     }
 
     #[test]
     #[available_gas(100000000)]
-    fn test_div() {
-        a / b;
+    fn test_div_mod() {
+        let a = div_mod(a, b, bn254().field);
     }
 }
