@@ -1,5 +1,11 @@
-trait ECOperations<TCurve, TPoint> {
-    fn add(self: @TCurve, lhs: TPoint, rhs: TPoint) -> TPoint;
-    fn double(self: @TCurve, point: TPoint) -> TPoint;
-    fn scalar_mult(self: @TCurve, point: TPoint, multiplier: u256) -> TPoint;
+trait ECOperations<TPoint> {
+    fn add(self: TPoint, rhs: TPoint) -> TPoint;
+    fn double(self: TPoint) -> TPoint;
+    fn scalar_mul(self: TPoint, multiplier: u256) -> TPoint;
+}
+
+trait GroupParams<TPoint> {
+    fn field() -> u256;
+    fn one() -> TPoint;
+    fn coeff_b() -> TPoint;
 }
