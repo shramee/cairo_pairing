@@ -17,10 +17,9 @@ use debug::PrintTrait;
 const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
 const b: u256 = 8021715850804026033197027745655159931503181100513576347155970296011118125764;
 
-
 #[test]
 #[available_gas(1000000)]
-fn test_mod_add() {
+fn bench_add() {
     let res = add(a, b, FIELD);
     assert(
         17121262864708029623982824676090354404822861252307690326074035164426444763799 == res,
@@ -30,7 +29,7 @@ fn test_mod_add() {
 
 #[test]
 #[available_gas(1000000)]
-fn test_mod_sub() {
+fn bench_sub() {
     let res = sub(a, b, FIELD);
     assert(
         1077831163099977557588769184780034541816499051280537631762094572404208512271 == res,
@@ -40,7 +39,7 @@ fn test_mod_sub() {
 
 #[test]
 #[available_gas(1000000)]
-fn test_mod_mul() {
+fn bench_mul() {
     let res = mul(a, b, FIELD);
     assert(
         6561477752769399547014183440960600095569924911855714080305417693732453755033 == res,
@@ -50,11 +49,35 @@ fn test_mod_mul() {
 
 #[test]
 #[available_gas(100000000)]
-fn test_mod_div() {
+fn bench_div() {
     let res = div(a, b, FIELD);
     assert(
         12819640619688655488085323601008678463608009668414428319642291645922931558321 == res,
         'incorrect mul'
     )
 }
+
+#[test]
+#[available_gas(100000000)]
+fn test_all_mod_ops() {
+    let add_ = add(a, b, FIELD);
+    assert(
+        17121262864708029623982824676090354404822861252307690326074035164426444763799 == add_,
+        'incorrect add'
+    );
+    let sub_ = sub(a, b, FIELD);
+    assert(
+        1077831163099977557588769184780034541816499051280537631762094572404208512271 == sub_,
+        'incorrect sub'
+    );
+    let mul_ = mul(a, b, FIELD);
+    assert(
+        6561477752769399547014183440960600095569924911855714080305417693732453755033 == mul_,
+        'incorrect mul'
+    );
+    let div_ = div(a, b, FIELD);
+    assert(
+        12819640619688655488085323601008678463608009668414428319642291645922931558321 == div_,
+        'incorrect div'
+    );
 }
