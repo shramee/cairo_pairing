@@ -77,6 +77,9 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         let mut multiplier = multiplier;
         let mut dbl_step = one();
         let mut result = pt(0, 0);
+
+        // TODO: optimise with u128 ops
+        // Replace u256 multiplier loop with 2x u128 loops
         loop {
             let (q, r, _) = u256_safe_divmod(multiplier, nz2);
 
