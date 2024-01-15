@@ -6,10 +6,13 @@ mod fast_mod_tests;
 
 mod traits;
 
+mod fields;
+
 mod g1;
 #[cfg(test)]
 mod g1_tests;
 mod g2;
+
 mod pairing;
 #[cfg(test)]
 mod pairing_tests;
