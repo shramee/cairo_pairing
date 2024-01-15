@@ -3,6 +3,8 @@ use bn::g2::{AffineG2};
 use bn::fast_mod::bn254::{add, sub, mul, div};
 use bn::FIELD;
 
+// Finds the line going through points a and b
+// and returns 0 is t falls on the line
 fn line_func(a: AffineG1, b: AffineG1, t: AffineG1) -> u256 {
     let AffineG1{x: x1, y: y1 } = a;
     let AffineG1{x: x2, y: y2 } = b;

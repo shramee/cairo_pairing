@@ -1,8 +1,34 @@
+use bn::traits::ECOperations;
 use bn::pairing::line_func;
 use bn::{g1, g2};
+use bn::ORDER;
+
 #[test]
-#[available_gas(200000000)]
-fn test_line_func() {}
+#[available_gas(2000000000)]
+fn test_line_func() {
+    let one = g1::one();
+    let two = one.double();
+    let three = two.add(one);
+    let negthree = g1::one().multiply(ORDER - 3);
+    // let negtwo = g1::one().multiply(ORDER - 2);
+    let negtwo = negthree.add(g1::one());
+    // let negone = g1::one().multiply(ORDER - 1);
+    let negone = negtwo.add(g1::one());
+
+    // Adding a tenth test breaks stuff with:
+    //  #747->#748: Got 'Offset overflow' error while moving [29].
+
+    // assert(line_func(one, two, one) == 0, 'wrong line one, two, one');
+    assert(line_func(one, two, two) == 0, 'wrong line one, two, two');
+    assert(line_func(one, two, three) != 0, 'wrong line one, two, three');
+    assert(line_func(one, two, negthree) == 0, 'wrong line one, two, negthree');
+    assert(line_func(one, negone, one) == 0, 'wrong line one, negone, one');
+    assert(line_func(one, negone, negone) == 0, 'wrong line one, negone, negone');
+    assert(line_func(one, negone, two) != 0, 'wrong line one, negone, two');
+    assert(line_func(one, one, one) == 0, 'wrong line one, one, one');
+    assert(line_func(one, one, two) != 0, 'wrong line one, one, two');
+    assert(line_func(one, one, negtwo) == 0, 'wrong line one, one, negtwo');
+}
 
 #[test]
 #[available_gas(200000000)]
