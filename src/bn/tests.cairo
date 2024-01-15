@@ -9,8 +9,8 @@ const dbl_y: u256 = 991811005130217158508040260331970277456551599315057634715597
 
 #[test]
 #[available_gas(100000000)]
-fn test_double() {
-    // test_double ... ok (gas: 413280)
+fn g1_dbl() {
+    // g1_double ... ok (gas: 413280)
 
     let doubled = g1_one().double();
     assert(doubled.x == dbl_x, 'wrong double x');
@@ -19,8 +19,8 @@ fn test_double() {
 
 #[test]
 #[available_gas(100000000)]
-fn test_add() {
-    // test_add ... ok (gas: 364320)
+fn g1_add() {
+    // g1_add ... ok (gas: 364320)
     (2_u128 + 5 + 8 % 5_u128).print();
 
     let g_x3 = g1_pt(1, 2).add(g1_pt(dbl_x, dbl_y));

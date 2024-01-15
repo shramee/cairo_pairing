@@ -30,7 +30,7 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         // v = y - λx
         let v = sub(y1, mul(lambda, x1, FIELD), FIELD);
 
-        // x = λλ - x1 - x2
+        // x = λ^2 - x1 - x2
         let x = sub(sub(mul(lambda, lambda, FIELD), x1, FIELD), x2, FIELD);
         // y = - λx - v
         let y = sub(add_inverse(mul(lambda, x, FIELD), FIELD), v, FIELD);
@@ -59,7 +59,7 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         let v = sub(y, mul(lambda, x, FIELD), FIELD);
 
         // New point
-        // x = λλ - x1 - x2
+        // x = λ^2 - x - x
         let x = sub(sub(mul(lambda, lambda, FIELD), x, FIELD), x, FIELD);
         // y = - λx - v
         let y = sub(add_inverse(mul(lambda, x, FIELD), FIELD), v, FIELD);
