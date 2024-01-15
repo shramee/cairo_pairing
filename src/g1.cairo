@@ -1,6 +1,8 @@
+use core::debug::PrintTrait;
 use bn::traits::{ECOperations};
 use bn::fast_mod::bn254::{add, sub, div, mul, add_inverse};
 use bn::{FIELD, B};
+use integer::{u256_safe_divmod};
 
 type Fq = u256;
 
@@ -20,9 +22,14 @@ fn one() -> AffineG1 {
 }
 
 impl AffineG1Ops of ECOperations<AffineG1> {
-    fn add(self: AffineG1, rhs: AffineG1) -> AffineG1 {
-        let AffineG1{x: x1, y: y1 } = self;
+    fn add(self: @AffineG1, rhs: AffineG1) -> AffineG1 {
+        let AffineG1{x: x1, y: y1 } = *self;
         let AffineG1{x: x2, y: y2 } = rhs;
+
+        if x1 + y1 == 0 {
+            // self is zero, return rhs
+            return rhs;
+        }
 
         // λ = (y2 - y1) / (x2 - x1)
         let lambda = div(sub(y2, y1), sub(x2, x1));
@@ -37,8 +44,8 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         AffineG1 { x, y }
     }
 
-    fn double(self: AffineG1) -> AffineG1 {
-        let AffineG1{x, y } = self;
+    fn double(self: @AffineG1) -> AffineG1 {
+        let AffineG1{x, y } = *self;
 
         // λ = (3x^2 + a) / 2y
         // let lambda = div(
@@ -65,7 +72,24 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         AffineG1 { x, y }
     }
 
-    fn scalar_mul(self: AffineG1, multiplier: u256) -> AffineG1 {
-        AffineG1 { x: 0, y: 0 }
+    fn multiply(self: @AffineG1, multiplier: u256) -> AffineG1 {
+        let nz2: NonZero<u256> = 2_u256.try_into().unwrap();
+        let mut multiplier = multiplier;
+        let mut dbl_step = one();
+        let mut result = pt(0, 0);
+        loop {
+            let (q, r, _) = u256_safe_divmod(multiplier, nz2);
+
+            if r == 1 {
+                result = result.add(dbl_step);
+            }
+
+            if q == 0 {
+                break;
+            }
+            dbl_step = dbl_step.double();
+            multiplier = q;
+        };
+        result
     }
 }
