@@ -50,9 +50,8 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         // λ = 3x^2 / 2y
         let x_2 = mul(x, x);
         let lambda = div( //
-            (x_2 + x_2 + x_2) % FIELD, // Numerator
-             y + y % FIELD, // Denominator
-             FIELD
+        (x_2 + x_2 + x_2) % FIELD, // Numerator
+         add(y, y) // Denominator
         );
 
         // v = y - λx

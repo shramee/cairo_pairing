@@ -1,6 +1,5 @@
-use bn::curve::ECOperations;
-use bn::curve::{g1_one, g1_pt};
-use bn::curve::{g2_one, g2_pt};
+use bn::traits::ECOperations;
+use bn::{g1, g2};
 use debug::PrintTrait;
 
 const dbl_x: u256 = 1368015179489954701390400359078579693043519447331113978918064868415326638035;
@@ -12,7 +11,7 @@ const dbl_y: u256 = 991811005130217158508040260331970277456551599315057634715597
 fn g1_dbl() {
     // g1_double ... ok (gas: 413280)
 
-    let doubled = g1_one().double();
+    let doubled = g1::one().double();
     assert(doubled.x == dbl_x, 'wrong double x');
     assert(doubled.y == dbl_y, 'wrong double y');
 }
@@ -21,9 +20,8 @@ fn g1_dbl() {
 #[available_gas(100000000)]
 fn g1_add() {
     // g1_add ... ok (gas: 364320)
-    (2_u128 + 5 + 8 % 5_u128).print();
 
-    let g_x3 = g1_pt(1, 2).add(g1_pt(dbl_x, dbl_y));
+    let g_x3 = g1::one().add(g1::pt(dbl_x, dbl_y));
 
     assert(
         g_x3.x == 3353031288059533942658390886683067124040920775575537747144343083137631628272,
