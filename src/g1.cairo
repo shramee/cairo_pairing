@@ -1,6 +1,6 @@
-use cairo_ec::traits::{ECOperations};
-use cairo_ec::fast_mod::{add, sub, div, mul, add_inverse};
-use cairo_ec::bn::curve::{FIELD, B};
+use bn::traits::{ECOperations};
+use bn::fast_mod::bn254::{add, sub, div, mul, add_inverse};
+use bn::{FIELD, B};
 
 type Fq = u256;
 
@@ -10,13 +10,13 @@ struct AffineG1 {
     y: Fq
 }
 
-fn g1_pt(x: Fq, y: Fq) -> AffineG1 {
+fn pt(x: Fq, y: Fq) -> AffineG1 {
     AffineG1 { x, y }
 }
 
 #[inline(always)]
 fn one() -> AffineG1 {
-    g1_pt(1, 2)
+    pt(1, 2)
 }
 
 impl AffineG1Ops of ECOperations<AffineG1> {
@@ -25,15 +25,15 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         let AffineG1{x: x2, y: y2 } = rhs;
 
         // λ = (y2 - y1) / (x2 - x1)
-        let lambda = div(sub(y2, y1, FIELD), sub(x2, x1, FIELD), FIELD);
+        let lambda = div(sub(y2, y1), sub(x2, x1));
 
         // v = y - λx
-        let v = sub(y1, mul(lambda, x1, FIELD), FIELD);
+        let v = sub(y1, mul(lambda, x1));
 
         // x = λ^2 - x1 - x2
-        let x = sub(sub(mul(lambda, lambda, FIELD), x1, FIELD), x2, FIELD);
+        let x = sub(sub(mul(lambda, lambda), x1), x2);
         // y = - λx - v
-        let y = sub(add_inverse(mul(lambda, x, FIELD), FIELD), v, FIELD);
+        let y = sub(add_inverse(mul(lambda, x)), v);
         AffineG1 { x, y }
     }
 
@@ -42,13 +42,13 @@ impl AffineG1Ops of ECOperations<AffineG1> {
 
         // λ = (3x^2 + a) / 2y
         // let lambda = div(
-        //     add(mul(3, mul(x, x, FIELD), FIELD), a, FIELD),
-        //     mul(2, y, FIELD),
+        //     add(mul(3, mul(x, x)), a),
+        //     mul(2, y),
         //     FIELD
         // );
         // But BN curve has a == 0 so that's one less addition
         // λ = 3x^2 / 2y
-        let x_2 = mul(x, x, FIELD);
+        let x_2 = mul(x, x);
         let lambda = div( //
             (x_2 + x_2 + x_2) % FIELD, // Numerator
              y + y % FIELD, // Denominator
@@ -56,13 +56,13 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         );
 
         // v = y - λx
-        let v = sub(y, mul(lambda, x, FIELD), FIELD);
+        let v = sub(y, mul(lambda, x));
 
         // New point
         // x = λ^2 - x - x
-        let x = sub(sub(mul(lambda, lambda, FIELD), x, FIELD), x, FIELD);
+        let x = sub(sub(mul(lambda, lambda), x), x);
         // y = - λx - v
-        let y = sub(add_inverse(mul(lambda, x, FIELD), FIELD), v, FIELD);
+        let y = sub(add_inverse(mul(lambda, x)), v);
         AffineG1 { x, y }
     }
 

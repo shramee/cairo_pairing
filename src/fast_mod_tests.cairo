@@ -10,8 +10,8 @@
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
-use cairo_ec::fast_mod::{add, sub, div, mul, add_inverse};
-use cairo_ec::bn::curve::FIELD;
+use bn::fast_mod::{add, sub, div, mul, add_inverse};
+use bn::FIELD;
 use debug::PrintTrait;
 
 const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;

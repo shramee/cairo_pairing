@@ -1,6 +1,6 @@
-use cairo_ec::bn::curve::ECOperations;
-use cairo_ec::bn::curve::{g1_one, g1_pt};
-use cairo_ec::bn::curve::{g2_one, g2_pt};
+use bn::curve::ECOperations;
+use bn::curve::{g1_one, g1_pt};
+use bn::curve::{g2_one, g2_pt};
 use debug::PrintTrait;
 
 const dbl_x: u256 = 1368015179489954701390400359078579693043519447331113978918064868415326638035;
