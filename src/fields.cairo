@@ -16,7 +16,6 @@ impl FqIntoU256 of Into<Fq, u256> {
         self.c0
     }
 }
-
 impl U256IntoFq of Into<u256, Fq> {
     #[inline(always)]
     fn into(self: u256) -> Fq {
@@ -29,6 +28,7 @@ impl Felt252IntoFq of Into<felt252, Fq> {
         fq(self.into())
     }
 }
+
 impl FqAdd of Add<Fq> {
     #[inline(always)]
     fn add(lhs: Fq, rhs: Fq) -> Fq {
@@ -63,8 +63,9 @@ impl FqNeg of Neg<Fq> {
 impl FqPartialEq of PartialEq<Fq> {
     #[inline(always)]
     fn eq(lhs: @Fq, rhs: @Fq) -> bool {
-        lhs.c0 == rhs.c0
+        *lhs.c0 == *rhs.c0
     }
+
     #[inline(always)]
     fn ne(lhs: @Fq, rhs: @Fq) -> bool {
         lhs.c0 != rhs.c0
