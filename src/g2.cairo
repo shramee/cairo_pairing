@@ -1,6 +1,4 @@
-use bn::fields::{Fq, Fq2};
-
-type Fq = u256;
+use bn::fields::{Fq, Fq2, fq2};
 
 // Twisted BN curve
 // E'/Fq2 : y^2 = x^3 + b/xi
@@ -12,8 +10,8 @@ struct AffineG2 {
 }
 
 
-fn pt(x1: Fq, x2: Fq, y1: Fq, y2: Fq) -> AffineG2 {
-    AffineG2 { x: Fq2 { c0: x1, c1: x2 }, y: Fq2 { c0: y1, c1: y2 } }
+fn pt(x1: u256, x2: u256, y1: u256, y2: u256) -> AffineG2 {
+    AffineG2 { x: fq2(x1, x2), y: fq2(y1, y2) }
 }
 
 
