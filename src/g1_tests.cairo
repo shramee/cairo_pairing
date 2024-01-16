@@ -7,35 +7,6 @@ const dbl_x: u256 = 136801517948995470139040035907857969304351944733111397891806
 const dbl_y: u256 = 9918110051302171585080402603319702774565515993150576347155970296011118125764;
 
 #[test]
-#[available_gas(2000000)]
-fn fq_test_main() {
-    fq(256) - fq(56);
-    fq(256) + fq(56);
-    fq(256) * fq(56);
-    fq(256) / fq(56);
-    -fq(256);
-    fq(256) == fq(56);
-    let pt = g1::AffineG1 { x: fq(1), y: fq(2) };
-    assert(pt.x.c0 == 1, '');
-    assert(pt.y.c0 == 2, '');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn fq_test_main2() {
-    bn::fast_mod::bn254::sub(256, 56);
-    bn::fast_mod::bn254::add(256, 56);
-    bn::fast_mod::bn254::mul(256, 56);
-    bn::fast_mod::bn254::div(256, 56);
-    bn::fast_mod::bn254::add_inverse(256);
-    256_u256 == 56_u256;
-    let pt = (1_u256, 2_u256);
-    let (x, y) = pt;
-    assert(x == 1, '');
-    assert(y == 2, '');
-}
-
-#[test]
 #[available_gas(100000000)]
 fn g1_dbl() {
     // g1_double ... ok (gas: 412280)

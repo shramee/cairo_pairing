@@ -80,7 +80,7 @@ impl AffineG1Ops of ECOperations<AffineG1> {
             let (q, r, _) = u256_safe_divmod(multiplier, nz2);
 
             if r == 1 {
-                result = result.add(dbl_step);
+                result = dbl_step.add(result);
             }
 
             if q == 0 {

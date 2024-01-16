@@ -65,6 +65,8 @@ impl FqPartialEq of PartialEq<Fq> {
     fn eq(lhs: @Fq, rhs: @Fq) -> bool {
         *lhs.c0 == *rhs.c0
     }
+#[cfg(test)]
+mod fq_tests;
 
     #[inline(always)]
     fn ne(lhs: @Fq, rhs: @Fq) -> bool {
