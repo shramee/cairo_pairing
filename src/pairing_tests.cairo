@@ -18,20 +18,22 @@ fn test_line_func() {
     // Adding a tenth test breaks stuff with:
     //  #747->#748: Got 'Offset overflow' error while moving [29].
 
-    // assert(line_func(one, two, one) == 0, 'wrong line one, two, one');
-    assert(line_func(one, two, two) == 0, 'wrong line one, two, two');
-    assert(line_func(one, two, three) != 0, 'wrong line one, two, three');
-    assert(line_func(one, two, negthree) == 0, 'wrong line one, two, negthree');
-    assert(line_func(one, negone, one) == 0, 'wrong line one, negone, one');
-    assert(line_func(one, negone, negone) == 0, 'wrong line one, negone, negone');
-    assert(line_func(one, negone, two) != 0, 'wrong line one, negone, two');
-    assert(line_func(one, one, one) == 0, 'wrong line one, one, one');
-    assert(line_func(one, one, two) != 0, 'wrong line one, one, two');
-    assert(line_func(one, one, negtwo) == 0, 'wrong line one, one, negtwo');
+    // assert(line_func(one, two, one).c0 == 0, 'wrong line one, two, one');
+    assert(line_func(one, two, two).c0 == 0, 'wrong line one, two, two');
+    assert(line_func(one, two, three).c0 != 0, 'wrong line one, two, three');
+    assert(line_func(one, two, negthree).c0 == 0, 'wrong line one, two, negthree');
+    assert(line_func(one, negone, one).c0 == 0, 'wrong line one, negone, one');
+    assert(line_func(one, negone, negone).c0 == 0, 'wrong line one, negone, negone');
+    assert(line_func(one, negone, two).c0 != 0, 'wrong line one, negone, two');
+    assert(line_func(one, one, one).c0 == 0, 'wrong line one, one, one');
+    assert(line_func(one, one, two).c0 != 0, 'wrong line one, one, two');
+    assert(line_func(one, one, negtwo).c0 == 0, 'wrong line one, one, negtwo');
 }
 
 #[test]
 #[available_gas(200000000)]
 fn bench_line_func() {
+    // bench_line_func ... ok (gas: 350050)
+    // bench_line_func ... ok (gas: 287880)
     line_func(g1::one(), g1::one(), g1::one());
 }

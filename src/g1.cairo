@@ -3,8 +3,7 @@ use bn::traits::{ECOperations};
 use bn::fast_mod::bn254::{add, sub, div, mul, add_inverse};
 use bn::{FIELD, B};
 use integer::{u256_safe_divmod};
-
-type Fq = u256;
+use bn::fields::{Fq, fq};
 
 #[derive(Copy, Drop)]
 struct AffineG1 {
@@ -12,8 +11,9 @@ struct AffineG1 {
     y: Fq
 }
 
-fn pt(x: Fq, y: Fq) -> AffineG1 {
-    AffineG1 { x, y }
+#[inline(always)]
+fn pt(x: u256, y: u256) -> AffineG1 {
+    AffineG1 { x: fq(x), y: fq(y) }
 }
 
 #[inline(always)]
@@ -26,21 +26,21 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         let AffineG1{x: x1, y: y1 } = *self;
         let AffineG1{x: x2, y: y2 } = rhs;
 
-        if x1 + y1 == 0 {
+        if x1.c0 + y1.c0 == 0 {
             // self is zero, return rhs
             return rhs;
         }
 
         // λ = (y2 - y1) / (x2 - x1)
-        let lambda = div(sub(y2, y1), sub(x2, x1));
+        let lambda = (y2 - y1) / (x2 - x1);
 
         // v = y - λx
-        let v = sub(y1, mul(lambda, x1));
+        let v = y1 - lambda * x1;
 
         // x = λ^2 - x1 - x2
-        let x = sub(sub(mul(lambda, lambda), x1), x2);
+        let x = lambda * lambda - x1 - x2;
         // y = - λx - v
-        let y = sub(add_inverse(mul(lambda, x)), v);
+        let y = -lambda * x - v;
         AffineG1 { x, y }
     }
 
@@ -55,26 +55,22 @@ impl AffineG1Ops of ECOperations<AffineG1> {
         // );
         // But BN curve has a == 0 so that's one less addition
         // λ = 3x^2 / 2y
-        let x_2 = mul(x, x);
-        let lambda = div( //
-        (x_2 + x_2 + x_2) % FIELD, // Numerator
-         add(y, y) // Denominator
-        );
+        let x_2 = x * x;
+        let lambda = fq((x_2.c0 + x_2.c0 + x_2.c0) % FIELD) / (y + y);
 
         // v = y - λx
-        let v = sub(y, mul(lambda, x));
+        let v = y - lambda * x;
 
         // New point
         // x = λ^2 - x - x
-        let x = sub(sub(mul(lambda, lambda), x), x);
+        let x = lambda * lambda - x - x;
         // y = - λx - v
-        let y = sub(add_inverse(mul(lambda, x)), v);
+        let y = -lambda * x - v;
         AffineG1 { x, y }
     }
 
-    fn multiply(self: @AffineG1, multiplier: u256) -> AffineG1 {
+    fn multiply(self: @AffineG1, mut multiplier: u256) -> AffineG1 {
         let nz2: NonZero<u256> = 2_u256.try_into().unwrap();
-        let mut multiplier = multiplier;
         let mut dbl_step = one();
         let mut result = pt(0, 0);
 
