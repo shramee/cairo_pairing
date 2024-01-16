@@ -1,3 +1,4 @@
+use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
 
 #[derive(Copy, Drop, Serde)]

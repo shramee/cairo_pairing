@@ -1,6 +1,7 @@
+use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use core::debug::PrintTrait;
 use bn::traits::{ECOperations};
-use bn::fast_mod::bn254::{add, sub, div, mul, add_inverse};
+// use bn::fast_mod::bn254::{add, sub, div, mul, add_inverse};
 use bn::{FIELD, B};
 use integer::{u256_safe_divmod};
 use bn::fields::{Fq, fq};

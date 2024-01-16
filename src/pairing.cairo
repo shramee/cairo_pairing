@@ -2,6 +2,7 @@ use bn::g1::{AffineG1};
 use bn::g2::{AffineG2};
 use bn::fast_mod::bn254::{add, sub, mul, div};
 use bn::fields::{Fq, fq};
+use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::FIELD;
 
 // Finds the line going through points a and b
