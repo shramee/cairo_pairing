@@ -22,7 +22,6 @@ fn u128_add_with_carry(a: u128, b: u128) -> (u128, u128) nopanic {
     }
 }
 
-#[inline(always)]
 fn mul_nz(a: u256, b: u256, modulo: NonZero<u256>) -> u256 {
     let (limb1, limb0) = integer::u128_wide_mul(a.low, b.low);
     let (limb2, limb1_part) = integer::u128_wide_mul(a.low, b.high);
@@ -48,6 +47,7 @@ fn mul_nz(a: u256, b: u256, modulo: NonZero<u256>) -> u256 {
     rem_u256
 }
 
+#[inline(always)]
 fn mul(a: u256, b: u256, modulo: u256) -> u256 {
     mul_nz(a, b, modulo.try_into().unwrap())
 }
@@ -73,10 +73,15 @@ fn sub(mut a: u256, mut b: u256, modulo: u256) -> u256 {
     }
 }
 
+#[inline(always)]
+fn inv(b: u256, modulo: NonZero<u256>) -> u256 {
+    math::u256_inv_mod(b, modulo).unwrap().into()
+}
+
+#[inline(always)]
 fn div(a: u256, b: u256, modulo: u256) -> u256 {
     let modulo_nz = modulo.try_into().expect('0 modulo');
-    let inv = math::u256_inv_mod(b, modulo_nz).unwrap().into();
-    mul_nz(a, inv, modulo_nz)
+    mul_nz(a, inv(b, modulo_nz), modulo_nz)
 }
 
 mod bn254 {
@@ -105,5 +110,10 @@ mod bn254 {
     #[inline(always)]
     fn div(a: u256, b: u256) -> u256 {
         super::div(a, b, FIELD)
+    }
+
+    #[inline(always)]
+    fn inv(b: u256) -> u256 {
+        math::u256_inv_mod(b, FIELD.try_into().unwrap()).unwrap().into()
     }
 }
