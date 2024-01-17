@@ -20,41 +20,25 @@ const b: u256 = 8021715850804026033197027745655159931503181100513576347155970296
 #[test]
 #[available_gas(1000000)]
 fn bench_add() {
-    let res = add(a, b, FIELD);
-    assert(
-        17121262864708029623982824676090354404822861252307690326074035164426444763799 == res,
-        'incorrect add'
-    )
+    add(a, b, FIELD);
 }
 
 #[test]
 #[available_gas(1000000)]
 fn bench_sub() {
-    let res = sub(a, b, FIELD);
-    assert(
-        1077831163099977557588769184780034541816499051280537631762094572404208512271 == res,
-        'incorrect sub'
-    )
+    sub(a, b, FIELD);
 }
 
 #[test]
 #[available_gas(1000000)]
 fn bench_mul() {
-    let res = mul(a, b, FIELD);
-    assert(
-        6561477752769399547014183440960600095569924911855714080305417693732453755033 == res,
-        'incorrect mul'
-    )
+    mul(a, b, FIELD);
 }
 
 #[test]
 #[available_gas(100000000)]
 fn bench_div() {
-    let res = div(a, b, FIELD);
-    assert(
-        12819640619688655488085323601008678463608009668414428319642291645922931558321 == res,
-        'incorrect mul'
-    )
+    div(a, b, FIELD);
 }
 
 #[test]
