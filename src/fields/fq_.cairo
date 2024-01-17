@@ -1,5 +1,5 @@
 use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse, inv};
-use bn::traits::FieldOperations;
+use bn::traits::FieldOps;
 
 #[derive(Copy, Drop, Serde)]
 struct Fq {
@@ -11,30 +11,30 @@ fn fq(c0: u256) -> Fq {
     Fq { c0 }
 }
 
-impl FqOps of FieldOperations<Fq> {
+impl FqOps of FieldOps<Fq> {
     #[inline(always)]
-    fn add(lhs: Fq, rhs: Fq) -> Fq {
-        fq(add(lhs.c0, rhs.c0))
+    fn add(self: Fq, rhs: Fq) -> Fq {
+        fq(add(self.c0, rhs.c0))
     }
 
     #[inline(always)]
-    fn sub(lhs: Fq, rhs: Fq) -> Fq {
-        fq(sub(lhs.c0, rhs.c0))
+    fn sub(self: Fq, rhs: Fq) -> Fq {
+        fq(sub(self.c0, rhs.c0))
     }
 
     #[inline(always)]
-    fn mul(lhs: Fq, rhs: Fq) -> Fq {
-        fq(mul(lhs.c0, rhs.c0))
+    fn mul(self: Fq, rhs: Fq) -> Fq {
+        fq(mul(self.c0, rhs.c0))
     }
 
     #[inline(always)]
-    fn div(lhs: Fq, rhs: Fq) -> Fq {
-        fq(div(lhs.c0, rhs.c0))
+    fn div(self: Fq, rhs: Fq) -> Fq {
+        fq(div(self.c0, rhs.c0))
     }
 
     #[inline(always)]
-    fn neg(a: Fq) -> Fq {
-        fq(add_inverse(a.c0))
+    fn neg(self: Fq) -> Fq {
+        fq(add_inverse(self.c0))
     }
 
     #[inline(always)]

@@ -4,14 +4,14 @@ trait ECOperations<TPoint> {
     fn multiply(self: @TPoint, multiplier: u256) -> TPoint;
 }
 
-trait FieldOperations<TFq> {
-    fn add(lhs: TFq, rhs: TFq) -> TFq;
-    fn sub(lhs: TFq, rhs: TFq) -> TFq;
-    fn mul(lhs: TFq, rhs: TFq) -> TFq;
-    fn div(lhs: TFq, rhs: TFq) -> TFq;
-    fn neg(a: TFq) -> TFq;
+trait FieldOps<TFq> {
+    fn add(self: TFq, rhs: TFq) -> TFq;
+    fn sub(self: TFq, rhs: TFq) -> TFq;
+    fn mul(self: TFq, rhs: TFq) -> TFq;
+    fn div(self: TFq, rhs: TFq) -> TFq;
+    fn sqr(self: TFq) -> TFq;
+    fn neg(self: TFq) -> TFq;
     fn eq(lhs: @TFq, rhs: @TFq) -> bool;
     fn one() -> TFq;
-    fn sqr(self: TFq) -> TFq;
     fn inv(self: TFq) -> TFq;
 }

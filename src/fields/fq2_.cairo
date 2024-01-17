@@ -1,3 +1,4 @@
+use bn::traits::FieldOps;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
 
@@ -7,53 +8,73 @@ struct Fq2 {
     c1: Fq,
 }
 
+// Extension field is represented as two number with X (a root of an polynomial in Fq which doesn't exist in Fq).
+// X for field extension is equivalent to imaginary i for real numbers.
+// number a: Fq2 = (a0, a1), mathematically, a = a0 + a1 * X
+
+const BETA: u256 = 0;
+
 #[inline(always)]
 fn fq2(c0: u256, c1: u256) -> Fq2 {
     Fq2 { c0: fq(c0), c1: fq(c1), }
 }
 
-impl Fq2Add of Add<Fq2> {
+impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
-    fn add(lhs: Fq2, rhs: Fq2) -> Fq2 {
-        Fq2 { c0: lhs.c0 + rhs.c0, c1: lhs.c1 + rhs.c1, }
+    fn add(self: Fq2, rhs: Fq2) -> Fq2 {
+        Fq2 { c0: self.c0 + rhs.c0, c1: self.c1 + rhs.c1, }
     }
-}
-impl Fq2Sub of Sub<Fq2> {
-    #[inline(always)]
-    fn sub(lhs: Fq2, rhs: Fq2) -> Fq2 {
-        Fq2 { c0: lhs.c0 - rhs.c0, c1: lhs.c1 - rhs.c1, }
-    }
-}
-impl Fq2Mul of Mul<Fq2> {
-    #[inline(always)]
-    fn mul(lhs: Fq2, rhs: Fq2) -> Fq2 {
-        // fq(mul(lhs.c0, rhs.c0))
-        fq2(0, 0)
-    }
-}
-impl Fq2Div of Div<Fq2> {
-    #[inline(always)]
-    fn div(lhs: Fq2, rhs: Fq2) -> Fq2 {
-        // fq(div(lhs.c0, rhs.c0))
-        fq2(0, 0)
-    }
-}
-impl Fq2Neg of Neg<Fq2> {
-    #[inline(always)]
-    fn neg(a: Fq2) -> Fq2 {
-        // fq(add_inverse(a.c0))
-        fq2(0, 0)
-    }
-}
 
-impl Fq2PartialEq of PartialEq<Fq2> {
+    #[inline(always)]
+    fn sub(self: Fq2, rhs: Fq2) -> Fq2 {
+        Fq2 { c0: self.c0 - rhs.c0, c1: self.c1 - rhs.c1, }
+    }
+
+    #[inline(always)]
+    fn mul(self: Fq2, rhs: Fq2) -> Fq2 {
+        let Fq2{c0: a0, c1: a1 } = self;
+        let Fq2{c0: b0, c1: b1 } = rhs;
+        // Multiplying ab in Fq2 mod X^2 + BETA
+        // c = ab = a0*b0 + a0*b1*X + a1*b0*X + a0*b0*BETA
+        // c = a0*b0 + a0*b0*BETA + (a0*b1 + a1*b0)*X
+        // or c = (a0*b0 + a0*b0*BETA, a0*b1 + a1*b0)
+        Fq2 { //
+         c0: a0 * b0 + a1 * b1 * fq(BETA), //
+         c1: a0 * b1 + a1 * b0, //
+         }
+    }
+
+    #[inline(always)]
+    fn div(self: Fq2, rhs: Fq2) -> Fq2 {
+        // @TODO
+        fq2(0, 0)
+    }
+
+    #[inline(always)]
+    fn neg(self: Fq2) -> Fq2 {
+        // @TODO
+        fq2(0, 0)
+    }
+
     #[inline(always)]
     fn eq(lhs: @Fq2, rhs: @Fq2) -> bool {
-        *lhs.c0 == *rhs.c0 && *lhs.c1 == *rhs.c1
+        // @TODO
+        false
     }
 
     #[inline(always)]
-    fn ne(lhs: @Fq2, rhs: @Fq2) -> bool {
-        lhs != rhs
+    fn one() -> Fq2 {
+        fq2(1, 0)
+    }
+
+    #[inline(always)]
+    fn sqr(self: Fq2) -> Fq2 {
+        // @TODO
+        fq2(0, 0)
+    }
+
+    #[inline(always)]
+    fn inv(self: Fq2) -> Fq2 {
+        fq2(0, 0)
     }
 }
