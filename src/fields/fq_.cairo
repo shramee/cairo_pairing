@@ -1,4 +1,4 @@
-use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse};
+use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse, inv};
 use bn::traits::FieldOperations;
 
 #[derive(Copy, Drop, Serde)]
@@ -11,7 +11,7 @@ fn fq(c0: u256) -> Fq {
     Fq { c0 }
 }
 
-impl FqOperations of FieldOperations<Fq> {
+impl FqOps of FieldOperations<Fq> {
     #[inline(always)]
     fn add(lhs: Fq, rhs: Fq) -> Fq {
         fq(add(lhs.c0, rhs.c0))
@@ -40,6 +40,21 @@ impl FqOperations of FieldOperations<Fq> {
     #[inline(always)]
     fn eq(lhs: @Fq, rhs: @Fq) -> bool {
         *lhs.c0 == *rhs.c0
+    }
+
+    #[inline(always)]
+    fn one() -> Fq {
+        fq(1)
+    }
+
+    #[inline(always)]
+    fn sqr(self: Fq) -> Fq {
+        fq(mul(self.c0, self.c0))
+    }
+
+    #[inline(always)]
+    fn inv(self: Fq) -> Fq {
+        fq(inv(self.c0))
     }
 }
 

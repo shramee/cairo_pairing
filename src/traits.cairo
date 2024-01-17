@@ -11,4 +11,7 @@ trait FieldOperations<TFq> {
     fn div(lhs: TFq, rhs: TFq) -> TFq;
     fn neg(a: TFq) -> TFq;
     fn eq(lhs: @TFq, rhs: @TFq) -> bool;
+    fn one() -> TFq;
+    fn sqr(self: TFq) -> TFq;
+    fn inv(self: TFq) -> TFq;
 }
