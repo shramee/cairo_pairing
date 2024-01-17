@@ -3,14 +3,7 @@ use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartial
 use bn::g1;
 use debug::PrintTrait;
 
-fn spent_gas() {
-    let gas = testing::get_available_gas();
-    gas.print();
-}
-
 fn fq_ops() -> Array<Fq> {
-    spent_gas();
-
     array![ //
         fq(256) - fq(56), //
         fq(256) + fq(56), //
@@ -23,8 +16,6 @@ fn fq_ops() -> Array<Fq> {
 use bn::fast_mod::bn254::{sub, add, mul, div, add_inverse,};
 
 fn u256_mod_ops() -> Array<u256> {
-    spent_gas();
-
     array![ //
         sub(256, 56), //
          add(256, 56), //
