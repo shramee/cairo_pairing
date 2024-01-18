@@ -9,6 +9,9 @@ mod fq2_tests;
 mod fq6_;
 mod fq12_;
 
+#[cfg(test)]
+mod bench;
+
 mod fq_generics;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::fq_::{Fq, FqOps, FqUtils, fq};
