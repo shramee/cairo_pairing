@@ -41,3 +41,50 @@ impl Fq6Utils of FieldUtils<Fq6, Fq2> {
     }
 }
 
+impl Fq6Ops of FieldOps<Fq6> {
+    #[inline(always)]
+    fn add(self: Fq6, rhs: Fq6) -> Fq6 {
+        Fq6 { c0: self.c0 + rhs.c0, c1: self.c1 + rhs.c1, c2: self.c2 + rhs.c2, }
+    }
+
+    #[inline(always)]
+    fn sub(self: Fq6, rhs: Fq6) -> Fq6 {
+        Fq6 { c0: self.c0 - rhs.c0, c1: self.c1 - rhs.c1, c2: self.c2 - rhs.c2, }
+    }
+
+    #[inline(always)]
+    fn mul(self: Fq6, rhs: Fq6) -> Fq6 {
+        // TODO
+        Fq6Utils::one()
+    }
+
+    #[inline(always)]
+    fn div(self: Fq6, rhs: Fq6) -> Fq6 {
+        // TODO
+        Fq6Utils::one()
+    }
+
+    #[inline(always)]
+    fn neg(self: Fq6) -> Fq6 {
+        // TODO
+        Fq6Utils::one()
+    }
+
+    #[inline(always)]
+    fn eq(lhs: @Fq6, rhs: @Fq6) -> bool {
+        lhs.c0 == rhs.c0 && lhs.c1 == rhs.c1 && lhs.c2 == rhs.c2
+    }
+
+    #[inline(always)]
+    fn sqr(self: Fq6) -> Fq6 {
+        // TODO
+        Fq6Utils::one()
+    }
+
+    #[inline(always)]
+    fn inv(self: Fq6) -> Fq6 {
+        // TODO
+        Fq6Utils::one()
+    }
+}
+
