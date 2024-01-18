@@ -4,6 +4,13 @@ trait ECOperations<TPoint> {
     fn multiply(self: @TPoint, multiplier: u256) -> TPoint;
 }
 
+trait FieldUtils<TFq, TFqChildren> {
+    fn one() -> TFq;
+    fn scale(self: TFq, by: TFqChildren) -> TFq;
+    fn mul_by_non_residue(self: TFq,) -> TFq;
+    fn frobenius_map(self: TFq, power: usize) -> TFq;
+}
+
 trait FieldOps<TFq> {
     fn add(self: TFq, rhs: TFq) -> TFq;
     fn sub(self: TFq, rhs: TFq) -> TFq;
@@ -12,6 +19,5 @@ trait FieldOps<TFq> {
     fn sqr(self: TFq) -> TFq;
     fn neg(self: TFq) -> TFq;
     fn eq(lhs: @TFq, rhs: @TFq) -> bool;
-    fn one() -> TFq;
     fn inv(self: TFq) -> TFq;
 }

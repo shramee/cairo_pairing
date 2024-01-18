@@ -1,5 +1,7 @@
+use bn::fq_non_residue;
 use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse, inv};
-use bn::traits::FieldOps;
+use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+use bn::traits::{FieldUtils, FieldOps};
 
 #[derive(Copy, Drop, Serde)]
 struct Fq {
@@ -9,6 +11,29 @@ struct Fq {
 #[inline(always)]
 fn fq(c0: u256) -> Fq {
     Fq { c0 }
+}
+
+impl Fq2Utils of FieldUtils<Fq, u256> {
+    #[inline(always)]
+    fn scale(self: Fq, by: u256) -> Fq {
+        Fq { c0: self.c0 * by }
+    }
+
+    #[inline(always)]
+    fn mul_by_non_residue(self: Fq,) -> Fq {
+        self * fq_non_residue()
+    }
+
+    #[inline(always)]
+    fn frobenius_map(self: Fq, power: usize) -> Fq {
+        assert(false, 'fq frobenius_map unimplemented');
+        fq(0)
+    }
+
+    #[inline(always)]
+    fn one() -> Fq {
+        fq(1)
+    }
 }
 
 impl FqOps of FieldOps<Fq> {

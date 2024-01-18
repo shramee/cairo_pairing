@@ -1,5 +1,5 @@
 use bn::{fq_non_residue, fq2_non_residue};
-use bn::traits::FieldOps;
+use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
 
@@ -18,22 +18,29 @@ fn fq2(c0: u256, c1: u256) -> Fq2 {
     Fq2 { c0: fq(c0), c1: fq(c1), }
 }
 
-#[generate_trait]
-impl Fq2Ops2 of Fq2OpsTrait {
+impl Fq2Utils of FieldUtils<Fq2, Fq> {
+    #[inline(always)]
     fn scale(self: Fq2, by: Fq) -> Fq2 {
         Fq2 { c0: self.c0 * by, c1: self.c1 * by, }
     }
 
+    #[inline(always)]
     fn mul_by_non_residue(self: Fq2,) -> Fq2 {
         self * fq2_non_residue()
     }
 
+    #[inline(always)]
     fn frobenius_map(self: Fq2, power: usize) -> Fq2 {
         if power % 2 == 0 {
             self
         } else {
             Fq2 { c0: self.c0, c1: self.c1 * fq_non_residue(), }
         }
+    }
+
+    #[inline(always)]
+    fn one() -> Fq2 {
+        fq2(1, 0)
     }
 }
 
@@ -69,18 +76,12 @@ impl Fq2Ops of FieldOps<Fq2> {
 
     #[inline(always)]
     fn neg(self: Fq2) -> Fq2 {
-        // @TODO
         Fq2 { c0: -self.c0, c1: -self.c1, }
     }
 
     #[inline(always)]
     fn eq(lhs: @Fq2, rhs: @Fq2) -> bool {
         lhs.c0 == rhs.c0 && lhs.c1 == rhs.c1
-    }
-
-    #[inline(always)]
-    fn one() -> Fq2 {
-        fq2(1, 0)
     }
 
     #[inline(always)]
