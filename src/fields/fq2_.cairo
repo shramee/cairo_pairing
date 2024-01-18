@@ -1,4 +1,4 @@
-use bn::{fq_non_residue, fq2_non_residue};
+use bn::{fq2_non_residue};
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
@@ -34,7 +34,7 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
         if power % 2 == 0 {
             self
         } else {
-            Fq2 { c0: self.c0, c1: self.c1 * fq_non_residue(), }
+            Fq2 { c0: self.c0, c1: self.c1.mul_by_non_residue(), }
         }
     }
 
@@ -64,7 +64,7 @@ impl Fq2Ops of FieldOps<Fq2> {
         // c = a0*b0 + a0*b0*BETA + (a0*b1 + a1*b0)*X
         // or c = (a0*b0 + a0*b0*BETA, a0*b1 + a1*b0)
         Fq2 { //
-         c0: a0 * b0 + a1 * b1 * fq_non_residue(), //
+         c0: a0 * b0 + a1 * b1.mul_by_non_residue(), //
          c1: a0 * b1 + a1 * b0, //
          }
     }
@@ -94,7 +94,7 @@ impl Fq2Ops of FieldOps<Fq2> {
         let v = a0 * a1;
 
         Fq2 { //
-         c0: a0.sqr() + a1.sqr() * fq_non_residue(), //
+         c0: a0.sqr() + a1.sqr().mul_by_non_residue(), //
          c1: v + v, //
          }
     }
@@ -103,7 +103,7 @@ impl Fq2Ops of FieldOps<Fq2> {
     fn inv(self: Fq2) -> Fq2 {
         // "High-Speed Software Implementation of the Optimal Ate Pairing
         // over Barreto–Naehrig Curves"; Algorithm 8
-        let t = (self.c0.sqr() - (self.c1.sqr() * fq_non_residue())).inv();
+        let t = (self.c0.sqr() - (self.c1.sqr().mul_by_non_residue())).inv();
         Fq2 { c0: self.c0 * t, c1: -(self.c1 * t), }
     }
 }
