@@ -3,6 +3,9 @@ mod fq_;
 mod fq_tests;
 
 mod fq2_;
+#[cfg(test)]
+mod fq2_tests;
+
 mod fq6_;
 mod fq12_;
 
