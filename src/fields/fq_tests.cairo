@@ -1,6 +1,5 @@
 use bn::fields::{fq, Fq, fq2, Fq2};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::g1;
 use debug::PrintTrait;
 
 fn fq_ops() -> Array<Fq> {

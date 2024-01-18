@@ -21,7 +21,7 @@ impl FqUtils of FieldUtils<Fq, u256> {
 
     #[inline(always)]
     fn mul_by_non_residue(self: Fq,) -> Fq {
-        self * fq_non_residue()
+        -self
     }
 
     #[inline(always)]
@@ -65,11 +65,6 @@ impl FqOps of FieldOps<Fq> {
     #[inline(always)]
     fn eq(lhs: @Fq, rhs: @Fq) -> bool {
         *lhs.c0 == *rhs.c0
-    }
-
-    #[inline(always)]
-    fn one() -> Fq {
-        fq(1)
     }
 
     #[inline(always)]
