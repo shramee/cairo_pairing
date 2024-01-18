@@ -1,4 +1,6 @@
-use bn::fields::{Fq, fq, Fq6, fq6};
+use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+use bn::traits::{FieldUtils, FieldOps};
+use bn::fields::{fq6, Fq6, Fq6Utils};
 
 #[derive(Copy, Drop, Serde)]
 struct Fq12 {
@@ -23,3 +25,9 @@ fn fq12(
 ) -> Fq12 {
     Fq12 { c0: fq6(c0, c1, c2, c3, c4, c5), c1: fq6(c6, c7, c8, c9, c10, c11), }
 }
+
+#[generate_trait]
+impl Fq12Ops of Fq12OpsTrait {}
+
+#[generate_trait]
+impl Fq12Utils of Fq12UtilsTrait {}
