@@ -13,7 +13,7 @@ fn fq(c0: u256) -> Fq {
     Fq { c0 }
 }
 
-impl Fq2Utils of FieldUtils<Fq, u256> {
+impl FqUtils of FieldUtils<Fq, u256> {
     #[inline(always)]
     fn scale(self: Fq, by: u256) -> Fq {
         Fq { c0: self.c0 * by }
