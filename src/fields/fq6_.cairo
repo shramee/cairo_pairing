@@ -1,7 +1,7 @@
 use bn::fields::{Fq2, Fq2Ops, fq2};
-use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fq2_non_residue;
+use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde)]
 struct Fq6 {
@@ -26,8 +26,9 @@ impl Fq6Utils of FieldUtils<Fq6, Fq2> {
     }
 
     #[inline(always)]
-    fn mul_by_non_residue(self: Fq6,) -> Fq6 {
+    fn mul_by_nonresidue(self: Fq6,) -> Fq6 {
         // TODO
+        assert(false, 'unimp: fq6 mul non_res');
         Fq6Utils::one()
     }
 
@@ -60,12 +61,14 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
+        assert(false, 'unimp: fq6 mul non_res');
         // TODO
         Fq6Utils::one()
     }
 
     #[inline(always)]
     fn neg(self: Fq6) -> Fq6 {
+        assert(false, 'unimp: fq6 mul non_res');
         // TODO
         Fq6Utils::one()
     }

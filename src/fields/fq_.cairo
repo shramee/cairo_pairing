@@ -20,7 +20,7 @@ impl FqUtils of FieldUtils<Fq, u256> {
     }
 
     #[inline(always)]
-    fn mul_by_non_residue(self: Fq,) -> Fq {
+    fn mul_by_nonresidue(self: Fq,) -> Fq {
         -self
     }
 

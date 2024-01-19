@@ -42,3 +42,10 @@ fn fq2_inv() {
     assert(c == FieldUtils::one(), 'incorrect inv');
     assert(d * a == b, 'incorrect inv');
 }
+
+#[test]
+#[available_gas(5000000)]
+fn fq2_sqr() {
+    let a = fq2(34, 645);
+    assert(a * a == a.sqr(), 'incorrect mul');
+}

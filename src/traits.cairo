@@ -7,7 +7,7 @@ trait ECOperations<TPoint> {
 trait FieldUtils<TFq, TFqChildren> {
     fn one() -> TFq;
     fn scale(self: TFq, by: TFqChildren) -> TFq;
-    fn mul_by_non_residue(self: TFq,) -> TFq;
+    fn mul_by_nonresidue(self: TFq,) -> TFq;
     fn frobenius_map(self: TFq, power: usize) -> TFq;
 }
 
