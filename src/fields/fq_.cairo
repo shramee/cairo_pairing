@@ -2,6 +2,7 @@ use bn::fq_non_residue;
 use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse, inv};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::traits::{FieldUtils, FieldOps};
+use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde)]
 struct Fq {
@@ -21,7 +22,11 @@ impl FqUtils of FieldUtils<Fq, u256> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq,) -> Fq {
-        -self
+        if self.c0 > 0 {
+            -self
+        } else {
+            self
+        }
     }
 
     #[inline(always)]
