@@ -1,4 +1,5 @@
-use bn::fields::{fq, Fq, fq2, Fq2};
+use bn::traits::FieldOps;
+use bn::fields::{fq, Fq, fq2, Fq2, FieldUtils};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use debug::PrintTrait;
 
@@ -34,6 +35,13 @@ fn bench_fq() {
 #[available_gas(2000000)]
 fn bench_raw() {
     u256_mod_ops();
+}
+
+#[test]
+#[available_gas(0xf0000)]
+fn inv_one() {
+    let one: Fq = FieldUtils::one();
+    assert(one.inv() == one, 'incorrect inverse of one');
 }
 
 #[test]

@@ -1,19 +1,19 @@
 mod fq_;
-#[cfg(test)]
-mod fq_tests;
 
 mod fq2_;
-#[cfg(test)]
-mod fq2_tests;
 
 mod fq6_;
-#[cfg(test)]
-mod fq6_tests;
 
 mod fq12_;
 
 #[cfg(test)]
-mod bench;
+mod tests {
+    mod bench;
+    mod fq;
+    mod fq2;
+    mod fq6;
+}
+
 mod print {
     use super::{Fq, Fq2, Fq6, Fq12};
     use debug::PrintTrait;

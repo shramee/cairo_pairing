@@ -44,6 +44,14 @@ fn fq2_inv() {
 }
 
 #[test]
+#[available_gas(0xf0000)]
+fn inv_one() {
+    let one: Fq2 = FieldUtils::one();
+    let one_inv = one.inv();
+    assert(one_inv == one, 'incorrect inverse of one');
+}
+
+#[test]
 #[available_gas(5000000)]
 fn fq2_sqr() {
     let a = fq2(34, 645);
