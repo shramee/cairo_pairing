@@ -55,8 +55,16 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn mul(self: Fq6, rhs: Fq6) -> Fq6 {
-        // TODO
-        Fq6Utils::one()
+        let Fq6{c0: a0, c1: a1, c2: a2 } = self;
+        let Fq6{c0: b0, c1: b1, c2: b2 } = rhs;
+        let (a_a, b_b, c_c,) = {
+            (a0 * b0, a1 * b1, a2 * b2,)
+        };
+        Fq6 {
+            c0: ((a1 + a2) * (b1 + b2) - b_b - c_c).mul_by_nonresidue() + a_a,
+            c1: (a0 + a1) * (b0 + b1) - a_a - b_b + c_c.mul_by_nonresidue(),
+            c2: (a0 + a2) * (b0 + b2) - a_a + b_b - c_c,
+        }
     }
 
     #[inline(always)]
@@ -80,14 +88,29 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn sqr(self: Fq6) -> Fq6 {
-        // TODO
-        Fq6Utils::one()
+        let s0 = self.c0.sqr();
+        let ab = self.c0 * self.c1;
+        let s1 = ab + ab;
+        let s2 = (self.c0 - self.c1 + self.c2).sqr();
+        let bc = self.c1 * self.c2;
+        let s3 = bc + bc;
+        let s4 = self.c2.sqr();
+
+        Fq6 {
+            c0: s0 + s3.mul_by_nonresidue(),
+            c1: s1 + s4.mul_by_nonresidue(),
+            c2: s1 + s2 + s3 - s0 - s4,
+        }
+    // Fq6Utils::one()
     }
 
     #[inline(always)]
     fn inv(self: Fq6) -> Fq6 {
-        // TODO
-        Fq6Utils::one()
+        let c0 = self.c0.sqr() - self.c1 * self.c2.mul_by_nonresidue();
+        let c1 = self.c2.sqr().mul_by_nonresidue() - self.c0 * self.c1;
+        let c2 = self.c1.sqr() - self.c0 * self.c2;
+        let t = ((self.c2 * c1 + self.c1 * c2).mul_by_nonresidue() + self.c0 * c0).inv();
+        Fq6 { c0: t * c0, c1: t * c1, c2: t * c2, }
     }
 }
 
