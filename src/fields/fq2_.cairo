@@ -2,6 +2,7 @@ use bn::{fq2_non_residue};
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
+use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde)]
 struct Fq2 {
@@ -103,7 +104,11 @@ impl Fq2Ops of FieldOps<Fq2> {
     fn inv(self: Fq2) -> Fq2 {
         // "High-Speed Software Implementation of the Optimal Ate Pairing
         // over Barreto–Naehrig Curves"; Algorithm 8
+        if self.c0.c0 + self.c1.c0 == 0 {
+            return Fq2 { c0: fq(0), c1: fq(0), };
+        }
         let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
-        Fq2 { c0: self.c0 * t, c1: -(self.c1 * t), }
+
+        Fq2 { c0: self.c0 * t, c1: self.c1 * -t, }
     }
 }
