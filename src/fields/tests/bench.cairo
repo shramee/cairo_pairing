@@ -1,4 +1,19 @@
-mod fq {
+// test bench::fq1::add ... ok (gas usage est.: 17880)
+// test bench::fq1::div ... ok (gas usage est.: 86400)
+// test bench::fq1::mul ... ok (gas usage est.: 52530)
+// test bench::fq1::sub ... ok (gas usage est.: 15710)
+
+// test bench::fq2::add ... ok (gas usage est.: 35760)
+// test bench::fq2::div ... ok (gas usage est.: 540800)
+// test bench::fq2::mul ... ok (gas usage est.: 254060)
+// test bench::fq2::sub ... ok (gas usage est.: 31420)
+
+// test bench::fq6::add ... ok (gas usage est.: 107280)
+// test bench::fq6::div ... ok (gas usage est.: 6633670)
+// test bench::fq6::mul ... ok (gas usage est.: 2535440)
+// test bench::fq6::sub ... ok (gas usage est.: 94260)
+
+mod fq1 {
     use bn::fields::{fq, Fq};
     use debug::PrintTrait;
     #[test]
