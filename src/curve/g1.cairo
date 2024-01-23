@@ -1,8 +1,8 @@
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use core::debug::PrintTrait;
 use bn::traits::{ECOperations};
-// use bn::bn254::{add, sub, div, mul, add_inverse};
-use bn::bn254::{FIELD, B};
+// use bn::curve::{add, sub, div, mul, add_inverse};
+use bn::curve::{FIELD, B};
 use integer::{u256_safe_divmod};
 use bn::fields::{Fq, fq};
 

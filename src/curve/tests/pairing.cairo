@@ -1,7 +1,7 @@
 use bn::traits::ECOperations;
 use bn::pairing::line_func;
 use bn::{g1, g2};
-use bn::bn254::ORDER;
+use bn::curve::ORDER;
 
 #[test]
 #[available_gas(2000000000)]

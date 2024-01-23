@@ -29,7 +29,7 @@ mod fields {
 }
 
 use bn::traits::{FieldOps, FieldUtils};
-mod bn254 {
+mod curve {
     use bn::fields as f;
     // These paramas from:
     // https://hackmd.io/@jpw/bn254
@@ -89,4 +89,4 @@ mod bn254 {
     }
 }
 use math::fast_mod;
-use bn254::{g1, g2, pairing};
+use curve::{g1, g2, pairing};

@@ -1,4 +1,4 @@
-use bn::bn254::{add, sub, mul, div, add_inverse, inv};
+use bn::curve::{add, sub, mul, div, add_inverse, inv};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::traits::{FieldUtils, FieldOps};
 use debug::PrintTrait;
