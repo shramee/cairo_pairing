@@ -1,6 +1,6 @@
 use bn::fields::{Fq2, Fq2Ops, fq2};
 use bn::traits::{FieldUtils, FieldOps};
-use bn::fq2_non_residue;
+use bn::bn254::fq2_non_residue;
 use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde)]

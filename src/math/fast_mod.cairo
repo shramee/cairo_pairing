@@ -85,7 +85,7 @@ fn div(a: u256, b: u256, modulo: u256) -> u256 {
 }
 
 mod bn254 {
-    use bn::FIELD;
+    use bn::bn254::FIELD;
 
     #[inline(always)]
     fn mul(a: u256, b: u256) -> u256 {

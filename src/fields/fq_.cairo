@@ -1,4 +1,3 @@
-use bn::fq_non_residue;
 use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse, inv};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::traits::{FieldUtils, FieldOps};

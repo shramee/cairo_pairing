@@ -2,11 +2,12 @@ use bn::g1::{AffineG1};
 use bn::g2::{AffineG2};
 use bn::fast_mod::bn254::{add, sub, mul, div};
 use bn::fields::{Fq, fq};
-use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::FIELD;
+use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+use bn::bn254::FIELD;
 
 // Finds the line going through points a and b
 // and returns 0 is t falls on the line
+#[inline(always)]
 fn line_func(a: AffineG1, b: AffineG1, t: AffineG1) -> Fq {
     let AffineG1{x: x1, y: y1 } = a;
     let AffineG1{x: x2, y: y2 } = b;

@@ -11,7 +11,7 @@
 use core::option::OptionTrait;
 use core::traits::TryInto;
 use bn::fast_mod::{add, sub, div, mul, add_inverse};
-use bn::FIELD;
+use bn::bn254::FIELD;
 use debug::PrintTrait;
 
 const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;

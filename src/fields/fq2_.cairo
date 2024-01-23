@@ -1,4 +1,4 @@
-use bn::{fq2_non_residue};
+use bn::bn254::{fq2_non_residue};
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
