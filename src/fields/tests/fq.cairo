@@ -3,7 +3,7 @@ use bn::fields::{fq, Fq, fq2, Fq2, FieldUtils};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use debug::PrintTrait;
 
-fn fq_ops() -> Array<Fq> {
+fn ops() -> Array<Fq> {
     array![ //
         fq(256) - fq(56), //
         fq(256) + fq(56), //
@@ -26,18 +26,6 @@ fn u256_mod_ops() -> Array<u256> {
 }
 
 #[test]
-#[available_gas(2000000)]
-fn bench_fq() {
-    fq_ops();
-}
-
-#[test]
-#[available_gas(2000000)]
-fn bench_raw() {
-    u256_mod_ops();
-}
-
-#[test]
 #[available_gas(0xf0000)]
 fn inv_one() {
     let one: Fq = FieldUtils::one();
@@ -46,8 +34,8 @@ fn inv_one() {
 
 #[test]
 #[available_gas(0xf0000)]
-fn fq_test_main() {
-    let fq_res = fq_ops();
+fn test_main() {
+    let fq_res = ops();
     let u256_mod_res = u256_mod_ops();
 
     let mut i = 0;

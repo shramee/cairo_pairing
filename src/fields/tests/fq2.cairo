@@ -5,7 +5,7 @@ use debug::PrintTrait;
 
 #[test]
 #[available_gas(2000000)]
-fn fq2_add_sub() {
+fn add_sub() {
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let c = fq2(9, 600);
@@ -15,7 +15,7 @@ fn fq2_add_sub() {
 
 #[test]
 #[available_gas(2000000)]
-fn fq2_mul() {
+fn mul() {
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let c = fq2(9, 600);
@@ -24,7 +24,7 @@ fn fq2_mul() {
 
 #[test]
 #[available_gas(2000000)]
-fn fq2_div() {
+fn div() {
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let c = a / b;
@@ -33,7 +33,7 @@ fn fq2_div() {
 
 #[test]
 #[available_gas(2000000)]
-fn fq2_inv() {
+fn inv() {
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let a_inv = FieldOps::inv(a);
@@ -53,7 +53,7 @@ fn inv_one() {
 
 #[test]
 #[available_gas(5000000)]
-fn fq2_sqr() {
+fn sqr() {
     let a = fq2(34, 645);
     assert(a * a == a.sqr(), 'incorrect mul');
 }
