@@ -55,23 +55,27 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn mul(self: Fq6, rhs: Fq6) -> Fq6 {
+        core::internal::revoke_ap_tracking();
+
         let Fq6{c0: a0, c1: a1, c2: a2 } = self;
         let Fq6{c0: b0, c1: b1, c2: b2 } = rhs;
-        let (a_a, b_b, c_c,) = {
-            (a0 * b0, a1 * b1, a2 * b2,)
-        };
+        let (a_a, b_b, c_c,) = (a0 * b0, a1 * b1, a2 * b2,);
         Fq6 {
-            c0: ((a1 + a2) * (b1 + b2) - b_b - c_c).mul_by_nonresidue() + a_a,
-            c1: (a0 + a1) * (b0 + b1) - a_a - b_b + c_c.mul_by_nonresidue(),
-            c2: (a0 + a2) * (b0 + b2) - a_a + b_b - c_c,
+            c0: {
+                ((a1 + a2) * (b1 + b2) - b_b - c_c).mul_by_nonresidue() + a_a
+            },
+            c1: {
+                (a0 + a1) * (b0 + b1) - a_a - b_b + c_c.mul_by_nonresidue()
+            },
+            c2: {
+                (a0 + a2) * (b0 + b2) - a_a + b_b - c_c
+            },
         }
     }
 
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
-        assert(false, 'unimp: fq6 mul non_res');
-        // TODO
-        Fq6Utils::one()
+        self.mul(rhs.inv())
     }
 
     #[inline(always)]
