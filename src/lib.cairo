@@ -30,10 +30,15 @@ mod fields {
     use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse};
 }
 
-mod g1;
-#[cfg(test)]
-mod g1_tests;
-mod g2;
+mod groups {
+    #[cfg(test)]
+    mod tests {
+        mod g1;
+    }
+    mod g1;
+    mod g2;
+}
+use groups::{g1, g2};
 
 mod pairing;
 #[cfg(test)]
