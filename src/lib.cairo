@@ -1,9 +1,9 @@
-mod i257;
-
-mod fast_mod;
-#[cfg(test)]
-mod fast_mod_tests;
-
+mod math {
+    mod i257;
+    mod fast_mod;
+    #[cfg(test)]
+    mod fast_mod_tests;
+}
 mod traits;
 
 mod fields {
@@ -39,6 +39,7 @@ mod groups {
     mod g2;
 }
 use groups::{g1, g2};
+use math::fast_mod;
 
 mod pairing;
 #[cfg(test)]
