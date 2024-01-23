@@ -1,6 +1,6 @@
 use bn::g1::{AffineG1};
 use bn::g2::{AffineG2};
-use bn::fast_mod::bn254::{add, sub, mul, div};
+use bn::bn254::{add, sub, mul, div};
 use bn::fields::{Fq, fq};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::bn254::FIELD;

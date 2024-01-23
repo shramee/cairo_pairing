@@ -58,7 +58,35 @@ mod bn254 {
     mod g1;
     mod g2;
     mod pairing;
-    use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse};
+    #[inline(always)]
+    fn mul(a: u256, b: u256) -> u256 {
+        bn::fast_mod::mul(a, b, FIELD)
+    }
+
+    #[inline(always)]
+    fn add_inverse(b: u256) -> u256 {
+        bn::fast_mod::add_inverse(b, FIELD)
+    }
+
+    #[inline(always)]
+    fn add(mut a: u256, mut b: u256) -> u256 {
+        bn::fast_mod::add(a, b, FIELD)
+    }
+
+    #[inline(always)]
+    fn sub(mut a: u256, mut b: u256) -> u256 {
+        bn::fast_mod::sub(a, b, FIELD)
+    }
+
+    #[inline(always)]
+    fn div(a: u256, b: u256) -> u256 {
+        bn::fast_mod::div(a, b, FIELD)
+    }
+
+    #[inline(always)]
+    fn inv(b: u256) -> u256 {
+        math::u256_inv_mod(b, FIELD.try_into().unwrap()).unwrap().into()
+    }
 }
 use math::fast_mod;
 use bn254::{g1, g2, pairing};

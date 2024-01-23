@@ -83,37 +83,3 @@ fn div(a: u256, b: u256, modulo: u256) -> u256 {
     let modulo_nz = modulo.try_into().expect('0 modulo');
     mul_nz(a, inv(b, modulo_nz), modulo_nz)
 }
-
-mod bn254 {
-    use bn::bn254::FIELD;
-
-    #[inline(always)]
-    fn mul(a: u256, b: u256) -> u256 {
-        super::mul(a, b, FIELD)
-    }
-
-    #[inline(always)]
-    fn add_inverse(b: u256) -> u256 {
-        super::add_inverse(b, FIELD)
-    }
-
-    #[inline(always)]
-    fn add(mut a: u256, mut b: u256) -> u256 {
-        super::add(a, b, FIELD)
-    }
-
-    #[inline(always)]
-    fn sub(mut a: u256, mut b: u256) -> u256 {
-        super::sub(a, b, FIELD)
-    }
-
-    #[inline(always)]
-    fn div(a: u256, b: u256) -> u256 {
-        super::div(a, b, FIELD)
-    }
-
-    #[inline(always)]
-    fn inv(b: u256) -> u256 {
-        math::u256_inv_mod(b, FIELD.try_into().unwrap()).unwrap().into()
-    }
-}

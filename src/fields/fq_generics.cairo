@@ -1,4 +1,4 @@
-use bn::fast_mod::bn254::{add, sub, mul, div, add_inverse};
+use bn::bn254::{add, sub, mul, div, add_inverse};
 use bn::traits::FieldOps;
 use bn::fields::{Fq, Fq2, Fq6, Fq12};
 

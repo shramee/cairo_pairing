@@ -13,7 +13,7 @@ fn ops() -> Array<Fq> {
     ]
 }
 
-use bn::fast_mod::bn254::{sub, add, mul, div, add_inverse,};
+use bn::bn254::{sub, add, mul, div, add_inverse,};
 
 fn u256_mod_ops() -> Array<u256> {
     array![ //
