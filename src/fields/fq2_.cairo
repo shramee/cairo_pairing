@@ -118,16 +118,15 @@ impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn sqr(self: Fq2) -> Fq2 {
         let Fq2{c0: a0, c1: a1 } = self;
-        // Squaring a in Fq2 mod X^2 + BETA
-        // c = a ^ 2 = a0*a0 + a0*a1*X + a1*a0*X + a1*a1*BETA
-        // c = a0*a0 + a1*a1*BETA + (a0*a1 + a1*a0)*X
-        // or c = (a0*a0 + a1*a1*BETA, a0*a1 + a0*a1)
+        // Complex squaring
         let v = a0 * a1;
 
         Fq2 { //
-         c0: a0.sqr() + a1.sqr().mul_by_nonresidue(), //
-         c1: v + v, //
-         }
+            c0: a0.unsafe_add(a1) * a0.unsafe_add(a1.mul_by_nonresidue())
+                - v
+                - v.mul_by_nonresidue(), //
+            c1: v + v, //
+        }
     }
 
     #[inline(always)]
