@@ -62,8 +62,15 @@ impl Fq12Ops of FieldOps<Fq12> {
 
     #[inline(always)]
     fn mul(self: Fq12, rhs: Fq12) -> Fq12 {
-        assert(false, 'no_impl: fq12 mul');
-        FieldUtils::one()
+        let Fq12{c0: a0, c1: a1 } = self;
+        let Fq12{c0: b0, c1: b1 } = rhs;
+        let u = a0 * b0;
+        let v = a1 * b1;
+
+        Fq12 { //
+         c0: v.mul_by_nonresidue() + u, //
+         c1: (a0 + a1) * (b0 + b1) - u - v, //
+         }
     }
 
     #[inline(always)]
