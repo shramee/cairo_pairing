@@ -64,16 +64,27 @@ impl Fq2Ops of FieldOps<Fq2> {
 
     #[inline(always)]
     fn mul(self: Fq2, rhs: Fq2) -> Fq2 {
+        // Karatsuba
         let Fq2{c0: a0, c1: a1 } = self;
         let Fq2{c0: b0, c1: b1 } = rhs;
-        // Multiplying ab in Fq2 mod X^2 + BETA
-        // c = ab = a0*b0 + a0*b1*X + a1*b0*X + a0*b0*BETA
-        // c = a0*b0 + a0*b0*BETA + (a0*b1 + a1*b0)*X
-        // or c = (a0*b0 + a0*b0*BETA, a0*b1 + a1*b0)
+        let u = a0 * b0;
+        let v = a1 * b1;
+
         Fq2 { //
-         c0: a0 * b0 + a1 * b1.mul_by_nonresidue(), //
-         c1: a0 * b1 + a1 * b0, //
+         c0: v.mul_by_nonresidue() + u, //
+         c1: (a0 + a1) * (b0 + b1) - u - v, //
          }
+    // Derived
+    // let Fq2{c0: a0, c1: a1 } = self;
+    // let Fq2{c0: b0, c1: b1 } = rhs;
+    // // Multiplying ab in Fq2 mod X^2 + BETA
+    // // c = ab = a0*b0 + a0*b1*X + a1*b0*X + a0*b0*BETA
+    // // c = a0*b0 + a0*b0*BETA + (a0*b1 + a1*b0)*X
+    // // or c = (a0*b0 + a0*b0*BETA, a0*b1 + a1*b0)
+    // Fq2 { //
+    //  c0: a0 * b0 + a1 * b1.mul_by_nonresidue(), //
+    //  c1: a0 * b1 + a1 * b0, //
+    //  }
     }
 
     #[inline(always)]
