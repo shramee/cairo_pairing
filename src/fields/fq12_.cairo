@@ -1,7 +1,7 @@
 // use bn::curve::{fq12_non_residue};
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::fields::{Fq6, fq6,};
+use bn::fields::{Fq6, fq6, Fq6Utils};
 use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde)]
@@ -100,13 +100,17 @@ impl Fq12Ops of FieldOps<Fq12> {
     fn inv(self: Fq12) -> Fq12 {
         // "High-Speed Software Implementation of the Optimal Ate Pairing
         // over Barreto–Naehrig Curves"; Algorithm 8
+        if self.c0 == Fq6Utils::zero() && self.c1 == self.c0 {
+            return self;
+        }
+
+        let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
         // if self.c0.c0 + self.c1.c0 == 0 {
         //     return Fq12 { c0: fq(0), c1: fq(0), };
         // }
         // let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
 
         // Fq12 { c0: self.c0 * t, c1: self.c1 * -t, }
-        assert(false, 'no_impl: fq12 inv');
-        FieldUtils::one()
+        Fq12 { c0: self.c0 * t, c1: -(self.c1 * t), }
     }
 }
