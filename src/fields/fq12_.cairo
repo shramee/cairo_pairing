@@ -44,7 +44,7 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
 
     #[inline(always)]
     fn frobenius_map(self: Fq12, power: usize) -> Fq12 {
-        assert(false, 'no_impl: fq12 non residue');
+        assert(false, 'no_impl: fq12 frobenius');
         Fq12Utils::one()
     }
 }

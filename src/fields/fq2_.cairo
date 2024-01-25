@@ -38,6 +38,7 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
         // TODO potential optimisation
+        // f::fq2(9, 1)
         self * fq2_non_residue()
     }
 
@@ -92,7 +93,7 @@ impl Fq2Ops of FieldOps<Fq2> {
 
         Fq2 { //
          //  c0: v.mul_by_nonresidue() + u, //
-        // Mul by non residue -1 makes it negative
+        // Mul by non residue -1 makes negative
         c0: u - v, //
          // c1: (a0 + a1) * (b0 + b1) - u - v,
         // addition without modding, mul will take care of modding
@@ -133,7 +134,7 @@ impl Fq2Ops of FieldOps<Fq2> {
 
         Fq2 { //
          // c0: a0.x_add(a1) * a0.x_add(a1.mul_by_nonresidue()) - v - v.mul_by_nonresidue(), //
-        // mul by non residue -1 is negative, so negative of negative cancelled
+        // Mul by non residue -1 makes negative
         c0: a0.x_add(a1) * (a0 - a1) - v + v, //
          c1: v + v, //
          }
@@ -146,7 +147,9 @@ impl Fq2Ops of FieldOps<Fq2> {
         if self.c0.c0 + self.c1.c0 == 0 {
             return Fq2 { c0: fq(0), c1: fq(0), };
         }
-        let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
+        // let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
+        // Mul by non residue -1 makes negative
+        let t = (self.c0.sqr() + self.c1.sqr()).inv();
 
         Fq2 { c0: self.c0 * t, c1: self.c1 * -t, }
     }
