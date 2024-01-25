@@ -1,5 +1,5 @@
 use bn::fields::{Fq2, Fq2Ops, fq2};
-use bn::traits::{FieldUtils, FieldOps};
+use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
 use bn::curve::fq2_non_residue;
 use debug::PrintTrait;
 
@@ -64,16 +64,26 @@ impl Fq6Ops of FieldOps<Fq6> {
 
         let Fq6{c0: a0, c1: a1, c2: a2 } = self;
         let Fq6{c0: b0, c1: b1, c2: b2 } = rhs;
-        let (a_a, b_b, c_c,) = (a0 * b0, a1 * b1, a2 * b2,);
+        let (v0, v1, v2,) = (a0 * b0, a1 * b1, a2 * b2,);
         Fq6 {
             c0: {
-                ((a1 + a2) * (b1 + b2) - b_b - c_c).mul_by_nonresidue() + a_a
+                // ((a1 + a2) * (b1 + b2) - v1 - v2).mul_by_nonresidue() + v0
+                ((a1.x_add(a2) * b1.x_add(b2)).x_add(-v1).x_add(-v2))
+                    .mul_by_nonresidue()
+                    .x_add(v0)
+                    .fix_mod()
             },
             c1: {
-                (a0 + a1) * (b0 + b1) - a_a - b_b + c_c.mul_by_nonresidue()
+                //(a0 + a1) * (b0 + b1) - v0 - v1 + v2.mul_by_nonresidue()
+                (a0.x_add(a1) * b0.x_add(b1))
+                    .x_add(-v0)
+                    .x_add(-v1)
+                    .x_add(v2.mul_by_nonresidue())
+                    .fix_mod()
             },
             c2: {
-                (a0 + a2) * (b0 + b2) - a_a + b_b - c_c
+                // (a0 + a2) * (b0 + b2) - v0 + v1 - v2
+                (a0.x_add(a2) * b0.x_add(b2)).x_add(-v0).x_add(-v2).x_add(v1).fix_mod()
             },
         }
     }
@@ -95,6 +105,7 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn sqr(self: Fq6) -> Fq6 {
+        core::internal::revoke_ap_tracking();
         let s0 = self.c0.sqr();
         let ab = self.c0 * self.c1;
         let s1 = ab + ab;
