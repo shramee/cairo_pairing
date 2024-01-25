@@ -49,6 +49,38 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
     }
 }
 
-#[generate_trait]
-impl Fq12Ops of Fq12OpsTrait {}
+impl Fq12Ops of FieldOps<Fq12> {
+    #[inline(always)]
+    fn add(self: Fq12, rhs: Fq12) -> Fq12 {
+        Fq12 { c0: self.c0 + rhs.c0, c1: self.c1 + rhs.c1, }
+    }
 
+    #[inline(always)]
+    fn sub(self: Fq12, rhs: Fq12) -> Fq12 {
+        Fq12 { c0: self.c0 - rhs.c0, c1: self.c1 - rhs.c1, }
+    }
+
+    #[inline(always)]
+    fn mul(self: Fq12, rhs: Fq12) -> Fq12 {
+    }
+
+    #[inline(always)]
+    fn div(self: Fq12, rhs: Fq12) -> Fq12 {
+    }
+
+    #[inline(always)]
+    fn neg(self: Fq12) -> Fq12 {
+    }
+
+    #[inline(always)]
+    fn eq(lhs: @Fq12, rhs: @Fq12) -> bool {
+    }
+
+    #[inline(always)]
+    fn sqr(self: Fq12) -> Fq12 {
+    }
+
+    #[inline(always)]
+    fn inv(self: Fq12) -> Fq12 {
+    }
+}
