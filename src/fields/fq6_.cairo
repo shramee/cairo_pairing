@@ -85,9 +85,7 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn neg(self: Fq6) -> Fq6 {
-        assert(false, 'no_impl: fq6 mul non_res');
-        // TODO
-        Fq6Utils::one()
+        Fq6 { c0: -self.c0, c1: -self.c1, c2: -self.c2, }
     }
 
     #[inline(always)]
