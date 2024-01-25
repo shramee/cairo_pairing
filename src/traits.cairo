@@ -13,7 +13,8 @@ trait FieldUtils<TFq, TFqChildren> {
 }
 
 trait FieldShortcuts<TFq> {
-    fn unsafe_add(self: TFq, rhs: TFq) -> TFq;
+    fn x_add(self: TFq, rhs: TFq) -> TFq;
+    fn fix_mod(self: TFq) -> TFq;
 }
 
 trait FieldOps<TFq> {

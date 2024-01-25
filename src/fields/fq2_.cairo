@@ -53,11 +53,20 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
 
 impl Fq2Short of FieldShortcuts<Fq2> {
     #[inline(always)]
-    fn unsafe_add(self: Fq2, rhs: Fq2) -> Fq2 {
+    fn x_add(self: Fq2, rhs: Fq2) -> Fq2 {
         // Operation without modding can only be done like 4 times
         Fq2 { //
          c0: fq(self.c0.c0 + rhs.c0.c0), //
          c1: fq(self.c1.c0 + rhs.c1.c0), //
+         }
+    }
+
+    #[inline(always)]
+    fn fix_mod(self: Fq2) -> Fq2 {
+        // Operation without modding can only be done like 4 times
+        Fq2 { //
+         c0: self.c0.fix_mod(), //
+         c1: self.c1.fix_mod(), //
          }
     }
 }
@@ -82,11 +91,10 @@ impl Fq2Ops of FieldOps<Fq2> {
         let v = a1 * b1;
 
         Fq2 { //
-            c0: v.mul_by_nonresidue() + u, //
-             // c1: (a0 + a1) * (b0 + b1) - u - v,
-            // addition without modding, mul will take care of modding
-            c1: a0.unsafe_add(a1) * b0.unsafe_add(b1) - u - v
-        }
+         c0: v.mul_by_nonresidue() + u, //
+         // c1: (a0 + a1) * (b0 + b1) - u - v,
+        // addition without modding, mul will take care of modding
+        c1: a0.x_add(a1) * b0.x_add(b1) - u - v }
     // Derived
     // let Fq2{c0: a0, c1: a1 } = self;
     // let Fq2{c0: b0, c1: b1 } = rhs;
@@ -122,9 +130,7 @@ impl Fq2Ops of FieldOps<Fq2> {
         let v = a0 * a1;
 
         Fq2 { //
-            c0: a0.unsafe_add(a1) * a0.unsafe_add(a1.mul_by_nonresidue())
-                - v
-                - v.mul_by_nonresidue(), //
+            c0: a0.x_add(a1) * a0.x_add(a1.mul_by_nonresidue()) - v - v.mul_by_nonresidue(), //
             c1: v + v, //
         }
     }

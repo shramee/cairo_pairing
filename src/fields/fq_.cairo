@@ -1,4 +1,4 @@
-use bn::curve::{add, sub, mul, div, add_inverse, inv};
+use bn::curve::{FIELD, add, sub, mul, div, add_inverse, inv};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
 use debug::PrintTrait;
@@ -15,9 +15,15 @@ fn fq(c0: u256) -> Fq {
 
 impl FqShort of FieldShortcuts<Fq> {
     #[inline(always)]
-    fn unsafe_add(self: Fq, rhs: Fq) -> Fq {
+    fn x_add(self: Fq, rhs: Fq) -> Fq {
         // Operation without modding can only be done like 4 times
         Fq { c0: self.c0 + rhs.c0, }
+    }
+
+    #[inline(always)]
+    fn fix_mod(self: Fq) -> Fq {
+        // Operation without modding can only be done like 4 times
+        Fq { c0: self.c0 % FIELD }
     }
 }
 
