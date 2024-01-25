@@ -1,6 +1,8 @@
-use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+// use bn::curve::{fq12_non_residue};
 use bn::traits::{FieldUtils, FieldOps};
-use bn::fields::{fq6, Fq6, Fq6Utils};
+use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+use bn::fields::{Fq6, fq6,};
+use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde)]
 struct Fq12 {
@@ -8,26 +10,45 @@ struct Fq12 {
     c1: Fq6,
 }
 
+// Extension field is represented as two number with X (a root of an polynomial in Fq which doesn't exist in Fq).
+// X for field extension is equivalent to imaginary i for real numbers.
+// number a: Fq12 = (a0, a1), mathematically, a = a0 + a1 * X
+
 #[inline(always)]
-fn fq12(
-    c0: u256,
-    c1: u256,
-    c2: u256,
-    c3: u256,
-    c4: u256,
-    c5: u256,
-    c6: u256,
-    c7: u256,
-    c8: u256,
-    c9: u256,
-    c10: u256,
-    c11: u256
-) -> Fq12 {
-    Fq12 { c0: fq6(c0, c1, c2, c3, c4, c5), c1: fq6(c6, c7, c8, c9, c10, c11), }
+fn fq12(c0: Fq6, c1: Fq6) -> Fq12 {
+    Fq12 { c0, c1, }
+}
+
+impl Fq12Utils of FieldUtils<Fq12, Fq6> {
+    #[inline(always)]
+    fn one() -> Fq12 {
+        Fq12 { c0: FieldUtils::one(), c1: FieldUtils::zero(), }
+    }
+
+    #[inline(always)]
+    fn zero() -> Fq12 {
+        Fq12 { c0: FieldUtils::zero(), c1: FieldUtils::zero(), }
+    }
+
+    #[inline(always)]
+    fn scale(self: Fq12, by: Fq6) -> Fq12 {
+        assert(false, 'fq12 scale unimplemented');
+        Fq12Utils::one()
+    }
+
+    #[inline(always)]
+    fn mul_by_nonresidue(self: Fq12,) -> Fq12 {
+        assert(false, 'fq12 non residue unimplemented');
+        Fq12Utils::one()
+    }
+
+    #[inline(always)]
+    fn frobenius_map(self: Fq12, power: usize) -> Fq12 {
+        assert(false, 'fq12 non residue unimplemented');
+        Fq12Utils::one()
+    }
 }
 
 #[generate_trait]
 impl Fq12Ops of Fq12OpsTrait {}
 
-#[generate_trait]
-impl Fq12Utils of Fq12UtilsTrait {}
