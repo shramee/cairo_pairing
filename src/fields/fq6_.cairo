@@ -33,6 +33,7 @@ impl Fq6Utils of FieldUtils<Fq6, Fq2> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq6,) -> Fq6 {
+        // https://github.com/paritytech/bn/blob/master/src/fields/fq6.rs#L110
         Fq6 { c0: self.c2.mul_by_nonresidue(), c1: self.c0, c2: self.c1, }
     }
 
