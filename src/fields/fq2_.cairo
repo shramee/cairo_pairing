@@ -71,9 +71,11 @@ impl Fq2Ops of FieldOps<Fq2> {
         let v = a1 * b1;
 
         Fq2 { //
-         c0: v.mul_by_nonresidue() + u, //
-         c1: (a0 + a1) * (b0 + b1) - u - v, //
-         }
+            c0: v.mul_by_nonresidue() + u, //
+             // c1: (a0 + a1) * (b0 + b1) - u - v,
+            // addition without modding, mul will take care of modding
+            c1: fq(a0.c0 + a1.c0) * fq(b0.c0 + b1.c0) - u - v,
+        }
     // Derived
     // let Fq2{c0: a0, c1: a1 } = self;
     // let Fq2{c0: b0, c1: b1 } = rhs;
