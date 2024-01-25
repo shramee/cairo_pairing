@@ -1,3 +1,7 @@
+// test bn::curve::tests::g1::dbl ... ok (gas usage est.: 412280)
+// test bn::curve::tests::g1::add ... ok (gas usage est.: 359810)
+// test bn::curve::tests::g1::mul ... ok (gas usage est.: 1568690)
+
 use bn::traits::ECOperations;
 use bn::fields::fq;
 use bn::{g1, g2};
@@ -12,8 +16,6 @@ const TPL_Y: u256 = 193215337665523688609465524374805154414168300397779116379134
 #[test]
 #[available_gas(100000000)]
 fn dbl() {
-    // test bn::curve::tests::g1::dbl ... ok (gas usage est.: 412280)
-
     let doubled = g1::one().double();
     assert(doubled.x.c0 == DBL_X, 'wrong double x');
     assert(doubled.y.c0 == DBL_Y, 'wrong double y');
@@ -22,8 +24,6 @@ fn dbl() {
 #[test]
 #[available_gas(100000000)]
 fn add() {
-    // test bn::curve::tests::g1::add ... ok (gas usage est.: 359810)
-
     let g_3x = g1::one().add(g1::pt(DBL_X, DBL_Y));
 
     assert(g_3x.x.c0 == TPL_X, 'wrong add x');
@@ -33,8 +33,6 @@ fn add() {
 #[test]
 #[available_gas(100000000)]
 fn mul() {
-    // test bn::curve::tests::g1::mul ... ok (gas usage est.: 1568690)
-
     let g_3x = g1::one().multiply(3);
 
     assert(g_3x.x.c0 == TPL_X, 'wrong add x');

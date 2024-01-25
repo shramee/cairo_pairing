@@ -1,3 +1,7 @@
+// test bn::curve::tests::g2::dbl ... ok (gas usage est.: 1665910)
+// test bn::curve::tests::g2::add ... ok (gas usage est.: 1441630)
+// test bn::curve::tests::g2::mul ... ok (gas usage est.: 6217190)
+
 use bn::curve::g2::AffineG2Trait;
 use bn::traits::ECOperations;
 use bn::fields::fq;
@@ -17,7 +21,6 @@ const TPL_Y_1: u256 = 9578741247220068188419617853249093137818800613667185386939
 #[test]
 #[available_gas(100000000)]
 fn dbl() {
-    // test bn::curve::tests::g2::dbl ... ok (gas usage est.: 1665910)
     let doubled = g2::one().double();
     assert(doubled.to_tuple() == (DBL_X_0, DBL_X_1, DBL_Y_0, DBL_Y_1,), 'wrong double');
 }
@@ -25,7 +28,6 @@ fn dbl() {
 #[test]
 #[available_gas(100000000)]
 fn add() {
-    // test bn::curve::tests::g2::add ... ok (gas usage est.: 1441630)
     let g_3x = g2::one().add(g2::pt(DBL_X_0, DBL_X_1, DBL_Y_0, DBL_Y_1,));
     assert(g_3x.to_tuple() == (TPL_X_0, TPL_X_1, TPL_Y_0, TPL_Y_1,), 'wrong add operation');
 }
@@ -33,7 +35,6 @@ fn add() {
 #[test]
 #[available_gas(100000000)]
 fn mul() {
-    // test bn::curve::tests::g2::mul ... ok (gas usage est.: 6217190)
     let g_3x = g2::one().multiply(3);
     assert(g_3x.to_tuple() == (TPL_X_0, TPL_X_1, TPL_Y_0, TPL_Y_1,), 'wrong multiply');
 }
