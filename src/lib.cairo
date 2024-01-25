@@ -54,6 +54,7 @@ mod curve {
     #[cfg(test)]
     mod tests {
         mod g1;
+        mod g2;
         mod pairing;
     }
     mod g1;
