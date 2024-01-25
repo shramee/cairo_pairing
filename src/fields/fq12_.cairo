@@ -62,6 +62,7 @@ impl Fq12Ops of FieldOps<Fq12> {
 
     #[inline(always)]
     fn mul(self: Fq12, rhs: Fq12) -> Fq12 {
+        core::internal::revoke_ap_tracking();
         let Fq12{c0: a0, c1: a1 } = self;
         let Fq12{c0: b0, c1: b1 } = rhs;
         let u = a0 * b0;
@@ -90,6 +91,7 @@ impl Fq12Ops of FieldOps<Fq12> {
 
     #[inline(always)]
     fn sqr(self: Fq12) -> Fq12 {
+        core::internal::revoke_ap_tracking();
         let Fq12{c0: a0, c1: a1 } = self;
         let v = a0 * a1;
         // Same as in Fq2, BETA is non residue
@@ -104,6 +106,7 @@ impl Fq12Ops of FieldOps<Fq12> {
 
     #[inline(always)]
     fn inv(self: Fq12) -> Fq12 {
+        core::internal::revoke_ap_tracking();
         // "High-Speed Software Implementation of the Optimal Ate Pairing
         // over Barreto–Naehrig Curves"; Algorithm 8
         if self.c0 == Fq6Utils::zero() && self.c1 == self.c0 {

@@ -9,17 +9,12 @@
 // test bn::fields::tests::bench::fq02::sub ... ok (gas usage est.: 31420)
 
 // test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 107280)
-// test bn::fields::tests::bench::fq06::div ... ok (gas usage est.: 6633670)
-// test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 2535440)
-// test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 94260)
-
-// test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 107280)
 // test bn::fields::tests::bench::fq06::div ... ok (gas usage est.: 6124870)
 // test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 2332000)
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 94260)
 
 // test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 214560)
-// test bn::fields::tests::bench::fq12::div ... fail (gas usage est.: 700)
+// test bn::fields::tests::bench::fq12::div ... ok (gas usage est.: 20331210)
 // test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 7737890)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 188520)
 
