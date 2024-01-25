@@ -37,6 +37,7 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
+        // TODO potential optimisation
         self * fq2_non_residue()
     }
 

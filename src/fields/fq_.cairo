@@ -40,7 +40,7 @@ impl FqUtils of FieldUtils<Fq, u256> {
 
     #[inline(always)]
     fn frobenius_map(self: Fq, power: usize) -> Fq {
-        assert(false, 'fq frobenius_map unimplemented');
+        assert(false, 'no_impl: fq frobenius_map');
         fq(0)
     }
 }

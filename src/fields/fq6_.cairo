@@ -33,9 +33,7 @@ impl Fq6Utils of FieldUtils<Fq6, Fq2> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq6,) -> Fq6 {
-        // TODO
-        assert(false, 'unimp: fq6 mul non_res');
-        Fq6Utils::one()
+        Fq6 { c0: self.c2.mul_by_nonresidue(), c1: self.c0, c2: self.c1, }
     }
 
     #[inline(always)]
@@ -86,7 +84,7 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn neg(self: Fq6) -> Fq6 {
-        assert(false, 'unimp: fq6 mul non_res');
+        assert(false, 'no_impl: fq6 mul non_res');
         // TODO
         Fq6Utils::one()
     }
