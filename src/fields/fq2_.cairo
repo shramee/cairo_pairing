@@ -21,6 +21,16 @@ fn fq2(c0: u256, c1: u256) -> Fq2 {
 
 impl Fq2Utils of FieldUtils<Fq2, Fq> {
     #[inline(always)]
+    fn one() -> Fq2 {
+        fq2(1, 0)
+    }
+
+    #[inline(always)]
+    fn zero() -> Fq2 {
+        fq2(0, 0)
+    }
+
+    #[inline(always)]
     fn scale(self: Fq2, by: Fq) -> Fq2 {
         Fq2 { c0: self.c0 * by, c1: self.c1 * by, }
     }
@@ -37,11 +47,6 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
         } else {
             Fq2 { c0: self.c0, c1: self.c1.mul_by_nonresidue(), }
         }
-    }
-
-    #[inline(always)]
-    fn one() -> Fq2 {
-        fq2(1, 0)
     }
 }
 

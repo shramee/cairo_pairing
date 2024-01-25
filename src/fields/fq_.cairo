@@ -15,6 +15,16 @@ fn fq(c0: u256) -> Fq {
 
 impl FqUtils of FieldUtils<Fq, u256> {
     #[inline(always)]
+    fn one() -> Fq {
+        fq(1)
+    }
+
+    #[inline(always)]
+    fn zero() -> Fq {
+        fq(0)
+    }
+
+    #[inline(always)]
     fn scale(self: Fq, by: u256) -> Fq {
         Fq { c0: self.c0 * by }
     }
@@ -32,11 +42,6 @@ impl FqUtils of FieldUtils<Fq, u256> {
     fn frobenius_map(self: Fq, power: usize) -> Fq {
         assert(false, 'fq frobenius_map unimplemented');
         fq(0)
-    }
-
-    #[inline(always)]
-    fn one() -> Fq {
-        fq(1)
     }
 }
 

@@ -20,6 +20,12 @@ impl Fq6Utils of FieldUtils<Fq6, Fq2> {
     fn one() -> Fq6 {
         fq6(1, 0, 0, 0, 0, 0)
     }
+
+    #[inline(always)]
+    fn zero() -> Fq6 {
+        fq6(0, 0, 0, 0, 0, 0)
+    }
+
     #[inline(always)]
     fn scale(self: Fq6, by: Fq2) -> Fq6 {
         Fq6 { c0: self.c0 * by, c1: self.c1 * by, c2: self.c2 * by, }
