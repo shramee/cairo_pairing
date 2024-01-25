@@ -18,6 +18,7 @@ mod fields {
         mod fq;
         mod fq2;
         mod fq6;
+        mod fq12;
     }
     mod fq_generics;
     use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
