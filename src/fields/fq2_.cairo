@@ -108,9 +108,9 @@ impl Fq2Ops of FieldOps<Fq2> {
     fn sqr(self: Fq2) -> Fq2 {
         let Fq2{c0: a0, c1: a1 } = self;
         // Squaring a in Fq2 mod X^2 + BETA
-        // c = a ^ 2 = a0*a0 + a0*a1*X + a1*a0*X + a0*a0*BETA
-        // c = a0*a0 + a0*a0*BETA + (a0*a1 + a1*a0)*X
-        // or c = (a0*b0 + a0*b0*BETA, a0*b1 + a1*b0)
+        // c = a ^ 2 = a0*a0 + a0*a1*X + a1*a0*X + a1*a1*BETA
+        // c = a0*a0 + a1*a1*BETA + (a0*a1 + a1*a0)*X
+        // or c = (a0*a0 + a1*a1*BETA, a0*a1 + a0*a1)
         let v = a0 * a1;
 
         Fq2 { //
