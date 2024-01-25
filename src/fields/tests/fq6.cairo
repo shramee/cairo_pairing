@@ -16,7 +16,7 @@ fn add_sub() {
 
 #[test]
 #[available_gas(50000000)]
-fn mul_one() {
+fn one() {
     let a = fq6(34, 645, 20, 55, 140, 105);
     let one = FieldUtils::one();
     assert(one * a == a, 'incorrect mul by 1');

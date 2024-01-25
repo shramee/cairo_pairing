@@ -1,19 +1,29 @@
-// test bench::fq1::add ... ok (gas usage est.: 17880)
-// test bench::fq1::div ... ok (gas usage est.: 86400)
-// test bench::fq1::mul ... ok (gas usage est.: 52530)
-// test bench::fq1::sub ... ok (gas usage est.: 15710)
+// test bn::fields::tests::bench::fq01::add ... ok (gas usage est.: 17880)
+// test bn::fields::tests::bench::fq01::div ... ok (gas usage est.: 86400)
+// test bn::fields::tests::bench::fq01::mul ... ok (gas usage est.: 52530)
+// test bn::fields::tests::bench::fq01::sub ... ok (gas usage est.: 15710)
 
-// test bench::fq2::add ... ok (gas usage est.: 35760)
-// test bench::fq2::div ... ok (gas usage est.: 540800)
-// test bench::fq2::mul ... ok (gas usage est.: 254060)
-// test bench::fq2::sub ... ok (gas usage est.: 31420)
+// test bn::fields::tests::bench::fq02::add ... ok (gas usage est.: 35760)
+// test bn::fields::tests::bench::fq02::div ... ok (gas usage est.: 514870)
+// test bn::fields::tests::bench::fq02::mul ... ok (gas usage est.: 228130)
+// test bn::fields::tests::bench::fq02::sub ... ok (gas usage est.: 31420)
 
-// test bench::fq6::add ... ok (gas usage est.: 107280)
-// test bench::fq6::div ... ok (gas usage est.: 6633670)
-// test bench::fq6::mul ... ok (gas usage est.: 2535440)
-// test bench::fq6::sub ... ok (gas usage est.: 94260)
+// test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 107280)
+// test bn::fields::tests::bench::fq06::div ... ok (gas usage est.: 6633670)
+// test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 2535440)
+// test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 94260)
 
-mod fq1 {
+// test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 107280)
+// test bn::fields::tests::bench::fq06::div ... ok (gas usage est.: 6124870)
+// test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 2332000)
+// test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 94260)
+
+// test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 214560)
+// test bn::fields::tests::bench::fq12::div ... fail (gas usage est.: 700)
+// test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 7737890)
+// test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 188520)
+
+mod fq01 {
     use bn::fields::{fq, Fq};
     use debug::PrintTrait;
     #[test]
@@ -49,7 +59,7 @@ mod fq1 {
     }
 }
 
-mod fq2 {
+mod fq02 {
     use bn::fields::{fq2, Fq2};
     use debug::PrintTrait;
     #[test]
@@ -85,7 +95,7 @@ mod fq2 {
     }
 }
 
-mod fq6 {
+mod fq06 {
     use bn::fields::{fq6, Fq6};
     use debug::PrintTrait;
     use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
@@ -118,6 +128,43 @@ mod fq6 {
     fn div() {
         let a = fq6(34, 645, 20, 55, 140, 105);
         let b = fq6(25, 45, 11, 43, 86, 101);
+        a / b;
+    }
+}
+
+mod fq12 {
+    use bn::fields::{fq12, fq6, Fq12};
+    use debug::PrintTrait;
+    use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+    #[test]
+    #[available_gas(20000000)]
+    fn add() {
+        let a = fq12(fq6(34, 645, 31, 55, 140, 105), fq6(2, 2, 2, 2, 2, 2));
+        let b = fq12(fq6(25, 45, 11, 43, 86, 101), fq6(1, 1, 1, 1, 1, 1));
+        a + b;
+    }
+
+    #[test]
+    #[available_gas(20000000)]
+    fn sub() {
+        let a = fq12(fq6(34, 645, 31, 55, 140, 105), fq6(2, 2, 2, 2, 2, 2));
+        let b = fq12(fq6(25, 45, 11, 43, 86, 101), fq6(1, 1, 1, 1, 1, 1));
+        a - b;
+    }
+
+    #[test]
+    #[available_gas(20000000)]
+    fn mul() {
+        let a = fq12(fq6(34, 645, 31, 55, 140, 105), fq6(2, 2, 2, 2, 2, 2));
+        let b = fq12(fq6(25, 45, 11, 43, 86, 101), fq6(1, 1, 1, 1, 1, 1));
+        a * b;
+    }
+
+    #[test]
+    #[available_gas(20000000)]
+    fn div() {
+        let a = fq12(fq6(34, 645, 31, 55, 140, 105), fq6(2, 2, 2, 2, 2, 2));
+        let b = fq12(fq6(25, 45, 11, 43, 86, 101), fq6(1, 1, 1, 1, 1, 1));
         a / b;
     }
 }
