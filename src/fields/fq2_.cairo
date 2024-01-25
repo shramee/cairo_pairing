@@ -1,5 +1,5 @@
 use bn::curve::{fq2_non_residue};
-use bn::traits::{FieldUtils, FieldOps};
+use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
 use debug::PrintTrait;
@@ -51,6 +51,17 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
     }
 }
 
+impl Fq2Short of FieldShortcuts<Fq2> {
+    #[inline(always)]
+    fn unsafe_add(self: Fq2, rhs: Fq2) -> Fq2 {
+        // Operation without modding can only be done like 4 times
+        Fq2 { //
+         c0: fq(self.c0.c0 + rhs.c0.c0), //
+         c1: fq(self.c1.c0 + rhs.c1.c0), //
+         }
+    }
+}
+
 impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn add(self: Fq2, rhs: Fq2) -> Fq2 {
@@ -74,7 +85,7 @@ impl Fq2Ops of FieldOps<Fq2> {
             c0: v.mul_by_nonresidue() + u, //
              // c1: (a0 + a1) * (b0 + b1) - u - v,
             // addition without modding, mul will take care of modding
-            c1: fq(a0.c0 + a1.c0) * fq(b0.c0 + b1.c0) - u - v,
+            c1: a0.unsafe_add(a1) * b0.unsafe_add(b1) - u - v
         }
     // Derived
     // let Fq2{c0: a0, c1: a1 } = self;

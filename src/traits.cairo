@@ -12,6 +12,10 @@ trait FieldUtils<TFq, TFqChildren> {
     fn frobenius_map(self: TFq, power: usize) -> TFq;
 }
 
+trait FieldShortcuts<TFq> {
+    fn unsafe_add(self: TFq, rhs: TFq) -> TFq;
+}
+
 trait FieldOps<TFq> {
     fn add(self: TFq, rhs: TFq) -> TFq;
     fn sub(self: TFq, rhs: TFq) -> TFq;
