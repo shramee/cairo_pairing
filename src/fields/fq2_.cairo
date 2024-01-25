@@ -91,7 +91,9 @@ impl Fq2Ops of FieldOps<Fq2> {
         let v = a1 * b1;
 
         Fq2 { //
-         c0: v.mul_by_nonresidue() + u, //
+         //  c0: v.mul_by_nonresidue() + u, //
+        // Mul by non residue -1 makes it negative
+        c0: u - v, //
          // c1: (a0 + a1) * (b0 + b1) - u - v,
         // addition without modding, mul will take care of modding
         c1: a0.x_add(a1) * b0.x_add(b1) - u - v }
@@ -130,9 +132,11 @@ impl Fq2Ops of FieldOps<Fq2> {
         let v = a0 * a1;
 
         Fq2 { //
-            c0: a0.x_add(a1) * a0.x_add(a1.mul_by_nonresidue()) - v - v.mul_by_nonresidue(), //
-            c1: v + v, //
-        }
+         // c0: a0.x_add(a1) * a0.x_add(a1.mul_by_nonresidue()) - v - v.mul_by_nonresidue(), //
+        // mul by non residue -1 is negative, so negative of negative cancelled
+        c0: a0.x_add(a1) * (a0 - a1) - v + v, //
+         c1: v + v, //
+         }
     }
 
     #[inline(always)]
