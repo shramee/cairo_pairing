@@ -1,6 +1,7 @@
 mod g1;
 mod g2;
 mod pairing;
+mod standard_bkls_tate;
 
 #[cfg(test)]
 mod tests {
