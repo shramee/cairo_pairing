@@ -1,4 +1,4 @@
-use bn::fields::{Fq2, Fq2Ops, fq2};
+use bn::fields::{print::Fq6PrintImpl, Fq2, Fq2Ops, fq2};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
 use bn::curve::fq2_non_residue;
 use debug::PrintTrait;
@@ -69,6 +69,7 @@ impl Fq6Ops of FieldOps<Fq6> {
             c0: {
                 // ((a1 + a2) * (b1 + b2) - v1 - v2).mul_by_nonresidue() + v0
                 ((a1.x_add(a2) * b1.x_add(b2)).x_add(-v1).x_add(-v2))
+                    .fix_mod()
                     .mul_by_nonresidue()
                     .x_add(v0)
                     .fix_mod()
