@@ -44,7 +44,7 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
         c0: a0 * fq(9) - a1, //
          //  c1: a0 * b1 + a1 * b0,
         c1: a0 + a1 * fq(9), //
-         };
+         }
     }
 
     #[inline(always)]
