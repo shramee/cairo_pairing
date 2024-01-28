@@ -37,9 +37,14 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
-        // TODO potential optimisation
         // f::fq2(9, 1)
-        self * fq2_non_residue()
+        let Fq2{c0: a0, c1: a1 } = self;
+        Fq2 { //
+         //  c0: a0 * b0 + a1 * b1.mul_by_nonresidue(),
+        c0: a0 * fq(9) - a1, //
+         //  c1: a0 * b1 + a1 * b0,
+        c1: a0 + a1 * fq(9), //
+         };
     }
 
     #[inline(always)]
