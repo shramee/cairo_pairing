@@ -13,6 +13,53 @@ impl FinalExponentiation of FinalExponentiationTrait {
         Fq12 { c0: self.c0, c1: -self.c1, }
     }
 
+    fn sqr_cyclotomic(self: Fq12) -> Fq12 {
+        let z0 = self.c0.c0;
+        let z4 = self.c0.c1;
+        let z3 = self.c0.c2;
+        let z2 = self.c1.c0;
+        let z1 = self.c1.c1;
+        let z5 = self.c1.c2;
+        let tmp = z0 * z1;
+        let t0 = (z0 + z1) * (z1.mul_by_nonresidue() + z0) - tmp - tmp.mul_by_nonresidue();
+        let t1 = tmp + tmp;
+
+        let tmp = z2 * z3;
+        let t2 = (z2 + z3) * (z3.mul_by_nonresidue() + z2) - tmp - tmp.mul_by_nonresidue();
+        let t3 = tmp + tmp;
+
+        let tmp = z4 * z5;
+        let t4 = (z4 + z5) * (z5.mul_by_nonresidue() + z4) - tmp - tmp.mul_by_nonresidue();
+        let t5 = tmp + tmp;
+
+        let z0 = t0 - z0;
+        let z0 = z0 + z0;
+        let z0 = z0 + t0;
+
+        let z1 = t1 + z1;
+        let z1 = z1 + z1;
+        let z1 = z1 + t1;
+
+        let tmp = t5.mul_by_nonresidue();
+        let z2 = tmp + z2;
+        let z2 = z2 + z2;
+        let z2 = z2 + tmp;
+
+        let z3 = t4 - z3;
+        let z3 = z3 + z3;
+        let z3 = z3 + t4;
+
+        let z4 = t2 - z4;
+        let z4 = z4 + z4;
+        let z4 = z4 + t2;
+
+        let z5 = t3 + z5;
+        let z5 = z5 + z5;
+        let z5 = z5 + t3;
+
+        fq12(Fq6 { c0: z0, c1: z4, c2: z3 }, Fq6 { c0: z2, c1: z1, c2: z5 },)
+    }
+
     // Software Implementation of the Optimal Ate Pairing
     // Page 9, 4.2 Final exponentiation
     // f^(p^6-1) = conjugate(f) · f^(-1)
