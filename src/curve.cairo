@@ -1,7 +1,7 @@
 mod g1;
 mod g2;
 mod pairing;
-mod standard_bkls_tate;
+mod bkls_tate;
 
 #[cfg(test)]
 mod tests {
@@ -14,6 +14,7 @@ use bn::fields as f;
 // These paramas from:
 // https://hackmd.io/@jpw/bn254
 const ORDER: u256 = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
+// 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
 const FIELD: u256 = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
 const B: u256 = 3;
 
