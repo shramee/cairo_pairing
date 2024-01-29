@@ -1,6 +1,7 @@
 mod g1;
 mod g2;
 mod pairing;
+mod final_exponentiation;
 mod bkls_tate;
 
 #[cfg(test)]
