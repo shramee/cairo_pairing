@@ -57,7 +57,8 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
         if power % 2 == 0 {
             self
         } else {
-            Fq2 { c0: self.c0, c1: self.c1.mul_by_nonresidue(), }
+            // Fq2 { c0: self.c0, c1: self.c1.mul_by_nonresidue(), }
+            self.conjugate()
         }
     }
 }
