@@ -1,5 +1,3 @@
-use bn::traits::ECOperations;
-use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 // Standard code for miller loop, can be found on page 99 at this url:
 // <https://static1.squarespace.com/static/5fdbb09f31d71c1227082339/t/5ff394720493bd28278889c6/1609798774687/PairingsForBeginners.pdf#page=107>
 //
@@ -23,14 +21,10 @@ use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use core::debug::PrintTrait;
 use bn::fields::{Fq12, fq12_, Fq12Utils};
 use bn::curve::{g1, g2};
+use bn::traits::ECOperations;
+use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 
-// #[test]
-// #[available_gas(99999999999999)]
-// fn run_pairing() {
-//     pair(g1::one(), g2::one());
-// }
-
-fn pair(p: g1::AffineG1, q: g2::AffineG2) -> Fq12 {
+fn miller_loop(p: g1::AffineG1, q: g2::AffineG2) -> Fq12 {
     core::internal::revoke_ap_tracking();
 
     let mut r = p;
@@ -345,4 +339,21 @@ fn tate_loop_bools() -> Array<bool> {
         false,
         false,
     ]
+}
+
+const DBL_X_0: u256 = 18029695676650738226693292988307914797657423701064905010927197838374790804409;
+const DBL_X_1: u256 = 14583779054894525174450323658765874724019480979794335525732096752006891875705;
+const DBL_Y_0: u256 = 2140229616977736810657479771656733941598412651537078903776637920509952744750;
+const DBL_Y_1: u256 = 11474861747383700316476719153975578001603231366361248090558603872215261634898;
+
+const DBL_X: u256 = 1368015179489954701390400359078579693043519447331113978918064868415326638035;
+const DBL_Y: u256 = 9918110051302171585080402603319702774565515993150576347155970296011118125764;
+
+#[test]
+#[available_gas(99999999999999)]
+fn run_pairing() {
+    let pair12 = miller_loop(g1::one(), g2::pt(DBL_X_0, DBL_X_1, DBL_Y_0, DBL_Y_1));
+    let pair21 = miller_loop(g1::pt(DBL_X, DBL_Y), g2::one());
+    pair12.print();
+    pair21.print();
 }
