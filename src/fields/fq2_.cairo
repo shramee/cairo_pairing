@@ -36,6 +36,11 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
     }
 
     #[inline(always)]
+    fn conjugate(self: Fq2) -> Fq2 {
+        Fq2 { c0: self.c0, c1: -self.c1, }
+    }
+
+    #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
         // f::fq2(9, 1)
         let Fq2{c0: a0, c1: a1 } = self;

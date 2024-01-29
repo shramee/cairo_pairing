@@ -53,6 +53,12 @@ impl FqUtils of FieldUtils<Fq, u256> {
     }
 
     #[inline(always)]
+    fn conjugate(self: Fq) -> Fq {
+        assert(false, 'no_impl: fq conjugate');
+        FieldUtils::zero()
+    }
+
+    #[inline(always)]
     fn frobenius_map(self: Fq, power: usize) -> Fq {
         assert(false, 'no_impl: fq frobenius_map');
         fq(0)

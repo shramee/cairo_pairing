@@ -37,6 +37,11 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
     }
 
     #[inline(always)]
+    fn conjugate(self: Fq12) -> Fq12 {
+        Fq12 { c0: self.c0, c1: -self.c1, }
+    }
+
+    #[inline(always)]
     fn mul_by_nonresidue(self: Fq12,) -> Fq12 {
         assert(false, 'no_impl: fq12 non residue');
         Fq12Utils::one()
