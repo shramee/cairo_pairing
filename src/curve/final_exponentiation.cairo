@@ -9,8 +9,6 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
 #[generate_trait]
 impl FinalExponentiation of FinalExponentiationTrait {
-    fn conjugate(self: Fq12) -> Fq12 {
-        Fq12 { c0: self.c0, c1: -self.c1, }
     }
 
     fn sqr_cyclotomic(self: Fq12) -> Fq12 {
@@ -65,8 +63,8 @@ impl FinalExponentiation of FinalExponentiationTrait {
     // f^(p^6-1) = conjugate(f) · f^(-1)
     // returns cyclotomic Fp12
     #[inline(always)]
-    fn pow_p6_minus_1(b: Fq12) -> Fq12 {
-        b.conjugate() / b
+    fn pow_p6_minus_1(self: Fq12) -> Fq12 {
+        self.conjugate() / self
     }
 
     // Software Implementation of the Optimal Ate Pairing
@@ -77,14 +75,17 @@ impl FinalExponentiation of FinalExponentiationTrait {
     // p-power of an arbitrary element in the quadratic extension field Fp2 can be computed
     // essentially free of cost as follows.For b = b0 + b1u, b^(p^2i) = b
     //
-    // f^(p^2+1) = f · f^(-1)
-    // returns cyclotomic Fp12
+    // f^(p^2+1) = 
     #[inline(always)]
-    fn pow_p2_plus_1(b: Fq12) -> Fq12 {
-        Fq12 { c0: b.c0, c1: -b.c1, } * b.inv()
+    fn pow_p2_plus_1(self: Fq12) -> Fq12 {
+        let self = self.frobenius_map(2) * self;
     }
 // Software Implementation of the Optimal Ate Pairing
 // Page 9, 4.2 Final exponentiation
 // 
 }
 
+fn final_exponentiation(f: Fq12) -> Fq12 {
+    let f = f.pow_p6_minus_1().pow_p2_plus_1();
+    f
+}
