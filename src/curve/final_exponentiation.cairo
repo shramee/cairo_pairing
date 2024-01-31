@@ -7,11 +7,29 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 // 
 // 
 
+fn fq2_frobenius(power: felt252) -> Fq2 {
+    // TODO
+    FieldUtils::one()
+}
+
+#[generate_trait]
+impl FinalExponentiationFq6 of FinalExponentiationTraitFq6 { //
+// #[inline(always)]
+// fn frobenius_2(self: Fq6) -> Fq6 {
+//     Fq6 { c0: self.c0.frobenius_map(2), c1: self.c1.frobenius_map(2) * fq2_frobenius(2), }
+// }
+}
+
 #[generate_trait]
 impl FinalExponentiation of FinalExponentiationTrait {
+    #[inline(always)]
+    fn frobenius_2(self: Fq12) -> Fq12 {
+        // TODO
+        Fq12 { c0: self.c0.frobenius_map(2), c1: self.c1.frobenius_map(2).scale(fq2_frobenius(2)), }
     }
 
-    fn sqr_cyclotomic(self: Fq12) -> Fq12 {
+
+    fn cyclotomic_squared(self: Fq12) -> Fq12 {
         let z0 = self.c0.c0;
         let z4 = self.c0.c1;
         let z3 = self.c0.c2;
@@ -58,8 +76,13 @@ impl FinalExponentiation of FinalExponentiationTrait {
         fq12(Fq6 { c0: z0, c1: z4, c2: z3 }, Fq6 { c0: z2, c1: z1, c2: z5 },)
     }
 
+    fn exp_by_neg_z(self: Fq12) -> Fq12 {
+        FieldUtils::one()
+    }
+
     // Software Implementation of the Optimal Ate Pairing
     // Page 9, 4.2 Final exponentiation
+
     // f^(p^6-1) = conjugate(f) · f^(-1)
     // returns cyclotomic Fp12
     #[inline(always)]
@@ -78,7 +101,40 @@ impl FinalExponentiation of FinalExponentiationTrait {
     // f^(p^2+1) = 
     #[inline(always)]
     fn pow_p2_plus_1(self: Fq12) -> Fq12 {
-        let self = self.frobenius_map(2) * self;
+        self.frobenius_map(2) * self
+    }
+
+    #[inline(always)]
+    fn final_exponentiation_last_chunk(self: Fq12) -> Fq12 {
+        let a = self.exp_by_neg_z();
+        let b = a.cyclotomic_squared();
+        let c = b.cyclotomic_squared();
+        let d = c * b;
+
+        let e = d.exp_by_neg_z();
+        let f = e.cyclotomic_squared();
+        let g = f.exp_by_neg_z();
+        let h = d.conjugate();
+        let i = g.conjugate();
+
+        let j = i * e;
+        let k = j * h;
+        let l = k * b;
+        let m = k * e;
+        let n = self * m;
+
+        let o = l.frobenius_map(1);
+        let p = o * n;
+
+        let q = k.frobenius_map(2);
+        let r = q * p;
+
+        let s = self.conjugate();
+        let t = s * l;
+        let u = t.frobenius_map(3);
+        let v = u * r;
+
+        v
     }
 // Software Implementation of the Optimal Ate Pairing
 // Page 9, 4.2 Final exponentiation
