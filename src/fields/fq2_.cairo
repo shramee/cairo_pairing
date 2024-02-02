@@ -19,6 +19,19 @@ fn fq2(c0: u256, c1: u256) -> Fq2 {
     Fq2 { c0: fq(c0), c1: fq(c1), }
 }
 
+#[generate_trait]
+impl Fq2Frobenius of Fq2FrobeniusTrait {
+    #[inline(always)]
+    fn frob0(self: Fq2) -> Fq2 {
+        self
+    }
+
+    #[inline(always)]
+    fn frob1(self: Fq2) -> Fq2 {
+        self.conjugate()
+    }
+}
+
 impl Fq2Utils of FieldUtils<Fq2, Fq> {
     #[inline(always)]
     fn one() -> Fq2 {

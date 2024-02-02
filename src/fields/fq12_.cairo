@@ -1,7 +1,9 @@
 // use bn::curve::{fq12_non_residue};
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::fields::{Fq6, fq6, Fq6Utils};
+use bn::fields::{Fq6, fq6, Fq6Utils, fq2};
+use bn::fields::fq6_::{Fq6Frobenius};
+use bn::fields::frobenius::fp12 as frob;
 use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde)]
@@ -17,6 +19,82 @@ struct Fq12 {
 #[inline(always)]
 fn fq12(c0: Fq6, c1: Fq6) -> Fq12 {
     Fq12 { c0, c1, }
+}
+
+#[generate_trait]
+impl Fq6Frobenius of Fq6FrobeniusTrait {
+    #[inline(always)]
+    fn frob0(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob0(), c1: c1.frob0().scale(fq2(frob::Q_0_C0, frob::Q_0_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob1(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob1(), c1: c1.frob1().scale(fq2(frob::Q_1_C0, frob::Q_1_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob2(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob2(), c1: c1.frob2().scale(fq2(frob::Q_2_C0, frob::Q_2_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob3(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob3(), c1: c1.frob3().scale(fq2(frob::Q_3_C0, frob::Q_3_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob4(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob4(), c1: c1.frob4().scale(fq2(frob::Q_4_C0, frob::Q_4_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob5(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob5(), c1: c1.frob5().scale(fq2(frob::Q_5_C0, frob::Q_5_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob6(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob0(), c1: c1.frob0().scale(fq2(frob::Q_6_C0, frob::Q_6_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob7(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob1(), c1: c1.frob1().scale(fq2(frob::Q_7_C0, frob::Q_7_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob8(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob2(), c1: c1.frob2().scale(fq2(frob::Q_8_C0, frob::Q_8_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob9(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob3(), c1: c1.frob3().scale(fq2(frob::Q_9_C0, frob::Q_9_C1)), }
+    }
+
+    #[inline(always)]
+    fn frob10(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob4(), c1: c1.frob4().scale(fq2(frob::Q_10_C0, frob::Q_10_C1)), }
+    }
+
+
+    #[inline(always)]
+    fn frob11(self: Fq12) -> Fq12 {
+        let Fq12{c0, c1 } = self;
+        Fq12 { c0: c0.frob5(), c1: c1.frob5().scale(fq2(frob::Q_11_C0, frob::Q_11_C1)), }
+    }
 }
 
 impl Fq12Utils of FieldUtils<Fq12, Fq6> {
