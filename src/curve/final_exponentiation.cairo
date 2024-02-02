@@ -1,5 +1,6 @@
 use bn::traits::ECOperations;
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12};
+use bn::fields::fq12_::Fq12Frobenius;
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
 // raising f ∈ Fp12 to the power e = (p^12 - 1)/r can be done in three parts,
@@ -123,15 +124,15 @@ impl FinalExponentiation of FinalExponentiationTrait {
         let m = k * e;
         let n = self * m;
 
-        let o = l.frobenius_map(1);
+        let o = l.frob1();
         let p = o * n;
 
-        let q = k.frobenius_map(2);
+        let q = k.frob2();
         let r = q * p;
 
         let s = self.conjugate();
         let t = s * l;
-        let u = t.frobenius_map(3);
+        let u = t.frob3();
         let v = u * r;
 
         v

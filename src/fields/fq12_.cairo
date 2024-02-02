@@ -22,7 +22,7 @@ fn fq12(c0: Fq6, c1: Fq6) -> Fq12 {
 }
 
 #[generate_trait]
-impl Fq6Frobenius of Fq6FrobeniusTrait {
+impl Fq12Frobenius of Fq12FrobeniusTrait {
     #[inline(always)]
     fn frob0(self: Fq12) -> Fq12 {
         let Fq12{c0, c1 } = self;
