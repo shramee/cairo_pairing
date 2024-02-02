@@ -23,6 +23,7 @@ use bn::fields::{Fq12, fq12_, Fq12Utils};
 use bn::curve::{g1, g2};
 use bn::traits::ECOperations;
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
+use bn::curve::final_exponentiation::final_exponentiation;
 
 fn miller_loop(p: g1::AffineG1, q: g2::AffineG2) -> Fq12 {
     core::internal::revoke_ap_tracking();
@@ -352,8 +353,11 @@ const DBL_Y: u256 = 991811005130217158508040260331970277456551599315057634715597
 #[test]
 #[available_gas(99999999999999)]
 fn run_pairing() {
-    let pair12 = miller_loop(g1::one(), g2::pt(DBL_X_0, DBL_X_1, DBL_Y_0, DBL_Y_1));
-    let pair21 = miller_loop(g1::pt(DBL_X, DBL_Y), g2::one());
+    let pair12 = final_exponentiation(
+        miller_loop(g1::one(), g2::pt(DBL_X_0, DBL_X_1, DBL_Y_0, DBL_Y_1))
+    );
+    let pair21 = final_exponentiation(miller_loop(g1::pt(DBL_X, DBL_Y), g2::one()));
+    (pair12 == pair21).print();
     pair12.print();
     pair21.print();
 }
