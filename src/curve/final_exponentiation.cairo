@@ -1,6 +1,7 @@
 use core::array::ArrayTrait;
 use bn::traits::ECOperations;
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12};
+use bn::fields::fq6_::Fq6Frobenius;
 use bn::fields::fq12_::Fq12Frobenius;
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
@@ -9,28 +10,8 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 // 
 // 
 
-fn fq2_frobenius(power: felt252) -> Fq2 {
-    // TODO
-    FieldUtils::one()
-}
-
-#[generate_trait]
-impl FinalExponentiationFq6 of FinalExponentiationTraitFq6 { //
-// #[inline(always)]
-// fn frobenius_2(self: Fq6) -> Fq6 {
-//     Fq6 { c0: self.c0.frobenius_map(2), c1: self.c1.frobenius_map(2) * fq2_frobenius(2), }
-// }
-}
-
 #[generate_trait]
 impl FinalExponentiation of FinalExponentiationTrait {
-    #[inline(always)]
-    fn frobenius_2(self: Fq12) -> Fq12 {
-        // TODO
-        Fq12 { c0: self.c0.frobenius_map(2), c1: self.c1.frobenius_map(2).scale(fq2_frobenius(2)), }
-    }
-
-
     fn cyclotomic_sqr(self: Fq12) -> Fq12 {
         let z0 = self.c0.c0;
         let z4 = self.c0.c1;
@@ -127,7 +108,7 @@ impl FinalExponentiation of FinalExponentiationTrait {
     // f^(p^2+1) = 
     #[inline(always)]
     fn pow_p2_plus_1(self: Fq12) -> Fq12 {
-        self.frobenius_map(2) * self
+        self.frob2() * self
     }
 
     #[inline(always)]
