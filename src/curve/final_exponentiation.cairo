@@ -1,3 +1,4 @@
+use core::array::ArrayTrait;
 use bn::traits::ECOperations;
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12};
 use bn::fields::fq12_::Fq12Frobenius;
@@ -30,7 +31,7 @@ impl FinalExponentiation of FinalExponentiationTrait {
     }
 
 
-    fn cyclotomic_squared(self: Fq12) -> Fq12 {
+    fn cyclotomic_sqr(self: Fq12) -> Fq12 {
         let z0 = self.c0.c0;
         let z4 = self.c0.c1;
         let z3 = self.c0.c2;
@@ -77,7 +78,31 @@ impl FinalExponentiation of FinalExponentiationTrait {
         fq12(Fq6 { c0: z0, c1: z4, c2: z3 }, Fq6 { c0: z2, c1: z1, c2: z5 },)
     }
 
-    fn exp_by_neg_z(self: Fq12) -> Fq12 {
+    fn exp_by_neg_x(mut self: Fq12) -> Fq12 {
+        // Binary bools array of bn::curve::X
+        let mut naf = bn::curve::x_naf();
+
+        let mut temp_sq = self;
+
+        loop {
+            match naf.pop_front() {
+                Option::Some(naf) => {
+                    let (naf0, naf1) = naf;
+
+                    if naf0 {
+                        if naf1 {
+                            self = self * temp_sq;
+                        } else {
+                            self = self * temp_sq.conjugate();
+                        }
+                    }
+
+                    temp_sq = temp_sq.cyclotomic_sqr();
+                },
+                Option::None => { break; },
+            }
+        };
+
         FieldUtils::one()
     }
 
@@ -107,14 +132,14 @@ impl FinalExponentiation of FinalExponentiationTrait {
 
     #[inline(always)]
     fn final_exponentiation_last_chunk(self: Fq12) -> Fq12 {
-        let a = self.exp_by_neg_z();
-        let b = a.cyclotomic_squared();
-        let c = b.cyclotomic_squared();
+        let a = self.exp_by_neg_x();
+        let b = a.cyclotomic_sqr();
+        let c = b.cyclotomic_sqr();
         let d = c * b;
 
-        let e = d.exp_by_neg_z();
-        let f = e.cyclotomic_squared();
-        let g = f.exp_by_neg_z();
+        let e = d.exp_by_neg_x();
+        let f = e.cyclotomic_sqr();
+        let g = f.exp_by_neg_x();
         let h = d.conjugate();
         let i = g.conjugate();
 
