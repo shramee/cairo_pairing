@@ -19,6 +19,12 @@
 // test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 5465750)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 188520)
 
+// Optimal ate pairing cost, Page 14, Software Implementation of the Optimal
+// Ate Pairing over BN curves
+// 2355 * m ̃     + 2287 * s ̃     + 13933 * a ̃    + i ̃
+// 2355 * 217080 + 2287 * 178070 + 13933 * 35760 + 496310
+// = 1,417,209,880
+
 mod fq01 {
     use bn::traits::{FieldOps, FieldShortcuts,};
     use bn::fields::{fq, Fq};
