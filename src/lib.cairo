@@ -10,6 +10,7 @@ mod fields {
     mod fq2_;
     mod fq6_;
     mod fq12_;
+    mod frobenius;
     mod print;
 
     #[cfg(test)]
