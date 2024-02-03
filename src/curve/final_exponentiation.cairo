@@ -7,11 +7,10 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
 // raising f ∈ Fp12 to the power e = (p^12 - 1)/r can be done in three parts,
 // e = (p^6 - 1) * (p^2 + 1) * (p4 − p2 + 1) / r
-// 
-// 
 
 #[generate_trait]
 impl FinalExponentiation of FinalExponentiationTrait {
+    #[inline(always)]
     fn cyclotomic_sqr(self: Fq12) -> Fq12 {
         let z0 = self.c0.c0;
         let z4 = self.c0.c1;
@@ -59,10 +58,7 @@ impl FinalExponentiation of FinalExponentiationTrait {
         Fq12 { c0: Fq6 { c0: z0, c1: z4, c2: z3 }, c1: Fq6 { c0: z2, c1: z1, c2: z5 }, }
     }
 
-    fn exp_by_neg_x(mut self: Fq12) -> Fq12 {
-        // Binary bools array of bn::curve::X
-        let mut naf = bn::curve::x_naf();
-
+    fn exp_naf(mut self: Fq12, mut naf: Array<(bool, bool)>) -> Fq12 {
         let mut temp_sq = self;
 
         loop {
@@ -83,8 +79,13 @@ impl FinalExponentiation of FinalExponentiationTrait {
                 Option::None => { break; },
             }
         };
+        self
+    }
 
-        FieldUtils::one()
+    #[inline(always)]
+    fn exp_by_neg_x(mut self: Fq12) -> Fq12 {
+        // Binary bools array of bn::curve::X
+        self.exp_naf(bn::curve::x_naf())
     }
 
     // Software Implementation of the Optimal Ate Pairing
@@ -143,14 +144,12 @@ impl FinalExponentiation of FinalExponentiationTrait {
 
         v
     }
-// Software Implementation of the Optimal Ate Pairing
-// Page 9, 4.2 Final exponentiation
-// 
 }
 
+// #[inline(always)]
 fn final_exponentiation(f: Fq12) -> Fq12 {
-    let f = f.pow_p6_minus_1().pow_p2_plus_1();
-    f
+    internal::revoke_ap_tracking();
+    f.pow_p6_minus_1().pow_p2_plus_1().final_exponentiation_last_chunk()
 }
 
 #[cfg(test)]
@@ -215,17 +214,10 @@ mod test {
 
     #[test]
     #[available_gas(99999999999999)]
-    fn test_fq12_mul() {
+    fn test_final_exponentiation() {
         let f = pair_result();
-        let exp = exp_result();
-        assert(f.sqr() == f * f, 'incorrect mul');
+        let result = exp_result();
+        let exponent = super::final_exponentiation(f);
+        assert(exponent == result, 'incorrect exponentiation');
     }
-// #[test]
-// #[available_gas(99999999999999)]
-// fn test_final_exponentiation() {
-//     let f = pair_result();
-//     let result = exp_result();
-//     let exponent = super::final_exponentiation(f);
-//     assert(exponent == result, 'incorrect exponentiation');
-// }
 }
