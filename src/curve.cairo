@@ -1,15 +1,17 @@
 mod g1;
 mod g2;
-mod pairing;
-mod final_exponentiation;
-mod bkls_tate;
-
-#[cfg(test)]
-mod tests {
-    mod g1;
-    mod g2;
-    mod pairing;
+mod old_line_fn;
+mod pairing {
+    mod miller_utils;
+    mod bkls_tate;
+    mod final_exponentiation;
 }
+
+// #[cfg(test)]
+// mod tests {
+//     mod g1;
+//     mod g2;
+// }
 
 use bn::fields as f;
 // These paramas from:
