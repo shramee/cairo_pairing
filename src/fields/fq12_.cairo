@@ -156,7 +156,6 @@ impl Fq12Ops of FieldOps<Fq12> {
         Fq12 { c0: self.c0 - rhs.c0, c1: self.c1 - rhs.c1, }
     }
 
-    #[inline(always)]
     fn mul(self: Fq12, rhs: Fq12) -> Fq12 {
         core::internal::revoke_ap_tracking();
         let Fq12{c0: a0, c1: a1 } = self;
