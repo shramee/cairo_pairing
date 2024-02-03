@@ -72,15 +72,53 @@ fn chord(p1: g1::AffineG1, p2: g1::AffineG1, q: g2::AffineG2) -> Fq12 {
 /// The tangent and cord functions output sparse Fp12 elements.
 /// This map embeds the nonzero coefficients into an Fp12.
 fn sparse_fq12(g000: Fq, g01: Fq2, g11: Fq2) -> Fq12 {
-    let g0 = Fq6 {
-        c0: Fq2 { c0: g000, c1: FieldUtils::zero(), }, c1: g01, c2: FieldUtils::zero(),
-    };
-
-    let g1 = Fq6 { c0: FieldUtils::zero(), c1: g11, c2: FieldUtils::zero(), };
-
     Fq12 {
         c0: Fq6 { c0: Fq2 { c0: g000, c1: FieldUtils::zero(), }, c1: g01, c2: FieldUtils::zero(), },
         c1: Fq6 { c0: FieldUtils::zero(), c1: g11, c2: FieldUtils::zero(), }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use core::debug::PrintTrait;
+    use bn::fields::{Fq12, fq12_, Fq12Utils};
+    use bn::curve::{g1, g2};
+    use bn::traits::ECOperations;
+    use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
+    // use bn::curve::final_exponentiation::final_exponentiation;
+    use super::{miller_loop};
+
+    fn dbl_g2() -> g2::AffineG2 {
+        g2::pt(
+            18029695676650738226693292988307914797657423701064905010927197838374790804409,
+            14583779054894525174450323658765874724019480979794335525732096752006891875705,
+            2140229616977736810657479771656733941598412651537078903776637920509952744750,
+            11474861747383700316476719153975578001603231366361248090558603872215261634898,
+        )
+    }
+    fn dbl_g1() -> g1::AffineG1 {
+        g1::pt(
+            1368015179489954701390400359078579693043519447331113978918064868415326638035,
+            9918110051302171585080402603319702774565515993150576347155970296011118125764,
+        )
+    }
+
+    #[test]
+    #[available_gas(99999999999999)]
+    fn run_pairing() {
+        let pair12 = miller_loop(g1::one(), dbl_g2());
+        ('------------').print();
+        pair12.print();
+
+        // let pair12 = final_exponentiation(pair12);
+
+        ('------------').print();
+    // pair12.print();
+    // let pair21 = miller_loop(g1::pt(DBL_X, DBL_Y), g2::one());
+    // pair21.print();
+    // let pair21 = final_exponentiation(pair21);
+    // (pair12 == pair21).print();
+    // pair21.print();
     }
 }
 
@@ -340,24 +378,4 @@ fn tate_loop_bools() -> Array<bool> {
         false,
         false,
     ]
-}
-
-const DBL_X_0: u256 = 18029695676650738226693292988307914797657423701064905010927197838374790804409;
-const DBL_X_1: u256 = 14583779054894525174450323658765874724019480979794335525732096752006891875705;
-const DBL_Y_0: u256 = 2140229616977736810657479771656733941598412651537078903776637920509952744750;
-const DBL_Y_1: u256 = 11474861747383700316476719153975578001603231366361248090558603872215261634898;
-
-const DBL_X: u256 = 1368015179489954701390400359078579693043519447331113978918064868415326638035;
-const DBL_Y: u256 = 9918110051302171585080402603319702774565515993150576347155970296011118125764;
-
-#[test]
-#[available_gas(99999999999999)]
-fn run_pairing() {
-    let pair12 = final_exponentiation(
-        miller_loop(g1::one(), g2::pt(DBL_X_0, DBL_X_1, DBL_Y_0, DBL_Y_1))
-    );
-    let pair21 = final_exponentiation(miller_loop(g1::pt(DBL_X, DBL_Y), g2::one()));
-    (pair12 == pair21).print();
-    pair12.print();
-    pair21.print();
 }
