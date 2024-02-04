@@ -155,13 +155,11 @@ impl Fq2Ops of FieldOps<Fq2> {
         let Fq2{c0: a0, c1: a1 } = self;
         // Complex squaring
         let v = a0 * a1;
-
-        Fq2 { //
-         // c0: a0.x_add(a1) * a0.x_add(a1.mul_by_nonresidue()) - v - v.mul_by_nonresidue(), //
-        // Mul by non residue -1 makes negative
-        c0: a0.x_add(a1) * (a0 - a1) - v + v, //
-         c1: v + v, //
-         }
+        // (a0+a1) * (a0 + βa1) - v - βv, β = -1
+        let c0 = a0.x_add(a1) * a0.x_add(-a1);
+        // 2v
+        let c1 = v + v;
+        Fq2 { c0, c1 }
     }
 
     #[inline(always)]
