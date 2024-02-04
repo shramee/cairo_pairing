@@ -16,7 +16,7 @@
 // test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 214560)
 // test bn::fields::tests::bench::fq12::div ... ok (gas usage est.: 16899430)
 // test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 6490330)
-// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 5249510)
+// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 4672740)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 188520)
 
 // Optimal ate pairing cost, Page 14, Software Implementation of the Optimal

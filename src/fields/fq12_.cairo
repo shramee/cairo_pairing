@@ -188,15 +188,13 @@ impl Fq12Ops of FieldOps<Fq12> {
     fn sqr(self: Fq12) -> Fq12 {
         core::internal::revoke_ap_tracking();
         let Fq12{c0: a0, c1: a1 } = self;
+        // Complex squaring
         let v = a0 * a1;
-        // Same as in Fq2, BETA is non residue
-        // c = a ^ 2 = a0*a0 + a0*a1*X + a1*a0*X + a1*a1*BETA
-        // c = a0*a0 + a1*a1*BETA + (a0*a1 + a1*a0)*X
-        // or c = (a0*a0 + a1*a1*BETA, a0*a1 + a0*a1)
-        Fq12 { //
-         c0: a0.sqr() + a1.sqr().mul_by_nonresidue(), //
-         c1: v + v, //
-         }
+        // (a0 + a1) * (a0 + βa1) - v - βv
+        let c0 = (a0 + a1) * (a0 + a1.mul_by_nonresidue()) - v - v.mul_by_nonresidue();
+        // 2v
+        let c1 = v + v;
+        Fq12 { c0, c1 }
     }
 
     #[inline(always)]
