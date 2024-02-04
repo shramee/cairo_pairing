@@ -1,19 +1,16 @@
-use bn::fields::{Fq, Fq2, Fq2Utils, fq2, FieldUtils};
-
 // Twisted BN curve
 // E'/Fq2 : y^2 = x^3 + b/xi
+// 
+
+use bn::fields::{Fq, Fq2, Fq2Utils, fq2, FieldUtils};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use core::debug::PrintTrait;
 use bn::traits::{ECOperations};
-// use bn::curve::{add, sub, div, mul, add_inverse};
+use bn::curve::groups::Affine;
 use bn::curve::{FIELD, B};
 use integer::{u256_safe_divmod};
 
-#[derive(Copy, Drop)]
-struct AffineG2 {
-    x: Fq2,
-    y: Fq2
-}
+type AffineG2 = Affine<Fq2>;
 
 #[inline(always)]
 fn pt(x1: u256, x2: u256, y1: u256, y2: u256) -> AffineG2 {

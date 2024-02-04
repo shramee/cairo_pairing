@@ -1,16 +1,13 @@
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use core::debug::PrintTrait;
 use bn::traits::{ECOperations};
+use bn::curve::groups::Affine;
 // use bn::curve::{add, sub, div, mul, add_inverse};
 use bn::curve::{FIELD, B};
 use integer::{u256_safe_divmod};
 use bn::fields::{Fq, fq};
 
-#[derive(Copy, Drop)]
-struct AffineG1 {
-    x: Fq,
-    y: Fq
-}
+type AffineG1 = Affine<Fq>;
 
 #[inline(always)]
 fn pt(x: u256, y: u256) -> AffineG1 {

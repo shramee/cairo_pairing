@@ -1,6 +1,6 @@
+mod groups;
 mod g1;
 mod g2;
-mod old_line_fn;
 mod pairing {
     mod miller_utils;
     mod bkls_tate;

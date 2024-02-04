@@ -21,6 +21,8 @@
 use core::debug::PrintTrait;
 use bn::fields::{Fq12, fq12_, Fq12Utils};
 use bn::curve::{g1, g2};
+use g1::AffineG1Ops;
+use g2::AffineG2Ops;
 use bn::traits::ECOperations;
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use bn::curve::pairing::final_exponentiation::final_exponentiation;

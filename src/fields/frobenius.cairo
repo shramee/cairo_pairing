@@ -1,5 +1,5 @@
 mod fp2 {
-    /// NONRESIDUE = 9+U
+    // NONRESIDUE, ξ = 9+U
     const NONRESIDUE_C0: u256 = 9;
     const NONRESIDUE_C1: u256 = 1;
 }
@@ -73,7 +73,7 @@ mod fp6 {
 
 mod fp12 {
     // FQ12 Frobenius coefficients
-    // https://github.com/alex-ozdemir/collaborative-zksnark/blob/8cff2c2c45cbc4d5c126082a3d1521f3e662475b/curves/bn254/src/fields/fq12.rs#L16
+    // https://github.com/arkworks-rs/algebra/blob/master/curves/bn254/src/fields/fq12.rs
 
     // Fp2::NONRESIDUE^(((q^0) - 1) / 6)
     const Q_0_C0: u256 = 1;
