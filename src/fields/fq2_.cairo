@@ -1,4 +1,3 @@
-use bn::curve::{fq2_non_residue};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq, fq,};
@@ -155,7 +154,7 @@ impl Fq2Ops of FieldOps<Fq2> {
         let Fq2{c0: a0, c1: a1 } = self;
         // Complex squaring
         let v = a0 * a1;
-        // (a0+a1) * (a0 + βa1) - v - βv, β = -1
+        // (a0 + a1) * (a0 + βa1) - v - βv, β = -1
         let c0 = a0.x_add(a1) * a0.x_add(-a1);
         // 2v
         let c1 = v + v;
