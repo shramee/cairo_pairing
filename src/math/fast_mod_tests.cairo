@@ -10,7 +10,7 @@
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
-use bn::fast_mod::{add, sub, div, mul, add_inverse};
+use bn::fast_mod::{add, sub, div, mul, sqr_nz, add_inverse, scale};
 use bn::curve::FIELD;
 use debug::PrintTrait;
 
@@ -33,6 +33,18 @@ fn bench_sub() {
 #[available_gas(1000000)]
 fn bench_mul() {
     mul(a, b, FIELD);
+}
+
+#[test]
+#[available_gas(1000000)]
+fn bench_scl() {
+    scale(a, b.low, FIELD.try_into().unwrap());
+}
+
+#[test]
+#[available_gas(1000000)]
+fn bench_sqr() {
+    sqr_nz(a, FIELD.try_into().unwrap());
 }
 
 #[test]
@@ -64,4 +76,11 @@ fn test_all_mod_ops() {
         12819640619688655488085323601008678463608009668414428319642291645922931558321 == div_,
         'incorrect div'
     );
+    let sqr_mul = mul(a, a, FIELD);
+    let sqr_ = sqr_nz(a, FIELD.try_into().unwrap());
+    assert(sqr_ == sqr_mul, 'incorrect square');
+
+    let scl_mul = mul(a, u256 { high: 0, low: b.low }, FIELD);
+    let scl_ = scale(a, b.low, FIELD.try_into().unwrap());
+    assert(scl_ == scl_mul, 'incorrect square');
 }
