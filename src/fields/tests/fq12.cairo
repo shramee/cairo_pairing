@@ -1,5 +1,5 @@
 use bn::traits::{FieldOps, FieldUtils};
-use bn::fields::{fq12, Fq6, fq6, Fq12Ops};
+use bn::fields::{fq12, Fq12, Fq6, fq6, Fq12Ops};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl, Fq6PrintImpl, Fq12PrintImpl};
 use debug::PrintTrait;
@@ -87,7 +87,7 @@ fn mul() {
 
 #[test]
 #[available_gas(50000000)]
-fn mul() {
+fn mul_assoc() {
     let a = a();
     let b = b();
     let c = axb();

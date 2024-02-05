@@ -58,9 +58,9 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
         let Fq2{c0: a0, c1: a1 } = self;
         Fq2 { //
          //  a0 * b0 + a1 * βb1,
-        c0: a0 * fq(9) - a1, //
+        c0: a0.scale(9) - a1, //
          //  c1: a0 * b1 + a1 * b0,
-        c1: a0 + a1 * fq(9), //
+        c1: a0 + a1.scale(9), //
          }
     }
 
