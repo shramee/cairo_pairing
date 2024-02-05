@@ -59,14 +59,12 @@ fn mul_nz(a: u256, b: u256, modulo: NonZero<u256>) -> u256 {
 }
 
 fn sqr_nz(a: u256, modulo: NonZero<u256>) -> u256 {
-    let b = a;
-    let (limb1, limb0) = integer::u128_wide_mul(a.low, b.low);
-    let (limb2, limb1_part) = integer::u128_wide_mul(a.low, b.high);
+    let (limb1, limb0) = integer::u128_wide_mul(a.low, a.low);
+    let (limb2, limb1_part) = integer::u128_wide_mul(a.low, a.high);
     let (limb1, limb1_overflow0) = u128_add_with_carry(limb1, limb1_part);
-    let (limb2_part, limb1_part) = integer::u128_wide_mul(a.high, b.low);
     let (limb1, limb1_overflow1) = u128_add_with_carry(limb1, limb1_part);
-    let (limb2, limb2_overflow) = u128_add_with_carry(limb2, limb2_part);
-    let (limb3, limb2_part) = integer::u128_wide_mul(a.high, b.high);
+    let (limb2, limb2_overflow) = u128_add_with_carry(limb2, limb2);
+    let (limb3, limb2_part) = integer::u128_wide_mul(a.high, a.high);
     // No overflow since no limb4.
     let limb3 = u128_wrapping_add(limb3, limb2_overflow);
     let (limb2, limb2_overflow) = u128_add_with_carry(limb2, limb2_part);
@@ -96,8 +94,14 @@ fn add_inverse(b: u256, modulo: u256) -> u256 {
 
 #[inline(always)]
 fn add(mut a: u256, mut b: u256, modulo: u256) -> u256 {
+    add_nz(a, b, modulo.try_into().unwrap())
+}
+
+#[inline(always)]
+fn add_nz(mut a: u256, mut b: u256, modulo: NonZero<u256>) -> u256 {
     // Doesn't overflow coz we have at least one bit to spare
-    (a + b) % modulo
+    let (q, r, _) = integer::u256_safe_divmod(a + b, modulo);
+    r
 }
 
 #[inline(always)]
