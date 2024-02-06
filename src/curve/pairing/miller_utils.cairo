@@ -1,7 +1,6 @@
 use core::debug::PrintTrait;
 use bn::fields::{Fq12, fq12_, Fq12Utils};
-use bn::curve::{g1, g2};
-use bn::traits::ECOperations;
+use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 
 trait LineEvaluationsTrait<P1, P2> {
@@ -11,10 +10,10 @@ trait LineEvaluationsTrait<P1, P2> {
     fn at_chord(self: P1, p1: P2, p2: P2) -> Fq12;
 }
 
-impl G2LineEvals of LineEvaluationsTrait<g2::AffineG2, g1::AffineG1> {
+impl G2LineEvals of LineEvaluationsTrait<AffineG2, AffineG1> {
     /// The sloped line function for doubling a point
     #[inline(always)]
-    fn at_tangent(self: g2::AffineG2, p: g1::AffineG1) -> Fq12 {
+    fn at_tangent(self: AffineG2, p: AffineG1) -> Fq12 {
         // -3px^2
         let cx = -fq(3) * p.x.sqr();
         // 2p.y
@@ -24,16 +23,16 @@ impl G2LineEvals of LineEvaluationsTrait<g2::AffineG2, g1::AffineG1> {
 
     /// The sloped line function for adding two points
     #[inline(always)]
-    fn at_chord(self: g2::AffineG2, p1: g1::AffineG1, p2: g1::AffineG1) -> Fq12 {
+    fn at_chord(self: AffineG2, p1: AffineG1, p2: AffineG1) -> Fq12 {
         let cx = p2.y - p1.y;
         let cy = p1.x - p2.x;
         sparse_fq12(p1.y * p2.x - p2.y * p1.x, self.x.scale(cx), self.y.scale(cy))
     }
 }
 
-impl G1LineEvals of LineEvaluationsTrait<g1::AffineG1, g2::AffineG2> {
+impl G1LineEvals of LineEvaluationsTrait<AffineG1, AffineG2> {
     /// The sloped line function for doubling a point
-    fn at_tangent(self: g1::AffineG1, p: g2::AffineG2) -> Fq12 {
+    fn at_tangent(self: AffineG1, p: AffineG2) -> Fq12 {
         // -3px^2
         let cx = -p.x.sqr().scale(-fq(3));
         // 2p.y
@@ -43,7 +42,7 @@ impl G1LineEvals of LineEvaluationsTrait<g1::AffineG1, g2::AffineG2> {
     }
 
     /// The sloped line function for adding two points
-    fn at_chord(self: g1::AffineG1, p1: g2::AffineG2, p2: g2::AffineG2) -> Fq12 {
+    fn at_chord(self: AffineG1, p1: AffineG2, p2: AffineG2) -> Fq12 {
         let cx = p2.y - p1.y;
         let cy = p1.x - p2.x;
         // TODO return Fq12
@@ -64,26 +63,25 @@ fn sparse_fq12(g000: Fq, g01: Fq2, g11: Fq2) -> Fq12 {
 mod g1_line {
     use bn::curve::pairing::miller_utils::LineEvaluationsTrait;
     use bn::fields::{Fq12, fq12_, Fq12Utils};
-    use bn::curve::{g1, g2};
-    use bn::traits::ECOperations;
     use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, fq12, Fq, Fq2, Fq6};
+    use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps, g1, g2};
 
-    fn pt1() -> g1::AffineG1 {
-        g1::pt(
+    fn p1() -> AffineG1 {
+        g1(
             0x11977508bb36160bd6a61bb62df52e7600a4bc5a0501a0575886ec466d7f712f,
             0xedd11161c12eec80ced1a5febbe8ad53cbcbde12aaac2342fa2e085531556e
         )
     }
 
-    fn pt2() -> g1::AffineG1 {
-        g1::pt(
+    fn p2() -> AffineG1 {
+        g1(
             0x3d3925d9e7bae9575fdbff788b6f71af848c7f6086fdfb903bdb6f07a0cd01d,
             0x2c66218e5cb40fbddd2f00d016dae0504fe77a7b01d09adff80fd915e82b0920
         )
     }
 
-    fn q() -> g2::AffineG2 {
-        g2::pt(
+    fn q() -> AffineG2 {
+        g2(
             0x1b938e30eec254e7965da0d7340fae3634baeb73d68992c487e30ca87215b7ce,
             0xd85c8f6fbcc8bd7d31694fc26746708505143e30870d4f34ff73839a1248bc1,
             0x1acd84a5e6312363c601c942bf50ca2892e294a7ce9da09b87e4753eaf79449b,
@@ -127,12 +125,12 @@ mod g1_line {
     #[test]
     #[available_gas(20000000)]
     fn tangent() {
-        assert(q().at_tangent(pt1()) == tangent_res(), 'incorrect tangent');
+        assert(q().at_tangent(p1()) == tangent_res(), 'incorrect tangent');
     }
 
     #[test]
     #[available_gas(20000000)]
     fn chord() {
-        assert(q().at_chord(pt1(), pt2()) == cord_res(), 'incorrect cord');
+        assert(q().at_chord(p1(), p2()) == cord_res(), 'incorrect cord');
     }
 }

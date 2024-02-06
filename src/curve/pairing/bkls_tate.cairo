@@ -20,15 +20,13 @@
 
 use core::debug::PrintTrait;
 use bn::fields::{Fq12, fq12_, Fq12Utils};
-use bn::curve::{g1, g2};
-use g1::AffineG1Ops;
-use g2::AffineG2Ops;
-use bn::traits::ECOperations;
-use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
+use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
+use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
+use print::{FqPrintImpl, Fq2PrintImpl, Fq12PrintImpl};
 use bn::curve::pairing::final_exponentiation::final_exponentiation;
-use bn::curve::pairing::miller_utils::{chord, tangent};
+use bn::curve::pairing::miller_utils::{LineEvaluationsTrait};
 
-fn miller_loop(p: g1::AffineG1, q: g2::AffineG2) -> Fq12 {
+fn miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
     core::internal::revoke_ap_tracking();
 
     let mut r = p;
@@ -41,15 +39,28 @@ fn miller_loop(p: g1::AffineG1, q: g2::AffineG2) -> Fq12 {
                 // Compute the sloped line function l(R,R) for doubling R.
                 // R ← [2]R
                 r = r.double();
+
+                ''.print();
+                'Point r'.print();
+                r.x.print();
+                r.y.print();
+
+                ''.print();
+                'F squared'.print();
+                f.sqr().print();
+
                 // f ← f^2 · l(R,R)(Q)
-                f = f.sqr() * tangent(r, q);
+                f = f.sqr() * q.at_tangent(r);
+
                 if ate_bool { //
                     // Compute the sloped line function l(R,P) for adding R and P.
                     // R ← R + P
                     r = r.add(p);
                     // f ← f · l(R,P)(Q)
-                    f = f * chord(r, p, q);
+                    f = f * q.at_chord(r, p);
                 }
+                f.print();
+                break;
             //
             },
             Option::None => { break; }
@@ -62,39 +73,55 @@ fn miller_loop(p: g1::AffineG1, q: g2::AffineG2) -> Fq12 {
 mod test {
     use core::debug::PrintTrait;
     use bn::fields::{Fq12, fq12_, Fq12Utils};
-    use bn::curve::{g1, g2};
-    use bn::traits::ECOperations;
-    use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
+    use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2};
+    use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq12, Fq, Fq6};
     // use bn::curve::final_exponentiation::final_exponentiation;
     use super::{miller_loop};
 
-    fn dbl_g2() -> g2::AffineG2 {
-        g2::pt(
+    fn dbl_g2() -> AffineG2 {
+        g2(
             18029695676650738226693292988307914797657423701064905010927197838374790804409,
             14583779054894525174450323658765874724019480979794335525732096752006891875705,
             2140229616977736810657479771656733941598412651537078903776637920509952744750,
             11474861747383700316476719153975578001603231366361248090558603872215261634898,
         )
     }
-    fn dbl_g1() -> g1::AffineG1 {
-        g1::pt(
+    fn dbl_g1() -> AffineG1 {
+        g1(
             1368015179489954701390400359078579693043519447331113978918064868415326638035,
             9918110051302171585080402603319702774565515993150576347155970296011118125764,
+        )
+    }
+
+    fn pair_result() -> Fq12 {
+        fq12(
+            0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
+            0x13b8616ce25df6105d793af41913a57b0ab221b193d48107e89204e19568411f,
+            0x1c8ab87de856aafdfb56d051cd79517ae10b4490cc01bd75b347a669d58698da,
+            0x2e7918e3f3702ec1f031bcd571b3c23730ab030a0e7a875c6f99f4536ab3f0bb,
+            0x21f3d1e320a26684b45a7f73a82bbcdabcee7b6b7f1b1073985de6d4f3867bcd,
+            0x2cbf9b28de156b9f479d3a97a216b566d98f9b976f25a5ca31fbab41d9de224d,
+            0x2da44e38ec26bde1ad31495943114856dd885beb7889c590079bb300bb6ec023,
+            0x1c40f4619c21dbd91ba610a8943188e35402e587a071361f60288e7e96fa33b,
+            0x9ebfb41a99f28109afed1112aab3c8ab4ff6dd90097e880669c960f11106b52,
+            0x2d0c275838257edb77665b9aafbbd40626b6a35fe12b4ccacee5613bf3408fc2,
+            0x289d6d934bc5994e10f4dc4bfe3a5ac9cddfce66ee76df1e751b064bfdb5533d,
+            0x1e18e64906693e6f4c9cd40273060c504a78843d903489abb13377666679d33f,
         )
     }
 
     #[test]
     #[available_gas(99999999999999)]
     fn run_pairing() {
-        let pair12 = miller_loop(g1::one(), dbl_g2());
-        ('------------').print();
-        pair12.print();
-
-        // let pair12 = final_exponentiation(pair12);
-
+        let pair12 = miller_loop(AffineG1Impl::one(), dbl_g2());
         ('------------').print();
     // pair12.print();
-    // let pair21 = miller_loop(g1::pt(DBL_X, DBL_Y), g2::one());
+
+    // let pair12 = final_exponentiation(pair12);
+
+    // ('------------').print();
+    // pair12.print();
+    // let pair21 = miller_loop(g1(DBL_X, DBL_Y), AffineG2Impl::one());
     // pair21.print();
     // let pair21 = final_exponentiation(pair21);
     // (pair12 == pair21).print();

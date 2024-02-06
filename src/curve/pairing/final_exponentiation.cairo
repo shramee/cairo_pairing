@@ -1,5 +1,4 @@
 use core::array::ArrayTrait;
-use bn::traits::ECOperations;
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12};
 use bn::fields::fq6_::Fq6Frobenius;
 use bn::fields::fq12_::Fq12Frobenius;
@@ -155,7 +154,6 @@ fn final_exponentiation(f: Fq12) -> Fq12 {
 #[cfg(test)]
 mod test {
     use core::array::ArrayTrait;
-    use bn::traits::ECOperations;
     use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, fq6};
     use bn::fields::fq6_::Fq6Frobenius;
     use bn::fields::fq12_::Fq12Frobenius;

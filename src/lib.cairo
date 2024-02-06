@@ -36,4 +36,4 @@ mod experiments;
 use bn::traits::{FieldOps, FieldUtils};
 mod curve;
 use math::fast_mod;
-use curve::{g1, g2, pairing};
+use curve::{groups as g, pairing};
