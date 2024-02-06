@@ -23,7 +23,6 @@ use bn::fields::{Fq12, fq12_, Fq12Utils};
 use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use print::{FqPrintImpl, Fq2PrintImpl, Fq12PrintImpl};
-use bn::curve::pairing::final_exponentiation::final_exponentiation;
 use bn::curve::pairing::miller_utils::{LineEvaluationsTrait};
 
 fn miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
@@ -37,30 +36,19 @@ fn miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
         match array_items.pop_front() {
             Option::Some(ate_bool) => { //
                 // Compute the sloped line function l(R,R) for doubling R.
-                // R ← [2]R
-                r = r.double();
-
-                ''.print();
-                'Point r'.print();
-                r.x.print();
-                r.y.print();
-
-                ''.print();
-                'F squared'.print();
-                f.sqr().print();
-
                 // f ← f^2 · l(R,R)(Q)
                 f = f.sqr() * q.at_tangent(r);
 
+                // R ← [2]R
+                r = r.double();
+
                 if ate_bool { //
                     // Compute the sloped line function l(R,P) for adding R and P.
-                    // R ← R + P
-                    r = r.add(p);
                     // f ← f · l(R,P)(Q)
                     f = f * q.at_chord(r, p);
+                    // R ← R + P
+                    r = r.add(p);
                 }
-                f.print();
-                break;
             //
             },
             Option::None => { break; }
@@ -75,7 +63,7 @@ mod test {
     use bn::fields::{Fq12, fq12_, Fq12Utils};
     use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2};
     use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq12, Fq, Fq6};
-    // use bn::curve::final_exponentiation::final_exponentiation;
+    use bn::curve::pairing::final_exponentiation::final_exponentiation;
     use super::{miller_loop};
 
     fn dbl_g2() -> AffineG2 {
@@ -112,20 +100,9 @@ mod test {
 
     #[test]
     #[available_gas(99999999999999)]
-    fn run_pairing() {
+    fn bkls_tate_miller() {
         let pair12 = miller_loop(AffineG1Impl::one(), dbl_g2());
-        ('------------').print();
-    // pair12.print();
-
-    // let pair12 = final_exponentiation(pair12);
-
-    // ('------------').print();
-    // pair12.print();
-    // let pair21 = miller_loop(g1(DBL_X, DBL_Y), AffineG2Impl::one());
-    // pair21.print();
-    // let pair21 = final_exponentiation(pair21);
-    // (pair12 == pair21).print();
-    // pair21.print();
+        assert(pair12 == pair_result(), 'incorrect pairing');
     }
 }
 
