@@ -1,9 +1,9 @@
-// test bn::curve::groups_tests::g1_add ... ok (gas usage est.: 359810)
-// test bn::curve::groups_tests::g1_dbl ... ok (gas usage est.: 412280)
-// test bn::curve::groups_tests::g1_mul ... ok (gas usage est.: 1568690)
-// test bn::curve::groups_tests::g2_add ... ok (gas usage est.: 1441630)
-// test bn::curve::groups_tests::g2_dbl ... ok (gas usage est.: 1665910)
-// test bn::curve::groups_tests::g2_mul ... ok (gas usage est.: 6217190)
+// test bn::curve::groups_tests::g1_add ... ok (gas usage est.: 347950)
+// test bn::curve::groups_tests::g1_dbl ... ok (gas usage est.: 387750)
+// test bn::curve::groups_tests::g1_mul ... ok (gas usage est.: 1496910)
+// test bn::curve::groups_tests::g2_add ... ok (gas usage est.: 1289620)
+// test bn::curve::groups_tests::g2_dbl ... ok (gas usage est.: 1480040)
+// test bn::curve::groups_tests::g2_mul ... ok (gas usage est.: 5534030)
 
 use bn::fields::fq;
 use bn::curve::groups::{Affine, AffineOps, AffineG1, AffineG1Impl, g1, AffineG2, AffineG2Impl, g2};
