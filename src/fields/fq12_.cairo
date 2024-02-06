@@ -140,8 +140,32 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
 
     #[inline(always)]
     fn frobenius_map(self: Fq12, power: usize) -> Fq12 {
-        assert(false, 'no_impl: fq12 frobenius');
-        Fq12Utils::one()
+        let rem = power % 12;
+        if rem == 1 {
+            self.frob1()
+        } else if rem == 2 {
+            self.frob2()
+        } else if rem == 3 {
+            self.frob3()
+        } else if rem == 4 {
+            self.frob4()
+        } else if rem == 5 {
+            self.frob5()
+        } else if rem == 6 {
+            self.frob6()
+        } else if rem == 7 {
+            self.frob7()
+        } else if rem == 8 {
+            self.frob8()
+        } else if rem == 9 {
+            self.frob9()
+        } else if rem == 10 {
+            self.frob10()
+        } else if rem == 11 {
+            self.frob11()
+        } else {
+            self.frob0()
+        }
     }
 }
 

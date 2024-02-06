@@ -20,6 +20,7 @@ mod fields {
         mod fq2;
         mod fq6;
         mod fq12;
+        mod frobenius;
     }
     mod fq_generics;
     use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
