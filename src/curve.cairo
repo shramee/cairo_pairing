@@ -102,8 +102,18 @@ const ATE_LOOP_COUNT: u128 = 29793968203157093288;
 const LOG_ATE_LOOP_COUNT: u128 = 63;
 
 #[inline(always)]
+fn field_nz() -> NonZero<u256> {
+    FIELD.try_into().unwrap()
+}
+
+#[inline(always)]
 fn mul(a: u256, b: u256) -> u256 {
-    bn::fast_mod::mul(a, b, FIELD)
+    bn::fast_mod::mul_nz(a, b, field_nz())
+}
+
+#[inline(always)]
+fn scale(a: u256, b: u128) -> u256 {
+    bn::fast_mod::scale(a, b, field_nz())
 }
 
 #[inline(always)]
@@ -117,16 +127,21 @@ fn add(mut a: u256, mut b: u256) -> u256 {
 }
 
 #[inline(always)]
+fn sqr(mut a: u256) -> u256 {
+    bn::fast_mod::sqr_nz(a, field_nz())
+}
+
+#[inline(always)]
 fn sub(mut a: u256, mut b: u256) -> u256 {
     bn::fast_mod::sub(a, b, FIELD)
 }
 
 #[inline(always)]
 fn div(a: u256, b: u256) -> u256 {
-    bn::fast_mod::div(a, b, FIELD)
+    bn::fast_mod::div_nz(a, b, field_nz())
 }
 
 #[inline(always)]
 fn inv(b: u256) -> u256 {
-    math::u256_inv_mod(b, FIELD.try_into().unwrap()).unwrap().into()
+    bn::fast_mod::inv(b, field_nz())
 }
