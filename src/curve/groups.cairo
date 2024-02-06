@@ -1,6 +1,8 @@
-use bn::traits::{FieldOps, FieldShortcuts};
+use bn::traits::{FieldOps as FOps, FieldShortcuts as FShort};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg};
+use bn::fields::print::{FqPrintImpl, Fq2PrintImpl};
 use bn::fields::{fq, Fq, fq2, Fq2};
+use debug::PrintTrait as Print;
 
 type AffineG1 = Affine<Fq>;
 type AffineG2 = Affine<Fq2>;
@@ -23,17 +25,15 @@ trait ECOperations<TCoord> {
 }
 
 impl AffineOps<
-    T, +FieldOps<T>, +FieldShortcuts<T>, +Copy<T>, +Drop<T>, impl ECGroupImpl: ECGroup<T>
+    T, +FOps<T>, +FShort<T>, +Copy<T>, +Print<T>, +Drop<T>, impl ECGImpl: ECGroup<T>
 > of ECOperations<T> {
+    #[inline(always)]
     fn pt_on_slope(self: @Affine<T>, slope: T, x2: T) -> Affine<T> {
-        let Affine{x, y } = *self;
-        // v = y - mx
-        let v = y - slope * x;
-
-        // x = slope^2 - x - x2
-        let x = slope.sqr() - x - x2;
-        // y = - mx - v
-        let y = -slope * x - v;
+        let Affine{x: sx, y: sy } = *self;
+        // x = slope^2 - sx - x2
+        let x = slope.sqr() - sx - x2;
+        // y = m(sx - x) - sy
+        let y = slope * (sx - x) - sy;
         Affine { x, y }
     }
 
@@ -41,7 +41,6 @@ impl AffineOps<
         let Affine{x: x1, y: y1 } = *self;
         let Affine{x: x2, y: y2 } = rhs;
 
-        // m = (y2 - y1) / (x2 - x1)
         let m = (y2 - y1) / (x2 - x1);
 
         self.pt_on_slope(m, x2)
@@ -66,8 +65,8 @@ impl AffineOps<
 
     fn multiply(self: @Affine<T>, mut multiplier: u256) -> Affine<T> {
         let nz2: NonZero<u256> = 2_u256.try_into().unwrap();
-        let mut dbl_step = ECGroupImpl::one();
-        let mut result = ECGroupImpl::one();
+        let mut dbl_step = ECGImpl::one();
+        let mut result = ECGImpl::one();
         let mut first_add_done = false;
 
         // TODO: optimise with u128 ops
