@@ -31,9 +31,6 @@ mod fields {
     use bn::traits::{FieldOps, FieldUtils};
 }
 
-#[cfg(test)]
-mod experiments;
-
 use bn::traits::{FieldOps, FieldUtils};
 mod curve;
 use math::fast_mod;
