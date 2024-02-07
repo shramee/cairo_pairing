@@ -38,3 +38,6 @@ use bn::traits::{FieldOps, FieldUtils};
 mod curve;
 use math::fast_mod;
 use curve::{groups as g, pairing};
+
+#[cfg(test)]
+mod tests;

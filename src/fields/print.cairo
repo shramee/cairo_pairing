@@ -5,7 +5,7 @@ use debug::PrintTrait;
 use core::fmt::{Display, Formatter, Error};
 use core::result::Result;
 
-impl DisplayFq of Display<Fq> {
+impl FqDisplay of Display<Fq> {
     fn fmt(self: @Fq, ref f: Formatter) -> Result<(), Error> {
         let base = 16_u256;
         write!(f, "\n0x");
@@ -14,19 +14,19 @@ impl DisplayFq of Display<Fq> {
     }
 }
 
-impl DisplayFq2 of Display<Fq2> {
+impl Fq2Display of Display<Fq2> {
     fn fmt(self: @Fq2, ref f: Formatter) -> Result<(), Error> {
         write!(f, "{}{}", *self.c0, *self.c1)
     }
 }
 
-impl DisplayFq6 of Display<Fq6> {
+impl Fq6Display of Display<Fq6> {
     fn fmt(self: @Fq6, ref f: Formatter) -> Result<(), Error> {
         write!(f, "{}{}{}", *self.c0, *self.c1, *self.c2)
     }
 }
 
-impl DisplayFq12 of Display<Fq12> {
+impl Fq12Display of Display<Fq12> {
     fn fmt(self: @Fq12, ref f: Formatter) -> Result<(), Error> {
         write!(f, "{}{}", *self.c0, *self.c1)
     }
@@ -34,7 +34,7 @@ impl DisplayFq12 of Display<Fq12> {
 
 #[cfg(test)]
 mod test {
-    use super::{fq12, DisplayFq12};
+    use super::{fq12, Fq12Display};
     #[test]
     #[available_gas(200000000)]
     fn print_fq12() {
