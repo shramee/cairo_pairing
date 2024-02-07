@@ -4,9 +4,9 @@ mod groups;
 mod groups_tests;
 
 mod pairing {
+    mod final_exponentiation;
     mod miller_utils;
     mod bkls_tate;
-    mod final_exponentiation;
 }
 
 use bn::fields as f;
@@ -21,72 +21,107 @@ fn x_naf() -> Array<(bool, bool)> {
     // JS function, f=n=>n?f(n+n%4n/3n>>1n)+'OPON'[n%4n]:''
     // When run with X, f(4965661367192848881n)
     // returns POOOPOPOONOPOPONOOPOPONONONOPOOOPOOPOPOPONOPOOPOOOOPOPOOOONOOOP
-    // Reverses the array and outputs tt for P and tf for 
+    // Reverse and output tt for P and tf for 
+    let O = (false, false);
+    let P = (true, true);
+    let N = (true, false);
     array![
-        (true, true),
-        (false, false),
-        (false, false),
-        (false, false),
-        (true, false),
-        (false, false),
-        (false, false),
-        (false, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, true),
-        (false, false),
-        (false, false),
-        (false, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, true),
-        (false, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (false, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, false),
-        (false, false),
-        (true, false),
-        (false, false),
-        (true, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, true),
-        (false, false),
-        (false, false),
-        (true, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, false),
-        (false, false),
-        (false, false),
-        (true, true),
-        (false, false),
-        (true, true),
-        (false, false),
-        (false, false),
-        (false, false),
-        (true, true),
+        P,
+        O,
+        O,
+        O,
+        N,
+        O,
+        O,
+        O,
+        O,
+        P,
+        O,
+        P,
+        O,
+        O,
+        O,
+        O,
+        P,
+        O,
+        O,
+        P,
+        O,
+        N,
+        O,
+        P,
+        O,
+        P,
+        O,
+        P,
+        O,
+        O,
+        P,
+        O,
+        O,
+        O,
+        P,
+        O,
+        N,
+        O,
+        N,
+        O,
+        N,
+        O,
+        P,
+        O,
+        P,
+        O,
+        O,
+        N,
+        O,
+        P,
+        O,
+        P,
+        O,
+        N,
+        O,
+        O,
+        P,
+        O,
+        P,
+        O,
+        O,
+        O,
+        P,
     ]
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    #[available_gas(2000000000)]
+    fn x_naf_verify() {
+        let mut naf = bn::curve::x_naf();
+        let mut bit = 1_u128;
+        let mut offset = 0xffffffffffffffff_u128;
+        let mut result = offset;
+
+        loop {
+            match naf.pop_front() {
+                Option::Some(naf) => {
+                    let (naf0, naf1) = naf;
+
+                    if naf0 {
+                        if naf1 {
+                            result = result + bit;
+                        } else {
+                            result = result - bit;
+                        }
+                    }
+
+                    bit = bit * 2;
+                },
+                Option::None => { break; },
+            }
+        };
+        assert(result - offset == bn::curve::X.into(), 'incorrect X')
+    }
 }
 
 const ORDER: u256 = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
