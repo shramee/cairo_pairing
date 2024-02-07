@@ -61,65 +61,6 @@ fn tate_pairing(p: AffineG1, q: AffineG2) -> Fq12 {
     final_exponentiation(tate_miller_loop(p, q))
 }
 
-#[cfg(test)]
-mod test {
-    use core::debug::PrintTrait;
-    use bn::fields::{Fq12, fq12_, Fq12Utils};
-    use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2};
-    use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq12, Fq, Fq6};
-    use bn::curve::pairing::final_exponentiation::final_exponentiation;
-    use super::{tate_miller_loop, tate_pairing};
-
-    fn dbl_g2() -> AffineG2 {
-        g2(
-            18029695676650738226693292988307914797657423701064905010927197838374790804409,
-            14583779054894525174450323658765874724019480979794335525732096752006891875705,
-            2140229616977736810657479771656733941598412651537078903776637920509952744750,
-            11474861747383700316476719153975578001603231366361248090558603872215261634898,
-        )
-    }
-    fn dbl_g1() -> AffineG1 {
-        g1(
-            1368015179489954701390400359078579693043519447331113978918064868415326638035,
-            9918110051302171585080402603319702774565515993150576347155970296011118125764,
-        )
-    }
-
-    fn pair_result() -> Fq12 {
-        fq12(
-            0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
-            0x13b8616ce25df6105d793af41913a57b0ab221b193d48107e89204e19568411f,
-            0x1c8ab87de856aafdfb56d051cd79517ae10b4490cc01bd75b347a669d58698da,
-            0x2e7918e3f3702ec1f031bcd571b3c23730ab030a0e7a875c6f99f4536ab3f0bb,
-            0x21f3d1e320a26684b45a7f73a82bbcdabcee7b6b7f1b1073985de6d4f3867bcd,
-            0x2cbf9b28de156b9f479d3a97a216b566d98f9b976f25a5ca31fbab41d9de224d,
-            0x2da44e38ec26bde1ad31495943114856dd885beb7889c590079bb300bb6ec023,
-            0x1c40f4619c21dbd91ba610a8943188e35402e587a071361f60288e7e96fa33b,
-            0x9ebfb41a99f28109afed1112aab3c8ab4ff6dd90097e880669c960f11106b52,
-            0x2d0c275838257edb77665b9aafbbd40626b6a35fe12b4ccacee5613bf3408fc2,
-            0x289d6d934bc5994e10f4dc4bfe3a5ac9cddfce66ee76df1e751b064bfdb5533d,
-            0x1e18e64906693e6f4c9cd40273060c504a78843d903489abb13377666679d33f,
-        )
-    }
-
-    #[test]
-    #[available_gas(99999999999999)]
-    fn miller() {
-        let pair12 = tate_miller_loop(AffineG1Impl::one(), dbl_g2());
-        assert(pair12 == pair_result(), 'incorrect pairing');
-    }
-
-    #[test]
-    #[available_gas(99999999999999)]
-    fn pairing() {
-        let p1 = AffineG1Impl::one();
-        let p2 = dbl_g1();
-        let q1 = AffineG2Impl::one();
-        let q2 = dbl_g2();
-        assert(tate_pairing(p1, q2) == tate_pairing(p2, q1), 'pairing mismatch');
-    }
-}
-
 fn tate_loop_bools() -> Array<bool> {
     array![
         true,

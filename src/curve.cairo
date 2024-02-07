@@ -7,6 +7,8 @@ mod pairing {
     mod final_exponentiation;
     mod miller_utils;
     mod bkls_tate;
+    #[cfg(test)]
+    mod tests;
 }
 
 use bn::fields as f;
