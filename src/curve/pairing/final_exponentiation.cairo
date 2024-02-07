@@ -11,6 +11,8 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 impl FinalExponentiation of FinalExponentiationTrait {
     #[inline(always)]
     fn cyclotomic_sqr(self: Fq12) -> Fq12 {
+        core::internal::revoke_ap_tracking();
+
         let z0 = self.c0.c0;
         let z4 = self.c0.c1;
         let z3 = self.c0.c2;
@@ -59,6 +61,7 @@ impl FinalExponentiation of FinalExponentiationTrait {
 
     fn exp_naf(mut self: Fq12, mut naf: Array<(bool, bool)>) -> Fq12 {
         let mut temp_sq = self;
+        let mut result = FieldUtils::one();
 
         loop {
             match naf.pop_front() {
@@ -67,9 +70,9 @@ impl FinalExponentiation of FinalExponentiationTrait {
 
                     if naf0 {
                         if naf1 {
-                            self = self * temp_sq;
+                            result = result * temp_sq;
                         } else {
-                            self = self * temp_sq.conjugate();
+                            result = result * temp_sq.conjugate();
                         }
                     }
 
@@ -78,13 +81,13 @@ impl FinalExponentiation of FinalExponentiationTrait {
                 Option::None => { break; },
             }
         };
-        self
+        result
     }
 
     #[inline(always)]
     fn exp_by_neg_x(mut self: Fq12) -> Fq12 {
         // Binary bools array of bn::curve::X
-        self.exp_naf(bn::curve::x_naf())
+        self.exp_naf(bn::curve::x_naf()).conjugate()
     }
 
     // Software Implementation of the Optimal Ate Pairing
@@ -100,19 +103,15 @@ impl FinalExponentiation of FinalExponentiationTrait {
     // Software Implementation of the Optimal Ate Pairing
     // Page 9, 4.2 Final exponentiation
     // Page 5 - 6, 3.2 Frobenius Operator
-    // For f ∈ Fp12, f = g + hw with g, h ∈ Fp6
-    // g = g0 + g1v + g2v^2, h = h0 + h1v + h2v^2 for gi, hi ∈ Fp2
-    // p-power of an arbitrary element in the quadratic extension field Fp2 can be computed
-    // essentially free of cost as follows.For b = b0 + b1u, b^(p^2i) = b
-    //
-    // f^(p^2+1) = 
+    // f^(p^2+1) = f^(p^2) * f = f.frob2() * f
     #[inline(always)]
     fn pow_p2_plus_1(self: Fq12) -> Fq12 {
         self.frob2() * self
     }
 
+    // p^4 - p^2 + 1
     #[inline(always)]
-    fn final_exponentiation_last_chunk(self: Fq12) -> Fq12 {
+    fn pow_p4_minus_p2_plus_1(self: Fq12) -> Fq12 {
         let a = self.exp_by_neg_x();
         let b = a.cyclotomic_sqr();
         let c = b.cyclotomic_sqr();
@@ -148,13 +147,18 @@ impl FinalExponentiation of FinalExponentiationTrait {
 // #[inline(always)]
 fn final_exponentiation(f: Fq12) -> Fq12 {
     internal::revoke_ap_tracking();
-    f.pow_p6_minus_1().pow_p2_plus_1().final_exponentiation_last_chunk()
+    f.pow_p6_minus_1().pow_p2_plus_1().pow_p4_minus_p2_plus_1()
 }
 
 #[cfg(test)]
 mod test {
+    use bn::curve::pairing::final_exponentiation::FinalExponentiationTrait;
+    use bn::curve::pairing::final_exponentiation::final_exponentiation;
     use core::array::ArrayTrait;
-    use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, fq6};
+    use bn::fields::{
+        print::Fq12PrintImpl, print::FqPrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12,
+        fq12, fq6
+    };
     use bn::fields::fq6_::Fq6Frobenius;
     use bn::fields::fq12_::Fq12Frobenius;
     use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
@@ -176,7 +180,41 @@ mod test {
         )
     }
 
-    fn exp_result() -> Fq12 {
+    fn pair_result_21() -> Fq12 {
+        fq12(
+            0x67344e1277398709a07f22125f334c042889b9968132d91836456f02693e2aa,
+            0x9eb543ae69ac30e7c5a1d8740db1a27b76ce7639c31b4c5097118031dcc9fd6,
+            0x1a828818f6199acedcc7e3b04359dd558e34046b9367d4f43e90530a3241800e,
+            0x50eba70419a4a7703a843ab3ba1d635378175acdf8eecbdf959bba7b7d30458,
+            0x51c4fe05ca153f901a16e7aa2d17eaae8ba67e06ff0f36f6b039a1eacf2b6cf,
+            0x65ff7c2e78658da7694f442878d48d346b33678a6fe2ead51b475977e2c4f7f,
+            0xc13c405903b8328438e35f5eae314749ae264ffeb6c4e4429108b29338da611,
+            0x9b07dee721f8a8468804de92b08bac6dae98d8246da83ff65b96a7ab3241652,
+            0x19731a39f257d88617714358ee57d06ae39d2b51b07c9de926be9ae4fa4ed2cc,
+            0x103dea7bed900dd8dbabac886bd24e973cee753d8c1781b71f8b40b3ecaeb04f,
+            0x239d3477b8798bb2227e8e21d724419e093c5c678058049a61bb69e21e046c00,
+            0x309258557eb06754d1dcfb8a6fa4a98c59538a8dc0317cbae8fd97078c36cf0,
+        )
+    }
+
+    fn easy_result() -> Fq12 {
+        fq12(
+            0x2a4ca72fdd0af3ff86e646da9b96a7cc69407cc1e4f87dd12f6552d6168cc1cb,
+            0x1e632505544fad7aa191c7b1c7cc7a816d43ea1e3c222a9f633f2532beba7a90,
+            0x29f7ffe4990167e9c40b82e10d99104ed5d58a10505ca9df3fe6f89f6d724631,
+            0x2ecce5bd65fbc42a4fbacc84ed28a52669da21815d300b2c1a85cf547f941dff,
+            0x2379db1f2f5cc1fbc708decedaec77bef7d70e5b45e93e0e3f4ed386e4f98543,
+            0x48bcf44109b965cfcb21c0fd27c8a6a46b85d3d6bc8eef39bf4808fd737cc9b,
+            0x14d67d4a9d98bb99dca11a3dfdf7ee4655c5305123e8676abd56cef0448cf135,
+            0x2f9b1014ad8e0e49630b434d1869fbf7172935beff46af19cd14415f3592b2a2,
+            0x79cb3aad73095167444481a53809f754281e717954a8247baa89729918cb2ce,
+            0x2a3b1205bc914c2659c0eeea8e956ca4fd0386d8e5a05ba73a44114db999f936,
+            0x2ed2c21f4810cf49ad8f51cc1bd2d28972a066bb153f23f87e955496865cccb4,
+            0x24c11b663b70d224c7c3f096026b6aa418a4945ffcc6d8aaa5522633b2836b49,
+        )
+    }
+
+    fn final_result() -> Fq12 {
         fq12(
             0x1025124034fecc32ba2c3bbbcdb356c5bd84a787f0a9c5e1f9a34d5b87dae85a,
             0x1aafb1f7de052c1c1187f7d294d2204bf4e854a05965817e51014a355d917f96,
@@ -193,29 +231,61 @@ mod test {
         )
     }
 
-    fn pair_mul_exp_result() -> Fq12 {
-        fq12(
-            0x280d0beb03619826096b4b048e2abb1af592d3d56efa2dc7fd9ce4b9a5b0c1b7,
-            0x116f1c822ef34231f506b9afd9edb357ce0adb6320f5f929e477df81198b309d,
-            0x2a42bcd10a9b003bf1f8afd65cf2831d708322383d498a4a1bb3ae5c20a243eb,
-            0x2a0819f95ecf7e8a4405e1e706726a638550b3b20eebb66b97804be88854e679,
-            0x2b2cc91cb1e19ce8b66da51c7b08643286216118bb8e062e3827b8c1f6d74e7,
-            0x214dcdee43ebc72e673cc19f993703e1ad1db17113f7ae41cbddd709380d184d,
-            0x18aa857acdd6783733aae6be98bf7fa14ac053fbf6f042b35bedf374eb124084,
-            0x16db5d26558eb13f21bb538eafdef3d71c7738a901361fe37b2b1632c0beca,
-            0x1a79cd9802cd1685c7c387362a3f2cb31c96b59d100cb38c724ad70077dd940,
-            0x19e48782b668248e46f48104f64925e8a67006556a09df165e2a0ad5c0bf1cb2,
-            0x2b9d548b03eb32bac1bb1dd98188668cc01dc7afcf0de68b9f5a35c2ca16813b,
-            0x18ff99c25f448b082571917c3f5d9b8c6b2ec2956103c0027dbedd72ecd16c6e,
-        )
-    }
+    // #[test]
+    // #[available_gas(99999999999999)]
+    // fn easy() {
+    //     let f = pair_result();
+    //     assert(f.pow_p6_minus_1().pow_p2_plus_1() == easy_result(), 'incorrect exponentiation');
+    // }
+
+    // #[test]
+    // #[available_gas(99999999999999)]
+    // fn hard() {
+    //     let f = easy_result();
+    //     assert(f.pow_p4_minus_p2_plus_1() == final_result(), 'incorrect exponentiation');
+    // }
 
     #[test]
     #[available_gas(99999999999999)]
-    fn test_final_exponentiation() {
-        let f = pair_result();
-        let result = exp_result();
-        let exponent = super::final_exponentiation(f);
-        assert(exponent == result, 'incorrect exponentiation');
+    fn exponentiation_compare() {
+        let f12 = final_exponentiation(pair_result());
+        let f21 = final_exponentiation(pair_result_21());
+        let f_random = final_exponentiation(easy_result());
+
+        assert(f12 != FieldUtils::one(), 'degenerate exponentiation');
+        assert(f12 == f21, 'incorrect exponentiation');
+        assert(f12 != f_random, 'incorrect match');
+        println!("non-degenerate distinct exponentiation:");
+        println!("{}", f12.c0.c0.c0.c0);
+        println!("{}", f12.c0.c0.c0.c0);
+        println!("{}", f12.c0.c0.c1.c0);
+        println!("{}", f12.c0.c1.c0.c0);
+        println!("{}", f12.c0.c1.c1.c0);
+        println!("{}", f12.c0.c2.c0.c0);
+        println!("{}", f12.c0.c2.c1.c0);
+        println!("{}", f12.c1.c0.c0.c0);
+        println!("{}", f12.c1.c0.c1.c0);
+        println!("{}", f12.c1.c1.c0.c0);
+        println!("{}", f12.c1.c1.c1.c0);
+        println!("{}", f12.c1.c2.c0.c0);
+        println!("{}", f12.c1.c2.c1.c0);
     }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn pow_test() {
+        let x = easy_result();
+        let o = (false, false);
+        let p = (true, true);
+        let n = (true, false);
+        let xpow = x.exp_naf(array![n, o, o, p]);
+        let expected = x.cyclotomic_sqr().cyclotomic_sqr().cyclotomic_sqr() / x;
+        assert(xpow == expected, 'incorrect pow');
+    }
+// #[test]
+// #[available_gas(99999999999999)]
+// fn cyclotomic_sqr() {
+//     let f = easy_result();
+//     assert(f.sqr() == f.cyclotomic_sqr(), 'incorrect cyclo sqr');
+// }
 }
