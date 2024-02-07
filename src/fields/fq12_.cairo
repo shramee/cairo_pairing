@@ -6,7 +6,7 @@ use bn::fields::fq6_::{Fq6Frobenius};
 use bn::fields::frobenius::fp12 as frob;
 use debug::PrintTrait;
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Debug)]
 struct Fq12 {
     c0: Fq6,
     c1: Fq6,

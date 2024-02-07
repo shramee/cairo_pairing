@@ -5,7 +5,7 @@ use bn::fields::fq2_::Fq2Frobenius;
 
 use debug::PrintTrait;
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Debug)]
 struct Fq6 {
     c0: Fq2,
     c1: Fq2,

@@ -3,7 +3,7 @@ use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartial
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
 use debug::PrintTrait;
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Debug)]
 struct Fq {
     c0: u256
 }
