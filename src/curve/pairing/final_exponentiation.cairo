@@ -255,20 +255,6 @@ mod test {
         assert(f12 != FieldUtils::one(), 'degenerate exponentiation');
         assert(f12 == f21, 'incorrect exponentiation');
         assert(f12 != f_random, 'incorrect match');
-        println!("non-degenerate distinct exponentiation:");
-        println!("{}", f12.c0.c0.c0.c0);
-        println!("{}", f12.c0.c0.c0.c0);
-        println!("{}", f12.c0.c0.c1.c0);
-        println!("{}", f12.c0.c1.c0.c0);
-        println!("{}", f12.c0.c1.c1.c0);
-        println!("{}", f12.c0.c2.c0.c0);
-        println!("{}", f12.c0.c2.c1.c0);
-        println!("{}", f12.c1.c0.c0.c0);
-        println!("{}", f12.c1.c0.c1.c0);
-        println!("{}", f12.c1.c1.c0.c0);
-        println!("{}", f12.c1.c1.c1.c0);
-        println!("{}", f12.c1.c2.c0.c0);
-        println!("{}", f12.c1.c2.c1.c0);
     }
 
     #[test]

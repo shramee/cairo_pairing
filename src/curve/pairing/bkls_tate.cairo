@@ -20,12 +20,13 @@
 
 use core::debug::PrintTrait;
 use bn::fields::{Fq12, fq12_, Fq12Utils};
+use bn::curve::pairing::final_exponentiation::final_exponentiation;
 use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use print::{FqPrintImpl, Fq2PrintImpl, Fq12PrintImpl};
 use bn::curve::pairing::miller_utils::{LineEvaluationsTrait};
 
-fn miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
+fn tate_miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
     core::internal::revoke_ap_tracking();
 
     let mut r = p;
@@ -56,6 +57,9 @@ fn miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
     };
     f
 }
+fn tate_pairing(p: AffineG1, q: AffineG2) -> Fq12 {
+    final_exponentiation(tate_miller_loop(p, q))
+}
 
 #[cfg(test)]
 mod test {
@@ -64,7 +68,7 @@ mod test {
     use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2};
     use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq12, Fq, Fq6};
     use bn::curve::pairing::final_exponentiation::final_exponentiation;
-    use super::{miller_loop};
+    use super::{tate_miller_loop, tate_pairing};
 
     fn dbl_g2() -> AffineG2 {
         g2(
@@ -100,9 +104,19 @@ mod test {
 
     #[test]
     #[available_gas(99999999999999)]
-    fn bkls_tate_miller() {
-        let pair12 = miller_loop(AffineG1Impl::one(), dbl_g2());
+    fn miller() {
+        let pair12 = tate_miller_loop(AffineG1Impl::one(), dbl_g2());
         assert(pair12 == pair_result(), 'incorrect pairing');
+    }
+
+    #[test]
+    #[available_gas(99999999999999)]
+    fn pairing() {
+        let p1 = AffineG1Impl::one();
+        let p2 = dbl_g1();
+        let q1 = AffineG2Impl::one();
+        let q2 = dbl_g2();
+        assert(tate_pairing(p1, q2) == tate_pairing(p2, q1), 'pairing mismatch');
     }
 }
 
