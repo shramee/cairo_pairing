@@ -52,7 +52,7 @@ mod test {
             0x236942b30ace732d8b186b0702ea748b375e4405799aa59cf2ae5459f99216f4,
             0x10fc55420be890b138082d746e66bf86f4efe8190cc83313a792dd156bc76e1f,
         );
-        println!("Test fq12: {}", f);
+    // println!("Test fq12: {}", f);
     }
 }
 

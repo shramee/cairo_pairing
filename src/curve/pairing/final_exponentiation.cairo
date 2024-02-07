@@ -9,7 +9,7 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
 #[generate_trait]
 impl FinalExponentiation of FinalExponentiationTrait {
-    #[inline(always)]
+    // #[inline(always)]
     fn cyclotomic_sqr(self: Fq12) -> Fq12 {
         core::internal::revoke_ap_tracking();
 

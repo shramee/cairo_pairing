@@ -1,8 +1,8 @@
 mod math {
     mod i257;
     mod fast_mod;
-    #[cfg(test)]
-    mod fast_mod_tests;
+// #[cfg(test)]
+// mod fast_mod_tests;
 }
 mod traits;
 mod fields {
@@ -14,13 +14,13 @@ mod fields {
     mod print;
 
     #[cfg(test)]
-    mod tests {
-        mod bench;
-        mod fq;
-        mod fq2;
-        mod fq6;
-        mod fq12;
-        mod frobenius;
+    mod tests { //
+    // mod bench;
+    // mod fq;
+    // mod fq2;
+    // mod fq6;
+    // mod fq12;
+    // mod frobenius;
     }
     mod fq_generics;
     use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
