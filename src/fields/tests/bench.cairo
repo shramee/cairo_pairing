@@ -1,29 +1,23 @@
-// test bn::fields::tests::bench::fq01::add ... ok (gas usage est.: 16680)
-// test bn::fields::tests::bench::fq01::div ... ok (gas usage est.: 86400)
-// test bn::fields::tests::bench::fq01::mul ... ok (gas usage est.: 52530)
-// test bn::fields::tests::bench::fq01::sqr ... ok (gas usage est.: 48300)
+// test bn::fields::tests::bench::fq01::add ... ok (gas usage est.: 13870)
+// test bn::fields::tests::bench::fq01::div ... ok (gas usage est.: 86000)
+// test bn::fields::tests::bench::fq01::mul ... ok (gas usage est.: 52130)
+// test bn::fields::tests::bench::fq01::sqr ... ok (gas usage est.: 47900)
 // test bn::fields::tests::bench::fq01::sub ... ok (gas usage est.: 15710)
-// test bn::fields::tests::bench::fq02::add ... ok (gas usage est.: 33860)
-// test bn::fields::tests::bench::fq02::div ... ok (gas usage est.: 486750)
-// test bn::fields::tests::bench::fq02::mul ... ok (gas usage est.: 217080)
-// test bn::fields::tests::bench::fq02::sqr ... ok (gas usage est.: 140830)
+// test bn::fields::tests::bench::fq02::add ... ok (gas usage est.: 27440)
+// test bn::fields::tests::bench::fq02::div ... ok (gas usage est.: 481040)
+// test bn::fields::tests::bench::fq02::mul ... ok (gas usage est.: 215580)
+// test bn::fields::tests::bench::fq02::sqr ... ok (gas usage est.: 136920)
 // test bn::fields::tests::bench::fq02::sub ... ok (gas usage est.: 31420)
-// test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 100980)
-// test bn::fields::tests::bench::fq06::div ... ok (gas usage est.: 5010050)
-// test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 1882240)
-// test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 1396030)
+// test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 81720)
+// test bn::fields::tests::bench::fq06::div ... ok (gas usage est.: 4973720)
+// test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 1878820)
+// test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 1343540)
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 94260)
-// test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 201660)
-// test bn::fields::tests::bench::fq12::div ... ok (gas usage est.: 16238470)
-// test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 6253830)
-// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 4467240)
+// test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 163140)
+// test bn::fields::tests::bench::fq12::div ... ok (gas usage est.: 16032880)
+// test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 6189380)
+// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 4410000)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 188520)
-
-// Optimal ate pairing cost, Page 14, Software Implementation of the Optimal
-// Ate Pairing over BN curves
-// 2355 * m ̃     + 2287 * s ̃     + 13933 * a ̃    + i ̃
-// 2355 * 217080 + 2287 * 178070 + 13933 * 35760 + 496310
-// = 1,417,209,880
 
 mod fq01 {
     use bn::traits::{FieldOps, FieldShortcuts,};

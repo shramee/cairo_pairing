@@ -1,5 +1,5 @@
-// test bn::tests::miller_bench ... ok (gas usage est.: 4663756470)
-// test bn::tests::pairing_bench ... ok (gas usage est.: 6578295960)
+// test bn::tests::miller_bench ... ok (gas usage est.: 4614569370)
+// test bn::tests::pairing_bench ... ok (gas usage est.: 6488799670)
 
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2};
