@@ -148,23 +148,23 @@ impl Fq6Ops of FieldOps<Fq6> {
         Fq6 {
             c0: {
                 // ((a1 + a2) * (b1 + b2) - v1 - v2).mul_by_nonresidue() + v0
-                ((a1.x_add(a2) * b1.x_add(b2)).x_add(-v1).x_add(-v2))
+                ((a1.u_add(a2) * b1.u_add(b2)).u_add(-v1).u_add(-v2))
                     .fix_mod()
                     .mul_by_nonresidue()
-                    .x_add(v0)
+                    .u_add(v0)
                     .fix_mod()
             },
             c1: {
                 //(a0 + a1) * (b0 + b1) - v0 - v1 + v2.mul_by_nonresidue()
-                (a0.x_add(a1) * b0.x_add(b1))
-                    .x_add(-v0)
-                    .x_add(-v1)
-                    .x_add(v2.mul_by_nonresidue())
+                (a0.u_add(a1) * b0.u_add(b1))
+                    .u_add(-v0)
+                    .u_add(-v1)
+                    .u_add(v2.mul_by_nonresidue())
                     .fix_mod()
             },
             c2: {
                 // (a0 + a2) * (b0 + b2) - v0 + v1 - v2
-                (a0.x_add(a2) * b0.x_add(b2)).x_add(-v0).x_add(-v2).x_add(v1).fix_mod()
+                (a0.u_add(a2) * b0.u_add(b2)).u_add(-v0).u_add(-v2).u_add(v1).fix_mod()
             },
         }
     }

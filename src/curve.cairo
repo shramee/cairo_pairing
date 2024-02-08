@@ -15,6 +15,8 @@ mod pairing {
 }
 
 use bn::fields as f;
+use bn::math::fast_mod as m;
+use m::{add_u, mul_u, sqr_u, scl_u};
 // These paramas from:
 // https://hackmd.io/@jpw/bn254
 
@@ -144,40 +146,40 @@ fn field_nz() -> NonZero<u256> {
 
 #[inline(always)]
 fn mul(a: u256, b: u256) -> u256 {
-    bn::fast_mod::mul_nz(a, b, field_nz())
+    m::mul_nz(a, b, field_nz())
 }
 
 #[inline(always)]
 fn scl(a: u256, b: u128) -> u256 {
-    bn::fast_mod::scl(a, b, field_nz())
+    m::scl(a, b, field_nz())
 }
 
 #[inline(always)]
 fn neg(b: u256) -> u256 {
-    bn::fast_mod::neg(b, FIELD)
+    m::neg(b, FIELD)
 }
 
 #[inline(always)]
 fn add(mut a: u256, mut b: u256) -> u256 {
-    bn::fast_mod::add(a, b, FIELD)
+    m::add(a, b, FIELD)
 }
 
 #[inline(always)]
 fn sqr(mut a: u256) -> u256 {
-    bn::fast_mod::sqr_nz(a, field_nz())
+    m::sqr_nz(a, field_nz())
 }
 
 #[inline(always)]
 fn sub(mut a: u256, mut b: u256) -> u256 {
-    bn::fast_mod::sub(a, b, FIELD)
+    m::sub(a, b, FIELD)
 }
 
 #[inline(always)]
 fn div(a: u256, b: u256) -> u256 {
-    bn::fast_mod::div_nz(a, b, field_nz())
+    m::div_nz(a, b, field_nz())
 }
 
 #[inline(always)]
 fn inv(b: u256) -> u256 {
-    bn::fast_mod::inv(b, field_nz())
+    m::inv(b, field_nz())
 }
