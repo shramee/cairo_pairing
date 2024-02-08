@@ -12,7 +12,7 @@
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
-use bn::fast_mod::{add, sub, div, mul, sqr_nz, add_inverse, scale};
+use bn::fast_mod::{add, sub, div, mul, sqr_nz, neg, scl};
 use bn::curve::FIELD;
 use debug::PrintTrait;
 
@@ -43,7 +43,7 @@ mod bench {
     #[test]
     #[available_gas(1000000)]
     fn scl() {
-        f::scale(a, b.low, FIELD.try_into().unwrap());
+        f::scl(a, b.low, FIELD.try_into().unwrap());
     }
 
     #[test]
@@ -121,6 +121,6 @@ fn test_all_mod_ops() {
     assert(sqr_ == sqr_mul, 'incorrect square');
 
     let scl_mul = mul(a, u256 { high: 0, low: b.low }, FIELD);
-    let scl_ = scale(a, b.low, FIELD.try_into().unwrap());
+    let scl_ = scl(a, b.low, FIELD.try_into().unwrap());
     assert(scl_ == scl_mul, 'incorrect square');
 }

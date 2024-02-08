@@ -1,4 +1,4 @@
-use bn::curve::{add, sub, mul, div, add_inverse};
+use bn::curve::{add, sub, mul, div, neg};
 use bn::traits::FieldOps;
 use bn::fields::{Fq, Fq2, Fq6, Fq12};
 

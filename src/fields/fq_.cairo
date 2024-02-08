@@ -1,4 +1,4 @@
-use bn::curve::{FIELD, add, sub, mul, scale, sqr, div, add_inverse, inv};
+use bn::curve::{FIELD, add, sub, mul, scl, sqr, div, neg, inv};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
 use debug::PrintTrait;
@@ -40,7 +40,7 @@ impl FqUtils of FieldUtils<Fq, u128> {
 
     #[inline(always)]
     fn scale(self: Fq, by: u128) -> Fq {
-        Fq { c0: scale(self.c0, by) }
+        Fq { c0: scl(self.c0, by) }
     }
 
     #[inline(always)]
@@ -88,7 +88,7 @@ impl FqOps of FieldOps<Fq> {
 
     #[inline(always)]
     fn neg(self: Fq) -> Fq {
-        fq(add_inverse(self.c0))
+        fq(neg(self.c0))
     }
 
     #[inline(always)]

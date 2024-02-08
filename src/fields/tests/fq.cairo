@@ -13,15 +13,15 @@ fn ops() -> Array<Fq> {
     ]
 }
 
-use bn::curve::{sub, add, mul, div, add_inverse,};
+use bn::curve::{sub, add, mul, div, neg,};
 
 fn u256_mod_ops() -> Array<u256> {
     array![ //
-        sub(256, 56), //
-         add(256, 56), //
-         mul(256, 56), //
-         div(256, 56), //
-         add_inverse(256), //
+    sub(256, 56), //
+     add(256, 56), //
+     mul(256, 56), //
+     div(256, 56), //
+     neg(256), //
     ]
 }
 

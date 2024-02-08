@@ -3,6 +3,9 @@ mod groups;
 // #[cfg(test)]
 // mod groups_tests;
 
+// #[cfg(test)]
+// mod tests;
+
 mod pairing {
     mod final_exponentiation;
     mod miller_utils;
@@ -145,13 +148,13 @@ fn mul(a: u256, b: u256) -> u256 {
 }
 
 #[inline(always)]
-fn scale(a: u256, b: u128) -> u256 {
-    bn::fast_mod::scale(a, b, field_nz())
+fn scl(a: u256, b: u128) -> u256 {
+    bn::fast_mod::scl(a, b, field_nz())
 }
 
 #[inline(always)]
-fn add_inverse(b: u256) -> u256 {
-    bn::fast_mod::add_inverse(b, FIELD)
+fn neg(b: u256) -> u256 {
+    bn::fast_mod::neg(b, FIELD)
 }
 
 #[inline(always)]
