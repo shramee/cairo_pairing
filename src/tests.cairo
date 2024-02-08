@@ -1,7 +1,10 @@
+// test bn::tests::miller_bench ... ok (gas usage est.: 4663756470)
+// test bn::tests::pairing_bench ... ok (gas usage est.: 6578295960)
+
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2};
 use bn::fields::{Fq, Fq2, print::Fq12Display};
-use bn::curve::pairing::bkls_tate::tate_pairing;
+use bn::curve::pairing::bkls_tate::{tate_pairing, tate_miller_loop};
 
 fn p(n: u8) -> Affine<Fq> {
     if n == 1 {
@@ -57,6 +60,18 @@ fn q(n: u8) -> Affine<Fq2> {
     }
 }
 
+#[test]
+#[available_gas(20000000000)]
+fn miller_bench() {
+    tate_miller_loop(p(5), q(3));
+}
+
+#[test]
+#[available_gas(20000000000)]
+fn pairing_bench() {
+    tate_pairing(p(5), q(3));
+}
+
 // In tests below, P is G1 generator and Q is G2 generator
 
 // Tests bilinearity in G1,
@@ -88,3 +103,4 @@ fn bilinearity_g2() {
 fn quadratic_constraints() {
     assert(tate_pairing(p(3), q(2)) == tate_pairing(p(1), q(5).add(q(1))), 'e([3]g1,[2]g2) failed')
 }
+
