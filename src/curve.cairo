@@ -12,7 +12,7 @@ use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT,};
 mod pairing {
     mod final_exponentiation;
     mod miller_utils;
-    mod bkls_tate;
+    mod tate_bkls;
 // #[cfg(test)]
 // mod tests;
 }

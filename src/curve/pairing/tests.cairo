@@ -3,7 +3,7 @@ use bn::fields::{Fq12, fq12_, Fq12Utils};
 use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2};
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq12, Fq, Fq6};
 use bn::curve::pairing::final_exponentiation::final_exponentiation;
-use bn::pairing::bkls_tate::{tate_miller_loop, tate_pairing};
+use bn::pairing::tate_bkls::{tate_miller_loop, tate_pairing};
 
 fn dbl_g2() -> AffineG2 {
     g2(

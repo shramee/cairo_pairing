@@ -4,7 +4,7 @@
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2};
 use bn::fields::{Fq, Fq2, print::Fq12Display};
-use bn::curve::pairing::bkls_tate::{tate_pairing, tate_miller_loop};
+use bn::curve::pairing::tate_bkls::{tate_pairing, tate_miller_loop};
 
 fn p(n: u8) -> Affine<Fq> {
     if n == 1 {
