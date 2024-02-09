@@ -7,9 +7,12 @@ trait FieldUtils<TFq, TFqChildren> {
     fn frobenius_map(self: TFq, power: usize) -> TFq;
 }
 
-trait FieldShortcuts<TFq, TFqU512> {
+trait FieldShortcuts<TFq> {
     fn u_add(self: TFq, rhs: TFq) -> TFq;
     fn fix_mod(self: TFq) -> TFq;
+}
+
+trait FieldMulShortcuts<TFq, TFqU512> {
     fn u_mul(self: TFq, rhs: TFq) -> TFqU512;
     fn u_sqr(self: TFq) -> TFqU512;
     fn u_scl(self: TFq, rhs: u128) -> TFqU512;

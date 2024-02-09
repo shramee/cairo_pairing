@@ -2,7 +2,7 @@ use bn::curve::{FIELD, add, sub, mul, scl, sqr, div, neg, inv};
 use bn::curve::{add_u, mul_u, sqr_u, scl_u};
 use integer::u512;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::traits::{FieldUtils, FieldOps, FieldShortcuts};
+use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde, Debug)]
@@ -15,13 +15,21 @@ fn fq(c0: u256) -> Fq {
     Fq { c0 }
 }
 
-impl FqShort of FieldShortcuts<Fq, u512> {
+impl FqShort of FieldShortcuts<Fq> {
     #[inline(always)]
     fn u_add(self: Fq, rhs: Fq) -> Fq {
         // Operation without modding can only be done like 4 times
         Fq { c0: add_u(self.c0, rhs.c0), }
     }
 
+    #[inline(always)]
+    fn fix_mod(self: Fq) -> Fq {
+        // Operation without modding can only be done like 4 times
+        Fq { c0: self.c0 % FIELD }
+    }
+}
+
+impl FqMulShort of FieldMulShortcuts<Fq, u512> {
     #[inline(always)]
     fn u_mul(self: Fq, rhs: Fq) -> u512 {
         mul_u(self.c0, rhs.c0)
@@ -35,12 +43,6 @@ impl FqShort of FieldShortcuts<Fq, u512> {
     #[inline(always)]
     fn u_scl(self: Fq, rhs: u128) -> u512 {
         scl_u(self.c0, rhs)
-    }
-
-    #[inline(always)]
-    fn fix_mod(self: Fq) -> Fq {
-        // Operation without modding can only be done like 4 times
-        Fq { c0: self.c0 % FIELD }
     }
 }
 

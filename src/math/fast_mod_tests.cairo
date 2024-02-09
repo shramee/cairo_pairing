@@ -3,24 +3,37 @@
 // test bn::math::fast_mod_tests::bench_plain::mul ... ok (gas usage est.: 21190)
 // test bn::math::fast_mod_tests::bench_plain::rem ... ok (gas usage est.: 11450)
 // test bn::math::fast_mod_tests::bench_plain::sub ... ok (gas usage est.: 6830)
-// test bn::math::fast_mod_tests::bench::add ... ok (gas usage est.: 16680)
-// test bn::math::fast_mod_tests::bench::div ... ok (gas usage est.: 86400)
-// test bn::math::fast_mod_tests::bench::mul ... ok (gas usage est.: 52530)
-// test bn::math::fast_mod_tests::bench::scl ... ok (gas usage est.: 37630)
-// test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 48300)
+// test bn::math::fast_mod_tests::bench::add ... ok (gas usage est.: 13870)
+// test bn::math::fast_mod_tests::bench::add_u ... ok (gas usage est.: 3720)
+// test bn::math::fast_mod_tests::bench::div ... ok (gas usage est.: 86000)
+// test bn::math::fast_mod_tests::bench::div_u ... ok (gas usage est.: 62310)
+// test bn::math::fast_mod_tests::bench::mul ... ok (gas usage est.: 52130)
+// test bn::math::fast_mod_tests::bench::mul_u ... ok (gas usage est.: 24940)
+// test bn::math::fast_mod_tests::bench::scl ... ok (gas usage est.: 40430)
+// test bn::math::fast_mod_tests::bench::scl_u ... ok (gas usage est.: 10040)
+// test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 47900)
+// test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20710)
 // test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 15710)
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
-use bn::fast_mod::{add, sub, div, mul, sqr_nz, neg, scl};
+use bn::fast_mod::{add, sub, div, mul, sqr_nz, neg, scl, u512, u512Add, u512Sub};
 use bn::curve::FIELD;
 use debug::PrintTrait;
 
 const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
 const b: u256 = 8021715850804026033197027745655159931503181100513576347155970296011118125764;
 
+#[inline(always)]
+fn mu512(limb0: u128, limb1: u128, limb2: u128, limb3: u128) -> u512 {
+    u512 { limb0, limb1, limb2, limb3 }
+}
+
 mod bench {
+    use super::mu512;
     use bn::fast_mod as f;
+    use f::{u512, u512Add, u512Sub};
+
     use super::{a, b, FIELD};
     #[test]
     #[available_gas(1000000)]
@@ -56,6 +69,48 @@ mod bench {
     #[available_gas(100000000)]
     fn div() {
         f::div(a, b, FIELD);
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn add_u() {
+        f::add_u(a, b);
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn mul_u() {
+        f::mul_u(a, b);
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn scl_u() {
+        f::scl_u(a, b.low);
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn sqr_u() {
+        f::sqr_u(a);
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn div_u() {
+        f::div_u(a, b, FIELD.try_into().unwrap());
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_add() {
+        mu512(a.low, a.high, b.low, b.high) + mu512(b.low, b.high, a.low, a.high);
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_sub() {
+        mu512(b.low, b.high, a.low, a.high) - mu512(a.low, a.high, b.low, b.high);
     }
 }
 
@@ -123,4 +178,8 @@ fn test_all_mod_ops() {
     let scl_mul = mul(a, u256 { high: 0, low: b.low }, FIELD);
     let scl_ = scl(a, b.low, FIELD.try_into().unwrap());
     assert(scl_ == scl_mul, 'incorrect square');
+
+    assert(mu512(0, 1, 2, 3) + mu512(4, 5, 6, 7) == mu512(4, 6, 8, 10), 'incorrect u512 add');
+    assert(mu512(4, 5, 6, 7) - mu512(0, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
+// assert(mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
 }

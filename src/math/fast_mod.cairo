@@ -5,7 +5,7 @@ use integer::u512;
 // util functions
 // cost saving with inline
 mod u {
-    use integer::u128_overflowing_add as u128_over_add;
+    use integer::{u128_overflowing_add as u128_over_add, u128_overflowing_sub as u128_over_sub};
     #[inline(always)]
     fn u128_wrapping_add(lhs: u128, rhs: u128) -> u128 implicits(RangeCheck) nopanic {
         match u128_over_add(lhs, rhs) {
@@ -27,7 +27,21 @@ mod u {
 // region add/sub operation
 mod add_sub;
 
-use add_sub::{neg, add, add_nz, add_u, sub, add_over};
+use add_sub::{neg, add, add_nz, add_u, sub, u256_over_add, u256_over_sub, add_u512, sub_u512};
+
+
+impl u512Add of Add<u512> {
+    fn add(lhs: u512, rhs: u512) -> u512 {
+        add_u512(lhs, rhs)
+    }
+}
+
+impl u512Sub of Sub<u512> {
+    fn sub(lhs: u512, rhs: u512) -> u512 {
+        sub_u512(lhs, rhs)
+    }
+}
+
 // end region add/sub operation
 
 // region mul operations
