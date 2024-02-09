@@ -127,8 +127,26 @@ impl Fq6Utils of FieldUtils<Fq6, Fq2> {
     }
 }
 
-#[generate_trait]
-impl Fq6Short of FieldShortcutss {}
+impl Fq6Short of FieldShortcuts<Fq6> {
+    #[inline(always)]
+    fn u_add(self: Fq6, rhs: Fq6) -> Fq6 {
+        // Operation without modding can only be done like 4 times
+        Fq6 { //
+            c0: self.c0.u_add(rhs.c0), //
+            c1: self.c1.u_add(rhs.c1), //
+            c2: self.c2.u_add(rhs.c2), //
+        }
+    }
+    #[inline(always)]
+    fn fix_mod(self: Fq6) -> Fq6 {
+        // Operation without modding can only be done like 4 times
+        Fq6 { //
+         c0: self.c0.fix_mod(), //
+         c1: self.c1.fix_mod(), //
+         c2: self.c2.fix_mod(), //
+         }
+    }
+}
 #[generate_trait]
 impl Fq6MulShort of FieldMulShortcuts {}
 
