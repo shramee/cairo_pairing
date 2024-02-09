@@ -15,7 +15,6 @@ trait FieldShortcuts<TFq> {
 trait FieldMulShortcuts<TFq, TFqU512> {
     fn u_mul(self: TFq, rhs: TFq) -> TFqU512;
     fn u_sqr(self: TFq) -> TFqU512;
-    fn u_scl(self: TFq, rhs: u128) -> TFqU512;
 }
 
 trait FieldOps<TFq> {

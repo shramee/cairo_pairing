@@ -140,12 +140,18 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     // uppercase vars are u512, lower case are u256
     #[inline(always)]
     fn u_sqr(self: Fq2) -> (u512, u512) {
-        (u512_dummy(), u512_dummy())
-    }
+        let Fq2{c0: a0, c1: a1 } = self;
 
-    #[inline(always)]
-    fn u_scl(self: Fq2, rhs: u128) -> (u512, u512) {
-        (u512_dummy(), u512_dummy())
+        // 1: t0 ←a0 +a1,t1 ←a0 ⊖a1 2: T0 ← t0 × t1
+        let t0 = a0.u_add(a1);
+        let t1 = a0 - a1; // ⊖ = modded sub
+        let T0 = t0.u_mul(t1);
+        // 3: t0 ← a0 + a0
+        let t0 = a0.u_add(a0);
+        // 4: T1 ← t0 × a1
+        let T1 = t0.u_mul(a1);
+        // 5: return C = (T0 + T1i)
+        (T0, T1)
     }
 }
 

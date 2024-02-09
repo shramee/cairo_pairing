@@ -39,11 +39,6 @@ impl FqMulShort of FieldMulShortcuts<Fq, u512> {
     fn u_sqr(self: Fq) -> u512 {
         sqr_u(self.c0)
     }
-
-    #[inline(always)]
-    fn u_scl(self: Fq, rhs: u128) -> u512 {
-        scl_u(self.c0, rhs)
-    }
 }
 
 impl FqUtils of FieldUtils<Fq, u128> {
