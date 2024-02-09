@@ -1,6 +1,11 @@
-use bn::traits::{FieldOps, FieldUtils};
+use core::traits::TryInto;
+use bn::curve::FIELD;
+use bn::fast_mod as f;
+use f::u512;
+
+use bn::traits::{FieldOps, FieldUtils, FieldMulShortcuts};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::fields::{Fq2, fq2, Fq2Ops};
+use bn::fields::{Fq2, fq2, Fq2Ops, Fq2MulShort};
 use debug::PrintTrait;
 
 #[test]
@@ -19,7 +24,12 @@ fn mul() {
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let c = fq2(9, 600);
-    assert((a * b) * c == a * (b * c), 'incorrect mul');
+    let ab = a * b;
+    let (C0, C1): (u512, u512) = a.u_mul(b);
+
+    assert(ab * c == a * (b * c), 'incorrect mul');
+    assert(ab.c0.c0 == f::u512_reduce(C0, FIELD.try_into().unwrap()), 'incorrect mul');
+    assert(ab.c1.c0 == f::u512_reduce(C1, FIELD.try_into().unwrap()), 'incorrect mul');
 }
 
 #[test]

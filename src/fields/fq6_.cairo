@@ -127,6 +127,11 @@ impl Fq6Utils of FieldUtils<Fq6, Fq2> {
     }
 }
 
+#[generate_trait]
+impl Fq6Short of FieldShortcutss {}
+#[generate_trait]
+impl Fq6MulShort of FieldMulShortcuts {}
+
 impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]
     fn add(self: Fq6, rhs: Fq6) -> Fq6 {
