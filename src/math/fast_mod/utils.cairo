@@ -1,4 +1,4 @@
-use integer::{u128_overflowing_add, u128_overflowing_sub};
+use integer::{u128_overflowing_add, u128_overflowing_sub, u512};
 #[inline(always)]
 fn u128_wrapping_add(lhs: u128, rhs: u128) -> u128 implicits(RangeCheck) nopanic {
     match u128_overflowing_add(lhs, rhs) {
@@ -95,6 +95,28 @@ fn u256_wrapping_sub(lhs: u256, rhs: u256) -> u256 implicits(RangeCheck) nopanic
                 Result::Ok(high) => u256 { low, high },
                 Result::Err(high) => u256 { low, high },
             }
+        },
+    }
+}
+
+#[inline(always)]
+fn expect_u256(result: Result<u256, u256>, panic_msg: felt252) -> u256 {
+    match result {
+        Result::Ok(value) => value,
+        Result::Err(value) => {
+            panic_with_felt252(panic_msg);
+            value
+        },
+    }
+}
+
+#[inline(always)]
+fn expect_u128(result: Result<u128, u128>, panic_msg: felt252) -> u128 {
+    match result {
+        Result::Ok(value) => value,
+        Result::Err(value) => {
+            panic_with_felt252(panic_msg);
+            value
         },
     }
 }

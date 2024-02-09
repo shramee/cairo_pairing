@@ -1,6 +1,6 @@
 use core::traits::TryInto;
 use integer::u512;
-use super::{utils as u, modulo, mod_512};
+use super::{utils as u, reduce, u512_reduce};
 
 // scale u256 by u128 (for smaller numbers)
 // unreduced, returns u512
@@ -16,7 +16,7 @@ fn scl_u(a: u256, b: u128) -> u512 {
 // takes non zero modulo
 // returns modded u256
 fn scl_nz(a: u256, b: u128, modulo: NonZero<u256>) -> u256 {
-    mod_512(scl_u(a, b), modulo)
+    u512_reduce(scl_u(a, b), modulo)
 }
 
 // scale u256 by u128 (for smaller numbers)
@@ -55,7 +55,7 @@ fn mul_u(a: u256, b: u256) -> u512 {
 // returns modded u256
 #[inline(always)]
 fn mul_nz(a: u256, b: u256, modulo: NonZero<u256>) -> u256 {
-    mod_512(mul_u(a, b), modulo)
+    u512_reduce(mul_u(a, b), modulo)
 }
 
 // mul two u256
@@ -93,12 +93,12 @@ fn sqr_u(a: u256) -> u512 {
 // returns modded u256
 #[inline(always)]
 fn sqr_nz(a: u256, modulo: NonZero<u256>) -> u256 {
-    mod_512(sqr_u(a), modulo)
+    u512_reduce(sqr_u(a), modulo)
 }
 
 // squares a u256
 // takes non zero modulo
 // returns modded u256
 fn sqr(a: u256, modulo: u256) -> u256 {
-    mod_512(sqr_u(a), modulo.try_into().unwrap())
+    u512_reduce(sqr_u(a), modulo.try_into().unwrap())
 }

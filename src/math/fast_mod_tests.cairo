@@ -3,20 +3,22 @@
 // test bn::math::fast_mod_tests::bench_plain::mul ... ok (gas usage est.: 21190)
 // test bn::math::fast_mod_tests::bench_plain::rem ... ok (gas usage est.: 11450)
 // test bn::math::fast_mod_tests::bench_plain::sub ... ok (gas usage est.: 6830)
-// test bn::math::fast_mod_tests::bench::add ... ok (gas usage est.: 13870)
-// test bn::math::fast_mod_tests::bench::add_u ... ok (gas usage est.: 3720)
+// test bn::math::fast_mod_tests::bench::add ... ok (gas usage est.: 12360)
+// test bn::math::fast_mod_tests::bench::add_u ... ok (gas usage est.: 2710)
 // test bn::math::fast_mod_tests::bench::div ... ok (gas usage est.: 86000)
 // test bn::math::fast_mod_tests::bench::div_u ... ok (gas usage est.: 62310)
 // test bn::math::fast_mod_tests::bench::mul ... ok (gas usage est.: 52130)
 // test bn::math::fast_mod_tests::bench::mul_u ... ok (gas usage est.: 24940)
+// test bn::math::fast_mod_tests::bench::reduce ... ok (gas usage est.: 10450)
 // test bn::math::fast_mod_tests::bench::scl ... ok (gas usage est.: 40430)
 // test bn::math::fast_mod_tests::bench::scl_u ... ok (gas usage est.: 10040)
 // test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 47900)
 // test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20710)
 // test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 15710)
-// test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7490)
+// test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7580)
 // test bn::math::fast_mod_tests::bench::u512_pad ... ok (gas usage est.: 2530)
-// test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7490)
+// test bn::math::fast_mod_tests::bench::u512_red ... ok (gas usage est.: 27690)
+// test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7580)
 // test bn::math::fast_mod_tests::bench::u512_sub_pad ... ok (gas usage est.: 10820)
 
 use core::option::OptionTrait;
@@ -77,6 +79,12 @@ mod bench {
     }
 
     #[test]
+    #[available_gas(100000000)]
+    fn reduce() {
+        f::reduce(a, b.try_into().unwrap());
+    }
+
+    #[test]
     #[available_gas(1000000)]
     fn add_u() {
         f::add_u(a, b);
@@ -122,6 +130,12 @@ mod bench {
     #[available_gas(100000000)]
     fn u512_sub() {
         mu512(b.low, b.high, a.low, a.high) - mu512(a.low, a.high, b.low, b.high);
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_red() {
+        f::u512_reduce(mu512(a.low, a.high, b.low, b.high), b.try_into().unwrap());
     }
 
     #[test]

@@ -1,23 +1,20 @@
 use integer::u512;
 use super::utils::{
     u256_wrapping_add, u256_overflow_add, u256_overflow_sub, u128_overflowing_add,
-    u128_overflowing_sub
+    u128_overflowing_sub, expect_u256, expect_u128
 };
 
 impl u512Add of Add<u512> {
     #[inline(always)]
     fn add(lhs: u512, rhs: u512) -> u512 {
-        let (sum, _) = u512_add_overflow(lhs, rhs);
-        sum
+        u512_add(lhs, rhs)
     }
 }
 
 impl u512Sub of Sub<u512> {
     #[inline(always)]
     fn sub(lhs: u512, rhs: u512) -> u512 {
-        let (difference, _) = u512_sub_overflow(lhs, rhs);
-        difference
-    // u512_sub(lhs, rhs)
+        u512_sub(lhs, rhs)
     }
 }
 
@@ -41,8 +38,9 @@ fn u512_add(lhs: u512, rhs: u512) -> u512 {
     let rhs: u256X2 = rhs.into();
 
     // No overflow allowed
-    let u256{low: limb2, high: limb3 } = u256_overflow_add(lhs.high, rhs.high)
-        .expect('u512 add overflow');
+    let u256{low: limb2, high: limb3 } = expect_u256(
+        u256_overflow_add(lhs.high, rhs.high), 'u512 add overflow'
+    );
 
     match u256_overflow_add(lhs.low, rhs.low) {
         Result::Ok(u256{low: limb0, high: limb1 }) => { u512 { limb0, limb1, limb2, limb3 } },
@@ -53,7 +51,9 @@ fn u512_add(lhs: u512, rhs: u512) -> u512 {
                 Result::Ok(limb2) => u512 { limb0, limb1, limb2, limb3 },
                 Result::Err(limb2) => {
                     // Try to move overflow to limb3
-                    let limb3 = u128_overflowing_add(limb3, 1_u128).expect('u512 add overflow');
+                    let limb3 = expect_u128(
+                        u128_overflowing_add(limb3, 1_u128), 'u512 add overflow'
+                    );
                     u512 { limb0, limb1, limb2, limb3 }
                 },
             };
@@ -98,8 +98,9 @@ fn u512_sub(lhs: u512, rhs: u512) -> u512 {
     let rhs: u256X2 = rhs.into();
 
     // No overflow allowed
-    let u256{low: limb2, high: limb3 } = u256_overflow_sub(lhs.high, rhs.high)
-        .expect('u512 sub overflow');
+    let u256{low: limb2, high: limb3 } = expect_u256(
+        u256_overflow_sub(lhs.high, rhs.high), 'u512 sub overflow'
+    );
 
     match u256_overflow_sub(lhs.low, rhs.low) {
         Result::Ok(u256{low: limb0, high: limb1 }) => { u512 { limb0, limb1, limb2, limb3 } },
@@ -110,7 +111,9 @@ fn u512_sub(lhs: u512, rhs: u512) -> u512 {
                 Result::Ok(limb2) => u512 { limb0, limb1, limb2, limb3 },
                 Result::Err(limb2) => {
                     // Try to move overflow to limb3
-                    let limb3 = u128_overflowing_sub(limb3, 1_u128).expect('u512 sub overflow');
+                    let limb3 = expect_u128(
+                        u128_overflowing_sub(limb3, 1_u128), 'u512 sub overflow'
+                    );
                     u512 { limb0, limb1, limb2, limb3 }
                 },
             };
@@ -164,3 +167,10 @@ fn u512_sub_pad(lhs: u512, rhs: u512, high_pad: u256) -> u512 {
     let (difference, _) = u512_sub_overflow(u512_pad(lhs, high_pad), rhs);
     difference
 }
+
+#[inline(always)]
+fn u512_reduce(a: u512, modulo: NonZero<u256>) -> u256 {
+    let (_, rem_u256, _, _, _, _, _) = integer::u512_safe_divmod_by_u256(a, modulo);
+    rem_u256
+}
+
