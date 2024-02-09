@@ -14,10 +14,15 @@
 // test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 47900)
 // test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20710)
 // test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 15710)
+// test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7490)
+// test bn::math::fast_mod_tests::bench::u512_pad ... ok (gas usage est.: 2530)
+// test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7490)
+// test bn::math::fast_mod_tests::bench::u512_sub_pad ... ok (gas usage est.: 10820)
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
-use bn::fast_mod::{add, sub, div, mul, sqr_nz, neg, scl, u512, u512Add, u512Sub};
+use bn::fast_mod as f;
+use f::{u512, u512Add, u512Sub};
 use bn::curve::FIELD;
 use debug::PrintTrait;
 
@@ -109,8 +114,22 @@ mod bench {
 
     #[test]
     #[available_gas(100000000)]
+    fn u512_pad() {
+        f::u512_pad(mu512(a.low, a.high, b.low, b.high), 5);
+    }
+
+    #[test]
+    #[available_gas(100000000)]
     fn u512_sub() {
         mu512(b.low, b.high, a.low, a.high) - mu512(a.low, a.high, b.low, b.high);
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_sub_pad() {
+        f::u512_sub_pad(
+            mu512(a.low, a.high, b.low, b.high), mu512(a.low, a.high, b.low, b.high), b
+        );
     }
 }
 
@@ -151,33 +170,33 @@ mod bench_plain {
 #[test]
 #[available_gas(100000000)]
 fn test_all_mod_ops() {
-    let add_ = add(a, b, FIELD);
+    let add = f::add(a, b, FIELD);
     assert(
-        17121262864708029623982824676090354404822861252307690326074035164426444763799 == add_,
+        add == 17121262864708029623982824676090354404822861252307690326074035164426444763799,
         'incorrect add'
     );
-    let sub_ = sub(a, b, FIELD);
+    let sub = f::sub(a, b, FIELD);
     assert(
-        1077831163099977557588769184780034541816499051280537631762094572404208512271 == sub_,
+        sub == 1077831163099977557588769184780034541816499051280537631762094572404208512271,
         'incorrect sub'
     );
-    let mul_ = mul(a, b, FIELD);
+    let mul = f::mul(a, b, FIELD);
     assert(
-        6561477752769399547014183440960600095569924911855714080305417693732453755033 == mul_,
+        mul == 6561477752769399547014183440960600095569924911855714080305417693732453755033,
         'incorrect mul'
     );
-    let div_ = div(a, b, FIELD);
+    let div = f::div(a, b, FIELD);
     assert(
-        12819640619688655488085323601008678463608009668414428319642291645922931558321 == div_,
+        div == 12819640619688655488085323601008678463608009668414428319642291645922931558321,
         'incorrect div'
     );
-    let sqr_mul = mul(a, a, FIELD);
-    let sqr_ = sqr_nz(a, FIELD.try_into().unwrap());
-    assert(sqr_ == sqr_mul, 'incorrect square');
+    let sqr_mul = f::mul(a, a, FIELD);
+    let sqr = f::sqr_nz(a, FIELD.try_into().unwrap());
+    assert(sqr == sqr_mul, 'incorrect square');
 
-    let scl_mul = mul(a, u256 { high: 0, low: b.low }, FIELD);
-    let scl_ = scl(a, b.low, FIELD.try_into().unwrap());
-    assert(scl_ == scl_mul, 'incorrect square');
+    let scl_mul = f::mul(a, u256 { high: 0, low: b.low }, FIELD);
+    let scl = f::scl(a, b.low, FIELD.try_into().unwrap());
+    assert(scl == scl_mul, 'incorrect square');
 
     assert(
         mu512(0xffffffffffffffffffffffffffffffff, 1, 2, 3)
@@ -189,5 +208,19 @@ fn test_all_mod_ops() {
         mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4),
         'incorrect u512 sub'
     );
+    assert(
+        f::u512_sub_pad(
+            mu512(4, 5, 6, 2), mu512(5, 1, 2, 3), u256 { low: 0, high: 5 }
+        ) == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4),
+        'incorrect u512 sub'
+    );
 // assert(mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
 }
+// #[test]
+// #[available_gas(2000000)]
+// fn experiments() {
+//     println!("{}", integer::u8_wrapping_add(200, 100));
+//     println!("{}", integer::u8_wrapping_sub(90, 100));
+// }
+
+

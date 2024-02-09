@@ -1,6 +1,6 @@
 use core::traits::TryInto;
 use integer::u512;
-use super::{u, modulo, mod_512};
+use super::{utils as u, modulo, mod_512};
 
 // scale u256 by u128 (for smaller numbers)
 // unreduced, returns u512
