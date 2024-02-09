@@ -230,11 +230,3 @@ fn test_all_mod_ops() {
     );
 // assert(mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
 }
-// #[test]
-// #[available_gas(2000000)]
-// fn experiments() {
-//     println!("{}", integer::u8_wrapping_add(200, 100));
-//     println!("{}", integer::u8_wrapping_sub(90, 100));
-// }
-
-
