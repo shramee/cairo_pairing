@@ -234,3 +234,33 @@ mod g1_line {
         assert(q().at_chord(p1(), p2()) == cord_res(), 'incorrect cord');
     }
 }
+
+
+#[test]
+#[available_gas(2000000000)]
+fn x_naf_verify() {
+    let mut naf = bn::curve::x_naf();
+    let mut bit = 1_u128;
+    let mut offset = 0xffffffffffffffff_u128;
+    let mut result = offset;
+
+    loop {
+        match naf.pop_front() {
+            Option::Some(naf) => {
+                let (naf0, naf1) = naf;
+
+                if naf0 {
+                    if naf1 {
+                        result = result + bit;
+                    } else {
+                        result = result - bit;
+                    }
+                }
+
+                bit = bit * 2;
+            },
+            Option::None => { break; },
+        }
+    };
+    assert(result - offset == bn::curve::X.into(), 'incorrect X')
+}
