@@ -179,7 +179,15 @@ fn test_all_mod_ops() {
     let scl_ = scl(a, b.low, FIELD.try_into().unwrap());
     assert(scl_ == scl_mul, 'incorrect square');
 
-    assert(mu512(0, 1, 2, 3) + mu512(4, 5, 6, 7) == mu512(4, 6, 8, 10), 'incorrect u512 add');
+    assert(
+        mu512(0xffffffffffffffffffffffffffffffff, 1, 2, 3)
+            + mu512(4, 5, 6, 7) == mu512(3, 7, 8, 10),
+        'incorrect u512 add'
+    );
     assert(mu512(4, 5, 6, 7) - mu512(0, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
+    assert(
+        mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4),
+        'incorrect u512 sub'
+    );
 // assert(mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
 }
