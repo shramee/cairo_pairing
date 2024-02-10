@@ -1,5 +1,8 @@
+// test bn::tests::bilinearity_g1 ... ok (gas usage est.: 19741192810)
+// test bn::tests::bilinearity_g2 ... ok (gas usage est.: 19741192810)
 // test bn::tests::miller_bench ... ok (gas usage est.: 4614569370)
 // test bn::tests::pairing_bench ... ok (gas usage est.: 6488799670)
+// test bn::tests::quadratic_constraints ... ok (gas usage est.: 13157682900)
 
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2};
