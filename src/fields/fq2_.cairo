@@ -11,15 +11,6 @@ struct Fq2 {
     c1: Fq,
 }
 
-impl TupleU512IntoFq2 of Into<(u512, u512), Fq2> {
-    #[inline(always)]
-    fn into(self: (u512, u512)) -> Fq2 {
-        let (C0, C1) = self;
-        let field_nz = FIELD.try_into().unwrap();
-        fq2(u512_reduce(C0, field_nz), u512_reduce(C1, field_nz))
-    }
-}
-
 // Extension field is represented as two number with X (a root of an polynomial in Fq which doesn't exist in Fq).
 // X for field extension is equivalent to imaginary i for real numbers.
 // number a: Fq2 = (a0, a1), mathematically, a = a0 + a1 * X
@@ -86,10 +77,6 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
     }
 }
 
-fn u512_dummy() -> u512 {
-    u512 { limb0: 1, limb1: 0, limb2: 0, limb3: 0, }
-}
-
 impl Fq2Short of FieldShortcuts<Fq2> {
     #[inline(always)]
     fn u_add(self: Fq2, rhs: Fq2) -> Fq2 {
@@ -153,6 +140,13 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
         // 5: return C = (T0 + T1i)
         (T0, T1)
     }
+
+    #[inline(always)]
+    fn to_fq(self: (u512, u512)) -> Fq2 {
+        let (C0, C1) = self;
+        let field_nz = FIELD.try_into().unwrap();
+        fq2(u512_reduce(C0, field_nz), u512_reduce(C1, field_nz))
+    }
 }
 
 impl Fq2Ops of FieldOps<Fq2> {
@@ -169,7 +163,7 @@ impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn mul(self: Fq2, rhs: Fq2) -> Fq2 {
         // Aranha mul_u + 2r
-        self.u_mul(rhs).into()
+        self.u_mul(rhs).to_fq()
     // Karatsuba
     // let Fq2{c0: a0, c1: a1 } = self;
     // let Fq2{c0: b0, c1: b1 } = rhs;
@@ -211,7 +205,7 @@ impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn sqr(self: Fq2) -> Fq2 {
         // Aranha sqr_u + 2r
-        self.u_sqr().into()
+        self.u_sqr().to_fq()
     // // Complex squaring
     // let Fq2{c0: a0, c1: a1 } = self;
     // let v = a0 * a1;
