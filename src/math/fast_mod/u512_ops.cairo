@@ -18,6 +18,46 @@ impl u512Sub of Sub<u512> {
     }
 }
 
+impl u512Tuple2Add<T1, T2, +Add<T1>, +Add<T2>, +Drop<T1>, +Drop<T2>> of Add<(T1, T2)> {
+    #[inline(always)]
+    fn add(lhs: (T1, T2), rhs: (T1, T2)) -> (T1, T2) {
+        let (a0, a1) = lhs;
+        let (b0, b1) = rhs;
+        (a0 + b0, a1 + b1)
+    }
+}
+
+impl u512Tuple2Sub<T1, T2, +Sub<T1>, +Sub<T2>, +Drop<T1>, +Drop<T2>> of Sub<(T1, T2)> {
+    #[inline(always)]
+    fn sub(lhs: (T1, T2), rhs: (T1, T2)) -> (T1, T2) {
+        let (a0, a1) = lhs;
+        let (b0, b1) = rhs;
+        (a0 - b0, a1 - b1)
+    }
+}
+
+impl u512Tuple3Add<
+    T1, T2, T3, +Add<T1>, +Add<T2>, +Add<T3>, +Drop<T1>, +Drop<T2>, +Drop<T3>,
+> of Add<(T1, T2, T3)> {
+    #[inline(always)]
+    fn add(lhs: (T1, T2, T3), rhs: (T1, T2, T3)) -> (T1, T2, T3) {
+        let (a0, a1, a2) = lhs;
+        let (b0, b1, b2) = rhs;
+        (a0 + b0, a1 + b1, a2 + b2)
+    }
+}
+
+impl u512Tuple3Sub<
+    T1, T2, T3, +Sub<T1>, +Sub<T2>, +Sub<T3>, +Drop<T1>, +Drop<T2>, +Drop<T3>,
+> of Sub<(T1, T2, T3)> {
+    #[inline(always)]
+    fn sub(lhs: (T1, T2, T3), rhs: (T1, T2, T3)) -> (T1, T2, T3) {
+        let (a0, a1, a2) = lhs;
+        let (b0, b1, b2) = rhs;
+        (a0 - b0, a1 - b1, a2 - b2)
+    }
+}
+
 #[derive(Copy, Drop, Hash, PartialEq, Serde)]
 struct u256X2 {
     low: u256,
