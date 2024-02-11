@@ -19,9 +19,43 @@ mod pairing {
 
 use bn::fields as f;
 use bn::math::fast_mod as m;
-use m::{add_u, mul_u, sqr_u, scl_u};
-// These paramas from:
-// https://hackmd.io/@jpw/bn254
+use m::{u512};
+use m::{add_u, mul_u, sqr_u, scl_u, u512_high_add, u512_high_sub};
+
+
+// Faster Explicit Formulas for Computing Pairings over Ordinary Curves
+// As described on page 7,
+// if c > 2^N·p, where c is the result of a double- precision addition,
+// then c can be restored with a cheaper single-precision sub- traction by 2^N·p
+// For p as FIELD, This function reduces values over FIELD·2^n
+// If limb3 of a u512 is over FIELD.high, We subtract FIELD·2^N
+#[inline(always)]
+fn u512_fix_high(int: u512) -> u512 {
+    let u512{limb0, limb1, limb2, limb3 } = int;
+
+    if int.limb3 > FIELD.high {
+        u512_high_sub(int, FIELD)
+    } else {
+        int
+    }
+}
+
+// Faster Explicit Formulas for Computing Pairings over Ordinary Curves
+// As described on page 7,
+// Option 2: if c < 0 then r = c + 2^N · p, r ∈ [ 0, 2N · p ].
+// For p as FIELD, This function reduces values over FIELD·2^n
+// If limb3 of a u512 is over FIELD.high, We subtract FIELD·2^N
+#[inline(always)]
+fn u512_fix_neg(int: u512) -> u512 {
+    let u512{limb0, limb1, limb2, limb3 } = int;
+    if int.limb3 > 0x80000000000000000000000000000000 {
+        // If the result has last bit on, then it's sub overflow,
+        // fix with addition 
+        u512_high_add(int, FIELD)
+    } else {
+        int
+    }
+}
 
 #[inline(always)]
 fn field_nz() -> NonZero<u256> {
