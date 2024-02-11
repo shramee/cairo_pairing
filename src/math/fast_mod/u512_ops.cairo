@@ -104,6 +104,30 @@ fn u512_add(lhs: u512, rhs: u512) -> u512 {
 }
 
 #[inline(always)]
+fn u512_add_u256(lhs: u512, rhs: u256) -> (u512, bool) {
+    let u256X2{high, low }: u256X2 = lhs.into();
+    let u256{high: limb3, low: limb2 } = high;
+
+    match u256_overflow_add(low, rhs) {
+        Result::Ok(u256{low: limb0, high: limb1 }) => (u512 { limb0, limb1, limb2, limb3 }, false),
+        Result::Err(u256{low: limb0,
+        high: limb1 }) => {
+            // Try to move overflow to limb2
+            match u128_overflowing_add(limb2, 1_u128) {
+                Result::Ok(limb2) => (u512 { limb0, limb1, limb2, limb3 }, false),
+                Result::Err(limb2) => {
+                    // Try to move overflow to limb3
+                    match u128_overflowing_add(limb3, 1_u128) {
+                        Result::Ok(limb3) => (u512 { limb0, limb1, limb2, limb3 }, false),
+                        Result::Err(limb3) => (u512 { limb0, limb1, limb2, limb3 }, true),
+                    }
+                },
+            }
+        },
+    }
+}
+
+#[inline(always)]
 fn u512_add_overflow(lhs: u512, rhs: u512) -> (u512, bool) {
     let lhs: u256X2 = lhs.into();
     let rhs: u256X2 = rhs.into();
@@ -157,6 +181,30 @@ fn u512_sub(lhs: u512, rhs: u512) -> u512 {
                         u128_overflowing_sub(limb3, 1_u128), 'u512 sub overflow'
                     );
                     u512 { limb0, limb1, limb2, limb3 }
+                },
+            };
+        },
+    }
+}
+
+#[inline(always)]
+fn u512_sub_u256(lhs: u512, rhs: u256) -> (u512, bool) {
+    let u256X2{high, low }: u256X2 = lhs.into();
+    let u256{high: limb3, low: limb2 } = high;
+
+    match u256_overflow_sub(low, rhs) {
+        Result::Ok(u256{low: limb0, high: limb1 }) => (u512 { limb0, limb1, limb2, limb3 }, false),
+        Result::Err(u256{low: limb0,
+        high: limb1 }) => {
+            // Try to move overflow to limb2
+            return match u128_overflowing_sub(limb2, 1_u128) {
+                Result::Ok(limb2) => (u512 { limb0, limb1, limb2, limb3 }, false),
+                Result::Err(limb2) => {
+                    // Try to move overflow to limb3
+                    match u128_overflowing_sub(limb3, 1_u128) {
+                        Result::Ok(limb3) => (u512 { limb0, limb1, limb2, limb3 }, false),
+                        Result::Err(limb3) => (u512 { limb0, limb1, limb2, limb3 }, true),
+                    }
                 },
             };
         },
