@@ -215,12 +215,6 @@ fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
 }
 
 #[inline(always)]
-fn u512_sub_pad(lhs: u512, rhs: u512, high_pad: u256) -> u512 {
-    let (difference, _) = u512_sub_overflow(u512_high_add(lhs, high_pad), rhs);
-    difference
-}
-
-#[inline(always)]
 fn u512_reduce(a: u512, modulo: NonZero<u256>) -> u256 {
     let (_, rem_u256, _, _, _, _, _) = integer::u512_safe_divmod_by_u256(a, modulo);
     rem_u256

@@ -6,9 +6,6 @@ use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT,};
 // #[cfg(test)]
 // mod groups_tests;
 
-// #[cfg(test)]
-// mod tests;
-
 mod pairing {
     mod final_exponentiation;
     mod miller_utils;

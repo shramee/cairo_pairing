@@ -11,7 +11,8 @@ use utils::{u256_overflow_add, u256_overflow_sub};
 // u512_ops
 mod u512_ops;
 
-use u512_ops::{u512_add, u512_sub, u512_high_add, u512_high_sub, u512_sub_pad, u512_reduce};
+use u512_ops::{u512_add, u512_add_overflow, u512_sub, u512_sub_overflow,};
+use u512_ops::{u512_high_add, u512_high_sub, u512_reduce};
 use u512_ops::{
     U512WrappingAdd, U512WrappingSub, u512Tuple2Add, u512Tuple2Sub, u512Tuple3Add, u512Tuple3Sub,
 };

@@ -7,6 +7,7 @@
 // test bn::math::fast_mod_tests::bench::add_u ... ok (gas usage est.: 2710)
 // test bn::math::fast_mod_tests::bench::div ... ok (gas usage est.: 86000)
 // test bn::math::fast_mod_tests::bench::div_u ... ok (gas usage est.: 62310)
+// test bn::math::fast_mod_tests::bench::inv ... ok (gas usage est.: 37470)
 // test bn::math::fast_mod_tests::bench::mul ... ok (gas usage est.: 52130)
 // test bn::math::fast_mod_tests::bench::mul_u ... ok (gas usage est.: 24940)
 // test bn::math::fast_mod_tests::bench::reduce ... ok (gas usage est.: 10450)
@@ -15,11 +16,10 @@
 // test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 47900)
 // test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20710)
 // test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 15710)
-// test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7580)
+// test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7490)
 // test bn::math::fast_mod_tests::bench::u512_high_add ... ok (gas usage est.: 2530)
 // test bn::math::fast_mod_tests::bench::u512_red ... ok (gas usage est.: 27690)
-// test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7580)
-// test bn::math::fast_mod_tests::bench::u512_sub_pad ... ok (gas usage est.: 10820)
+// test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7490)
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
@@ -37,6 +37,8 @@ fn mu512(limb0: u128, limb1: u128, limb2: u128, limb3: u128) -> u512 {
 }
 
 mod bench {
+    use core::option::OptionTrait;
+    use core::traits::TryInto;
     use super::mu512;
     use bn::fast_mod as f;
     use f::{u512, U512WrappingAdd, U512WrappingSub};
@@ -76,6 +78,12 @@ mod bench {
     #[available_gas(100000000)]
     fn div() {
         f::div(a, b, FIELD);
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn inv() {
+        f::inv(a, FIELD.try_into().unwrap());
     }
 
     #[test]
@@ -136,14 +144,6 @@ mod bench {
     #[available_gas(100000000)]
     fn u512_red() {
         f::u512_reduce(mu512(a.low, a.high, b.low, b.high), b.try_into().unwrap());
-    }
-
-    #[test]
-    #[available_gas(100000000)]
-    fn u512_sub_pad() {
-        f::u512_sub_pad(
-            mu512(a.low, a.high, b.low, b.high), mu512(a.low, a.high, b.low, b.high), b
-        );
     }
 }
 
@@ -220,12 +220,6 @@ fn test_all_mod_ops() {
     assert(mu512(4, 5, 6, 7) - mu512(0, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
     assert(
         mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4),
-        'incorrect u512 sub'
-    );
-    assert(
-        f::u512_sub_pad(
-            mu512(4, 5, 6, 2), mu512(5, 1, 2, 3), u256 { low: 0, high: 5 }
-        ) == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4),
         'incorrect u512 sub'
     );
 // assert(mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
