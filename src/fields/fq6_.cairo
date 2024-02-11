@@ -1,7 +1,5 @@
-use bn::curve::{FIELD, u512_fix_neg, u512_fix_high};
-use bn::curve::{
-    u512, U512WrappingAdd, u512Tuple2Add, U512WrappingSub, u512Tuple2Sub, u512_high_add, u512_reduce
-};
+use bn::curve::{FIELD};
+use bn::curve::{u512, U512BnAdd, u512Tuple2Add, U512BnSub, u512Tuple2Sub, u512_high_add};
 use bn::fields::{print::Fq6PrintImpl, Fq2, Fq2Ops, fq2};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fields::frobenius::fp6 as frob;

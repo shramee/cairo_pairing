@@ -1,5 +1,5 @@
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
-use bn::curve::{u512, U512WrappingAdd, U512WrappingSub, u512_high_add, u512_reduce};
+use bn::curve::{u512, U512BnAdd, U512BnSub, u512_high_add, u512_reduce};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::curve::FIELD;
 use bn::fields::{Fq, fq,};
