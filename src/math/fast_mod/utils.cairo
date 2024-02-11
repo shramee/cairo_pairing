@@ -1,4 +1,5 @@
 use integer::{u128_overflowing_add, u128_overflowing_sub, u512};
+
 #[inline(always)]
 fn u128_wrapping_add(lhs: u128, rhs: u128) -> u128 implicits(RangeCheck) nopanic {
     match u128_overflowing_add(lhs, rhs) {
@@ -12,6 +13,14 @@ fn u128_add_with_carry(a: u128, b: u128) -> (u128, u128) nopanic {
     match u128_overflowing_add(a, b) {
         Result::Ok(v) => (v, 0),
         Result::Err(v) => (v, 1),
+    }
+}
+
+#[inline(always)]
+fn u128_wrapping_sub(lhs: u128, rhs: u128) -> u128 implicits(RangeCheck) nopanic {
+    match u128_overflowing_sub(lhs, rhs) {
+        Result::Ok(x) => x,
+        Result::Err(x) => x,
     }
 }
 

@@ -16,7 +16,7 @@
 // test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20710)
 // test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 15710)
 // test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7580)
-// test bn::math::fast_mod_tests::bench::u512_pad ... ok (gas usage est.: 2530)
+// test bn::math::fast_mod_tests::bench::u512_high_add ... ok (gas usage est.: 2530)
 // test bn::math::fast_mod_tests::bench::u512_red ... ok (gas usage est.: 27690)
 // test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7580)
 // test bn::math::fast_mod_tests::bench::u512_sub_pad ... ok (gas usage est.: 10820)
@@ -24,7 +24,7 @@
 use core::option::OptionTrait;
 use core::traits::TryInto;
 use bn::fast_mod as f;
-use f::{u512, u512Add, u512Sub};
+use f::{u512, U512WrappingAdd, U512WrappingSub};
 use bn::curve::FIELD;
 use debug::PrintTrait;
 
@@ -39,7 +39,7 @@ fn mu512(limb0: u128, limb1: u128, limb2: u128, limb3: u128) -> u512 {
 mod bench {
     use super::mu512;
     use bn::fast_mod as f;
-    use f::{u512, u512Add, u512Sub};
+    use f::{u512, U512WrappingAdd, U512WrappingSub};
 
     use super::{a, b, FIELD};
     #[test]
@@ -122,8 +122,8 @@ mod bench {
 
     #[test]
     #[available_gas(100000000)]
-    fn u512_pad() {
-        f::u512_pad(mu512(a.low, a.high, b.low, b.high), 5);
+    fn u512_high_add() {
+        f::u512_high_add(mu512(a.low, a.high, b.low, b.high), 5);
     }
 
     #[test]

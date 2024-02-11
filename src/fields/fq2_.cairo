@@ -1,5 +1,5 @@
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
-use bn::fast_mod::{u512, u512Add, u512Sub, u512_pad, u512_reduce};
+use bn::fast_mod::{u512, U512WrappingAdd, U512WrappingSub, u512_high_add, u512_reduce};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::curve::FIELD;
 use bn::fields::{Fq, fq,};
@@ -117,7 +117,7 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
         // 3: T3 ←T2 − T3
         let T3 = T2 - T3;
         // 4: T4 ← T0 ⊖ T1
-        let T4 = u512_pad(T0, FIELD) - T1;
+        let T4 = u512_high_add(T0, FIELD) - T1;
         // 5: return c = (T4 + T3i)
         (T4, T3)
     }

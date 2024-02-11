@@ -1,20 +1,22 @@
 use integer::u512;
 use super::utils::{
     u256_wrapping_add, u256_overflow_add, u256_overflow_sub, u128_overflowing_add,
-    u128_overflowing_sub, expect_u256, expect_u128
+    u256_wrapping_sub, u128_overflowing_sub, expect_u256, expect_u128
 };
 
-impl u512Add of Add<u512> {
+impl U512WrappingAdd of Add<u512> {
     #[inline(always)]
     fn add(lhs: u512, rhs: u512) -> u512 {
-        u512_add(lhs, rhs)
+        let (result, _) = u512_add_overflow(lhs, rhs);
+        result
     }
 }
 
-impl u512Sub of Sub<u512> {
+impl U512WrappingSub of Sub<u512> {
     #[inline(always)]
     fn sub(lhs: u512, rhs: u512) -> u512 {
-        u512_sub(lhs, rhs)
+        let (result, _) = u512_sub_overflow(lhs, rhs);
+        result
     }
 }
 
@@ -192,19 +194,29 @@ fn u512_sub_overflow(lhs: u512, rhs: u512) -> (u512, bool) {
     }
 }
 
-// This is a beautiful beautiful function
-// This converts a negative mod 2**512 in mod rhs
+// add a u256 to high limbs of u512
+// this beautiful beautiful function converts a -x mod 2**512 in -x mod rhs
 #[inline(always)]
-fn u512_pad(lhs: u512, rhs: u256) -> u512 {
+fn u512_high_add(lhs: u512, rhs: u256) -> u512 {
     let u512{limb0, limb1, limb2: low, limb3: high } = lhs;
     let lhs = u256 { low, high };
     let u256{low: limb2, high: limb3 } = u256_wrapping_add(lhs, rhs);
     u512 { limb0, limb1, limb2, limb3 }
 }
 
+// subtracts u256 from high limbs of u512
+// this beautiful beautiful function converts a -x mod 2**512 in -x mod rhs
+#[inline(always)]
+fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
+    let u512{limb0, limb1, limb2: low, limb3: high } = lhs;
+    let lhs = u256 { low, high };
+    let u256{low: limb2, high: limb3 } = u256_wrapping_sub(lhs, rhs);
+    u512 { limb0, limb1, limb2, limb3 }
+}
+
 #[inline(always)]
 fn u512_sub_pad(lhs: u512, rhs: u512, high_pad: u256) -> u512 {
-    let (difference, _) = u512_sub_overflow(u512_pad(lhs, high_pad), rhs);
+    let (difference, _) = u512_sub_overflow(u512_high_add(lhs, high_pad), rhs);
     difference
 }
 
