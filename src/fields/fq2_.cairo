@@ -1,9 +1,11 @@
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
+use bn::fast_mod::{u512_high_add};
 use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::curve::FIELD;
 use bn::fields::{Fq, fq,};
 use debug::PrintTrait;
+use bn::fields::print::u512Display;
 
 #[derive(Copy, Drop, Serde, Debug)]
 struct Fq2 {
@@ -56,13 +58,13 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
-        // fq2(9, 1)
+        // fq2(1, 1)
         let Fq2{c0: a0, c1: a1 } = self;
         Fq2 { //
          //  a0 * b0 + a1 * βb1,
-        c0: a0.scale(9) - a1, //
+        c0: a0 - a1, //
          //  c1: a0 * b1 + a1 * b0,
-        c1: a0 + a1.scale(9), //
+        c1: a0 + a1, //
          }
     }
 
@@ -220,12 +222,11 @@ impl Fq2Ops of FieldOps<Fq2> {
     fn inv(self: Fq2) -> Fq2 {
         // "High-Speed Software Implementation of the Optimal Ate Pairing
         // over Barreto–Naehrig Curves"; Algorithm 8
-        if self.c0.c0 + self.c1.c0 == 0 {
-            return Fq2 { c0: fq(0), c1: fq(0), };
-        }
         // let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
         // Mul by non residue -1 makes negative
-        let t = (self.c0.sqr() + self.c1.sqr()).inv();
+        // Lazy reduction applied from Faster Explicit Formulas for Computing Pairings over Ordinary Curves
+
+        let t = (self.c0.u_sqr() + self.c1.u_sqr()).to_fq().inv();
 
         Fq2 { c0: self.c0 * t, c1: self.c1 * -t, }
     }

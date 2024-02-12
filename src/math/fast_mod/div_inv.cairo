@@ -3,7 +3,7 @@ use super::{mul_u, mul_nz};
 // Inversion
 #[inline(always)]
 fn inv(b: u256, modulo: NonZero<u256>) -> u256 {
-    math::u256_inv_mod(b, modulo).unwrap().into()
+    math::u256_inv_mod(b, modulo).expect('inversion failed').into()
 }
 
 // Division with Non Zero

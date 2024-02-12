@@ -19,17 +19,16 @@ fn add_sub() {
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(200000000)]
 fn mul() {
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let c = fq2(9, 600);
     let ab = a * b;
-    let (C0, C1): (u512, u512) = a.u_mul(b);
+    let C: (u512, u512) = a.u_mul(b);
 
     assert(ab * c == a * (b * c), 'incorrect mul');
-    assert(ab.c0.c0 == f::u512_reduce(C0, FIELD.try_into().unwrap()), 'incorrect mul');
-    assert(ab.c1.c0 == f::u512_reduce(C1, FIELD.try_into().unwrap()), 'incorrect mul');
+    assert(ab == C.to_fq(), 'incorrect u512 mul');
 }
 
 #[test]

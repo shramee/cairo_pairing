@@ -35,6 +35,6 @@ use div_inv::{inv, div, div_nz, div_u};
 
 #[inline(always)]
 fn reduce(lhs: u256, modulo: NonZero<u256>) -> u256 {
-    let (q, r, _) = integer::u256_safe_divmod(lhs, modulo);
+    let (_, r, _) = integer::u256_safe_divmod(lhs, modulo);
     r
 }
