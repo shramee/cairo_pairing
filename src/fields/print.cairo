@@ -1,14 +1,27 @@
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::traits::TryInto;
 use bn::fields::{Fq, Fq2, Fq6, Fq12, fq12};
+use integer::u512;
 use debug::PrintTrait;
 use core::fmt::{Display, Formatter, Error};
 use core::result::Result;
 
+impl u512Display of Display<u512> {
+    fn fmt(self: @u512, ref f: Formatter) -> Result<(), Error> {
+        let base = 16_u128.try_into().unwrap();
+        write!(f, "\n0x").unwrap();
+        self.limb3.append_formatted_to_byte_array(ref f.buffer, base);
+        self.limb2.append_formatted_to_byte_array(ref f.buffer, base);
+        self.limb1.append_formatted_to_byte_array(ref f.buffer, base);
+        self.limb0.append_formatted_to_byte_array(ref f.buffer, base);
+        Result::Ok(())
+    }
+}
+
 impl FqDisplay of Display<Fq> {
     fn fmt(self: @Fq, ref f: Formatter) -> Result<(), Error> {
         let base = 16_u256;
-        write!(f, "\n0x");
+        write!(f, "\n0x").unwrap();
         self.c0.append_formatted_to_byte_array(ref f.buffer, base.try_into().unwrap());
         Result::Ok(())
     }
