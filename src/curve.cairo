@@ -3,6 +3,7 @@ mod groups;
 
 use constants::{X, ORDER, FIELD, FIELDSQLOW, FIELDSQHIGH, B, x_naf};
 use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT,};
+use bn::fields::print::u512Display;
 // #[cfg(test)]
 // mod groups_tests;
 
@@ -54,6 +55,13 @@ impl U512BnSub of Sub<u512> {
             result
         }
     }
+}
+
+fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
+    // 7: R,0 ←T,0 ⊖T3,1, R,1 ←T3,0 ⊕T,1 (≡R ←ξ·T)
+
+    let (t0, t1): (u512, u512) = t;
+    (t0 - t1, t0 + t1)
 }
 
 #[inline(always)]
