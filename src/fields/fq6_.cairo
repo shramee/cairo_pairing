@@ -261,11 +261,19 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn inv(self: Fq6) -> Fq6 {
-        let c0 = self.c0.sqr() - self.c1 * self.c2.mul_by_nonresidue();
-        let c1 = self.c2.sqr().mul_by_nonresidue() - self.c0 * self.c1;
-        let c2 = self.c1.sqr() - self.c0 * self.c2;
-        let t = ((self.c2 * c1 + self.c1 * c2).mul_by_nonresidue() + self.c0 * c0).inv();
-        Fq6 { c0: t * c0, c1: t * c1, c2: t * c2, }
+        let Fq6{c0, c1, c2 } = self;
+        // let v0 = c0.sqr() - c1 * c2.mul_by_nonresidue();
+        let v0 = c0.u_sqr() - mul_by_xi(c1.u_mul(c2));
+        let v0 = v0.to_fq();
+        // let v1 = c2.sqr().mul_by_nonresidue() - c0 * c1;
+        let v1 = mul_by_xi(c2.u_sqr()) - c0.u_mul(c1);
+        let v1 = v1.to_fq();
+        // let v2 = c1.sqr() - c0 * c2;
+        let v2 = c1.u_sqr() - c0.u_mul(c2);
+        let v2 = v2.to_fq();
+        // let t = ((c2 * v1 + c1 * v2).mul_by_nonresidue() + c0 * v0).inv();
+        let t = (mul_by_xi(c2.u_mul(v1) + c1.u_mul(v2)) + c0.u_mul(v0)).to_fq().inv();
+        Fq6 { c0: t * v0, c1: t * v1, c2: t * v2, }
     }
 }
 
