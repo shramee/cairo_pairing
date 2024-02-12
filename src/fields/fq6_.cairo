@@ -1,5 +1,5 @@
 use bn::curve::{FIELD};
-use bn::curve::{u512, U512BnAdd, u512Tuple2Add, U512BnSub, u512Tuple2Sub, u512_high_add};
+use bn::curve::{u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub};
 use bn::fields::{print::Fq6PrintImpl, Fq2, Fq2Ops, fq2};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fields::frobenius::fp6 as frob;
@@ -151,7 +151,7 @@ impl Fq6Short of FieldShortcuts<Fq6> {
     }
 }
 #[generate_trait]
-impl Fq6MulShort of FieldMulShortcuts {}
+impl Fq6MulShort of FieldMulShort {}
 
 impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]

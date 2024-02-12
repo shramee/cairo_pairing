@@ -4,61 +4,21 @@ use super::utils::{
     u256_wrapping_sub, u128_overflowing_sub, expect_u256, expect_u128
 };
 
-impl U512WrappingAdd of Add<u512> {
-    #[inline(always)]
-    fn add(lhs: u512, rhs: u512) -> u512 {
-        let (result, _) = u512_add_overflow(lhs, rhs);
-        result
-    }
-}
+// impl U512WrappingAdd of Add<u512> {
+//     #[inline(always)]
+//     fn add(lhs: u512, rhs: u512) -> u512 {
+//         let (result, _) = u512_add_overflow(lhs, rhs);
+//         result
+//     }
+// }
 
-impl U512WrappingSub of Sub<u512> {
-    #[inline(always)]
-    fn sub(lhs: u512, rhs: u512) -> u512 {
-        let (result, _) = u512_sub_overflow(lhs, rhs);
-        result
-    }
-}
-
-impl u512Tuple2Add<T1, T2, +Add<T1>, +Add<T2>, +Drop<T1>, +Drop<T2>> of Add<(T1, T2)> {
-    #[inline(always)]
-    fn add(lhs: (T1, T2), rhs: (T1, T2)) -> (T1, T2) {
-        let (a0, a1) = lhs;
-        let (b0, b1) = rhs;
-        (a0 + b0, a1 + b1)
-    }
-}
-
-impl u512Tuple2Sub<T1, T2, +Sub<T1>, +Sub<T2>, +Drop<T1>, +Drop<T2>> of Sub<(T1, T2)> {
-    #[inline(always)]
-    fn sub(lhs: (T1, T2), rhs: (T1, T2)) -> (T1, T2) {
-        let (a0, a1) = lhs;
-        let (b0, b1) = rhs;
-        (a0 - b0, a1 - b1)
-    }
-}
-
-impl u512Tuple3Add<
-    T1, T2, T3, +Add<T1>, +Add<T2>, +Add<T3>, +Drop<T1>, +Drop<T2>, +Drop<T3>,
-> of Add<(T1, T2, T3)> {
-    #[inline(always)]
-    fn add(lhs: (T1, T2, T3), rhs: (T1, T2, T3)) -> (T1, T2, T3) {
-        let (a0, a1, a2) = lhs;
-        let (b0, b1, b2) = rhs;
-        (a0 + b0, a1 + b1, a2 + b2)
-    }
-}
-
-impl u512Tuple3Sub<
-    T1, T2, T3, +Sub<T1>, +Sub<T2>, +Sub<T3>, +Drop<T1>, +Drop<T2>, +Drop<T3>,
-> of Sub<(T1, T2, T3)> {
-    #[inline(always)]
-    fn sub(lhs: (T1, T2, T3), rhs: (T1, T2, T3)) -> (T1, T2, T3) {
-        let (a0, a1, a2) = lhs;
-        let (b0, b1, b2) = rhs;
-        (a0 - b0, a1 - b1, a2 - b2)
-    }
-}
+// impl U512WrappingSub of Sub<u512> {
+//     #[inline(always)]
+//     fn sub(lhs: u512, rhs: u512) -> u512 {
+//         let (result, _) = u512_sub_overflow(lhs, rhs);
+//         result
+//     }
+// }
 
 #[derive(Copy, Drop, Hash, PartialEq, Serde)]
 struct u256X2 {
@@ -132,7 +92,6 @@ fn u512_add_overflow(lhs: u512, rhs: u512) -> (u512, bool) {
     let lhs: u256X2 = lhs.into();
     let rhs: u256X2 = rhs.into();
 
-    // No overflow allowed
     let (u256{low: limb2, high: limb3 }, overflow) = match u256_overflow_add(lhs.high, rhs.high) {
         Result::Ok(v) => (v, false),
         Result::Err(v) => (v, true)
@@ -149,8 +108,8 @@ fn u512_add_overflow(lhs: u512, rhs: u512) -> (u512, bool) {
                 Result::Err(limb2) => {
                     // Try to move overflow to limb3
                     match u128_overflowing_add(limb3, 1_u128) {
-                        Result::Ok(v) => (u512 { limb0, limb1, limb2, limb3 }, overflow),
-                        Result::Err(v) => (u512 { limb0, limb1, limb2, limb3 }, true)
+                        Result::Ok(limb3) => (u512 { limb0, limb1, limb2, limb3 }, overflow),
+                        Result::Err(limb3) => (u512 { limb0, limb1, limb2, limb3 }, true)
                     }
                 },
             };
@@ -233,8 +192,8 @@ fn u512_sub_overflow(lhs: u512, rhs: u512) -> (u512, bool) {
                 Result::Err(limb2) => {
                     // Try to move overflow to limb3
                     match u128_overflowing_sub(limb3, 1_u128) {
-                        Result::Ok(v) => (u512 { limb0, limb1, limb2, limb3 }, overflow),
-                        Result::Err(v) => (u512 { limb0, limb1, limb2, limb3 }, true)
+                        Result::Ok(limb3) => (u512 { limb0, limb1, limb2, limb3 }, overflow),
+                        Result::Err(limb3) => (u512 { limb0, limb1, limb2, limb3 }, true)
                     }
                 },
             };

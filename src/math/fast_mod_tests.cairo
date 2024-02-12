@@ -24,7 +24,7 @@
 use core::option::OptionTrait;
 use core::traits::TryInto;
 use bn::fast_mod as f;
-use f::{u512, U512WrappingAdd, U512WrappingSub};
+use f::{u512};
 use bn::curve::FIELD;
 use debug::PrintTrait;
 
@@ -41,7 +41,7 @@ mod bench {
     use core::traits::TryInto;
     use super::mu512;
     use bn::fast_mod as f;
-    use f::{u512, U512WrappingAdd, U512WrappingSub};
+    use f::{u512};
 
     use super::{a, b, FIELD};
     #[test]
@@ -125,7 +125,7 @@ mod bench {
     #[test]
     #[available_gas(100000000)]
     fn u512_add() {
-        mu512(a.low, a.high, b.low, b.high) + mu512(b.low, b.high, a.low, a.high);
+        f::u512_add(mu512(a.low, a.high, b.low, b.high), mu512(b.low, b.high, a.low, a.high));
     }
 
     #[test]
@@ -137,7 +137,7 @@ mod bench {
     #[test]
     #[available_gas(100000000)]
     fn u512_sub() {
-        mu512(b.low, b.high, a.low, a.high) - mu512(a.low, a.high, b.low, b.high);
+        f::u512_sub(mu512(b.low, b.high, a.low, a.high), mu512(a.low, a.high, b.low, b.high));
     }
 
     #[test]
@@ -213,14 +213,15 @@ fn test_all_mod_ops() {
     assert(scl == scl_mul, 'incorrect square');
 
     assert(
-        mu512(0xffffffffffffffffffffffffffffffff, 1, 2, 3)
-            + mu512(4, 5, 6, 7) == mu512(3, 7, 8, 10),
+        f::u512_add(
+            mu512(0xffffffffffffffffffffffffffffffff, 1, 2, 3), mu512(4, 5, 6, 7)
+        ) == mu512(3, 7, 8, 10),
         'incorrect u512 add'
     );
-    assert(mu512(4, 5, 6, 7) - mu512(0, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
     assert(
-        mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4),
-        'incorrect u512 sub'
+        f::u512_sub(mu512(4, 5, 6, 7), mu512(0, 1, 2, 3)) == mu512(4, 4, 4, 4), 'incorrect u512 sub'
     );
+    let (res, _) = f::u512_sub_overflow(mu512(4, 5, 6, 7), mu512(5, 1, 2, 3));
+    assert(res == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4), 'incorrect u512 sub');
 // assert(mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
 }

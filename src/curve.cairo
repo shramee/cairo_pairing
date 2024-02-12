@@ -19,7 +19,7 @@ use bn::math::fast_mod as m;
 use m::{u512};
 use m::{add_u, mul_u, sqr_u, scl_u,};
 use m::{u512_add_u256, u512_sub_u256, u512_reduce, u512_add_overflow, u512_sub_overflow};
-use m::{u512Tuple2Add, u512Tuple2Sub};
+use m::{Tuple2Add, Tuple2Sub};
 
 impl U512BnAdd of Add<u512> {
     #[inline(always)]
@@ -32,7 +32,7 @@ impl U512BnAdd of Add<u512> {
             // then c can be restored with a cheaper single-precision sub- traction by 2^N·p
             // For p as FIELD, This function reduces values over FIELD·2^n
             // We do this on overflow
-            u512_high_sub(result, FIELD)
+            m::u512_high_sub(result, FIELD)
         } else {
             result
         }

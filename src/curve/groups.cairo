@@ -3,7 +3,7 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg};
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl};
 use bn::fields::{fq, Fq, fq2, Fq2};
 use bn::curve::{u512};
-use bn::curve::{U512BnAdd, U512BnSub, u512Tuple2Add, u512Tuple2Sub};
+use bn::curve::{U512BnAdd, U512BnSub, Tuple2Add, Tuple2Sub};
 
 use debug::PrintTrait as Print;
 
