@@ -1,5 +1,5 @@
 // test bn::fields::tests::bench::fq01::add ... ok (gas usage est.: 10160)
-// test bn::fields::tests::bench::fq01::div ... ok (gas usage est.: 83000)
+// test bn::fields::tests::bench::fq01::inv ... ok (gas usage est.: 35270)
 // test bn::fields::tests::bench::fq01::mul ... ok (gas usage est.: 49130)
 // test bn::fields::tests::bench::fq01::mulu ... ok (gas usage est.: 24140)
 // test bn::fields::tests::bench::fq01::rdc ... ok (gas usage est.: 25690)
@@ -7,7 +7,7 @@
 // test bn::fields::tests::bench::fq01::sqru ... ok (gas usage est.: 20110)
 // test bn::fields::tests::bench::fq01::sub ... ok (gas usage est.: 14780)
 // test bn::fields::tests::bench::fq02::add ... ok (gas usage est.: 20020)
-// test bn::fields::tests::bench::fq02::div ... ok (gas usage est.: 370360)
+// test bn::fields::tests::bench::fq02::inv ... ok (gas usage est.: 213980)
 // test bn::fields::tests::bench::fq02::mul ... ok (gas usage est.: 156780)
 // test bn::fields::tests::bench::fq02::mulu ... ok (gas usage est.: 106800)
 // test bn::fields::tests::bench::fq02::rdc ... ok (gas usage est.: 50080)
@@ -15,12 +15,14 @@
 // test bn::fields::tests::bench::fq02::sqru ... ok (gas usage est.: 67480)
 // test bn::fields::tests::bench::fq02::sub ... ok (gas usage est.: 29560)
 // test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 59460)
-// test bn::fields::tests::bench::fq06::div ... ok (gas usage est.: 2946400)
+// test bn::fields::tests::bench::fq06::inv ... ok (gas usage est.: 1896600)
 // test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 1054200)
+// test bn::fields::tests::bench::fq06::mulu ... ok (gas usage est.: 904260)
 // test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 827260)
+// test bn::fields::tests::bench::fq06::sqru ... ok (gas usage est.: 677220)
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 88680)
 // test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 118620)
-// test bn::fields::tests::bench::fq12::div ... ok (gas usage est.: 9319040)
+// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 5791660)
 // test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 3522980)
 // test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 2500620)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 177360)
@@ -91,10 +93,9 @@ mod fq01 {
 
     #[test]
     #[available_gas(2000000)]
-    fn div() {
+    fn inv() {
         let a = fq(645);
-        let b = fq(45);
-        a / b;
+        a.inv();
     }
 }
 
@@ -155,10 +156,9 @@ mod fq02 {
 
     #[test]
     #[available_gas(2000000)]
-    fn div() {
+    fn inv() {
         let a = fq2(34, 645);
-        let b = fq2(25, 45);
-        a / b;
+        a.inv();
     }
 }
 
@@ -191,17 +191,31 @@ mod fq06 {
 
     #[test]
     #[available_gas(20000000)]
+    fn mulu() {
+        let a = fq6(34, 645, 20, 55, 140, 105);
+        let b = fq6(25, 45, 11, 43, 86, 101);
+        a.u_mul(b);
+    }
+
+    #[test]
+    #[available_gas(20000000)]
     fn sqr() {
         let a = fq6(34, 645, 20, 55, 140, 105);
         a.sqr();
     }
 
     #[test]
-    #[available_gas(20000000)]
-    fn div() {
+    #[available_gas(2000000)]
+    fn sqru() {
         let a = fq6(34, 645, 20, 55, 140, 105);
-        let b = fq6(25, 45, 11, 43, 86, 101);
-        a / b;
+        a.u_sqr();
+    }
+
+    #[test]
+    #[available_gas(20000000)]
+    fn inv() {
+        let a = fq6(34, 645, 20, 55, 140, 105);
+        a.inv();
     }
 }
 
@@ -241,9 +255,8 @@ mod fq12 {
 
     #[test]
     #[available_gas(30000000)]
-    fn div() {
+    fn inv() {
         let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
-        let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
-        a / b;
+        a.inv();
     }
 }
