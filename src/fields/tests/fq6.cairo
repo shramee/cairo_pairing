@@ -32,17 +32,12 @@ fn sqr() {
 #[test]
 #[available_gas(50000000)]
 fn mul() {
-    // Having both of these causes this error:
-    // #24531->#24532: Got 'Offset overflow' error while moving [62].
     let a = fq6(34, 645, 20, 55, 140, 105);
     let b = fq6(25, 45, 11, 43, 86, 101);
     let c = fq6(9, 600, 31, 12, 54, 4);
 
-    // Having two of these cause the overflow error
     let ab = a * b;
     let bc = b * c;
-    // This line line after the two above causes
-    // Failed to cast from 63344.
     assert(ab * c == a * bc, 'incorrect mul');
 }
 

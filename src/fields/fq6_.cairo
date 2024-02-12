@@ -1,5 +1,5 @@
 use bn::curve::{FIELD};
-use bn::curve::{u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub};
+use bn::curve::{u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi, u512_reduce};
 use bn::fields::{print::Fq6PrintImpl, Fq2, Fq2Ops, fq2};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fields::frobenius::fp6 as frob;
@@ -150,8 +150,153 @@ impl Fq6Short of FieldShortcuts<Fq6> {
          }
     }
 }
-#[generate_trait]
-impl Fq6MulShort of FieldMulShort {}
+
+type SixU512 = ((u512, u512), (u512, u512), (u512, u512),);
+// type SixU512 = ();
+
+fn u512_dud() -> u512 {
+    u512 { limb0: 1, limb1: 0, limb2: 0, limb3: 0, }
+}
+
+impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
+    // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
+    // Algorithm 3 Multiplication in Fp6 without reduction (cost of 6m~u +28a~)
+    // uppercase vars are u512, lower case are u256
+    #[inline(always)]
+    fn u_mul(self: Fq6, rhs: Fq6) -> SixU512 {
+        // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v + b2v2) ∈ Fp6
+        // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
+        let Fq6{c0: a0, c1: a1, c2: a2 } = self;
+        let Fq6{c0: b0, c1: b1, c2: b2 } = rhs;
+        // 1: T0 ←a0 ×2 b0,T1 ←a1 ×2 b1,T2 ←a2 ×2 b2 
+        let (T0, T1, T2,) = (a0.u_mul(b0), a1.u_mul(b1), a2.u_mul(b2));
+        // 2: t0 ← a1 +2 a2, t1 ← b1 +2 b2
+        let (t0, t1,) = (a1.u_add(a2), b1.u_add(b2));
+        // 3: T3 ← t0 ×2 t1
+        let T3 = t0.u_mul(t1);
+        // 4: T4 ← T1 +2 T2
+        let T4 = T1 + T2;
+        // 5: T3,0 ← T3,0 ⊖ T4,0
+        // 6: T3,1 ← T3,1 − T4,1
+        let (T30, T31): (u512, u512) = T3;
+        let (T40, T41): (u512, u512) = T4;
+        let T3 = (T30 - T40, T31 - T41);
+        // 7: T4,0 ←T3,0 ⊖T3,1, T4,1 ←T3,0 ⊕T3,1 (≡T4 ←ξ·T3)
+        let T4 = mul_by_xi(T3);
+        //  8: T5 ← T4 ⊕2 T0
+        let T5 = T4 + T0;
+        // 9: t0 ← a0 +2 a1, t1 ← b0 +2 b1
+        let t0 = a0.u_add(a1);
+        let t1 = b0.u_add(b1);
+
+        // 10: T3 ← t0 ×2 t1
+        let T3 = t0.u_mul(t1);
+
+        // 11: T4 ← T0 +2 T1
+        let T4 = T0 + T1;
+        // 12: T3,0 ← T3,0 ⊖ T4,0
+        // 13: T3,1 ← T3,1 − T4,1
+        let (T30, T31): (u512, u512) = T3;
+        let (T40, T41): (u512, u512) = T4;
+        let T3 = (T30 - T40, T31 - T41);
+        // 14: T4,0 ← T2,0 ⊖ T2,1
+        // 15: T4,1 ←T2,0 +T2,1 (steps14-15≡T4 ←ξ·T2)
+        let T4 = mul_by_xi(T2);
+        // 16: T6 ← T3 ⊕2 T4
+        let T6 = T3 + T4;
+        // 17: t0 ←a0 +2 a2,t1 ←b0 +2 b2
+        let (t0, t1,) = (a0.u_add(a2), b0.u_add(b2));
+        // 18: T3 ← t0 ×2 t1
+        let T3 = t0.u_mul(t1);
+        // 19: T4 ← T0 +2 T2
+        let T4 = T0 + T2;
+
+        // 20: T3,0 ← T3,0 ⊖ T4,0
+        // 21: T3,1 ← T3,1 − T4,1
+        let (T30, T31): (u512, u512) = T3;
+        let (T40, T41): (u512, u512) = T4;
+        let T3 = (T30 - T40, T31 - T41);
+
+        // 22: T7,0 ← T3,0 ⊕ T1,0
+        // 23: T7,1 ← T3,1 + T1,1
+        let (T30, T31): (u512, u512) = T3;
+        let (T10, T11): (u512, u512) = T1;
+        let T7 = (T30 + T10, T31 + T11);
+
+        // 24: return c = (T5 + T6v + T7v2)
+        (T5, T6, T7)
+    }
+
+    // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
+    // Algorithm 7 Squaring in Fp2 without reduction (cost of s~u = 2mu + 3a)
+    // uppercase vars are u512, lower case are u256
+    #[inline(always)]
+    fn u_sqr(self: Fq6) -> SixU512 {
+        // Input:a = (a0 + a1v + a2v2) ∈ Fp6
+        // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
+        let Fq6{c0: a0, c1: a1, c2: a2 } = self;
+        // 1: T0 ←a0 ×2 a0,T1 ←a1 ×2 b1,T2 ←a2 ×2 a2 
+        let (T0, T1, T2,) = (a0.u_sqr(), a1.u_sqr(), a2.u_sqr());
+        // 2: t0 ← a1 +2 a2, t1 ← a1 +2 a2
+        // let (t0, t1,) = (a1.u_add(a2), a1.u_add(a2));
+        // 3: T3 ← t0 ×2 t1
+        // t0 = t1 = a1 +2 a2
+        let T3 = a1.u_add(a2).u_sqr();
+        // 4: T4 ← T1 +2 T2
+        let T4 = T1 + T2;
+        // 5: T3,0 ← T3,0 ⊖ T4,0
+        // 6: T3,1 ← T3,1 − T4,1
+        let T3 = (T3 - T4);
+        // 7: T4,0 ←T3,0 ⊖T3,1, T4,1 ←T3,0 ⊕T3,1 (≡T4 ←ξ·T3)
+        let T4 = mul_by_xi(T3);
+        //  8: T5 ← T4 ⊕2 T0
+        let T5 = T4 + T0;
+        // 9: t0 ← a0 +2 a1, t1 ← a0 +2 a1
+        // let (t0,t1) = (a0.u_add(a1), a0.u_add(a1));
+        // 10: T3 ← t0 ×2 t1
+        // t0 = t1 = a0.u_add(a1);
+        let T3 = a0.u_add(a1).u_sqr();
+
+        // 11: T4 ← T0 +2 T1
+        let T4 = T0 + T1;
+        // 12: T3,0 ← T3,0 ⊖ T4,0
+        // 13: T3,1 ← T3,1 − T4,1
+        let T3 = T3 - T4;
+        // 14: T4,0 ← T2,0 ⊖ T2,1
+        // 15: T4,1 ←T2,0 +T2,1 (steps14-15≡T4 ←ξ·T2)
+        let T4 = mul_by_xi(T2);
+        // 16: T6 ← T3 ⊕2 T4
+        let T6 = T3 + T4;
+        // 17: t0 ←a0 +2 a2,t1 ←a0 +2 a2
+        // let (t0, t1,) = (a0.u_add(a2), a0.u_add(a2));
+        // 18: T3 ← t0 ×2 t1
+        let T3 = a0.u_add(a2).u_sqr();
+        // 19: T4 ← T0 +2 T2
+        let T4 = T0 + T2;
+
+        // 20: T3,0 ← T3,0 ⊖ T4,0
+        // 21: T3,1 ← T3,1 − T4,1
+        let (T30, T31): (u512, u512) = T3;
+        let (T40, T41): (u512, u512) = T4;
+        let T3 = (T30 - T40, T31 - T41);
+
+        // 22: T7,0 ← T3,0 ⊕ T1,0
+        // 23: T7,1 ← T3,1 + T1,1
+        let (T30, T31): (u512, u512) = T3;
+        let (T10, T11): (u512, u512) = T1;
+        let T7 = (T30 + T10, T31 + T11);
+
+        // 24: return c = (T5 + T6v + T7v2)
+        (T5, T6, T7)
+    }
+
+    #[inline(always)]
+    fn to_fq(self: SixU512) -> Fq6 {
+        let (C0, C1, C2) = self;
+        // let field_nz = FIELD.try_into().unwrap();
+        Fq6 { c0: C0.to_fq(), c1: C1.to_fq(), c2: C2.to_fq() }
+    }
+}
 
 impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]
@@ -197,7 +342,7 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
-        self.mul(rhs.inv())
+        self.u_mul(rhs.inv()).to_fq()
     }
 
     #[inline(always)]
@@ -213,19 +358,7 @@ impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]
     fn sqr(self: Fq6) -> Fq6 {
         core::internal::revoke_ap_tracking();
-        let s0 = self.c0.sqr();
-        let ab = self.c0 * self.c1;
-        let s1 = ab + ab;
-        let s2 = (self.c0 - self.c1 + self.c2).sqr();
-        let bc = self.c1 * self.c2;
-        let s3 = bc + bc;
-        let s4 = self.c2.sqr();
-
-        Fq6 {
-            c0: s0 + s3.mul_by_nonresidue(),
-            c1: s1 + s4.mul_by_nonresidue(),
-            c2: s1 + s2 + s3 - s0 - s4,
-        }
+        self.u_sqr().to_fq()
     // Fq6Utils::one()
     }
 
