@@ -72,7 +72,7 @@ mod fq01 {
     #[test]
     #[available_gas(2000000)]
     fn rdc() {
-        let a: Fq = u512_one().to_fq();
+        let _: Fq = u512_one().to_fq();
     }
 
     #[test]
@@ -136,7 +136,7 @@ mod fq02 {
     #[test]
     #[available_gas(2000000)]
     fn rdc() {
-        let a: Fq2 = (u512_one(), u512_one()).to_fq();
+        let _: Fq2 = (u512_one(), u512_one()).to_fq();
     }
 
     #[test]
