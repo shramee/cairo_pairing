@@ -15,10 +15,10 @@ mod fields {
 
     #[cfg(test)]
     mod tests { //
-        mod bench;
-    // mod fq;
-    // mod fq2;
-    // mod fq6;
+        // mod bench;
+        // mod fq;
+        mod fq2;
+        mod fq6;
     // mod fq12;
     // mod frobenius;
     }

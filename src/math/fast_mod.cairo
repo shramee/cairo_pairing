@@ -25,7 +25,7 @@ use add_sub::{neg, add, add_nz, add_u, sub};
 // region mul operations
 mod mul_scale_sqr;
 
-use mul_scale_sqr::{scl, scl_nz, scl_u, mul, mul_nz, mul_u, sqr, sqr_nz, sqr_u};
+use mul_scale_sqr::{scl, scl_nz, scl_u, mul, mul_nz, mul_u, sqr, sqr_nz, sqr_u, u512_scl};
 // endregion mul operations
 
 // region div/inv operations

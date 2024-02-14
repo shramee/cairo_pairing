@@ -1,7 +1,7 @@
 mod constants;
 mod groups;
 
-use constants::{X, ORDER, FIELD, FIELDSQLOW, FIELDSQHIGH, B, x_naf};
+use constants::{X, ORDER, FIELD, FIELDSQLOW, FIELDSQHIGH, B, x_naf, u512_overflow_precompute_add};
 use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT,};
 use bn::fields::print::u512Display;
 // #[cfg(test)]
@@ -19,7 +19,7 @@ use bn::fields as f;
 use bn::math::fast_mod as m;
 use m::{u512};
 use m::{add_u, mul_u, sqr_u, scl_u,};
-use m::{u512_add_u256, u512_sub_u256, u512_reduce, u512_add_overflow, u512_sub_overflow};
+use m::{u512_add_u256, u512_sub_u256, u512_reduce, u512_add_overflow, u512_sub_overflow, u512_scl};
 use m::{Tuple2Add, Tuple2Sub};
 
 impl U512BnAdd of Add<u512> {

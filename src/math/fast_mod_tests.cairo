@@ -145,6 +145,12 @@ mod bench {
     fn u512_red() {
         f::u512_reduce(mu512(a.low, a.high, b.low, b.high), b.try_into().unwrap());
     }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_scl() {
+        f::u512_scl(mu512(a.low, a.high, b.low, b.high), b.low);
+    }
 }
 
 mod bench_plain {
@@ -223,5 +229,16 @@ fn test_all_mod_ops() {
     );
     let (res, _) = f::u512_sub_overflow(mu512(4, 5, 6, 7), mu512(5, 1, 2, 3));
     assert(res == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4), 'incorrect u512 sub');
-// assert(mu512(4, 5, 6, 7) - mu512(5, 1, 2, 3) == mu512(4, 4, 4, 4), 'incorrect u512 sub');
+
+    let (scaled_u512, ovf) = f::u512_scl(mu512(4, 5, 6, 7), 9);
+    assert(scaled_u512.limb0 == 36, 'u512_scl incorrect limb0');
+    assert(scaled_u512.limb1 == 45, 'u512_scl incorrect limb1');
+    assert(scaled_u512.limb2 == 54, 'u512_scl incorrect limb2');
+    assert(scaled_u512.limb3 == 63, 'u512_scl incorrect limb3');
+
+    let (scaled_u512, ovf) = f::u512_scl(mu512(a.high, 5, 6, 7), a.low);
+    assert(scaled_u512.limb0 == 36, 'u512_scl incorrect limb0');
+    assert(scaled_u512.limb1 == 45, 'u512_scl incorrect limb1');
+    assert(scaled_u512.limb2 == 54, 'u512_scl incorrect limb2');
+    assert(scaled_u512.limb3 == 63, 'u512_scl incorrect limb3');
 }

@@ -1,10 +1,7 @@
-use bn::traits::{FieldOps as FOps, FieldShortcuts as FShort, FieldMulShortcuts as FMulShort};
+use bn::traits::{FieldOps as FOps, FieldShortcuts as FShort};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg};
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl};
 use bn::fields::{fq, Fq, fq2, Fq2};
-use bn::curve::{u512};
-use bn::curve::{U512BnAdd, U512BnSub, Tuple2Add, Tuple2Sub};
-
 use debug::PrintTrait as Print;
 
 type AffineG1 = Affine<Fq>;
@@ -28,16 +25,7 @@ trait ECOperations<TCoord> {
 }
 
 impl AffineOps<
-    T,
-    Tu512,
-    +FOps<T>,
-    +FShort<T>,
-    +FMulShort<T, Tu512>,
-    +Copy<T>,
-    +Drop<T>,
-    +Add<Tu512>,
-    +Sub<Tu512>,
-    impl ECGImpl: ECGroup<T>
+    T, +FOps<T>, +FShort<T>, +Copy<T>, +Print<T>, +Drop<T>, impl ECGImpl: ECGroup<T>
 > of ECOperations<T> {
     #[inline(always)]
     fn pt_on_slope(self: @Affine<T>, slope: T, x2: T) -> Affine<T> {
