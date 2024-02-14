@@ -57,11 +57,23 @@ impl U512BnSub of Sub<u512> {
     }
 }
 
-fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
-    // 7: R,0 ←T,0 ⊖T3,1, R,1 ←T3,0 ⊕T,1 (≡R ←ξ·T)
+fn u512_scl_9(a: u512) -> u512 {
+    let (result, overflow) = u512_scl(a, 9);
+    if (overflow == 0) {
+        result
+    } else {
+        let ov: felt252 = overflow.into();
+        let offset = u512_overflow_precompute_add(ov.try_into().unwrap());
+        let offset_u512 = u512 { limb0: offset.low, limb1: offset.high, limb2: 0, limb3: 0 };
+        result + offset_u512
+    }
+}
 
+// ξ = 9 + i
+fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
     let (t0, t1): (u512, u512) = t;
-    (t0 - t1, t0 + t1)
+    (u512_scl_9(t0) - t1, //
+     t0 + u512_scl_9(t1))
 }
 
 #[inline(always)]

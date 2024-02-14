@@ -5,7 +5,7 @@ use bn::curve::FIELD;
 use bn::fast_mod as f;
 use f::u512;
 
-use bn::curve::{U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub};
+use bn::curve::{U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi};
 use bn::traits::{FieldOps, FieldUtils, FieldMulShortcuts};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq2, fq2, Fq2Ops, Fq2MulShort};
@@ -146,10 +146,16 @@ fn inv() {
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let a_inv = FieldOps::inv(a);
-    let c = a * a_inv;
-    let d = b * a_inv;
-    assert(c == FieldUtils::one(), 'incorrect inv');
-    assert(d * a == b, 'incorrect inv');
+    let one = a * a_inv;
+    let boa = b * a_inv;
+    assert(one == FieldUtils::one(), 'incorrect inv');
+    assert(boa * a == b, 'incorrect inv');
+
+    let b_inv = FieldOps::inv(b);
+    let one = b * b_inv;
+    let aob = a * b_inv;
+    assert(one == FieldUtils::one(), 'incorrect inv');
+    assert(aob * b == a, 'incorrect inv');
 }
 
 #[test]
@@ -163,6 +169,23 @@ fn inv_one() {
 #[test]
 #[available_gas(5000000)]
 fn sqr() {
-    let a = fq2(34, 645);
-    assert(a * a == a.sqr(), 'incorrect mul');
+    assert(a() * a() == a().sqr(), 'incorrect mul');
+    assert(b() * b() == b().sqr(), 'incorrect mul');
+}
+
+#[test]
+#[available_gas(5000000)]
+fn non_residue() {
+    let a_nr = a().mul_by_nonresidue();
+    assert(a_nr == a() * fq2(9, 1), 'incorrect non_residue mul')
+}
+
+#[test]
+#[available_gas(5000000)]
+fn non_residue_u512() {
+    let AB = a().u_mul(b());
+    let ab_xi = mul_by_xi(AB);
+    let ab = a() * b();
+    let ab_nr = ab.mul_by_nonresidue();
+    assert(ab_nr == ab_xi.to_fq(), 'incorrect non_residue mul')
 }
