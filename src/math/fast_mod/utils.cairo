@@ -130,6 +130,22 @@ fn expect_u128(result: Result<u128, u128>, panic_msg: felt252) -> u128 {
     }
 }
 
+use core::to_byte_array::AppendFormattedToByteArray;
+use core::fmt::{Display, Formatter, Error};
+
+impl u512Display of Display<u512> {
+    fn fmt(self: @u512, ref f: Formatter) -> Result<(), Error> {
+        let base = 16_u256.try_into().unwrap();
+        write!(f, "\n0x").unwrap();
+        u256 { high: *self.limb3, low: *self.limb2 }
+            .append_formatted_to_byte_array(ref f.buffer, base);
+        write!(f, ",0x").unwrap();
+        u256 { high: *self.limb1, low: *self.limb0 }
+            .append_formatted_to_byte_array(ref f.buffer, base);
+        Result::Ok(())
+    }
+}
+
 impl Tuple2Add<T1, T2, +Add<T1>, +Add<T2>, +Drop<T1>, +Drop<T2>> of Add<(T1, T2)> {
     #[inline(always)]
     fn add(lhs: (T1, T2), rhs: (T1, T2)) -> (T1, T2) {

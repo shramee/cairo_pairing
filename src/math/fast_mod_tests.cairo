@@ -1,30 +1,34 @@
-// test bn::math::fast_mod_tests::bench_plain::add ... ok (gas usage est.: 6830)
-// test bn::math::fast_mod_tests::bench_plain::div ... ok (gas usage est.: 11450)
-// test bn::math::fast_mod_tests::bench_plain::mul ... ok (gas usage est.: 21190)
-// test bn::math::fast_mod_tests::bench_plain::rem ... ok (gas usage est.: 11450)
-// test bn::math::fast_mod_tests::bench_plain::sub ... ok (gas usage est.: 6830)
-// test bn::math::fast_mod_tests::bench::add ... ok (gas usage est.: 12360)
+// test bn::math::fast_mod_tests::bench_plain::add ... ok (gas usage est.: 6420)
+// test bn::math::fast_mod_tests::bench_plain::div ... ok (gas usage est.: 9250)
+// test bn::math::fast_mod_tests::bench_plain::mul ... ok (gas usage est.: 20190)
+// test bn::math::fast_mod_tests::bench_plain::rem ... ok (gas usage est.: 9250)
+// test bn::math::fast_mod_tests::bench_plain::sub ... ok (gas usage est.: 6420)
+// test bn::math::fast_mod_tests::bench::add ... ok (gas usage est.: 10160)
 // test bn::math::fast_mod_tests::bench::add_u ... ok (gas usage est.: 2710)
-// test bn::math::fast_mod_tests::bench::div ... ok (gas usage est.: 86000)
-// test bn::math::fast_mod_tests::bench::div_u ... ok (gas usage est.: 62310)
-// test bn::math::fast_mod_tests::bench::inv ... ok (gas usage est.: 37470)
-// test bn::math::fast_mod_tests::bench::mul ... ok (gas usage est.: 52130)
-// test bn::math::fast_mod_tests::bench::mul_u ... ok (gas usage est.: 24940)
-// test bn::math::fast_mod_tests::bench::reduce ... ok (gas usage est.: 10450)
-// test bn::math::fast_mod_tests::bench::scl ... ok (gas usage est.: 40430)
-// test bn::math::fast_mod_tests::bench::scl_u ... ok (gas usage est.: 10040)
-// test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 47900)
-// test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20710)
-// test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 15710)
-// test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7490)
-// test bn::math::fast_mod_tests::bench::u512_high_add ... ok (gas usage est.: 2530)
-// test bn::math::fast_mod_tests::bench::u512_red ... ok (gas usage est.: 27690)
-// test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7490)
+// test bn::math::fast_mod_tests::bench::div ... ok (gas usage est.: 83000)
+// test bn::math::fast_mod_tests::bench::div_u ... ok (gas usage est.: 59310)
+// test bn::math::fast_mod_tests::bench::inv ... ok (gas usage est.: 35270)
+// test bn::math::fast_mod_tests::bench::mul ... ok (gas usage est.: 49130)
+// test bn::math::fast_mod_tests::bench::mul_u ... ok (gas usage est.: 24140)
+// test bn::math::fast_mod_tests::bench::reduce ... ok (gas usage est.: 8250)
+// test bn::math::fast_mod_tests::bench::scl ... ok (gas usage est.: 38430)
+// test bn::math::fast_mod_tests::bench::scl_u ... ok (gas usage est.: 9640)
+// test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 45100)
+// test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20110)
+// test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 14780)
+// test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7580)
+// test bn::math::fast_mod_tests::bench::u512_add_high ... ok (gas usage est.: 5820)
+// test bn::math::fast_mod_tests::bench::u512_add_u256 ... ok (gas usage est.: 4370)
+// test bn::math::fast_mod_tests::bench::u512_red ... ok (gas usage est.: 25490)
+// test bn::math::fast_mod_tests::bench::u512_scl ... ok (gas usage est.: 19160)
+// test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7580)
+// test bn::math::fast_mod_tests::bench::u512_sub_high ... ok (gas usage est.: 5820)
+// test bn::math::fast_mod_tests::bench::u512_sub_u256 ... ok (gas usage est.: 4370)
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
 use bn::fast_mod as f;
-use f::{u512};
+use f::{u512, u512Display};
 use bn::curve::FIELD;
 use debug::PrintTrait;
 
@@ -130,14 +134,32 @@ mod bench {
 
     #[test]
     #[available_gas(100000000)]
-    fn u512_high_add() {
-        f::u512_high_add(mu512(a.low, a.high, b.low, b.high), 5);
+    fn u512_add_high() {
+        f::u512_high_add(mu512(a.low, a.high, b.low, b.high), 5).unwrap();
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_add_u256() {
+        f::u512_add_u256(mu512(a.low, a.high, b.low, b.high), 5);
     }
 
     #[test]
     #[available_gas(100000000)]
     fn u512_sub() {
         f::u512_sub(mu512(b.low, b.high, a.low, a.high), mu512(a.low, a.high, b.low, b.high));
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_sub_high() {
+        f::u512_high_sub(mu512(a.low, a.high, b.low, b.high), 5).unwrap();
+    }
+
+    #[test]
+    #[available_gas(100000000)]
+    fn u512_sub_u256() {
+        f::u512_sub_u256(mu512(a.low, a.high, b.low, b.high), 5);
     }
 
     #[test]
@@ -190,6 +212,7 @@ mod bench_plain {
 #[test]
 #[available_gas(100000000)]
 fn test_all_mod_ops() {
+    let max_u128: u128 = 0xffffffffffffffffffffffffffffffff;
     let add = f::add(a, b, FIELD);
     assert(
         add == 17121262864708029623982824676090354404822861252307690326074035164426444763799,
@@ -219,26 +242,41 @@ fn test_all_mod_ops() {
     assert(scl == scl_mul, 'incorrect square');
 
     assert(
-        f::u512_add(
-            mu512(0xffffffffffffffffffffffffffffffff, 1, 2, 3), mu512(4, 5, 6, 7)
-        ) == mu512(3, 7, 8, 10),
+        f::u512_add(mu512(max_u128, 1, 2, 3), mu512(4, 5, 6, 7)) == mu512(3, 7, 8, 10),
         'incorrect u512 add'
     );
     assert(
         f::u512_sub(mu512(4, 5, 6, 7), mu512(0, 1, 2, 3)) == mu512(4, 4, 4, 4), 'incorrect u512 sub'
     );
     let (res, _) = f::u512_sub_overflow(mu512(4, 5, 6, 7), mu512(5, 1, 2, 3));
-    assert(res == mu512(0xffffffffffffffffffffffffffffffff, 3, 4, 4), 'incorrect u512 sub');
+    assert(res == mu512(max_u128, 3, 4, 4), 'incorrect u512 sub');
 
-    let (scaled_u512, ovf) = f::u512_scl(mu512(4, 5, 6, 7), 9);
+    let (scaled_u512, _) = f::u512_scl(mu512(4, 5, 6, 7), 9);
     assert(scaled_u512.limb0 == 36, 'u512_scl incorrect limb0');
     assert(scaled_u512.limb1 == 45, 'u512_scl incorrect limb1');
     assert(scaled_u512.limb2 == 54, 'u512_scl incorrect limb2');
     assert(scaled_u512.limb3 == 63, 'u512_scl incorrect limb3');
 
-    let (scaled_u512, ovf) = f::u512_scl(mu512(a.high, 5, 6, 7), a.low);
-    assert(scaled_u512.limb0 == 36, 'u512_scl incorrect limb0');
-    assert(scaled_u512.limb1 == 45, 'u512_scl incorrect limb1');
-    assert(scaled_u512.limb2 == 54, 'u512_scl incorrect limb2');
-    assert(scaled_u512.limb3 == 63, 'u512_scl incorrect limb3');
+    let (scaled_u512, ovf) = f::u512_scl(mu512(1, 2, 3, 4), a.low);
+    let (alowx1_1, alowx1_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 1);
+    assert(scaled_u512.limb0 == alowx1_0, 'u512_scl incorrect limb0');
+    let (alowx2_1, alowx2_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 2);
+    assert(scaled_u512.limb1 == alowx2_0 + alowx1_1, 'u512_scl incorrect limb1');
+    let (alowx3_1, alowx3_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 3);
+    assert(scaled_u512.limb2 == alowx2_1 + alowx3_0, 'u512_scl incorrect limb2');
+    let (alowx4_1, alowx4_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 4);
+    assert(scaled_u512.limb3 == alowx3_1 + alowx4_0, 'u512_scl incorrect limb3');
+    assert(ovf == alowx4_1, 'u512_scl incorrect limb3');
+
+    let high_add_u512 = f::u512_high_add(mu512(4, 5, 6, 7), max_u128.into()).unwrap();
+    assert(high_add_u512.limb0 == 4, 'u512_high_add incorrect limb0');
+    assert(high_add_u512.limb1 == 5, 'u512_high_add incorrect limb1');
+    assert(high_add_u512.limb2 == 5, 'u512_high_add incorrect limb2');
+    assert(high_add_u512.limb3 == 8, 'u512_high_add incorrect limb3');
+
+    let high_sub_u512 = f::u512_high_sub(mu512(4, 5, 6, 7), 2).unwrap();
+    assert(high_sub_u512.limb0 == 4, 'high_sub_u512 incorrect limb0');
+    assert(high_sub_u512.limb1 == 5, 'high_sub_u512 incorrect limb1');
+    assert(high_sub_u512.limb2 == 4, 'high_sub_u512 incorrect limb2');
+    assert(high_sub_u512.limb3 == 7, 'high_sub_u512 incorrect limb3');
 }

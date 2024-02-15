@@ -4,13 +4,13 @@
 
 * Mod arithmetics
 * Fq Field element arithmetics
-* `WIP` Fq2 Field extension arithmetics
-* `WIP` Fq6 Field extension arithmetics
-* `WIP` Fq12 Field extension arithmetics
+* Fq2 Field extension arithmetics
+* Fq6 Field extension arithmetics
+* Fq12 Field extension arithmetics
 * G1: (x, y) = (Fq, Fq)
 * G2: (x, y) = (Fq2, Fq2)
-* Pairing: Line function
-* `WIP` Pairing: Miller loop
+* Pairing: Line functions
+* Pairing: Miller loop
 
 ## Refrence material
 

@@ -6,7 +6,7 @@ use integer::u512;
 // util functions
 mod utils;
 use utils::{u256_overflow_add, u256_overflow_sub};
-use utils::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub,};
+use utils::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub, u512Display};
 // endregion util functions
 
 // u512_ops
