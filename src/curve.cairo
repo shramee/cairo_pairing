@@ -1,8 +1,13 @@
+use core::option::OptionTrait;
+use core::traits::TryInto;
 mod constants;
 mod groups;
 
-use constants::{X, ORDER, FIELD, FIELDSQLOW, FIELDSQHIGH, B, x_naf, u512_overflow_precompute_add};
-use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT,};
+use constants::{
+    X, ORDER, FIELD, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U512_MOD_FIELD, U512_MOD_FIELD_INV, B,
+    x_naf, u512_overflow_precompute_add
+};
+use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT};
 use bn::fields::print::u512Display;
 // #[cfg(test)]
 // mod groups_tests;
@@ -19,23 +24,36 @@ use bn::fields as f;
 use bn::math::fast_mod as m;
 use m::{u512};
 use m::{add_u, mul_u, sqr_u, scl_u,};
-use m::{u512_add_u256, u512_sub_u256, u512_reduce, u512_add_overflow, u512_sub_overflow, u512_scl};
+use m::{u512_add_u256, u512_sub_u256, u512_add_overflow, u512_sub_overflow, u512_scl};
 use m::{Tuple2Add, Tuple2Sub};
 
 impl U512BnAdd of Add<u512> {
     #[inline(always)]
     fn add(lhs: u512, rhs: u512) -> u512 {
-        let (result, overflow) = u512_add_overflow(lhs, rhs);
+        let (u512{limb0, limb1, limb2, limb3 }, overflow) = u512_add_overflow(lhs, rhs);
         if overflow {
-            // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
-            // As described on page 7,
-            // if c > 2^N·p, where c is the result of a double- precision addition,
-            // then c can be restored with a cheaper single-precision sub- traction by 2^N·p
-            // For p as FIELD, This function reduces values over FIELD·2^n
-            // We do this on overflow
-            m::u512_high_sub(result, FIELD)
+            // 278 % 61 = 34
+            // (278 - 256) + (256 % 61) % 61 = 34
+            // OR, ((x - a) + (a % b)) % b == x % b
+            // For `a` as `2**256` and `b` as `FIELD` and overflow `result` as `x - a`
+            // result + (2**256 % FIELD) fixes overflow error
+            // U512_MOD_FIELD is precompute of 2**256 % FIELD
+            // So we can either add U512_MOD_FIELD or subtract U512_MOD_FIELD_INV
+            let u512_low = u256 { low: limb0, high: limb1 };
+
+            if limb1 > U512_MOD_FIELD_INV.high {
+                // Safe to sub, no overflow
+                // Try to fix mod with U512_MOD_FIELD_INV
+                // println!("Fixing ADD overflow with sub");
+                let mod_fix = m::u256_overflow_sub(u512_low, U512_MOD_FIELD_INV).unwrap();
+                u512 { limb0: mod_fix.low, limb1: mod_fix.high, limb2, limb3 }
+            } else {
+                // println!("Fixing ADD overflow with add");
+                let mod_fix = m::u256_overflow_add(u512_low, U512_MOD_FIELD).unwrap();
+                u512 { limb0: mod_fix.low, limb1: mod_fix.high, limb2, limb3 }
+            }
         } else {
-            result
+            u512 { limb0, limb1, limb2, limb3 }
         }
     }
 }
@@ -43,37 +61,64 @@ impl U512BnAdd of Add<u512> {
 impl U512BnSub of Sub<u512> {
     #[inline(always)]
     fn sub(lhs: u512, rhs: u512) -> u512 {
-        let (result, overflow) = u512_sub_overflow(lhs, rhs);
+        let (u512{limb0, limb1, limb2, limb3 }, overflow) = u512_sub_overflow(lhs, rhs);
         if overflow {
-            // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
-            // As described on page 7,
-            // Option 2: if c < 0 then r = c + 2^N · p, r ∈ [ 0, 2N · p ].
-            // For p as FIELD, This function reduces values over FIELD·2^n
-            // If limb3 of a u512 is over FIELD.high, We subtract FIELD·2^N
-            m::u512_high_add(result, FIELD)
+            // -13 % 61 = 48
+            // (100 + -13) - (100 % 61) % 61 = 52
+            // ((x + a) - (a % b)) % b, x + b
+            // So, subbing `a` as `2**256` and `b` as `FIELD`, `x + a` as `result`
+            // result - (2**256 % FIELD) fixes overflow error
+            // U512_MOD_FIELD is precompute of 2**256 % FIELD
+            // So we can either subtract U512_MOD_FIELD or add U512_MOD_FIELD
+            let u512_low = u256 { low: limb0, high: limb1 };
+
+            if limb1 > U512_MOD_FIELD.high {
+                // Safe to sub, no overflow
+                // Try to fix mod with U512_MOD_FIELD
+                // println!("Fixing SUB overflow with sub");
+                let mod_fix = m::u256_overflow_sub(u512_low, U512_MOD_FIELD).unwrap();
+                u512 { limb0: mod_fix.low, limb1: mod_fix.high, limb2, limb3 }
+            } else {
+                // println!("Fixing SUB overflow with add");
+                let mod_fix = m::u256_overflow_add(u512_low, U512_MOD_FIELD_INV).unwrap();
+                u512 { limb0: mod_fix.low, limb1: mod_fix.high, limb2, limb3 }
+            }
         } else {
-            result
+            u512 { limb0, limb1, limb2, limb3 }
         }
     }
 }
 
-fn u512_scl_9(a: u512) -> u512 {
+#[inline(always)]
+fn u512_scl_9(a: u512, u512_overflow_precompute_add: Span<u256>) -> u512 {
     let (result, overflow) = u512_scl(a, 9);
+    // let u256{low, high } = m::reduce(
+    //     u256 { low: a.limb2, high: a.limb3 }, FIELD.try_into().unwrap()
+    // );
+
     if (overflow == 0) {
         result
     } else {
         let ov: felt252 = overflow.into();
-        let offset = u512_overflow_precompute_add(ov.try_into().unwrap());
+        // let offset = u512_overflow_precompute_add(ov.try_into().unwrap());
+        let offset: u256 = *u512_overflow_precompute_add[ov.try_into().unwrap()];
         let offset_u512 = u512 { limb0: offset.low, limb1: offset.high, limb2: 0, limb3: 0 };
         result + offset_u512
     }
 }
 
+fn u512_reduce(a: u512) -> u256 {
+    m::u512_reduce(a, FIELD.try_into().unwrap())
+}
+
 // ξ = 9 + i
-fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
-    let (t0, t1): (u512, u512) = t;
-    (u512_scl_9(t0) - t1, //
-     t0 + u512_scl_9(t1))
+#[inline(always)]
+fn mul_by_xi(t: (u512, u512), u512_overflow_precompute_add: Span<u256>) -> (u512, u512) {
+    let (mut t0, mut t1): (u512, u512) = t;
+    (
+        u512_scl_9(t0, u512_overflow_precompute_add) - t1, //
+        t0 + u512_scl_9(t1, u512_overflow_precompute_add)
+    )
 }
 
 #[inline(always)]
