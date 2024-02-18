@@ -4,9 +4,16 @@
 const X: u64 = 4965661367192848881;
 const ORDER: u256 = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
-// 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
-const FIELD: u256 = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
+const FIELD: u256 = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
 
+// 2**256 % FIELD
+const U512_MOD_FIELD: u256 = 0x6d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89;
+
+// FIELD - 2**256 % FIELD
+const U512_MOD_FIELD_INV: u256 = 0x298baf0116796b0a70a526b7773fd866e19a517f942cc89148f38fbb84f202be;
+
+
+const FIELD_X2: u256 = 0x60c89ce5c263405370a08b6d0302b0bb2f02d522d0e3951a7841182db0f9fa8e;
 // 0x4689e957a1242c84a50189c6d96cadca602072d09eac1013b5458a2275d69b1
 const FIELDSQLOW: u256 =
     1994097994880475507519040458855034912025718176994801861240415525295080958385;
@@ -25,8 +32,8 @@ const LOG_ATE_LOOP_COUNT: u128 = 63;
 // for returned val q * 2**512 + r,
 // we do, r + ((q * two_to_512) % FIELD)
 // Here's (q * two_to_512) % FIELD precompute for q upto 8.
-fn u512_overflow_precompute_add(i: u32) -> u256 {
-    let arr = array![
+fn u512_overflow_precompute_add() -> Span<u256> {
+    array![
         // for( i = 0n; i < 9n; i++ ) console.log( hex((i * 2n**512n) % FIELD) + ',');
         0,
         0x6d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89,
@@ -37,8 +44,8 @@ fn u512_overflow_precompute_add(i: u32) -> u256 {
         0x2913bcaac0513ebbae02b9fa3d88ffc8436a966af99e0be7b30dea23f541df36,
         0x2fec5c1c8b0973daf5add8f947ca7fbef951af7ccde30de3a63ae67f48ccd9bf,
         0x660ad1b749008d08508b241d08aa75817b75dfd39b645525d4756c3c3dad701,
-    ];
-    *arr[i]
+    ]
+        .span()
 }
 
 #[inline(always)]
