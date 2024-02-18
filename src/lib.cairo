@@ -6,10 +6,11 @@ mod math {
 }
 mod traits;
 mod fields {
-    mod fq_;
-    mod fq2_;
-    mod fq6_;
-    mod fq12_;
+    mod fq_generics;
+    mod fq_1;
+    mod fq_2;
+    mod fq_6;
+    mod fq_12;
     mod frobenius;
     mod print;
 

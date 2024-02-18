@@ -1,7 +1,6 @@
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::fields::{Fq6, fq6, Fq6Utils, fq2};
-use bn::fields::fq6_::{Fq6Frobenius};
+use bn::fields::{Fq6, fq6, Fq6Utils, fq2, Fq6Frobenius};
 use bn::fields::frobenius::fp12 as frob;
 use debug::PrintTrait;
 

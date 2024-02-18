@@ -1,7 +1,5 @@
 use core::array::ArrayTrait;
-use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12};
-use bn::fields::fq6_::Fq6Frobenius;
-use bn::fields::fq12_::Fq12Frobenius;
+use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, Fq12Frobenius};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
 // raising f ∈ Fp12 to the power e = (p^12 - 1)/r can be done in three parts,

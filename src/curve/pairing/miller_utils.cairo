@@ -1,5 +1,5 @@
 use core::debug::PrintTrait;
-use bn::fields::{Fq12, fq12_, Fq12Utils};
+use bn::fields::{Fq12, Fq12Utils};
 use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 

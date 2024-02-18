@@ -19,7 +19,7 @@
 // This can probably use a lot of optimisation from NAF/short miller loop implementations
 
 use core::debug::PrintTrait;
-use bn::fields::{Fq12, fq12_, Fq12Utils};
+use bn::fields::{Fq12, Fq12Utils};
 use bn::curve::pairing::final_exponentiation::final_exponentiation;
 use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};

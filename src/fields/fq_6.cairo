@@ -4,10 +4,9 @@ use bn::curve::{
     u512_overflow_precompute_add
 };
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl, Fq6PrintImpl, Fq12PrintImpl};
-use bn::fields::{Fq2, Fq2Ops, fq2};
+use bn::fields::{Fq2, Fq2Ops, fq2, Fq2Frobenius};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fields::frobenius::fp6 as frob;
-use bn::fields::fq2_::Fq2Frobenius;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{u512Display, Fq2Display, Fq6Display};
 
@@ -169,6 +168,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     // uppercase vars are u512, lower case are u256
     #[inline(always)]
     fn u_mul(self: Fq6, rhs: Fq6) -> SixU512 {
+        core::internal::revoke_ap_tracking();
         // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v + b2v2) ∈ Fp6
         // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
         let Fq6{c0: a0, c1: a1, c2: a2 } = self;
@@ -192,6 +192,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     // uppercase vars are u512, lower case are u256
     #[inline(always)]
     fn u_sqr(self: Fq6) -> SixU512 {
+        core::internal::revoke_ap_tracking();
         let Fq6{c0, c1, c2 } = self;
         let xi_overflow_precompute = u512_overflow_precompute_add();
 
@@ -240,13 +241,11 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn mul(self: Fq6, rhs: Fq6) -> Fq6 {
-        core::internal::revoke_ap_tracking();
         self.u_mul(rhs).to_fq()
     }
 
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
-        core::internal::revoke_ap_tracking();
         self.u_mul(rhs.inv()).to_fq()
     }
 

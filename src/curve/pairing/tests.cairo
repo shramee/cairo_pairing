@@ -1,5 +1,5 @@
 use core::debug::PrintTrait;
-use bn::fields::{Fq12, fq12_, Fq12Utils};
+use bn::fields::{Fq12, Fq12Utils};
 use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2};
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq12, Fq, Fq6};
 use bn::curve::pairing::final_exponentiation::final_exponentiation;
@@ -62,8 +62,7 @@ mod exponentiation {
         print::Fq12PrintImpl, print::FqPrintImpl, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12,
         fq12, fq6
     };
-    use bn::fields::fq6_::Fq6Frobenius;
-    use bn::fields::fq12_::Fq12Frobenius;
+    use bn::fields::{Fq6Frobenius, Fq12Frobenius};
     use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
     fn pair_result_12() -> Fq12 {
@@ -162,7 +161,7 @@ mod exponentiation {
 #[cfg(test)]
 mod g1_line {
     use bn::curve::pairing::miller_utils::LineEvaluationsTrait;
-    use bn::fields::{Fq12, fq12_, Fq12Utils};
+    use bn::fields::{Fq12, Fq12Utils};
     use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq, fq12, Fq, Fq2, Fq6};
     use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps, g1, g2};
 
