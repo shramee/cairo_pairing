@@ -24,7 +24,7 @@ use bn::fields as f;
 use bn::math::fast_mod as m;
 use m::{u512};
 use m::{add_u, mul_u, sqr_u, scl_u,};
-use m::{u512_add_u256, u512_sub_u256, u512_add_overflow, u512_sub_overflow, u512_scl};
+use m::{u512_add_u256, u512_sub_u256, u512_add_overflow, u512_sub_overflow, u512_scl, u512_reduce};
 use m::{Tuple2Add, Tuple2Sub};
 
 impl U512BnAdd of Add<u512> {
@@ -107,8 +107,9 @@ fn u512_scl_9(a: u512, u512_overflow_precompute_add: Span<u256>) -> u512 {
     }
 }
 
-fn u512_reduce(a: u512) -> u256 {
-    m::u512_reduce(a, FIELD.try_into().unwrap())
+#[inline(always)]
+fn u512_reduce_bn(a: u512) -> u256 {
+    u512_reduce(a, FIELD.try_into().unwrap())
 }
 
 // ξ = 9 + i

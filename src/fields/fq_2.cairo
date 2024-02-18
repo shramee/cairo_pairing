@@ -115,7 +115,6 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
         let T2 = a0.u_add(a1).u_mul(b0.u_add(b1));
         // T3 ←T0 +T1
         let T3 = T0 + T1;
-
         // 3: T3 ←T2 − T3
         let T3 = T2 - T3;
         // 4: T4 ← T0 ⊖ T1
@@ -144,9 +143,9 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     }
 
     #[inline(always)]
-    fn to_fq(self: (u512, u512)) -> Fq2 {
+    fn to_fq(self: (u512, u512), field_nz: NonZero<u256>) -> Fq2 {
         let (C0, C1) = self;
-        fq2(u512_reduce(C0), u512_reduce(C1))
+        fq2(u512_reduce(C0, field_nz), u512_reduce(C1, field_nz))
     }
 }
 
@@ -164,7 +163,8 @@ impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn mul(self: Fq2, rhs: Fq2) -> Fq2 {
         // Aranha mul_u + 2r
-        self.u_mul(rhs).to_fq()
+        let field_nz = FIELD.try_into().unwrap();
+        self.u_mul(rhs).to_fq(field_nz)
     // Karatsuba
     // let Fq2{c0: a0, c1: a1 } = self;
     // let Fq2{c0: b0, c1: b1 } = rhs;
@@ -206,7 +206,8 @@ impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn sqr(self: Fq2) -> Fq2 {
         // Aranha sqr_u + 2r
-        self.u_sqr().to_fq()
+        let field_nz = FIELD.try_into().unwrap();
+        self.u_sqr().to_fq(field_nz)
     // // Complex squaring
     // let Fq2{c0: a0, c1: a1 } = self;
     // let v = a0 * a1;
@@ -225,7 +226,8 @@ impl Fq2Ops of FieldOps<Fq2> {
         // Mul by non residue -1 makes negative
         // Lazy reduction applied from Faster Explicit Formulas for Computing Pairings over Ordinary Curves
 
-        let t = (self.c0.u_sqr() + self.c1.u_sqr()).to_fq().inv();
+        let field_nz = FIELD.try_into().unwrap();
+        let t = (self.c0.u_sqr() + self.c1.u_sqr()).to_fq(field_nz).inv();
 
         Fq2 { c0: self.c0 * t, c1: self.c1 * -t, }
     }

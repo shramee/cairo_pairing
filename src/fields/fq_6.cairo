@@ -166,7 +166,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // A reimplementation in Karatsuba squaring with lazy reduction
     // uppercase vars are u512, lower case are u256
-    #[inline(always)]
+    // #[inline(always)]
     fn u_mul(self: Fq6, rhs: Fq6) -> SixU512 {
         core::internal::revoke_ap_tracking();
         // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v + b2v2) ∈ Fp6
@@ -190,7 +190,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     // Karatsuba squaring adapted to lazy reduction as described in
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // uppercase vars are u512, lower case are u256
-    #[inline(always)]
+    // #[inline(always)]
     fn u_sqr(self: Fq6) -> SixU512 {
         core::internal::revoke_ap_tracking();
         let Fq6{c0, c1, c2 } = self;
@@ -221,10 +221,9 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     }
 
     #[inline(always)]
-    fn to_fq(self: SixU512) -> Fq6 {
+    fn to_fq(self: SixU512, field_nz: NonZero<u256>) -> Fq6 {
         let (C0, C1, C2) = self;
-        // let field_nz = FIELD.try_into().unwrap();
-        Fq6 { c0: C0.to_fq(), c1: C1.to_fq(), c2: C2.to_fq() }
+        Fq6 { c0: C0.to_fq(field_nz), c1: C1.to_fq(field_nz), c2: C2.to_fq(field_nz) }
     }
 }
 
@@ -241,12 +240,14 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn mul(self: Fq6, rhs: Fq6) -> Fq6 {
-        self.u_mul(rhs).to_fq()
+        let field_nz = FIELD.try_into().unwrap();
+        self.u_mul(rhs).to_fq(field_nz)
     }
 
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
-        self.u_mul(rhs.inv()).to_fq()
+        let field_nz = FIELD.try_into().unwrap();
+        self.u_mul(rhs.inv()).to_fq(field_nz)
     }
 
     #[inline(always)]
@@ -262,26 +263,28 @@ impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]
     fn sqr(self: Fq6) -> Fq6 {
         core::internal::revoke_ap_tracking();
-        self.u_sqr().to_fq()
+        let field_nz = FIELD.try_into().unwrap();
+        self.u_sqr().to_fq(field_nz)
     }
 
     #[inline(always)]
     fn inv(self: Fq6) -> Fq6 {
         core::internal::revoke_ap_tracking();
+        let field_nz = FIELD.try_into().unwrap();
         let xi_overflow_precompute = u512_overflow_precompute_add();
         let Fq6{c0, c1, c2 } = self;
         // let c0 = self.c0.sqr() - self.c1 * self.c2.mul_by_nonresidue();
         let v0 = c0.u_sqr() - mul_by_xi(c1.u_mul(c2), xi_overflow_precompute);
-        let v0 = v0.to_fq();
+        let v0 = v0.to_fq(field_nz);
         // let c1 = self.c2.sqr().mul_by_nonresidue() - self.c0 * self.c1;
         let v1 = mul_by_xi(c2.u_sqr(), xi_overflow_precompute) - c0.u_mul(c1);
-        let v1 = v1.to_fq();
+        let v1 = v1.to_fq(field_nz);
         // let c2 = self.c1.sqr() - self.c0 * self.c2;
         let v2 = c1.u_sqr() - c0.u_mul(c2);
-        let v2 = v2.to_fq();
+        let v2 = v2.to_fq(field_nz);
         // let t = ((self.c2 * c1 + self.c1 * c2).mul_by_nonresidue() + self.c0 * c0).inv();
         let t = (mul_by_xi(c2.u_mul(v1) + c1.u_mul(v2), xi_overflow_precompute) + c0.u_mul(v0))
-            .to_fq()
+            .to_fq(field_nz)
             .inv();
         Fq6 { c0: t * v0, c1: t * v1, c2: t * v2, }
     }

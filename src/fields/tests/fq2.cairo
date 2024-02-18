@@ -116,8 +116,9 @@ fn mul_aggregate() {
         i += 1;
     };
 
-    assert(acc_sum_u.to_fq() == acc_sum, 'incorrect mul');
-    assert(acc_sub_u.to_fq() == acc_sub, 'incorrect mul');
+    let field_nz = FIELD.try_into().unwrap();
+    assert(acc_sum_u.to_fq(field_nz) == acc_sum, 'incorrect mul');
+    assert(acc_sub_u.to_fq(field_nz) == acc_sub, 'incorrect mul');
 }
 
 #[test]
@@ -129,8 +130,9 @@ fn mul_assoc() {
     let ab = a * b;
     let C: (u512, u512) = a.u_mul(b);
 
+    let field_nz = FIELD.try_into().unwrap();
     assert(ab * c == a * (b * c), 'incorrect mul');
-    assert(ab == C.to_fq(), 'incorrect u512 mul');
+    assert(ab == C.to_fq(field_nz), 'incorrect u512 mul');
 }
 
 #[test]
@@ -185,9 +187,10 @@ fn non_residue() {
 #[test]
 #[available_gas(5000000)]
 fn non_residue_u512() {
+    let field_nz = FIELD.try_into().unwrap();
     let AB = a().u_mul(b());
     let ab_xi = mul_by_xi(AB, u512_overflow_precompute_add());
     let ab = a() * b();
     let ab_nr = ab.mul_by_nonresidue();
-    assert(ab_nr == ab_xi.to_fq(), 'incorrect non_residue mul')
+    assert(ab_nr == ab_xi.to_fq(field_nz), 'incorrect non_residue mul')
 }

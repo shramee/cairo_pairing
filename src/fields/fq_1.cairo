@@ -41,8 +41,8 @@ impl FqMulShort of FieldMulShortcuts<Fq, u512> {
     }
 
     #[inline(always)]
-    fn to_fq(self: u512) -> Fq {
-        fq(u512_reduce(self))
+    fn to_fq(self: u512, field_nz: NonZero<u256>) -> Fq {
+        fq(u512_reduce(self, field_nz))
     }
 }
 
