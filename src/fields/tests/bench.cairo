@@ -17,20 +17,20 @@
 // test bn::fields::tests::bench::fq02::sqru ... ok (gas usage est.: 67480)
 // test bn::fields::tests::bench::fq02::sub ... ok (gas usage est.: 29560)
 // test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 59460)
-// test bn::fields::tests::bench::fq06::inv ... ok (gas usage est.: 2241260)
-// test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 1315520)
-// test bn::fields::tests::bench::fq06::mulu ... ok (gas usage est.: 1169060)
-// test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 1047600)
-// test bn::fields::tests::bench::fq06::sqru ... ok (gas usage est.: 901040)
+// test bn::fields::tests::bench::fq06::inv ... ok (gas usage est.: 2217040)
+// test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 1297240)
+// test bn::fields::tests::bench::fq06::mulu ... ok (gas usage est.: 1153300)
+// test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 1031720)
+// test bn::fields::tests::bench::fq06::sqru ... ok (gas usage est.: 887780)
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 88680)
 // test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 118620)
-// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 7176700)
-// test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 4382800)
-// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3175080)
+// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 7097560)
+// test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 4355760)
+// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3149220)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 177360)
 // test bn::fields::tests::bench::u512::add ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::add_bn ... ok (gas usage est.: 14090)
-// test bn::fields::tests::bench::u512::mxi ... ok (gas usage est.: 105940)
+// test bn::fields::tests::bench::u512::mxi ... ok (gas usage est.: 97400)
 // test bn::fields::tests::bench::u512::sub ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::sub_bn ... ok (gas usage est.: 14090)
 
@@ -290,47 +290,46 @@ mod fq06 {
         a.inv();
     }
 }
-// mod fq12 {
-//     use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
-//     use integer::u512;
-//     use bn::fields::{fq12, fq6, Fq12};
-//     #[test]
-//     #[available_gas(20000000)]
-//     fn add() {
-//         let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
-//         let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
-//         a + b;
-//     }
+mod fq12 {
+    use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
+    use integer::u512;
+    use bn::fields::{fq12, fq6, Fq12};
+    #[test]
+    #[available_gas(20000000)]
+    fn add() {
+        let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
+        let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
+        a + b;
+    }
 
-//     #[test]
-//     #[available_gas(20000000)]
-//     fn sub() {
-//         let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
-//         let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
-//         a - b;
-//     }
+    #[test]
+    #[available_gas(20000000)]
+    fn sub() {
+        let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
+        let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
+        a - b;
+    }
 
-//     #[test]
-//     #[available_gas(20000000)]
-//     fn mul() {
-//         let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
-//         let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
-//         a * b;
-//     }
+    #[test]
+    #[available_gas(20000000)]
+    fn mul() {
+        let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
+        let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
+        a * b;
+    }
 
-//     #[test]
-//     #[available_gas(20000000)]
-//     fn sqr() {
-//         let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
-//         a.sqr();
-//     }
+    #[test]
+    #[available_gas(20000000)]
+    fn sqr() {
+        let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
+        a.sqr();
+    }
 
-//     #[test]
-//     #[available_gas(30000000)]
-//     fn inv() {
-//         let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
-//         a.inv();
-//     }
-// }
-
+    #[test]
+    #[available_gas(30000000)]
+    fn inv() {
+        let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
+        a.inv();
+    }
+}
 

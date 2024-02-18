@@ -8,10 +8,10 @@ fn u512_scl(a: u512, x: u128) -> (u512, u128) {
     // (a1 + a2) * c
     let (limb1_part1, limb0) = u128_wide_mul(limb0, x);
     let (limb2_part1, limb1_part2) = u128_wide_mul(limb1, x);
-    let (limb3_part1, limb2_part2) = u128_wide_mul(limb2, x);
-    let (limb4, limb3_part2) = u128_wide_mul(limb3, x);
     let limb1 = u::u128_wrapping_add(limb1_part1, limb1_part2);
+    let (limb3_part1, limb2_part2) = u128_wide_mul(limb2, x);
     let limb2 = u::u128_wrapping_add(limb2_part1, limb2_part2);
+    let (limb4, limb3_part2) = u128_wide_mul(limb3, x);
     let limb3 = u::u128_wrapping_add(limb3_part1, limb3_part2);
     (u512 { limb0, limb1, limb2, limb3 }, limb4)
 }

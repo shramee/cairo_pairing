@@ -166,7 +166,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // A reimplementation in Karatsuba squaring with lazy reduction
     // uppercase vars are u512, lower case are u256
-    // #[inline(always)]
+    #[inline(always)]
     fn u_mul(self: Fq6, rhs: Fq6) -> SixU512 {
         core::internal::revoke_ap_tracking();
         // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v + b2v2) ∈ Fp6
@@ -190,7 +190,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     // Karatsuba squaring adapted to lazy reduction as described in
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // uppercase vars are u512, lower case are u256
-    // #[inline(always)]
+    #[inline(always)]
     fn u_sqr(self: Fq6) -> SixU512 {
         core::internal::revoke_ap_tracking();
         let Fq6{c0, c1, c2 } = self;
