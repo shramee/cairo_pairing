@@ -5,9 +5,7 @@ use bn::curve::FIELD;
 use bn::fast_mod as f;
 use f::u512;
 
-use bn::curve::{
-    U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi, u512_overflow_precompute_add
-};
+use bn::curve::{U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi};
 use bn::traits::{FieldOps, FieldUtils, FieldMulShortcuts};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq2, fq2, Fq2Ops, Fq2MulShort};
@@ -189,7 +187,7 @@ fn non_residue() {
 fn non_residue_u512() {
     let field_nz = FIELD.try_into().unwrap();
     let AB = a().u_mul(b());
-    let ab_xi = mul_by_xi(AB, u512_overflow_precompute_add());
+    let ab_xi = mul_by_xi(AB);
     let ab = a() * b();
     let ab_nr = ab.mul_by_nonresidue();
     assert(ab_nr == ab_xi.to_fq(field_nz), 'incorrect non_residue mul')

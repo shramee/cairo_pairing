@@ -7,10 +7,10 @@ const ORDER: u256 = 218882428718392752222464057452572750885483644004160343436982
 const FIELD: u256 = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
 
 // 2**256 % FIELD
-const U512_MOD_FIELD: u256 = 0x6d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89;
+const U256_MOD_FIELD: u256 = 0xe0a77c19a07df2f666ea36f7879462c0a78eb28f5c70b3dd35d438dc58f0d9d;
 
 // FIELD - 2**256 % FIELD
-const U512_MOD_FIELD_INV: u256 = 0x298baf0116796b0a70a526b7773fd866e19a517f942cc89148f38fbb84f202be;
+const U256_MOD_FIELD_INV: u256 = 0x2259d6b14729c0fa51e1a247090812318d087f6872aabf4f68c3488912edefaa;
 
 
 const FIELD_X2: u256 = 0x60c89ce5c263405370a08b6d0302b0bb2f02d522d0e3951a7841182db0f9fa8e;
@@ -26,27 +26,6 @@ const B: u256 = 3;
 
 const ATE_LOOP_COUNT: u128 = 29793968203157093288;
 const LOG_ATE_LOOP_COUNT: u128 = 63;
-
-// u512 scale by u128 gives a u128 overflow.
-// When doing a mul by 9, the overflow can be from 0 to 8
-// for returned val q * 2**512 + r,
-// we do, r + ((q * two_to_512) % FIELD)
-// Here's (q * two_to_512) % FIELD precompute for q upto 8.
-fn u512_overflow_precompute_add() -> Span<u256> {
-    array![
-        // for( i = 0n; i < 9n; i++ ) console.log( hex((i * 2n**512n) % FIELD) + ',');
-        0,
-        0x6d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89,
-        0xdb13ee395706a3e8f563dfe1482ffed6bce3223a88a03f7e659f8b6a715f512,
-        0x1489de5560289f5dd7015cfd1ec47fe421b54b357ccf05f3d986f511faa0ef9b,
-        0x1b627dc72ae0d47d1eac7bfc2905ffdad79c6447511407efccb3f16d4e2bea24,
-        0x223b1d38f599099c66579afb33477fd18d837d59255909ebbfe0edc8a1b6e4ad,
-        0x2913bcaac0513ebbae02b9fa3d88ffc8436a966af99e0be7b30dea23f541df36,
-        0x2fec5c1c8b0973daf5add8f947ca7fbef951af7ccde30de3a63ae67f48ccd9bf,
-        0x660ad1b749008d08508b241d08aa75817b75dfd39b645525d4756c3c3dad701,
-    ]
-        .span()
-}
 
 #[inline(always)]
 fn x_naf() -> Array<(bool, bool)> {
