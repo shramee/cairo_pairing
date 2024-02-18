@@ -146,8 +146,7 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     #[inline(always)]
     fn to_fq(self: (u512, u512)) -> Fq2 {
         let (C0, C1) = self;
-        let field_nz = FIELD.try_into().unwrap();
-        fq2(u512_reduce(C0, field_nz), u512_reduce(C1, field_nz))
+        fq2(u512_reduce(C0), u512_reduce(C1))
     }
 }
 

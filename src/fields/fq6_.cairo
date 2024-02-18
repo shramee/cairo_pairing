@@ -1,10 +1,15 @@
 use bn::curve::{FIELD};
-use bn::curve::{u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi, u512_reduce};
-use bn::fields::{print::Fq6PrintImpl, Fq2, Fq2Ops, fq2};
+use bn::curve::{
+    u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi, u512_reduce,
+    u512_overflow_precompute_add
+};
+use bn::fields::print::{FqPrintImpl, Fq2PrintImpl, Fq6PrintImpl, Fq12PrintImpl};
+use bn::fields::{Fq2, Fq2Ops, fq2};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fields::frobenius::fp6 as frob;
 use bn::fields::fq2_::Fq2Frobenius;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+use bn::fields::print::{u512Display, Fq2Display, Fq6Display};
 
 use debug::PrintTrait;
 
@@ -160,9 +165,7 @@ fn u512_dud() -> u512 {
 
 impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
-    // Algorithm 3 Multiplication in Fp6 without reduction (cost of 6m~u +28a~)
-    // Algorithm 3 seemed to fail the tests as well as pairing
-    // So here's a reimplementation in Karatsuba squaring with lazy reduction
+    // A reimplementation in Karatsuba squaring with lazy reduction
     // uppercase vars are u512, lower case are u256
     #[inline(always)]
     fn u_mul(self: Fq6, rhs: Fq6) -> SixU512 {
@@ -170,15 +173,16 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
         let Fq6{c0: a0, c1: a1, c2: a2 } = self;
         let Fq6{c0: b0, c1: b1, c2: b2 } = rhs;
-
+        let xi_overflow_precompute = u512_overflow_precompute_add();
+        // v0 = a0b0, v1 = a1b1, v2 = a2b2
         let (V0, V1, V2,) = (a0.u_mul(b0), a1.u_mul(b1), a2.u_mul(b2),);
 
-        // ((a1 + a2) * (b1 + b2) - v1 - v2).mul_by_nonresidue() + v0
-        let C0 = mul_by_xi(a1.u_add(a2).u_mul(b1.u_add(b2)) - V1 - V2) + V0;
-        //(a0 + a1) * (b0 + b1) - V0 - V1 + V2.mul_by_nonresidue()
-        let C1 = a0.u_add(a1).u_mul(b0.u_add(b1)) - V0 - V1 + mul_by_xi(V2);
-        // (a0 + a2) * (b0 + b2) - V0 + V1 - V2
-        let C2 = a0.u_add(a2).u_mul(b0.u_add(b2)) - V0 - V2 + V1;
+        // c0 = v0 + ξ((a1 + a2)(b1 + b2) - v1 - v2)
+        let C0 = V0 + mul_by_xi(a1.u_add(a2).u_mul(b1.u_add(b2)) - V1 - V2, xi_overflow_precompute);
+        // c1 =(a0 + a1)(b0 + b1) - v0 - v1 + ξv2
+        let C1 = a0.u_add(a1).u_mul(b0.u_add(b1)) - V0 - V1 + mul_by_xi(V2, xi_overflow_precompute);
+        // c2 = (a0 + a2)(b0 + b2) - v0 + v1 - v2,
+        let C2 = a0.u_add(a2).u_mul(b0.u_add(b2)) - V0 + V1 - V2;
 
         (C0, C1, C2)
     }
@@ -189,6 +193,8 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     #[inline(always)]
     fn u_sqr(self: Fq6) -> SixU512 {
         let Fq6{c0, c1, c2 } = self;
+        let xi_overflow_precompute = u512_overflow_precompute_add();
+
         // let s0 = c0.sqr();
         let S0 = c0.u_sqr();
         // let ab = c0 * c1;
@@ -205,9 +211,9 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         let S4 = c2.u_sqr();
 
         // let c0 = s0 + s3.mul_by_nonresidue();
-        let C0 = S0 + mul_by_xi(S3);
+        let C0 = S0 + mul_by_xi(S3, xi_overflow_precompute);
         // let c1 = s1 + s4.mul_by_nonresidue();
-        let C1 = S1 + mul_by_xi(S4);
+        let C1 = S1 + mul_by_xi(S4, xi_overflow_precompute);
         // let c2 = s1 + s2 + s3 - s0 - s4;
         let C2 = S1 + S2 + S3 - S0 - S4;
         (C0, C1, C2)
@@ -240,6 +246,7 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
+        core::internal::revoke_ap_tracking();
         self.u_mul(rhs.inv()).to_fq()
     }
 
@@ -261,18 +268,22 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn inv(self: Fq6) -> Fq6 {
+        core::internal::revoke_ap_tracking();
+        let xi_overflow_precompute = u512_overflow_precompute_add();
         let Fq6{c0, c1, c2 } = self;
-        // let v0 = c0.sqr() - c1 * c2.mul_by_nonresidue();
-        let v0 = c0.u_sqr() - mul_by_xi(c1.u_mul(c2));
+        // let c0 = self.c0.sqr() - self.c1 * self.c2.mul_by_nonresidue();
+        let v0 = c0.u_sqr() - mul_by_xi(c1.u_mul(c2), xi_overflow_precompute);
         let v0 = v0.to_fq();
-        // let v1 = c2.sqr().mul_by_nonresidue() - c0 * c1;
-        let v1 = mul_by_xi(c2.u_sqr()) - c0.u_mul(c1);
+        // let c1 = self.c2.sqr().mul_by_nonresidue() - self.c0 * self.c1;
+        let v1 = mul_by_xi(c2.u_sqr(), xi_overflow_precompute) - c0.u_mul(c1);
         let v1 = v1.to_fq();
-        // let v2 = c1.sqr() - c0 * c2;
+        // let c2 = self.c1.sqr() - self.c0 * self.c2;
         let v2 = c1.u_sqr() - c0.u_mul(c2);
         let v2 = v2.to_fq();
-        // let t = ((c2 * v1 + c1 * v2).mul_by_nonresidue() + c0 * v0).inv();
-        let t = (mul_by_xi(c2.u_mul(v1) + c1.u_mul(v2)) + c0.u_mul(v0)).to_fq().inv();
+        // let t = ((self.c2 * c1 + self.c1 * c2).mul_by_nonresidue() + self.c0 * c0).inv();
+        let t = (mul_by_xi(c2.u_mul(v1) + c1.u_mul(v2), xi_overflow_precompute) + c0.u_mul(v0))
+            .to_fq()
+            .inv();
         Fq6 { c0: t * v0, c1: t * v1, c2: t * v2, }
     }
 }

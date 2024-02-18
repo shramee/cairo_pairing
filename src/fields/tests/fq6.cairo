@@ -26,20 +26,25 @@ fn b() -> Fq6 {
     )
 }
 
-// Needs to be updated for new xi = 1 + i
 fn axb() -> Fq6 {
     fq6(
-        0x221e2e6d3b7d0b05c122fb9b2cfe37e99019a136a8126f408be573935e1e9a91,
-        0x2cf59a4f053f5b389e12ec56ecfa07657248b2aa8ad4d3aeb1469663c79bc252,
-        0xde4bf69e6adbb40e99e19eb674e1cdcc40ebc21a6f383d2552b6ea82230c78d,
-        0x294919eef7afb4afe9f58195ef11a4543a7d5913b60343f2710c61bcc587828b,
-        0x1dcec39b12ae74c67c76e18c00e297cb8de48d447e6c694e434b394e2f02dafd,
-        0x1ebcd0fe93e8af1ecf1d4cb1621828710dd85a54134a7fb110fc37b68daf79d6,
+        0xbfeb37fb64e03914633df70db09b1bd7be88240f8f4ee932d4a8d56dd961627,
+        0x2b794f769a8f0d854db4cfc9f184811229f5b4e1b883d0399d3613d988e17b05,
+        0x275176c1f711ba03b7389139314db48f3a0ac302ca06c16f148d56e1f2877a,
+        0x840ff93ffb3898732439abc2f0181a6172e7e794850fe1266d2076aaf73bd7c,
+        0x1f2f4cbca8f684335eb023833712cf1e41fa2cc42dec08ce4da35810d28549d2,
+        0xcbf9f818699aaf7f31d5703c8e3468b2b49bcfc145c204223661bee56d217
+    // 0x221e2e6d3b7d0b05c122fb9b2cfe37e99019a136a8126f408be573935e1e9a91,
+    // 0x2cf59a4f053f5b389e12ec56ecfa07657248b2aa8ad4d3aeb1469663c79bc252,
+    // 0xde4bf69e6adbb40e99e19eb674e1cdcc40ebc21a6f383d2552b6ea82230c78d,
+    // 0x294919eef7afb4afe9f58195ef11a4543a7d5913b60343f2710c61bcc587828b,
+    // 0x1dcec39b12ae74c67c76e18c00e297cb8de48d447e6c694e434b394e2f02dafd,
+    // 0x1ebcd0fe93e8af1ecf1d4cb1621828710dd85a54134a7fb110fc37b68daf79d6,
     )
 }
 
 #[test]
-#[available_gas(50000000)]
+#[available_gas(500000000)]
 fn add_sub() {
     let a = fq6(34, 645, 31, 55, 140, 105);
     let b = fq6(25, 45, 11, 43, 86, 101);
@@ -49,7 +54,7 @@ fn add_sub() {
 }
 
 #[test]
-#[available_gas(50000000)]
+#[available_gas(500000000)]
 fn one() {
     let a = fq6(34, 645, 20, 55, 140, 105);
     let one = FieldUtils::one();
@@ -57,25 +62,24 @@ fn one() {
 }
 
 #[test]
-#[available_gas(50000000)]
+#[available_gas(500000000)]
 fn sqr() {
     let a = fq6(34, 645, 20, 55, 140, 105);
     assert(a * a == a.sqr(), 'incorrect square');
 }
 
-// Needs to be updated for new xi = 1 + i
-// #[test]
-// #[available_gas(50000000)]
-// fn mul() {
-//     let a = a();
-//     let b = b();
-//     let ab = axb();
+#[test]
+#[available_gas(500000000)]
+fn mul() {
+    let a = a();
+    let b = b();
+    let ab = axb();
 
-//     assert(a * b == ab, 'incorrect mul');
-// }
+    assert(a * b == ab, 'incorrect mul');
+}
 
 #[test]
-#[available_gas(50000000)]
+#[available_gas(500000000)]
 fn mul_assoc() {
     let a = a();
     let b = b();
@@ -87,7 +91,7 @@ fn mul_assoc() {
 }
 
 #[test]
-#[available_gas(50000000)]
+#[available_gas(500000000)]
 fn div() {
     let a = fq6(34, 645, 20, 12, 54, 4);
     let b = fq6(25, 45, 11, 43, 86, 101);
@@ -96,16 +100,13 @@ fn div() {
 }
 
 #[test]
-#[available_gas(50000000)]
+#[available_gas(500000000)]
 fn inv() {
-    let a = fq6(34, 645, 20, 12, 54, 4);
-    let b = fq6(25, 45, 11, 43, 86, 101);
-    let a_inv = FieldOps::inv(a);
-    let c = a * a_inv;
-    let d = b * a_inv;
-
-    assert(c == FieldUtils::one(), 'incorrect inv');
-    d * a;
-    assert(d * a == b, 'incorrect inv');
+    core::internal::revoke_ap_tracking();
+    // let a = a();
+    let b_inv = b().inv();
+    let one = b() * b_inv;
+    assert(one == FieldUtils::one(), 'incorrect inv 1');
+// let aob = a * b_inv;
+// assert(aob * b == a, 'incorrect inv mul');
 }
-

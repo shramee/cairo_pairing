@@ -26,8 +26,8 @@ mod fields {
     use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
     use bn::fields::fq_::{Fq, FqOps, FqShort, FqMulShort, FqUtils, fq};
     use bn::fields::fq2_::{Fq2, Fq2Ops, Fq2Short, Fq2MulShort, Fq2Utils, fq2};
-    use bn::fields::fq6_::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6};
-    use bn::fields::fq12_::{Fq12, Fq12Ops, Fq12Utils, fq12};
+    use bn::fields::fq6_::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6, Fq6Frobenius};
+    use bn::fields::fq12_::{Fq12, Fq12Ops, Fq12Utils, fq12, Fq12Frobenius};
     use bn::traits::{FieldOps, FieldUtils};
 }
 

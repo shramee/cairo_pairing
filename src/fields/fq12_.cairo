@@ -1,4 +1,3 @@
-// use bn::curve::{fq12_non_residue};
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq6, fq6, Fq6Utils, fq2};
@@ -16,22 +15,13 @@ struct Fq12 {
 // X for field extension is equivalent to imaginary i for real numbers.
 // number a: Fq12 = (a0, a1), mathematically, a = a0 + a1 * X
 
+type ui = u256;
+
 #[inline(always)]
 fn fq12(
-    c0: u256,
-    c1: u256,
-    c2: u256,
-    c3: u256,
-    c4: u256,
-    c5: u256,
-    c20: u256,
-    c21: u256,
-    c22: u256,
-    c23: u256,
-    c24: u256,
-    c25: u256
+    a0: ui, a1: ui, a2: ui, a3: ui, a4: ui, a5: ui, b0: ui, b1: ui, b2: ui, b3: ui, b4: ui, b5: ui
 ) -> Fq12 {
-    Fq12 { c0: fq6(c0, c1, c2, c3, c4, c5,), c1: fq6(c20, c21, c22, c23, c24, c25,), }
+    Fq12 { c0: fq6(a0, a1, a2, a3, a4, a5), c1: fq6(b0, b1, b2, b3, b4, b5), }
 }
 
 #[generate_trait]
@@ -226,10 +216,6 @@ impl Fq12Ops of FieldOps<Fq12> {
         core::internal::revoke_ap_tracking();
         // "High-Speed Software Implementation of the Optimal Ate Pairing
         // over Barreto–Naehrig Curves"; Algorithm 8
-        if self.c0 == Fq6Utils::zero() && self.c1 == self.c0 {
-            return self;
-        }
-
         let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
         // if self.c0.c0 + self.c1.c0 == 0 {
         //     return Fq12 { c0: fq(0), c1: fq(0), };
