@@ -6,7 +6,7 @@ mod groups;
 use constants::{
     X, ORDER, FIELD, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD, U256_MOD_FIELD_INV, B, x_naf
 };
-use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT};
+use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT, six_u_plus_2_naf};
 use bn::fields::print::u512Display;
 // #[cfg(test)]
 // mod groups_tests;
@@ -30,7 +30,20 @@ use m::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub};
 // Tell this guys what's safe to add or subtract
 // And it will proceed optimally avoiding overflow
 #[inline(always)]
-fn fix_overflow(result: u512, sub: u256, add: u256) -> u512 {
+fn fix_overflow(result: u256, sub: u256, add: u256) -> u256 {
+    if result.high > sub.high {
+        // Safe to sub, no overflow
+        m::u256_overflow_sub(result, sub).unwrap()
+    } else {
+        m::u256_overflow_add(result, add).unwrap()
+    }
+}
+
+// This fixes overflow breaking mod
+// Tell this guys what's safe to add or subtract
+// And it will proceed optimally avoiding overflow
+#[inline(always)]
+fn fix_overflow_u512(result: u512, sub: u256, add: u256) -> u512 {
     let u512{limb0, limb1, limb2, limb3 } = result;
     let u512_high = u256 { low: limb2, high: limb3 };
 
@@ -41,6 +54,14 @@ fn fix_overflow(result: u512, sub: u256, add: u256) -> u512 {
     } else {
         let u256{low: limb2, high: limb3 } = m::u256_overflow_add(u512_high, add).unwrap();
         u512 { limb0, limb1, limb2, limb3 }
+    }
+}
+
+#[inline(always)]
+fn add_u_wrapping(lhs: u256, rhs: u256) -> u256 {
+    match m::u256_overflow_add(lhs, rhs) {
+        Result::Ok(res) => { res },
+        Result::Err(res) => { fix_overflow(res, U256_MOD_FIELD_INV, U256_MOD_FIELD) }
     }
 }
 
@@ -57,7 +78,7 @@ impl U512BnAdd of Add<u512> {
             // result + (2**256 % FIELD) fixes overflow error
             // U256_MOD_FIELD is precompute of 2**256 % FIELD
             // So we can either add U256_MOD_FIELD or subtract U256_MOD_FIELD_INV
-            fix_overflow(result, U256_MOD_FIELD_INV, U256_MOD_FIELD)
+            fix_overflow_u512(result, U256_MOD_FIELD_INV, U256_MOD_FIELD)
         } else {
             result
         }
@@ -77,11 +98,16 @@ impl U512BnSub of Sub<u512> {
             // result - (2**256 % FIELD) fixes overflow error
             // U256_MOD_FIELD is precompute of 2**256 % FIELD
             // So we can either subtract U256_MOD_FIELD or add U256_MOD_FIELD
-            fix_overflow(result, U256_MOD_FIELD, U256_MOD_FIELD_INV)
+            fix_overflow_u512(result, U256_MOD_FIELD, U256_MOD_FIELD_INV)
         } else {
             result
         }
     }
+}
+
+#[inline(always)]
+fn u512_reduce_bn(a: u512) -> u256 {
+    u512_reduce(a, FIELD.try_into().unwrap())
 }
 
 #[inline(always)]
@@ -93,13 +119,8 @@ fn u512_scl_9(a: u512) -> u512 {
     if (overflow == 0) {
         result
     } else {
-        fix_overflow(result, U256_MOD_FIELD_INV, U256_MOD_FIELD)
+        fix_overflow_u512(result, U256_MOD_FIELD_INV, U256_MOD_FIELD)
     }
-}
-
-#[inline(always)]
-fn u512_reduce_bn(a: u512) -> u256 {
-    u512_reduce(a, FIELD.try_into().unwrap())
 }
 
 // ξ = 9 + i
@@ -111,13 +132,12 @@ fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
 }
 
 #[inline(always)]
-fn mul_by_nonresidue(
+fn mul_by_v(
     t: ((u512, u512), (u512, u512), (u512, u512)),
 ) -> ((u512, u512), (u512, u512), (u512, u512)) {
     // https://github.com/paritytech/bn/blob/master/src/fields/fq6.rs#L110
     let (t0, t1, t2) = t;
     (mul_by_xi(t2), t0, t1,)
-// Fq6 { c0: self.c2.mul_by_nonresidue(), c1: self.c0, c2: self.c1, }
 }
 
 #[inline(always)]

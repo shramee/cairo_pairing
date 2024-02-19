@@ -1,5 +1,5 @@
 // test bn::fields::tests::bench::fq01::add ... ok (gas usage est.: 10160)
-// test bn::fields::tests::bench::fq01::inv ... ok (gas usage est.: 35270)
+// test bn::fields::tests::bench::fq01::inv ... ok (gas usage est.: 36270)
 // test bn::fields::tests::bench::fq01::mul ... ok (gas usage est.: 49130)
 // test bn::fields::tests::bench::fq01::mulu ... ok (gas usage est.: 24140)
 // test bn::fields::tests::bench::fq01::rdc ... ok (gas usage est.: 25490)
@@ -8,7 +8,7 @@
 // test bn::fields::tests::bench::fq01::sqru ... ok (gas usage est.: 20110)
 // test bn::fields::tests::bench::fq01::sub ... ok (gas usage est.: 14780)
 // test bn::fields::tests::bench::fq02::add ... ok (gas usage est.: 20020)
-// test bn::fields::tests::bench::fq02::inv ... ok (gas usage est.: 216850)
+// test bn::fields::tests::bench::fq02::inv ... ok (gas usage est.: 217850)
 // test bn::fields::tests::bench::fq02::mul ... ok (gas usage est.: 165390)
 // test bn::fields::tests::bench::fq02::mulu ... ok (gas usage est.: 116010)
 // test bn::fields::tests::bench::fq02::mxi ... ok (gas usage est.: 100500)
@@ -17,16 +17,16 @@
 // test bn::fields::tests::bench::fq02::sqru ... ok (gas usage est.: 67480)
 // test bn::fields::tests::bench::fq02::sub ... ok (gas usage est.: 29560)
 // test bn::fields::tests::bench::fq06::add ... ok (gas usage est.: 59460)
-// test bn::fields::tests::bench::fq06::inv ... ok (gas usage est.: 2212940)
+// test bn::fields::tests::bench::fq06::inv ... ok (gas usage est.: 2213940)
 // test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 1294940)
 // test bn::fields::tests::bench::fq06::mulu ... ok (gas usage est.: 1148480)
 // test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 1027020)
 // test bn::fields::tests::bench::fq06::sqru ... ok (gas usage est.: 880560)
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 88680)
 // test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 118620)
-// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6815460)
-// test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 4321060)
-// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3133920)
+// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6908460)
+// test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 4177210)
+// test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3128500)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 177360)
 // test bn::fields::tests::bench::u512::add ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::add_bn ... ok (gas usage est.: 14090)
@@ -113,7 +113,6 @@ mod fq01 {
         a * b;
     }
 
-
     #[test]
     #[available_gas(2000000)]
     fn scale() {
@@ -155,7 +154,7 @@ mod fq01 {
     #[available_gas(2000000)]
     fn inv() {
         let a = fq(645);
-        a.inv();
+        a.inv(FIELD.try_into().unwrap());
     }
 }
 
@@ -165,6 +164,7 @@ mod fq02 {
     use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
     use integer::u512;
     use bn::fields::{fq2, Fq2};
+    use bn::curve::FIELD;
     #[test]
     #[available_gas(2000000)]
     fn add() {
@@ -229,7 +229,7 @@ mod fq02 {
     #[available_gas(2000000)]
     fn inv() {
         let a = fq2(34, 645);
-        a.inv();
+        a.inv(FIELD.try_into().unwrap());
     }
 }
 
@@ -237,6 +237,7 @@ mod fq06 {
     use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
     use integer::u512;
     use bn::fields::{fq6, Fq6};
+    use bn::curve::{FIELD};
     #[test]
     #[available_gas(20000000)]
     fn add() {
@@ -287,13 +288,15 @@ mod fq06 {
     #[available_gas(20000000)]
     fn inv() {
         let a = fq6(34, 645, 20, 55, 140, 105);
-        a.inv();
+        a.inv(FIELD.try_into().unwrap());
     }
 }
+
 mod fq12 {
     use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
     use integer::u512;
     use bn::fields::{fq12, fq6, Fq12};
+    use bn::curve::FIELD;
     #[test]
     #[available_gas(20000000)]
     fn add() {
@@ -329,7 +332,7 @@ mod fq12 {
     #[available_gas(30000000)]
     fn inv() {
         let a = fq12(34, 645, 31, 55, 140, 105, 2, 2, 2, 2, 2, 2);
-        a.inv();
+        a.inv(FIELD.try_into().unwrap());
     }
 }
 

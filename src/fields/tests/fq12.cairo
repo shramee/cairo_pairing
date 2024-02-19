@@ -81,12 +81,11 @@ fn sqr() {
     assert(a().sqr() == a() * a(), 'incorrect square');
 }
 
-// Needs to be updated for new xi = 1 + i
-// #[test]
-// #[available_gas(50000000)]
-// fn mul() {
-//     assert(a() * b() == axb(), 'incorrect mul');
-// }
+#[test]
+#[available_gas(50000000)]
+fn mul() {
+    assert(a() * b() == axb(), 'incorrect mul');
+}
 
 #[test]
 #[available_gas(50000000)]
@@ -141,4 +140,3 @@ fn print_fq12() {
     );
     println!("Test fq12: {}", f);
 }
-

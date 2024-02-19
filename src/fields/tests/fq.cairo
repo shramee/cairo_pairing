@@ -1,6 +1,7 @@
 use bn::traits::FieldOps;
 use bn::fields::{fq, Fq, fq2, Fq2, FieldUtils};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+use bn::curve::FIELD;
 use debug::PrintTrait;
 
 fn ops() -> Array<Fq> {
@@ -29,7 +30,7 @@ fn u256_mod_ops() -> Array<u256> {
 #[available_gas(0xf0000)]
 fn inv_one() {
     let one: Fq = FieldUtils::one();
-    assert(one.inv() == one, 'incorrect inverse of one');
+    assert(one.inv(FIELD.try_into().unwrap()) == one, 'incorrect inverse of one');
 }
 
 #[test]

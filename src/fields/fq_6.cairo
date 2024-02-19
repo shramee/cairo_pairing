@@ -242,7 +242,7 @@ impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
         let field_nz = FIELD.try_into().unwrap();
-        self.u_mul(rhs.inv()).to_fq(field_nz)
+        self.u_mul(rhs.inv(field_nz)).to_fq(field_nz)
     }
 
     #[inline(always)]
@@ -263,7 +263,7 @@ impl Fq6Ops of FieldOps<Fq6> {
     }
 
     #[inline(always)]
-    fn inv(self: Fq6) -> Fq6 {
+    fn inv(self: Fq6, field_nz: NonZero<u256>) -> Fq6 {
         core::internal::revoke_ap_tracking();
         let field_nz = FIELD.try_into().unwrap();
         let Fq6{c0, c1, c2 } = self;
@@ -277,7 +277,9 @@ impl Fq6Ops of FieldOps<Fq6> {
         let v2 = c1.u_sqr() - c0.u_mul(c2);
         let v2 = v2.to_fq(field_nz);
         // let t = ((self.c2 * c1 + self.c1 * c2).mul_by_nonresidue() + self.c0 * c0).inv();
-        let t = (mul_by_xi(c2.u_mul(v1) + c1.u_mul(v2)) + c0.u_mul(v0)).to_fq(field_nz).inv();
+        let t = (mul_by_xi(c2.u_mul(v1) + c1.u_mul(v2)) + c0.u_mul(v0))
+            .to_fq(field_nz)
+            .inv(field_nz);
         Fq6 { c0: t * v0, c1: t * v1, c2: t * v2, }
     }
 }

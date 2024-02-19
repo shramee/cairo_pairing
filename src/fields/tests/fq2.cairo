@@ -164,7 +164,7 @@ fn inv() {
 #[available_gas(0xf0000)]
 fn inv_one() {
     let one: Fq2 = FieldUtils::one();
-    let one_inv = one.inv();
+    let one_inv = one.inv(FIELD.try_into().unwrap());
     assert(one_inv == one, 'incorrect inverse of one');
 }
 

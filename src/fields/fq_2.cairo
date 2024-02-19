@@ -1,3 +1,4 @@
+use core::traits::TryInto;
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fast_mod::{u512_high_add};
 use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce};
@@ -190,7 +191,7 @@ impl Fq2Ops of FieldOps<Fq2> {
 
     #[inline(always)]
     fn div(self: Fq2, rhs: Fq2) -> Fq2 {
-        self.mul(rhs.inv())
+        self.mul(rhs.inv(FIELD.try_into().unwrap()))
     }
 
     #[inline(always)]
@@ -219,7 +220,7 @@ impl Fq2Ops of FieldOps<Fq2> {
     }
 
     #[inline(always)]
-    fn inv(self: Fq2) -> Fq2 {
+    fn inv(self: Fq2, field_nz: NonZero<u256>) -> Fq2 {
         // "High-Speed Software Implementation of the Optimal Ate Pairing
         // over Barreto–Naehrig Curves"; Algorithm 8
         // let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
@@ -227,7 +228,7 @@ impl Fq2Ops of FieldOps<Fq2> {
         // Lazy reduction applied from Faster Explicit Formulas for Computing Pairings over Ordinary Curves
 
         let field_nz = FIELD.try_into().unwrap();
-        let t = (self.c0.u_sqr() + self.c1.u_sqr()).to_fq(field_nz).inv();
+        let t = (self.c0.u_sqr() + self.c1.u_sqr()).to_fq(field_nz).inv(field_nz);
 
         Fq2 { c0: self.c0 * t, c1: self.c1 * -t, }
     }

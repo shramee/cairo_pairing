@@ -1,7 +1,14 @@
+use bn::traits::FieldShortcuts;
+use core::traits::TryInto;
+use bn::traits::FieldMulShortcuts;
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::fields::{Fq6, fq6, Fq6Utils, fq2, Fq6Frobenius};
+use bn::fields::{Fq6, fq6, Fq6Utils, fq2, Fq6Frobenius, Fq6MulShort, Fq6Short};
 use bn::fields::frobenius::fp12 as frob;
+use bn::curve::{FIELD};
+use bn::curve::{
+    u512, U512BnAdd, Tuple2Add, Tuple3Add, U512BnSub, Tuple2Sub, Tuple3Sub, u512_reduce, mul_by_v
+};
 use debug::PrintTrait;
 
 #[derive(Copy, Drop, Serde, Debug)]
@@ -158,6 +165,8 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
     }
 }
 
+type Fq6U512 = ((u512, u512), (u512, u512), (u512, u512));
+
 impl Fq12Ops of FieldOps<Fq12> {
     #[inline(always)]
     fn add(self: Fq12, rhs: Fq12) -> Fq12 {
@@ -169,22 +178,9 @@ impl Fq12Ops of FieldOps<Fq12> {
         Fq12 { c0: self.c0 - rhs.c0, c1: self.c1 - rhs.c1, }
     }
 
-    fn mul(self: Fq12, rhs: Fq12) -> Fq12 {
-        core::internal::revoke_ap_tracking();
-        let Fq12{c0: a0, c1: a1 } = self;
-        let Fq12{c0: b0, c1: b1 } = rhs;
-        let u = a0 * b0;
-        let v = a1 * b1;
-
-        Fq12 { //
-         c0: v.mul_by_nonresidue() + u, //
-         c1: (a0 + a1) * (b0 + b1) - u - v, //
-         }
-    }
-
     #[inline(always)]
     fn div(self: Fq12, rhs: Fq12) -> Fq12 {
-        self.mul(rhs.inv())
+        self.mul(rhs.inv(FIELD.try_into().unwrap()))
     }
 
     #[inline(always)]
@@ -197,31 +193,44 @@ impl Fq12Ops of FieldOps<Fq12> {
         lhs.c0 == rhs.c0 && lhs.c1 == rhs.c1
     }
 
-    #[inline(always)]
+    fn mul(self: Fq12, rhs: Fq12) -> Fq12 {
+        core::internal::revoke_ap_tracking();
+        // Input: a = (a0 + a1i) and b = (b0 + b1i) ∈ Fp2 Output: c = a·b = (c0 +c1i) ∈ Fp2
+        let Fq12{c0: a0, c1: a1 } = self;
+        let Fq12{c0: b0, c1: b1 } = rhs;
+
+        let U = a0.u_mul(b0);
+        let V = a1.u_mul(b1);
+
+        let C0 = mul_by_v(V) + U;
+        let C1 = (a0 + a1).u_mul(b0 + b1) - U - V;
+
+        let field_nz = FIELD.try_into().unwrap();
+        Fq12 { //
+         c0: C0.to_fq(field_nz), //
+         c1: C1.to_fq(field_nz), //
+         }
+    }
+
     fn sqr(self: Fq12) -> Fq12 {
         core::internal::revoke_ap_tracking();
         let Fq12{c0: a0, c1: a1 } = self;
+
         // Complex squaring
-        let v = a0 * a1;
+        let V = a0.u_mul(a1);
         // (a0 + a1) * (a0 + βa1) - v - βv
-        let c0 = (a0 + a1) * (a0 + a1.mul_by_nonresidue()) - v - v.mul_by_nonresidue();
+        let C0 = (a0 + a1).u_mul(a0 + a1.mul_by_nonresidue()) - V - mul_by_v(V);
         // 2v
-        let c1 = v + v;
-        Fq12 { c0, c1 }
+        let C1 = V + V;
+        let field_nz = FIELD.try_into().unwrap();
+        Fq12 { c0: C0.to_fq(field_nz), c1: C1.to_fq(field_nz) }
     }
 
     #[inline(always)]
-    fn inv(self: Fq12) -> Fq12 {
+    fn inv(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
-        // "High-Speed Software Implementation of the Optimal Ate Pairing
-        // over Barreto–Naehrig Curves"; Algorithm 8
-        let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
-        // if self.c0.c0 + self.c1.c0 == 0 {
-        //     return Fq12 { c0: fq(0), c1: fq(0), };
-        // }
-        // let t = (self.c0.sqr() - (self.c1.sqr().mul_by_nonresidue())).inv();
+        let t = (self.c0.u_sqr() - mul_by_v(self.c1.u_sqr())).to_fq(field_nz).inv(field_nz);
 
-        // Fq12 { c0: self.c0 * t, c1: self.c1 * -t, }
         Fq12 { c0: self.c0 * t, c1: -(self.c1 * t), }
     }
 }
