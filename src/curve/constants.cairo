@@ -33,7 +33,7 @@ fn x_naf() -> Array<(bool, bool)> {
     // JS function, f=n=>n?f(n+n%4n/3n>>1n)+'OPON'[n%4n]:''
     // When run with X, f(4965661367192848881n)
     // returns POOOPOPOONOPOPONOOPOPONONONOPOOOPOOPOPOPONOPOOPOOOOPOPOOOONOOOP
-    // Reverse and output tt for P and tf for N,
+    // Then reverse it
     // f(4965661367192848881n).split('').reverse().join(',');
     let O = (false, false);
     let P = (true, true);
@@ -106,53 +106,33 @@ fn x_naf() -> Array<(bool, bool)> {
 }
 
 #[inline(always)]
-fn six_u_plus_2_naf() -> Array<(bool, bool)> {
-    // sixuPlus2NAF is 6u+2 in non-adjacent form.
+fn six_u_plus_2_naf_rev_first_sign() -> (bool, bool) {
+    let P = (true, true);
+    P
+}
+
+#[inline(always)]
+fn six_u_plus_2_naf_rev_except_first() -> Array<(bool, bool)> {
+    // sixuPlus2NAF is 6u+2 in non-adjacent form, reversed and first element removed.
+    // NAF form,
+    // O,O,O,P,O,P,O,N,O,O,P,N,O,O,P,O,O,P,P,O,N,O,O,P,O,N,O,O,O,O,P,P,P,O,O,N,O,O,P,O,O,O,O,O,N,O,O,P,P,O,O,N,O,O,O,P,P,O,N,O,O,P,O,P,P
+    // Reversed,
+    // P,P,O,P,O,O,N,O,P,P,O,O,O,N,O,O,P,P,O,O,N,O,O,O,O,O,P,O,O,N,O,O,P,P,P,O,O,O,O,N,O,P,O,O,N,O,P,P,O,O,P,O,O,N,P,O,O,N,O,P,O,P,O,O,O
     let O = (false, false);
     let P = (true, true);
     let N = (true, false);
     array![
-        O,
-        O,
-        O,
+        // in six_u_plus_2_naf_rev_first_sign()
+        // P,
         P,
         O,
-        P,
-        O,
-        N,
-        O,
-        O,
-        P,
-        N,
-        O,
-        O,
-        P,
-        O,
-        O,
-        P,
-        P,
-        O,
-        N,
-        O,
-        O,
-        P,
-        O,
-        N,
-        O,
-        O,
-        O,
-        O,
-        P,
-        P,
         P,
         O,
         O,
         N,
         O,
-        O,
         P,
-        O,
-        O,
+        P,
         O,
         O,
         O,
@@ -167,15 +147,46 @@ fn six_u_plus_2_naf() -> Array<(bool, bool)> {
         O,
         O,
         O,
+        O,
+        O,
         P,
-        P,
+        O,
         O,
         N,
         O,
         O,
         P,
+        P,
+        P,
+        O,
+        O,
+        O,
+        O,
+        N,
         O,
         P,
-        P
+        O,
+        O,
+        N,
+        O,
+        P,
+        P,
+        O,
+        O,
+        P,
+        O,
+        O,
+        N,
+        P,
+        O,
+        O,
+        N,
+        O,
+        P,
+        O,
+        P,
+        O,
+        O,
+        O,
     ]
 }

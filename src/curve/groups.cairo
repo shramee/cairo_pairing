@@ -57,7 +57,7 @@ impl AffineOps<
         // );
         // But BN curve has a == 0 so that's one less addition
         // m = 3x^2 / 2y
-        let x_2 = x * x;
+        let x_2 = x.sqr();
         let m = x_2.u_add(x_2).u_add(x_2) / y.u_add(y);
 
         self.pt_on_slope(m, x)
