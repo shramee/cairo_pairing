@@ -1,6 +1,6 @@
 use core::debug::PrintTrait;
 use bn::fields::{Fq12, Fq12Utils};
-use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2};
+use bn::curve::groups::{AffineG1, AffineG2, AffineG1Impl, AffineG2Impl, g1, g2, FIELD};
 use bn::fields::{print::Fq12PrintImpl, FieldUtils, FieldOps, fq12, Fq, Fq6};
 use bn::curve::pairing::final_exponentiation::final_exponentiation;
 use bn::pairing::tate_bkls::{tate_miller_loop, tate_pairing};
@@ -153,7 +153,9 @@ mod exponentiation {
         let p = (true, true);
         let n = (true, false);
         let xpow = x.exp_naf(array![n, o, o, p]);
-        let expected = x.cyclotomic_sqr().cyclotomic_sqr().cyclotomic_sqr() / x;
+        let field_nz = FIELD.try_into().unwrap();
+        let expected = x.cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz)
+            / x;
         assert(xpow == expected, 'incorrect pow');
     }
 }

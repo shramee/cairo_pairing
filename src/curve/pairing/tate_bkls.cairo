@@ -57,6 +57,8 @@ fn tate_miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
     };
     f
 }
+
+#[inline(always)]
 fn tate_pairing(p: AffineG1, q: AffineG2) -> Fq12 {
     final_exponentiation(tate_miller_loop(p, q))
 }

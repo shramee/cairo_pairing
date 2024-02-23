@@ -34,14 +34,12 @@ impl Fq12Display of Display<Fq12> {
     }
 }
 
-#[cfg(test)]
 impl FqPrintImpl of PrintTrait<Fq> {
     fn print(self: Fq) {
         self.c0.print();
     }
 }
 
-#[cfg(test)]
 impl Fq2PrintImpl of PrintTrait<Fq2> {
     fn print(self: Fq2) {
         self.c0.print();
@@ -49,7 +47,6 @@ impl Fq2PrintImpl of PrintTrait<Fq2> {
     }
 }
 
-#[cfg(test)]
 impl Fq6PrintImpl of PrintTrait<Fq6> {
     fn print(self: Fq6) {
         self.c0.print();
@@ -58,7 +55,6 @@ impl Fq6PrintImpl of PrintTrait<Fq6> {
     }
 }
 
-#[cfg(test)]
 impl Fq12PrintImpl of PrintTrait<Fq12> {
     fn print(self: Fq12) {
         self.c0.print();
