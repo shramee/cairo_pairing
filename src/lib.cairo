@@ -23,11 +23,11 @@ mod fields {
     // mod fq12;
     // mod frobenius;
     }
-    use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-    use bn::fields::fq_1::{Fq, FqOps, FqShort, FqMulShort, FqUtils, fq};
-    use bn::fields::fq_2::{Fq2, Fq2Ops, Fq2Short, Fq2MulShort, Fq2Utils, fq2, Fq2Frobenius};
-    use bn::fields::fq_6::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6, Fq6Frobenius};
-    use bn::fields::fq_12::{Fq12, Fq12Ops, Fq12Utils, fq12, Fq12Frobenius};
+    use fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+    use fq_1::{Fq, FqOps, FqShort, FqMulShort, FqUtils, fq};
+    use fq_2::{Fq2, Fq2Ops, Fq2Short, Fq2MulShort, Fq2Utils, fq2, Fq2Frobenius, Fp2IntoU512Tuple};
+    use fq_6::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6, Fq6Frobenius};
+    use fq_12::{Fq12, Fq12Ops, Fq12Utils, fq12, Fq12Frobenius};
     use bn::traits::{FieldOps, FieldUtils};
 }
 

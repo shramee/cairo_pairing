@@ -271,11 +271,11 @@ impl Fq6Ops of FieldOps<Fq6> {
         let v0 = c0.u_sqr() - mul_by_xi(c1.u_mul(c2));
         let v0 = v0.to_fq(field_nz);
         // let c1 = self.c2.sqr().mul_by_nonresidue() - self.c0 * self.c1;
-        let v1 = mul_by_xi(c2.u_sqr()) - c0.u_mul(c1);
-        let v1 = v1.to_fq(field_nz);
+        let V1 = mul_by_xi(c2.u_sqr()) - c0.u_mul(c1);
+        let v1 = V1.to_fq(field_nz);
         // let c2 = self.c1.sqr() - self.c0 * self.c2;
-        let v2 = c1.u_sqr() - c0.u_mul(c2);
-        let v2 = v2.to_fq(field_nz);
+        let V2 = c1.u_sqr() - c0.u_mul(c2);
+        let v2 = V2.to_fq(field_nz);
         // let t = ((self.c2 * c1 + self.c1 * c2).mul_by_nonresidue() + self.c0 * c0).inv();
         let t = (mul_by_xi(c2.u_mul(v1) + c1.u_mul(v2)) + c0.u_mul(v0))
             .to_fq(field_nz)
