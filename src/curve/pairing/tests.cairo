@@ -239,8 +239,8 @@ mod g1_line {
 
 #[test]
 #[available_gas(2000000000)]
-fn x_naf_verify() {
-    let mut naf = bn::curve::x_naf();
+fn t_naf_verify() {
+    let mut naf = bn::curve::t_naf();
     let mut bit = 1_u128;
     let mut offset = 0xffffffffffffffff_u128;
     let mut result = offset;
@@ -263,5 +263,5 @@ fn x_naf_verify() {
             Option::None => { break; },
         }
     };
-    assert(result - offset == bn::curve::X.into(), 'incorrect X')
+    assert(result - offset == bn::curve::T.into(), 'incorrect T')
 }

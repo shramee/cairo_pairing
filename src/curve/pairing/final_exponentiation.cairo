@@ -8,10 +8,8 @@ use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 // raising f ∈ Fp12 to the power e = (p^12 - 1)/r can be done in three parts,
 // e = (p^6 - 1) * (p^2 + 1) * (p4 − p2 + 1) / r
 
-// #[inline(always)]
+#[inline(always)]
 fn final_exponentiation(f: Fq12) -> Fq12 {
-    internal::revoke_ap_tracking();
     let field_nz = FIELD.try_into().unwrap();
-
     f.pow_p6_minus_1().pow_p2_plus_1().pow_p4_minus_p2_plus_1(field_nz)
 }

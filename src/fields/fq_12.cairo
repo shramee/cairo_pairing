@@ -17,10 +17,6 @@ struct Fq12 {
     c1: Fq6,
 }
 
-// Extension field is represented as two number with X (a root of an polynomial in Fq which doesn't exist in Fq).
-// X for field extension is equivalent to imaginary i for real numbers.
-// number a: Fq12 = (a0, a1), mathematically, a = a0 + a1 * X
-
 type ui = u256;
 
 #[inline(always)]

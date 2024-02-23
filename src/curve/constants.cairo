@@ -1,7 +1,7 @@
 // These paramas from:
 // https://hackmd.io/@jpw/bn254
 
-const X: u64 = 4965661367192848881;
+const T: u64 = 4965661367192848881;
 const ORDER: u256 = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
 const FIELD: u256 = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
@@ -28,10 +28,10 @@ const ATE_LOOP_COUNT: u128 = 29793968203157093288;
 const LOG_ATE_LOOP_COUNT: u128 = 63;
 
 #[inline(always)]
-fn x_naf() -> Array<(bool, bool)> {
+fn t_naf() -> Array<(bool, bool)> {
     // https://codegolf.stackexchange.com/questions/235319/convert-to-a-non-adjacent-form#answer-235327
     // JS function, f=n=>n?f(n+n%4n/3n>>1n)+'OPON'[n%4n]:''
-    // When run with X, f(4965661367192848881n)
+    // When run with T, f(4965661367192848881n)
     // returns POOOPOPOONOPOPONOOPOPONONONOPOOOPOOPOPOPONOPOOPOOOOPOPOOOONOOOP
     // Then reverse it
     // f(4965661367192848881n).split('').reverse().join(',');
