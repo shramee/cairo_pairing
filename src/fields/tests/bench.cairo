@@ -29,7 +29,7 @@
 // test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3131100)
 // test bn::fields::tests::bench::fq12::sqrc ... ok (gas usage est.: 2413820)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 177760)
-// test bn::fields::tests::bench::fq12::xp_x ... fail (gas usage est.: 199143760)
+// test bn::fields::tests::bench::fq12::xp_x ... ok (gas usage est.: 424758240)
 // test bn::fields::tests::bench::fq12::z_esy ... ok (gas usage est.: 16446830)
 // test bn::fields::tests::bench::fq12::z_hrd ... ok (gas usage est.: 1326929870)
 // test bn::fields::tests::bench::u512::add ... ok (gas usage est.: 7490)
