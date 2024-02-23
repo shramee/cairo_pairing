@@ -135,8 +135,142 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
 
     #[inline(always)]
     fn exp_by_neg_x(mut self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
-        // Binary bools array of bn::curve::X
-        self.exp_naf(bn::curve::x_naf(), field_nz).conjugate()
+        // let result = FieldUtils::one(); // Results init as self
+        // P
+        let result = self;
+        let temp_sq = self.cyclotomic_sqr(field_nz);
+        // OOO
+        let temp_sq = temp_sq
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz);
+        // N
+        let result = result * temp_sq.conjugate();
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OOOO
+        let temp_sq = temp_sq
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OOOO
+        let temp_sq = temp_sq
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OO
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // N
+        let result = result * temp_sq.conjugate();
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OO
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OOO
+        let temp_sq = temp_sq
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // N
+        let result = result * temp_sq.conjugate();
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // N
+        let result = result * temp_sq.conjugate();
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // N
+        let result = result * temp_sq.conjugate();
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OO
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz);
+        // N
+        let result = result * temp_sq.conjugate();
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // N
+        let result = result * temp_sq.conjugate();
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OO
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // O
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        let temp_sq = temp_sq.cyclotomic_sqr(field_nz);
+        // OOO
+        let temp_sq = temp_sq
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz)
+            .cyclotomic_sqr(field_nz);
+        // P
+        let result = result * temp_sq;
+        result.conjugate()
     }
 
     // Software Implementation of the Optimal Ate Pairing
