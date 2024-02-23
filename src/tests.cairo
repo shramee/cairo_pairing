@@ -1,8 +1,9 @@
-// test bn::tests::bench_exponentiation ... ok (gas usage est.: 1469988280)
-// test bn::tests::bench_miller ... ok (gas usage est.: 3567522950)
-// test bn::tests::bench_pairing ... ok (gas usage est.: 5037515130)
-// test bn::tests::bilinearity_g1 ... ok (gas usage est.: 15117249800)
-// test bn::tests::bilinearity_g2 ... ok (gas usage est.: 15117249800)
+// test bn::tests::bench_exponentiation ... ok (gas usage est.: 730565470)
+// test bn::tests::bench_miller ... ok (gas usage est.: 3239954010)
+// test bn::tests::bench_pairing ... ok (gas usage est.: 3970503980)
+// test bn::tests::bilinearity ... ok (gas usage est.: 8013588660)
+// test bn::tests::bilinear_g1 ... ok (gas usage est.: 12020382990)
+// test bn::tests::bilinear_g2 ... ok (gas usage est.: 12020382990)
 // test bn::tests::quadratic_constraints ... ok (gas usage est.: 10075971600)
 
 use bn::curve::groups::ECOperations;
