@@ -1,6 +1,6 @@
 use core::result::ResultTrait;
 use super::{utils as u, reduce};
-use u::{u128_overflowing_add, u128_overflowing_sub};
+use u::{u128_overflowing_add, u128_overflowing_sub, u256_overflow_sub, u256_wrapping_add};
 use integer::u512;
 use core::panic_with_felt252;
 use result::Result;
@@ -34,10 +34,8 @@ fn add(mut a: u256, mut b: u256, modulo: u256) -> u256 {
 
 #[inline(always)]
 fn sub(mut a: u256, mut b: u256, modulo: u256) -> u256 {
-    // reduce values
-    if (a < b) {
-        (modulo - b) + a
-    } else {
-        a - b
+    match u256_overflow_sub(a, b) {
+        Result::Ok(v) => v,
+        Result::Err(v) => u256_wrapping_add(v, modulo)
     }
 }
