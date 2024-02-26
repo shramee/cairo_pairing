@@ -22,7 +22,7 @@ mod pairing {
 use bn::fields as f;
 use bn::math::fast_mod as m;
 use m::{u512};
-use m::{add_u, mul_u, sqr_u, scl_u, reduce};
+use m::{add_u, sub_u, mul_u, sqr_u, scl_u, reduce};
 use m::{u512_add_u256, u512_sub_u256, u512_add_overflow, u512_sub_overflow, u512_scl, u512_reduce};
 use m::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub};
 

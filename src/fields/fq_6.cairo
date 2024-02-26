@@ -142,6 +142,15 @@ impl Fq6Short of FieldShortcuts<Fq6> {
         }
     }
     #[inline(always)]
+    fn u_sub(self: Fq6, rhs: Fq6) -> Fq6 {
+        // Operation without modding can only be done like 4 times
+        Fq6 { //
+            c0: self.c0.u_sub(rhs.c0), //
+            c1: self.c1.u_sub(rhs.c1), //
+            c2: self.c2.u_sub(rhs.c2), //
+        }
+    }
+    #[inline(always)]
     fn fix_mod(self: Fq6) -> Fq6 {
         // Operation without modding can only be done like 4 times
         Fq6 { //
@@ -160,6 +169,13 @@ fn u512_dud() -> u512 {
 }
 
 impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
+    #[inline(always)]
+    fn u512_add_fq(self: SixU512, rhs: Fq6) -> SixU512 {
+        // Operation without modding can only be done like 4 times
+        let (C0, C1, C2) = self;
+        (C0.u512_add_fq(rhs.c0), C1.u512_add_fq(rhs.c1), C2.u512_add_fq(rhs.c2))
+    }
+
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // A reimplementation in Karatsuba squaring with lazy reduction
     // uppercase vars are u512, lower case are u256
@@ -198,7 +214,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         // let s1 = ab + ab;
         let S1 = AB + AB;
         // let s2 = (c0 + c2 - c1).sqr();
-        let S2 = (c0.u_add(c2) - c1).u_sqr();
+        let S2 = (c0.u_add(c2).u_sub(c1)).u_sqr();
         // let bc = c1 * c2;
         let BC = c1.u_mul(c2);
         // let s3 = bc + bc;
