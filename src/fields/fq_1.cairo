@@ -15,6 +15,13 @@ fn fq(c0: u256) -> Fq {
     Fq { c0 }
 }
 
+impl FqIntoU512Tuple of Into<Fq, u512> {
+    #[inline(always)]
+    fn into(self: Fq) -> u512 {
+        u512 { limb0: self.c0.low, limb1: self.c0.high, limb2: 0, limb3: 0, }
+    }
+}
+
 impl FqShort of FieldShortcuts<Fq> {
     #[inline(always)]
     fn u_add(self: Fq, rhs: Fq) -> Fq {

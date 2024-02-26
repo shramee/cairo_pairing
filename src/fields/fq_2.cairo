@@ -23,7 +23,8 @@ fn fq2(c0: u256, c1: u256) -> Fq2 {
     Fq2 { c0: fq(c0), c1: fq(c1), }
 }
 
-impl Fp2IntoU512Tuple of Into<Fq2, (u512, u512)> {
+impl Fq2IntoU512Tuple of Into<Fq2, (u512, u512)> {
+    #[inline(always)]
     fn into(self: Fq2) -> (u512, u512) {
         (
             u512 { limb0: self.c0.c0.low, limb1: self.c0.c0.high, limb2: 0, limb3: 0, },

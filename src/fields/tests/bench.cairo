@@ -35,6 +35,9 @@
 // test bn::fields::tests::bench::fq12::z_hrd ... ok (gas usage est.: 708646030)
 // test bn::fields::tests::bench::u512::add ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::add_bn ... ok (gas usage est.: 14090)
+// test bn::fields::tests::bench::u512::fq_ad ... ok (gas usage est.: 14790)
+// test bn::fields::tests::bench::u512::fq_n2 ... ok (gas usage est.: 400)
+// test bn::fields::tests::bench::u512::fq_sub ... ok (gas usage est.: 14790)
 // test bn::fields::tests::bench::u512::mxi ... ok (gas usage est.: 93300)
 // test bn::fields::tests::bench::u512::sub ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::sub_bn ... ok (gas usage est.: 14090)
@@ -85,6 +88,24 @@ mod u512 {
     #[available_gas(2000000)]
     fn mxi() {
         c::mul_by_xi((u512_one(), u512_one()));
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn fq_n2() -> u512 {
+        fq(1).into()
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn fq_add() -> u512 {
+        u512_one() + fq(1).into()
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn fq_sub() -> u512 {
+        u512_one() - fq(1).into()
     }
 }
 
@@ -397,3 +418,4 @@ mod fq12 {
             .pow_p4_minus_p2_plus_1(FIELD.try_into().unwrap());
     }
 }
+
