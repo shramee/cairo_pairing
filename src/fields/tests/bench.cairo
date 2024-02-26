@@ -20,17 +20,18 @@
 // test bn::fields::tests::bench::fq06::inv ... ok (gas usage est.: 2186250)
 // test bn::fields::tests::bench::fq06::mul ... ok (gas usage est.: 1294940)
 // test bn::fields::tests::bench::fq06::mulu ... ok (gas usage est.: 1148480)
-// test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 980170)
-// test bn::fields::tests::bench::fq06::sqru ... ok (gas usage est.: 833710)
+// test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 964670)
+// test bn::fields::tests::bench::fq06::sqru ... ok (gas usage est.: 818210)
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 31500)
 // test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 118820)
-// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6770870)
+// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6739870)
 // test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 4179810)
 // test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3121460)
 // test bn::fields::tests::bench::fq12::sqrc ... ok (gas usage est.: 2384930)
+// test bn::fields::tests::bench::fq12::sqrk ... ok (gas usage est.: 1327680)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 63200)
 // test bn::fields::tests::bench::fq12::xp_t ... ok (gas usage est.: 218693250)
-// test bn::fields::tests::bench::fq12::z_esy ... ok (gas usage est.: 16321840)
+// test bn::fields::tests::bench::fq12::z_esy ... ok (gas usage est.: 16290840)
 // test bn::fields::tests::bench::fq12::z_hrd ... ok (gas usage est.: 708646030)
 // test bn::fields::tests::bench::u512::add ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::add_bn ... ok (gas usage est.: 14090)
@@ -353,6 +354,11 @@ mod fq12 {
         a().cyclotomic_sqr(FIELD.try_into().unwrap());
     }
 
+    #[test]
+    #[available_gas(20000000)]
+    fn sqrk() {
+        a().fq12_2345().sqr_karabina_2345(FIELD.try_into().unwrap());
+    }
     #[test]
     #[available_gas(30000000)]
     fn inv() {
