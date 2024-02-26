@@ -45,23 +45,23 @@ fn addchain_exp_by_neg_t(x: Fq12, field_nz: NonZero<u256>) -> Fq12 {
     let t6 = t2.cyclotomic_sqr(field_nz); // Step 9: t6 = x^0x22
     let t1 = t0 * t1; // Step 10: t1 = x^0x27
     let t0 = t3 * t1; // Step 11: t0 = x^0x29
-    let t6 = t6.cyclotomic_sqr6(field_nz); // Step 17: t6 = x^0x880
+    let t6 = t6.sqr_6_times(field_nz); // Step 17: t6 = x^0x880
     let t5 = t5 * t6; // Step 18: t5 = x^0x884
     let t5 = t4 * t5; // Step 19: t5 = x^0x89d
-    let t5 = t5.cyclotomic_sqr7(field_nz); // Step 26: t5 = x^0x44e80
+    let t5 = t5.sqr_7_times(field_nz); // Step 26: t5 = x^0x44e80
     let t4 = t4 * t5; // Step 27: t4 = x^0x44e99
-    let t4 = t4.cyclotomic_sqr8(field_nz); // Step 35: t4 = x^0x44e9900
+    let t4 = t4.sqr_8_times(field_nz); // Step 35: t4 = x^0x44e9900
     let t4 = t0 * t4; // Step 36: t4 = x^0x44e9929
     let t3 = t3 * t4; // Step 37: t3 = x^0x44e992b
-    let t3 = t3.cyclotomic_sqr6(field_nz); // Step 43: t3 = x^0x113a64ac0
+    let t3 = t3.sqr_6_times(field_nz); // Step 43: t3 = x^0x113a64ac0
     let t2 = t2 * t3; // Step 44: t2 = x^0x113a64ad1
-    let t2 = t2.cyclotomic_sqr8(field_nz); // Step 52: t2 = x^0x113a64ad100
+    let t2 = t2.sqr_8_times(field_nz); // Step 52: t2 = x^0x113a64ad100
     let t2 = t0 * t2; // Step 53: t2 = x^0x113a64ad129
-    let t2 = t2.cyclotomic_sqr6(field_nz); // Step 59: t2 = x^0x44e992b44a40
+    let t2 = t2.sqr_6_times(field_nz); // Step 59: t2 = x^0x44e992b44a40
     let t2 = t0 * t2; // Step 60: t2 = x^0x44e992b44a69
-    let t2 = t2.cyclotomic_sqr10(field_nz); // Step 70: t2 = x^0x113a64ad129a400
+    let t2 = t2.sqr_10_times(field_nz); // Step 70: t2 = x^0x113a64ad129a400
     let t1 = t1 * t2; // Step 71: t1 = x^0x113a64ad129a427
-    let t1 = t1.cyclotomic_sqr6(field_nz); // Step 77: t1 = x^0x44e992b44a6909c0
+    let t1 = t1.sqr_6_times(field_nz); // Step 77: t1 = x^0x44e992b44a6909c0
     let t0 = t0 * t1; // Step 78: t0 = x^0x44e992b44a6909e9
     let z = z * t0; // Step 79: z = x^0x44e992b44a6909f1
 
@@ -109,29 +109,29 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
 
 
     #[inline(always)]
-    fn cyclotomic_sqr3(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
+    fn sqr_3_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         self.cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz)
     }
 
 
     #[inline(always)]
-    fn cyclotomic_sqr6(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
-        self.cyclotomic_sqr3(field_nz).cyclotomic_sqr3(field_nz)
+    fn sqr_6_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
+        self.sqr_3_times(field_nz).sqr_3_times(field_nz)
     }
 
     #[inline(always)]
-    fn cyclotomic_sqr7(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
-        self.cyclotomic_sqr6(field_nz).cyclotomic_sqr(field_nz)
+    fn sqr_7_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
+        self.sqr_6_times(field_nz).cyclotomic_sqr(field_nz)
     }
 
     #[inline(always)]
-    fn cyclotomic_sqr8(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
-        self.cyclotomic_sqr7(field_nz).cyclotomic_sqr(field_nz)
+    fn sqr_8_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
+        self.sqr_7_times(field_nz).cyclotomic_sqr(field_nz)
     }
 
     #[inline(always)]
-    fn cyclotomic_sqr10(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
-        self.cyclotomic_sqr7(field_nz).cyclotomic_sqr3(field_nz)
+    fn sqr_10_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
+        self.sqr_7_times(field_nz).sqr_3_times(field_nz)
     }
 
     // Cyclotomic squaring 
