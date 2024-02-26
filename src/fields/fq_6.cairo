@@ -219,7 +219,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         // let s1 = ab + ab;
         let S1 = AB + AB;
         // let s2 = (c0 + c2 - c1).sqr();
-        let S2 = (c0.u_add(c2).u_sub(c1)).u_sqr();
+        let S2 = (c0.u_add(c2) - c1).u_sqr();
         // let bc = c1 * c2;
         let BC = c1.u_mul(c2);
         // let s3 = bc + bc;
