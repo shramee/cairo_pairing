@@ -1,3 +1,4 @@
 target
 src/curve/pairing_arkworks.cairo
 src/curve/pairing/std_line_fn.cairo
+src/fields/fq_6_torus.cairo
