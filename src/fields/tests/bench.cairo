@@ -25,10 +25,11 @@
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 31500)
 // test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 118820)
 // test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6739870)
+// test bn::fields::tests::bench::fq12::kdcmp ... ok (gas usage est.: 1311200)
+// test bn::fields::tests::bench::fq12::ksqr ... ok (gas usage est.: 1250720)
 // test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 4179810)
 // test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3121460)
 // test bn::fields::tests::bench::fq12::sqrc ... ok (gas usage est.: 2269490)
-// test bn::fields::tests::bench::fq12::sqrk ... ok (gas usage est.: 1250720)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 63200)
 // test bn::fields::tests::bench::fq12::xp_t ... ok (gas usage est.: 211535970)
 // test bn::fields::tests::bench::fq12::z_esy ... ok (gas usage est.: 16290840)
@@ -377,9 +378,16 @@ mod fq12 {
 
     #[test]
     #[available_gas(20000000)]
-    fn sqrk() {
+    fn ksqr() {
         a().krbn_compress().sqr_krbn(FIELD.try_into().unwrap());
     }
+
+    #[test]
+    #[available_gas(20000000)]
+    fn kdcmp() {
+        a().krbn_compress().krbn_decompress(FIELD.try_into().unwrap());
+    }
+
     #[test]
     #[available_gas(30000000)]
     fn inv() {
