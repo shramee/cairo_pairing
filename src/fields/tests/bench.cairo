@@ -27,17 +27,17 @@
 // test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6739870)
 // test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 4179810)
 // test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 3121460)
-// test bn::fields::tests::bench::fq12::sqrc ... ok (gas usage est.: 2384930)
-// test bn::fields::tests::bench::fq12::sqrk ... ok (gas usage est.: 1327680)
+// test bn::fields::tests::bench::fq12::sqrc ... ok (gas usage est.: 2269490)
+// test bn::fields::tests::bench::fq12::sqrk ... ok (gas usage est.: 1250720)
 // test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 63200)
-// test bn::fields::tests::bench::fq12::xp_t ... ok (gas usage est.: 218693250)
+// test bn::fields::tests::bench::fq12::xp_t ... ok (gas usage est.: 211535970)
 // test bn::fields::tests::bench::fq12::z_esy ... ok (gas usage est.: 16290840)
-// test bn::fields::tests::bench::fq12::z_hrd ... ok (gas usage est.: 708646030)
+// test bn::fields::tests::bench::fq12::z_hrd ... ok (gas usage est.: 686827870)
 // test bn::fields::tests::bench::u512::add ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::add_bn ... ok (gas usage est.: 14090)
-// test bn::fields::tests::bench::u512::fq_ad ... ok (gas usage est.: 14790)
+// test bn::fields::tests::bench::u512::fq_add ... ok (gas usage est.: 5570)
 // test bn::fields::tests::bench::u512::fq_n2 ... ok (gas usage est.: 400)
-// test bn::fields::tests::bench::u512::fq_sub ... ok (gas usage est.: 14790)
+// test bn::fields::tests::bench::u512::fq_sub ... ok (gas usage est.: 5570)
 // test bn::fields::tests::bench::u512::mxi ... ok (gas usage est.: 93300)
 // test bn::fields::tests::bench::u512::sub ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::sub_bn ... ok (gas usage est.: 14090)
@@ -99,13 +99,13 @@ mod u512 {
     #[test]
     #[available_gas(2000000)]
     fn fq_add() -> u512 {
-        u512_one() + fq(1).into()
+        u512_one().u512_add_fq(fq(1))
     }
 
     #[test]
     #[available_gas(2000000)]
     fn fq_sub() -> u512 {
-        u512_one() - fq(1).into()
+        u512_one().u512_sub_fq(fq(1))
     }
 }
 
@@ -378,7 +378,7 @@ mod fq12 {
     #[test]
     #[available_gas(20000000)]
     fn sqrk() {
-        a().fq12_2345().sqr_karabina_2345(FIELD.try_into().unwrap());
+        a().krbn_compress().sqr_krbn(FIELD.try_into().unwrap());
     }
     #[test]
     #[available_gas(30000000)]

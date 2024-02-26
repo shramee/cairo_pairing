@@ -8,7 +8,7 @@ use bn::curve::{
 use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, Fq12Frobenius};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
-type Fq12Comp = (Fq2, Fq2, Fq2, Fq2,);
+type Fq12Krbn = (Fq2, Fq2, Fq2, Fq2,);
 
 fn x3(a: (u512, u512)) -> (u512, u512) {
     a + a + a
@@ -81,15 +81,16 @@ fn addchain_exp_by_neg_t(x: Fq12, field_nz: NonZero<u256>) -> Fq12 {
 
 #[generate_trait]
 impl Fq12FinalExpo of FinalExponentiationTrait {
-    fn karabina_compress(self: Fq12) {}
-
+    // Karabina compress Fq12 a0, a1, a2, a3, a4, a5 to a2, a3, a4, a5
+    // For Karabina sqr 2345
     #[inline(always)]
-    fn fq12_2345(self: Fq12) -> Fq12Comp {
+    fn krbn_compress(self: Fq12) -> Fq12Krbn {
         (self.c0.c2, self.c1.c0, self.c1.c1, self.c1.c2,)
     }
 
+    // Karabina expand a2, a3, a4, a5 to Fq12 a0, a1, a2, a3, a4, a5
     #[inline(always)]
-    fn fq12_2345_expand(self: Fq12Comp) -> Fq12 {
+    fn krbn_expand(self: Fq12Krbn) -> Fq12 {
         let (g2, g3, g4, g5) = self;
         // Si = gi^2
         if g2.c0.c0 == 0 && g2.c1.c0 == 0 {
@@ -108,9 +109,9 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
     }
 
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
-    // Algorithm 8 Compressed squaring in Gφ6 (Fp2 ) (cost of 6s ̃u + 4r ̃ + 31a ̃)
+    // Compressed Karabina 2345 square
     #[inline(always)]
-    fn sqr_karabina_2345(self: Fq12Comp, field_nz: NonZero<u256>) -> Fq12Comp {
+    fn sqr_krbn(self: Fq12Krbn, field_nz: NonZero<u256>) -> Fq12Krbn {
         // Input: self = (a2 +a3s)t+(a4 +a5s)t2 ∈ Gφ6(Fp2)
         // Output: a^2 = (c2 +c3s)t+(c4 +c5s)t2 ∈ Gφ6 (Fp2 ).
         let (g2, g3, g4, g5) = self;
@@ -123,14 +124,14 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         let S4_5: (u512, u512) = g4.u_add(g5).u_sqr();
         let S2_3: (u512, u512) = g2.u_add(g3).u_sqr();
 
-        // h2 = 2g2 + 3(S4_5 − S4 − S5)ξ;
-        let h2 = g2.u_add(g2).into() + x3(mul_by_xi(S4_5 - S4 - S5));
+        // h2 = 3(S4_5 − S4 − S5)ξ + 2g2;
+        let h2 = x3(mul_by_xi(S4_5 - S4 - S5)).u512_add_fq(g2.u_add(g2));
         // h4 = 3(S2 + S3ξ) - 2g4;
-        let h4 = x3(S2 + mul_by_xi(S3)) - g4.u_add(g2).into();
+        let h4 = x3(S2 + mul_by_xi(S3)).u512_sub_fq(g4.u_add(g2));
         // h3 = 3(S4 + S5ξ) - 2g3;
-        let h3 = x3(S4 + mul_by_xi(S5)) - g3.u_add(g3).into();
-        // h5 = 2g5 + 3(S2_3 - S2 - S3);
-        let h5 = g5.u_add(g5).into() + x3(S2_3 - S2 - S3);
+        let h3 = x3(S4 + mul_by_xi(S5)).u512_sub_fq(g3.u_add(g3));
+        // h5 = 3(S2_3 - S2 - S3) + 2g5;
+        let h5 = x3(S2_3 - S2 - S3).u512_add_fq(g5.u_add(g5));
 
         (h2.to_fq(field_nz), h4.to_fq(field_nz), h3.to_fq(field_nz), h5.to_fq(field_nz),)
     }
@@ -194,28 +195,28 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         // let t5 = tmp + tmp;
         let T5 = Tmp + Tmp;
 
-        let Z0 = T0 - z0.into();
+        let Z0 = T0.u512_sub_fq(z0);
         let Z0 = Z0 + Z0;
         let Z0 = Z0 + T0;
 
-        let Z1 = T1 + z1.into();
+        let Z1 = T1.u512_add_fq(z1);
         let Z1 = Z1 + Z1;
         let Z1 = Z1 + T1;
 
         let Tmp = mul_by_xi(T5);
-        let Z2 = Tmp + z2.into();
+        let Z2 = Tmp.u512_add_fq(z2);
         let Z2 = Z2 + Z2;
         let Z2 = Z2 + Tmp;
 
-        let Z3 = T4 - z3.into();
+        let Z3 = T4.u512_sub_fq(z3);
         let Z3 = Z3 + Z3;
         let Z3 = Z3 + T4;
 
-        let Z4 = T2 - z4.into();
+        let Z4 = T2.u512_sub_fq(z4);
         let Z4 = Z4 + Z4;
         let Z4 = Z4 + T2;
 
-        let Z5 = T3 + z5.into();
+        let Z5 = T3.u512_add_fq(z5);
         let Z5 = Z5 + Z5;
         let Z5 = Z5 + T3;
 
