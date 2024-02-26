@@ -183,7 +183,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         (C0, C1, C2)
     }
 
-    // Karatsuba squaring adapted to lazy reduction as described in
+    // CH-SQR2 squaring adapted to lazy reduction as described in
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // uppercase vars are u512, lower case are u256
     #[inline(always)]
@@ -198,7 +198,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         // let s1 = ab + ab;
         let S1 = AB + AB;
         // let s2 = (c0 + c2 - c1).sqr();
-        let S2 = (c0 + c2 - c1).u_sqr();
+        let S2 = (c0.u_add(c2) - c1).u_sqr();
         // let bc = c1 * c2;
         let BC = c1.u_mul(c2);
         // let s3 = bc + bc;

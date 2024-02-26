@@ -3,6 +3,7 @@ use bn::fields::{fq12, Fq12, Fq6, fq6, Fq12Ops};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl, Fq6PrintImpl, Fq12PrintImpl};
 use bn::fields::print::Fq12Display;
+use bn::curve::FIELD;
 use debug::PrintTrait;
 
 fn a() -> Fq12 {
@@ -113,7 +114,7 @@ fn div() {
 fn inv() {
     let a = fq12(34, 645, 31, 55, 140, 105, 1, 1, 1, 1, 1, 1);
     let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
-    let a_inv = FieldOps::inv(a);
+    let a_inv = FieldOps::inv(a, FIELD.try_into().unwrap());
     let c = a * a_inv;
     let d = b * a_inv;
 

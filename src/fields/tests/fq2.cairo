@@ -145,15 +145,16 @@ fn div() {
 #[test]
 #[available_gas(2000000)]
 fn inv() {
+    let field_nz = FIELD.try_into().unwrap();
     let a = fq2(34, 645);
     let b = fq2(25, 45);
-    let a_inv = FieldOps::inv(a);
+    let a_inv = FieldOps::inv(a, field_nz);
     let one = a * a_inv;
     let boa = b * a_inv;
     assert(one == FieldUtils::one(), 'incorrect inv');
     assert(boa * a == b, 'incorrect inv');
 
-    let b_inv = FieldOps::inv(b);
+    let b_inv = FieldOps::inv(b, field_nz);
     let one = b * b_inv;
     let aob = a * b_inv;
     assert(one == FieldUtils::one(), 'incorrect inv');
