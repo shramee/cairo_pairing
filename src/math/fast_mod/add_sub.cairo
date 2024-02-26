@@ -23,6 +23,18 @@ fn add_u(lhs: u256, rhs: u256) -> u256 implicits(RangeCheck) {
 }
 
 #[inline(always)]
+fn sub_u(lhs: u256, rhs: u256) -> u256 implicits(RangeCheck) {
+    let high = u::expect_u128(u128_overflowing_sub(lhs.high, rhs.high), 'u256_sub_u Overflow');
+    match u128_overflowing_sub(lhs.low, rhs.low) {
+        Result::Ok(low) => u256 { low, high },
+        Result::Err(low) => {
+            let high = u::expect_u128(u128_overflowing_sub(high, 1), 'u256_sub_u Overflow');
+            u256 { low, high }
+        },
+    }
+}
+
+#[inline(always)]
 fn add_nz(mut a: u256, mut b: u256, modulo: NonZero<u256>) -> u256 {
     super::reduce(add_u(a, b), modulo)
 }

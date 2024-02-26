@@ -15,7 +15,8 @@
 // test bn::math::fast_mod_tests::bench::scl_u ... ok (gas usage est.: 9640)
 // test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 45100)
 // test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 20110)
-// test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 14780)
+// test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 5250)
+// test bn::math::fast_mod_tests::bench::sub_u ... ok (gas usage est.: 2710)
 // test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7580)
 // test bn::math::fast_mod_tests::bench::u512_add_high ... ok (gas usage est.: 5820)
 // test bn::math::fast_mod_tests::bench::u512_add_u256 ... ok (gas usage est.: 4370)
@@ -24,6 +25,7 @@
 // test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7580)
 // test bn::math::fast_mod_tests::bench::u512_sub_high ... ok (gas usage est.: 5820)
 // test bn::math::fast_mod_tests::bench::u512_sub_u256 ... ok (gas usage est.: 4370)
+// test bn::math::fast_mod_tests::test_all_mod_ops ... ok (gas usage est.: 456600)
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
@@ -100,6 +102,12 @@ mod bench {
     #[available_gas(1000000)]
     fn add_u() {
         f::add_u(a, b);
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn sub_u() {
+        f::sub_u(a, b);
     }
 
     #[test]

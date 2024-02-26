@@ -19,7 +19,7 @@ use u512_ops::{u512_high_add, u512_high_sub, u512_reduce, u512_add_u256, u512_su
 // region add/sub operation
 mod add_sub;
 
-use add_sub::{neg, add, add_nz, add_u, sub};
+use add_sub::{neg, add, add_nz, add_u, sub, sub_u};
 // endregion add/sub operation
 
 // region mul operations
