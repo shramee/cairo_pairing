@@ -1,20 +1,46 @@
+use core::starknet::secp256_trait::Secp256PointTrait;
 use core::traits::TryInto;
 use bn::traits::FieldShortcuts;
 use bn::traits::FieldMulShortcuts;
 use core::array::ArrayTrait;
 use bn::curve::{
-    u512, mul_by_xi, mul_by_v, U512BnAdd, U512BnSub, Tuple2Add, Tuple2Sub, FIELD, t_naf
+    u512, mul_by_xi, mul_by_v, U512BnAdd, U512BnSub, Tuple2Add,
+    Tuple2Sub, // u512_high_add, u512_high_sub
 };
+use bn::curve::{t_naf, FIELD, FIELD_X2, u512_high_add, u512_high_sub};
 use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, Fq12Frobenius};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 
 type Fq12Krbn = (Fq2, Fq2, Fq2, Fq2,);
 
-fn x3(a: (u512, u512)) -> (u512, u512) {
+#[inline(always)]
+fn x2(a: Fq2) -> Fq2 {
+    a.u_add(a)
+}
+
+#[inline(always)]
+fn x3(a: Fq2) -> Fq2 {
+    a.u_add(a).u_add(a)
+}
+
+#[inline(always)]
+fn x4(a: Fq2) -> Fq2 {
+    let a_plus_a = a.u_add(a);
+    a_plus_a.u_add(a_plus_a)
+}
+
+#[inline(always)]
+fn X2(a: (u512, u512)) -> (u512, u512) {
+    a + a
+}
+
+#[inline(always)]
+fn X3(a: (u512, u512)) -> (u512, u512) {
     a + a + a
 }
 
-fn x4(a: (u512, u512)) -> (u512, u512) {
+#[inline(always)]
+fn X4(a: (u512, u512)) -> (u512, u512) {
     let a_plus_a = a + a;
     a_plus_a + a_plus_a
 }
@@ -90,20 +116,35 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
 
     // Karabina expand a2, a3, a4, a5 to Fq12 a0, a1, a2, a3, a4, a5
     #[inline(always)]
-    fn krbn_expand(self: Fq12Krbn) -> Fq12 {
+    fn krbn_expand(self: Fq12Krbn, field_nz: NonZero<u256>) -> Fq12 {
         let (g2, g3, g4, g5) = self;
         // Si = gi^2
         if g2.c0.c0 == 0 && g2.c1.c0 == 0 {
-            // g0 = 2g4g5/g3
-            let g0 = FieldUtils::one();
-            // g1 = (2S1 - 3g3g4)ξ + 1
-            let g1 = FieldUtils::one();
+            // g1 = 2g4g5/g3
+            let t2g4g5 = x2(g4 * g5);
+            let g1 = t2g4g5 * g3.inv(field_nz);
+
+            // g0 = (2S1 - 3g3g4)ξ + 1
+            let (T2S1_0, T2S1_1) = X2(g1.u_sqr());
+            // Prepare for subtraction to avoid overflow
+            let T2S1 = (u512_high_add(T2S1_0, FIELD_X2), u512_high_add(T2S1_1, FIELD_X2));
+            let T3g3g4 = X3(g3.u_mul(g4));
+            let mut g0: Fq2 = (T2S1 - T3g3g4).to_fq(field_nz).mul_by_nonresidue(); // Mul by ξ
+            g0.c0.c0 = g0.c0.c0 + 1; // Add 1
+
             Fq12 { c0: Fq6 { c0: g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: g4, c2: g5 } }
         } else {
-            // g0 = S5ξ + 3S4 - 2g3/4g2
-            let g0 = FieldUtils::one();
-            // g1 = (2S1 + g2g5 - 3g3g4)ξ + 1
-            let g1 = FieldUtils::one();
+            // g1 = (S5ξ + 3S4 - 2g3)/4g2
+            let TS5xi = mul_by_xi(g5.u_sqr());
+            let T3S4 = X3(g4.u_sqr());
+            let g1: Fq2 = (TS5xi + T3S4).u512_sub_fq(x2(g3)).to_fq(field_nz); // (S5ξ + 3S4 - 2g3)
+            let g1 = g1.mul(x4(g2).inv(field_nz)); // div by 4g2
+
+            // g0 = (2S1 + g2g5 - 3g3g4)ξ + 1
+            let G0 = X2(g1.u_sqr()) + g2.u_mul(g5) - X3(g3.u_mul(g4)); // 2S1 + g2g5 - 3g3g4
+            let mut g0: Fq2 = G0.to_fq(field_nz).mul_by_nonresidue(); // 2S1 + g2g5 - 3g3g4
+            g0.c0.c0 = g0.c0.c0 + 1; // Add 1
+
             Fq12 { c0: Fq6 { c0: g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: g4, c2: g5 } }
         }
     }
@@ -125,13 +166,13 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         let S2_3: (u512, u512) = g2.u_add(g3).u_sqr();
 
         // h2 = 3(S4_5 − S4 − S5)ξ + 2g2;
-        let h2 = x3(mul_by_xi(S4_5 - S4 - S5)).u512_add_fq(g2.u_add(g2));
+        let h2 = X3(mul_by_xi(S4_5 - S4 - S5)).u512_add_fq(g2.u_add(g2));
         // h4 = 3(S2 + S3ξ) - 2g4;
-        let h4 = x3(S2 + mul_by_xi(S3)).u512_sub_fq(g4.u_add(g2));
+        let h4 = X3(S2 + mul_by_xi(S3)).u512_sub_fq(g4.u_add(g2));
         // h3 = 3(S4 + S5ξ) - 2g3;
-        let h3 = x3(S4 + mul_by_xi(S5)).u512_sub_fq(g3.u_add(g3));
+        let h3 = X3(S4 + mul_by_xi(S5)).u512_sub_fq(g3.u_add(g3));
         // h5 = 3(S2_3 - S2 - S3) + 2g5;
-        let h5 = x3(S2_3 - S2 - S3).u512_add_fq(g5.u_add(g5));
+        let h5 = X3(S2_3 - S2 - S3).u512_add_fq(g5.u_add(g5));
 
         (h2.to_fq(field_nz), h4.to_fq(field_nz), h3.to_fq(field_nz), h5.to_fq(field_nz),)
     }
