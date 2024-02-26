@@ -171,9 +171,14 @@ fn u512_dud() -> u512 {
 impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     #[inline(always)]
     fn u512_add_fq(self: SixU512, rhs: Fq6) -> SixU512 {
-        // Operation without modding can only be done like 4 times
         let (C0, C1, C2) = self;
         (C0.u512_add_fq(rhs.c0), C1.u512_add_fq(rhs.c1), C2.u512_add_fq(rhs.c2))
+    }
+
+    #[inline(always)]
+    fn u512_sub_fq(self: SixU512, rhs: Fq6) -> SixU512 {
+        let (C0, C1, C2) = self;
+        (C0.u512_sub_fq(rhs.c0), C1.u512_sub_fq(rhs.c1), C2.u512_sub_fq(rhs.c2))
     }
 
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves

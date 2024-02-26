@@ -1,5 +1,5 @@
 use bn::curve::{FIELD, add, sub, mul, scl, sqr, div, neg, inv};
-use bn::curve::{add_u, sub_u, mul_u, sqr_u, scl_u, u512_reduce, u512_add_u256};
+use bn::curve::{add_u, sub_u, mul_u, sqr_u, scl_u, u512_reduce, u512_add_u256, u512_sub_u256};
 use integer::u512;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
@@ -50,6 +50,12 @@ impl FqMulShort of FieldMulShortcuts<Fq, u512> {
     #[inline(always)]
     fn u512_add_fq(self: u512, rhs: Fq) -> u512 {
         let (sum, _) = u512_add_u256(self, rhs.c0);
+        sum
+    }
+
+    #[inline(always)]
+    fn u512_sub_fq(self: u512, rhs: Fq) -> u512 {
+        let (sum, _) = u512_sub_u256(self, rhs.c0);
         sum
     }
 

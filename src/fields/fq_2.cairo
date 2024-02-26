@@ -122,9 +122,14 @@ impl Fq2Short of FieldShortcuts<Fq2> {
 impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     #[inline(always)]
     fn u512_add_fq(self: (u512, u512), rhs: Fq2) -> (u512, u512) {
-        // Operation without modding can only be done like 4 times
         let (C0, C1) = self;
         (C0.u512_add_fq(rhs.c0), C1.u512_add_fq(rhs.c1))
+    }
+
+    #[inline(always)]
+    fn u512_sub_fq(self: (u512, u512), rhs: Fq2) -> (u512, u512) {
+        let (C0, C1) = self;
+        (C0.u512_sub_fq(rhs.c0), C1.u512_sub_fq(rhs.c1))
     }
 
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
