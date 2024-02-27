@@ -101,13 +101,13 @@ fn t_naf() -> Array<(bool, bool)> {
 }
 
 #[inline(always)]
-fn six_u_plus_2_naf_rev_first_sign() -> (bool, bool) {
+fn six_t_plus_2_naf_rev_first_sign() -> (bool, bool) {
     let P = (true, true);
     P
 }
 
 #[inline(always)]
-fn six_u_plus_2_naf_rev_except_first() -> Array<(bool, bool)> {
+fn six_t_plus_2_naf_rev_except_first() -> Array<(bool, bool)> {
     // sixuPlus2NAF is 6u+2 in non-adjacent form, reversed and first element removed.
     // NAF form,
     // O,O,O,P,O,P,O,N,O,O,P,N,O,O,P,O,O,P,P,O,N,O,O,P,O,N,O,O,O,O,P,P,P,O,O,N,O,O,P,O,O,O,O,O,N,O,O,P,P,O,O,N,O,O,O,P,P,O,N,O,O,P,O,P,P
@@ -117,7 +117,7 @@ fn six_u_plus_2_naf_rev_except_first() -> Array<(bool, bool)> {
     let P = (true, true);
     let N = (true, false);
     array![
-        // in six_u_plus_2_naf_rev_first_sign()
+        // in six_t_plus_2_naf_rev_first_sign()
         // P,
         P,
         O,

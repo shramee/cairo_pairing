@@ -6,7 +6,7 @@ mod groups;
 use constants::{
     T, ORDER, FIELD, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD, U256_MOD_FIELD_INV, B, t_naf
 };
-use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT, six_u_plus_2_naf_rev_except_first};
+use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT, six_t_plus_2_naf_rev_except_first};
 use bn::fields::print::u512Display;
 // #[cfg(test)]
 // mod groups_tests;
