@@ -1,7 +1,7 @@
 use core::traits::TryInto;
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fast_mod::{u512_high_add};
-use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce, u512_add, u512_sub}};
+use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce, u512_add, u512_sub};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::curve::FIELD;
 use bn::fields::{Fq, fq,};
