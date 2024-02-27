@@ -4,7 +4,7 @@ use super::{utils as u, reduce, u512_reduce};
 // scale u512 by u128 (for smaller numbers)
 // unreduced, returns u512 plus u128 (fifth limb) which needs handling
 fn u512_scl(a: u512, x: u128) -> (u512, u128) {
-    let u512{limb0, limb1, limb2, limb3 } = a;
+    let u512 { limb0, limb1, limb2, limb3 } = a;
     // (a1 + a2) * c
     let (limb1_part1, limb0) = u128_wide_mul(limb0, x);
     let (limb2_part1, limb1_part2) = u128_wide_mul(limb1, x);

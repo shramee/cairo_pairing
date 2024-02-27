@@ -22,10 +22,20 @@ fn fq6(c0: u256, c1: u256, c2: u256, c3: u256, c4: u256, c5: u256) -> Fq6 {
 }
 
 #[generate_trait]
+impl U512Fq2Ops of U512Fq2OpsTrait {
+    fn u_add(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
+        let (s0, s1) = self;
+        let (r0, r1) = rhs;
+        (u512_add(s0, r0), u512_add(s1, r1))
+    }
+}
+
+
+#[generate_trait]
 impl Fq6Frobenius of Fq6FrobeniusTrait {
     #[inline(always)]
     fn frob0(self: Fq6) -> Fq6 {
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
         Fq6 {
             c0: c0.frob0(),
             c1: c1.frob0() * fq2(frob::Q_0_C0, frob::Q_0_C1),
@@ -35,7 +45,7 @@ impl Fq6Frobenius of Fq6FrobeniusTrait {
 
     #[inline(always)]
     fn frob1(self: Fq6) -> Fq6 {
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
         Fq6 {
             c0: c0.frob1(),
             c1: c1.frob1() * fq2(frob::Q_1_C0, frob::Q_1_C1),
@@ -45,7 +55,7 @@ impl Fq6Frobenius of Fq6FrobeniusTrait {
 
     #[inline(always)]
     fn frob2(self: Fq6) -> Fq6 {
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
         Fq6 {
             c0: c0.frob0(),
             c1: c1.frob0() * fq2(frob::Q_2_C0, frob::Q_2_C1),
@@ -55,7 +65,7 @@ impl Fq6Frobenius of Fq6FrobeniusTrait {
 
     #[inline(always)]
     fn frob3(self: Fq6) -> Fq6 {
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
         Fq6 {
             c0: c0.frob1(),
             c1: c1.frob1() * fq2(frob::Q_3_C0, frob::Q_3_C1),
@@ -65,7 +75,7 @@ impl Fq6Frobenius of Fq6FrobeniusTrait {
 
     #[inline(always)]
     fn frob4(self: Fq6) -> Fq6 {
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
         Fq6 {
             c0: c0.frob0(),
             c1: c1.frob0() * fq2(frob::Q_4_C0, frob::Q_4_C1),
@@ -75,7 +85,7 @@ impl Fq6Frobenius of Fq6FrobeniusTrait {
 
     #[inline(always)]
     fn frob5(self: Fq6) -> Fq6 {
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
         Fq6 {
             c0: c0.frob1(),
             c1: c1.frob1() * fq2(frob::Q_5_C0, frob::Q_5_C1),
@@ -189,8 +199,8 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         core::internal::revoke_ap_tracking();
         // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v + b2v2) ∈ Fp6
         // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
-        let Fq6{c0: a0, c1: a1, c2: a2 } = self;
-        let Fq6{c0: b0, c1: b1, c2: b2 } = rhs;
+        let Fq6 { c0: a0, c1: a1, c2: a2 } = self;
+        let Fq6 { c0: b0, c1: b1, c2: b2 } = rhs;
         // v0 = a0b0, v1 = a1b1, v2 = a2b2
         let (V0, V1, V2,) = (a0.u_mul(b0), a1.u_mul(b1), a2.u_mul(b2),);
 
@@ -210,7 +220,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     #[inline(always)]
     fn u_sqr(self: Fq6) -> SixU512 {
         core::internal::revoke_ap_tracking();
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
 
         // let s0 = c0.sqr();
         let S0 = c0.u_sqr();
@@ -287,7 +297,7 @@ impl Fq6Ops of FieldOps<Fq6> {
     fn inv(self: Fq6, field_nz: NonZero<u256>) -> Fq6 {
         core::internal::revoke_ap_tracking();
         let field_nz = FIELD.try_into().unwrap();
-        let Fq6{c0, c1, c2 } = self;
+        let Fq6 { c0, c1, c2 } = self;
         // let c0 = self.c0.sqr() - self.c1 * self.c2.mul_by_nonresidue();
         let v0 = c0.u_sqr() - mul_by_xi(c1.u_mul(c2));
         let v0 = v0.to_fq(field_nz);

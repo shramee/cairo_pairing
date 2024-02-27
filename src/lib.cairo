@@ -17,11 +17,13 @@ mod fields {
 
     #[cfg(test)]
     mod tests { //
-        // mod bench;
-        // mod fq;
-        mod fq2;
-        mod fq6;
+    // mod bench;
+    // mod fq;
+    // mod fq2;
+    // mod fq6;
     // mod fq12;
+    // mod fq12_expo;
+    // mod u512;
     // mod frobenius;
     }
     use fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
@@ -39,7 +41,6 @@ use math::fast_mod;
 use curve::{groups as g, pairing};
 // #[cfg(test)]
 // mod playground;
-// #[cfg(test)]
-// mod tests;
-
+#[cfg(test)]
+mod tests;
 

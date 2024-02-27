@@ -22,9 +22,20 @@ mod pairing {
 use bn::fields as f;
 use bn::math::fast_mod as m;
 use m::{u512};
-use m::{add_u, sub_u, mul_u, sqr_u, scl_u, reduce};
+use m::{add_u, sub_u, mul_u, sqr_u, scl_u, reduce, u512_add, u512_sub};
 use m::{u512_add_u256, u512_sub_u256, u512_add_overflow, u512_sub_overflow, u512_scl, u512_reduce};
 use m::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub};
+
+#[inline(always)]
+fn u512_high_add(lhs: u512, rhs: u256) -> u512 {
+    m::u512_high_add(lhs, rhs).expect('u512_high_add overflow')
+}
+
+#[inline(always)]
+fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
+    m::u512_high_sub(lhs, rhs).expect('u512_high_sub overflow')
+}
+
 
 // This fixes overflow breaking mod
 // Tell this guys what's safe to add or subtract
@@ -44,15 +55,15 @@ fn fix_overflow(result: u256, sub: u256, add: u256) -> u256 {
 // And it will proceed optimally avoiding overflow
 #[inline(always)]
 fn fix_overflow_u512(result: u512, sub: u256, add: u256) -> u512 {
-    let u512{limb0, limb1, limb2, limb3 } = result;
+    let u512 { limb0, limb1, limb2, limb3 } = result;
     let u512_high = u256 { low: limb2, high: limb3 };
 
     if u512_high.high > sub.high {
         // Safe to sub, no overflow
-        let u256{low: limb2, high: limb3 } = m::u256_overflow_sub(u512_high, sub).unwrap();
+        let u256 { low: limb2, high: limb3 } = m::u256_overflow_sub(u512_high, sub).unwrap();
         u512 { limb0, limb1, limb2, limb3 }
     } else {
-        let u256{low: limb2, high: limb3 } = m::u256_overflow_add(u512_high, add).unwrap();
+        let u256 { low: limb2, high: limb3 } = m::u256_overflow_add(u512_high, add).unwrap();
         u512 { limb0, limb1, limb2, limb3 }
     }
 }
@@ -112,8 +123,8 @@ fn u512_reduce_bn(a: u512) -> u256 {
 
 #[inline(always)]
 fn u512_scl_9(a: u512) -> u512 {
-    let u512{limb0, limb1, limb2: low, limb3: high, } = a;
-    let u256{low: limb2, high: limb3 } = reduce(u256 { high, low }, FIELD.try_into().unwrap());
+    let u512 { limb0, limb1, limb2: low, limb3: high, } = a;
+    let u256 { low: limb2, high: limb3 } = reduce(u256 { high, low }, FIELD.try_into().unwrap());
     let (result, overflow) = u512_scl(u512 { limb0, limb1, limb2, limb3, }, 9);
 
     if (overflow == 0) {

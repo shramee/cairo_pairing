@@ -69,7 +69,7 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
-        let Fq2{c0: a0, c1: a1 } = self;
+        let Fq2 { c0: a0, c1: a1 } = self;
         // fq2(9, 1)
         Fq2 { //
          //  a0 * b0 + a1 * βb1,
@@ -138,8 +138,8 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     #[inline(always)]
     fn u_mul(self: Fq2, rhs: Fq2) -> (u512, u512) {
         // Input: a = (a0 + a1i) and b = (b0 + b1i) ∈ Fp2 Output: c = a·b = (c0 +c1i) ∈ Fp2
-        let Fq2{c0: a0, c1: a1 } = self;
-        let Fq2{c0: b0, c1: b1 } = rhs;
+        let Fq2 { c0: a0, c1: a1 } = self;
+        let Fq2 { c0: b0, c1: b1 } = rhs;
 
         // 1: T0 ←a0 × b0, T1 ←a1 × b1,
         let T0 = a0.u_mul(b0); // Karatsuba V0
@@ -161,7 +161,7 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     // uppercase vars are u512, lower case are u256
     #[inline(always)]
     fn u_sqr(self: Fq2) -> (u512, u512) {
-        let Fq2{c0: a0, c1: a1 } = self;
+        let Fq2 { c0: a0, c1: a1 } = self;
 
         // 1: t0 ←a0 +a1,t1 ←a0 ⊖a1 2: T0 ← t0 × t1
         let t0 = a0.u_add(a1);
