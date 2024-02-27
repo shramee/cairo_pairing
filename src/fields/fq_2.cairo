@@ -1,7 +1,7 @@
 use core::traits::TryInto;
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fast_mod::{u512_high_add};
-use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce};
+use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce, u512_add, u512_sub}};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::curve::FIELD;
 use bn::fields::{Fq, fq,};
@@ -146,10 +146,10 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
         let T1 = a1.u_mul(b1); // Karatsuba V1
         // t0 ←a0 +a1, t1 ←b0 +b1 2: T2 ←t0 × t1
         let T2 = a0.u_add(a1).u_mul(b0.u_add(b1));
-        // T3 ←T0 +T1
-        let T3 = T0 + T1;
+        // T3 ←T0 + T1
+        let T3 = u512_add(T0, T1);
         // 3: T3 ←T2 − T3
-        let T3 = T2 - T3;
+        let T3 = u512_sub(T2, T3);
         // 4: T4 ← T0 ⊖ T1
         let T4 = T0 - T1;
         // 5: return c = (T4 + T3i)
