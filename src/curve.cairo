@@ -4,7 +4,8 @@ mod constants;
 mod groups;
 
 use constants::{
-    T, ORDER, FIELD, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD, U256_MOD_FIELD_INV, B, t_naf
+    T, ORDER, FIELD, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD, U256_MOD_FIELD_INV, B,
+    t_naf, field_nz
 };
 use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT, six_t_plus_2_naf_rev_except_first};
 use bn::fields::print::u512Display;
@@ -135,7 +136,6 @@ fn u512_scl_9(a: u512) -> u512 {
 }
 
 // ξ = 9 + i
-#[inline(always)]
 fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
     let (t0, t1): (u512, u512) = t;
     (u512_scl_9(t0) - t1, //
@@ -149,11 +149,6 @@ fn mul_by_v(
     // https://github.com/paritytech/bn/blob/master/src/fields/fq6.rs#L110
     let (t0, t1, t2) = t;
     (mul_by_xi(t2), t0, t1,)
-}
-
-#[inline(always)]
-fn field_nz() -> NonZero<u256> {
-    FIELD.try_into().unwrap()
 }
 
 #[inline(always)]

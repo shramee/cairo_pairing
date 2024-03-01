@@ -69,6 +69,7 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
+        // TODO: Optimise
         let Fq2 { c0: a0, c1: a1 } = self;
         // fq2(9, 1)
         Fq2 { //
@@ -135,7 +136,6 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // Algorithm 2 Multiplication in Fp2 without reduction (cost m~u = 3mu +8a)
     // uppercase vars are u512, lower case are u256
-    #[inline(always)]
     fn u_mul(self: Fq2, rhs: Fq2) -> (u512, u512) {
         // Input: a = (a0 + a1i) and b = (b0 + b1i) ∈ Fp2 Output: c = a·b = (c0 +c1i) ∈ Fp2
         let Fq2 { c0: a0, c1: a1 } = self;
@@ -159,7 +159,6 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
     // Algorithm 7 Squaring in Fp2 without reduction (cost of s~u = 2mu + 3a)
     // uppercase vars are u512, lower case are u256
-    #[inline(always)]
     fn u_sqr(self: Fq2) -> (u512, u512) {
         let Fq2 { c0: a0, c1: a1 } = self;
 
