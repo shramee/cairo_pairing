@@ -9,7 +9,7 @@ use bn::fields::{
 use bn::curve::{
     FIELD, u512, Tuple2Add, Tuple2Sub, U512BnAdd, U512BnSub, u512_sub_u256, u512_add, u512_sub
 };
-use bn::fields::fq_12_expo::{x2, x3, x4, X2, X3, X4, mul_by_xi, Krbn2345};
+use bn::fields::fq_12_expo::{x2, x3, x4, X2, mul_by_xi, Krbn2345};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq12Display, Fq2Display};
 use debug::PrintTrait;
@@ -115,38 +115,6 @@ fn krbn2345() {
     assert(g3 == s3, 'krbn1235 wrong g2');
     assert(g4 == s4, 'krbn1235 wrong g3');
     assert(g5 == s5, 'krbn1235 wrong g5');
-}
-
-#[test]
-#[available_gas(200000000)]
-fn krbn_experiments() {
-    let field_nz: NonZero<u256> = FIELD.try_into().unwrap();
-
-    // https://github.com/mratsim/constantine/blob/master/constantine/math/pairings/cyclotomic_subgroups.nim#L639
-    // Karabina uses the cubic over quadratic representation
-    // But we use the quadratic over cubic for Fq12 -> Fq6 -> Fq2
-    // canonical <=> cubic over quadratic <=> quadratic over cubic
-    //    c0     <=>        g0            <=>            b0
-    //    c1     <=>        g2            <=>            b3
-    //    c2     <=>        g4            <=>            b1
-    //    c3     <=>        g1            <=>            b4
-    //    c4     <=>        g3            <=>            b2
-    //    c5     <=>        g5            <=>            b5
-    let Fq12 { c0: Fq6 { c0: g0, c1: g4, c2: g3 }, c1: Fq6 { c0: g2, c1: g1, c2: g5 } } = a_cyc();
-    let Fq12 { c0: Fq6 { c0: _s0, c1: _s4, c2: _s3 }, c1: Fq6 { c0: s2, c1: _s1, c2: _s5 } } =
-        sqr();
-
-    let _S0: (u512, u512) = g0.u_sqr();
-    let _S1: (u512, u512) = g1.u_sqr();
-    let _S2: (u512, u512) = g2.u_sqr();
-    let _S3: (u512, u512) = g3.u_sqr();
-    let S4: (u512, u512) = g4.u_sqr();
-    let S5: (u512, u512) = g5.u_sqr();
-    // let S4_5: (u512, u512) = g4.u_add(g5).u_sqr();
-    let S4_5: (u512, u512) = (g4 + g5).u_sqr();
-    let h2 = X3(mul_by_xi(S4_5 - S4 - S5)) + x2(g2).into();
-    let h2 = h2.to_fq(field_nz);
-    assert(h2 == s2, 'h2 2345 calc wrong');
 }
 
 #[test]
