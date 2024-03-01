@@ -1,6 +1,7 @@
 use bn::curve::{FIELD};
 use bn::curve::{
-    u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi, u512_reduce, u512_add, u512_sub
+    U512Fq2Ops, u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi, u512_reduce, u512_add,
+    u512_sub
 };
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl, Fq6PrintImpl, Fq12PrintImpl};
 use bn::fields::{Fq2, Fq2Ops, fq2, Fq2Frobenius};
@@ -22,16 +23,6 @@ struct Fq6 {
 fn fq6(c0: u256, c1: u256, c2: u256, c3: u256, c4: u256, c5: u256) -> Fq6 {
     Fq6 { c0: fq2(c0, c1), c1: fq2(c2, c3), c2: fq2(c4, c5) }
 }
-
-#[generate_trait]
-impl U512Fq2Ops of U512Fq2OpsTrait {
-    fn u_add(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
-        let (s0, s1) = self;
-        let (r0, r1) = rhs;
-        (u512_add(s0, r0), u512_add(s1, r1))
-    }
-}
-
 
 #[generate_trait]
 impl Fq6Frobenius of Fq6FrobeniusTrait {

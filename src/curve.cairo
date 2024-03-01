@@ -38,6 +38,25 @@ fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
 }
 
 
+#[generate_trait]
+impl U512Fq2Ops of U512Fq2OpsTrait {
+    #[inline(always)]
+    fn u_add(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
+        let (L0, L1) = self;
+        let (R0, R1) = rhs;
+        // Operation without modding can only be done like 4 times
+        (u512_add(L0, R0), u512_add(L1, R1))
+    }
+
+    #[inline(always)]
+    fn u_sub(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
+        let (L0, L1) = self;
+        let (R0, R1) = rhs;
+        // Operation without modding can only be done like 4 times
+        (u512_sub(L0, R0), u512_sub(L1, R1))
+    }
+}
+
 // This fixes overflow breaking mod
 // Tell this guys what's safe to add or subtract
 // And it will proceed optimally avoiding overflow
