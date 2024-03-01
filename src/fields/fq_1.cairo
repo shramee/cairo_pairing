@@ -49,14 +49,12 @@ impl FqMulShort of FieldMulShortcuts<Fq, u512> {
 
     #[inline(always)]
     fn u512_add_fq(self: u512, rhs: Fq) -> u512 {
-        let (sum, _) = u512_add_u256(self, rhs.c0);
-        sum
+        u512_add_u256(self, rhs.c0)
     }
 
     #[inline(always)]
     fn u512_sub_fq(self: u512, rhs: Fq) -> u512 {
-        let (sum, _) = u512_sub_u256(self, rhs.c0);
-        sum
+        u512_sub_u256(self, rhs.c0)
     }
 
     #[inline(always)]
