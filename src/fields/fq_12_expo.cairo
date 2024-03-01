@@ -110,9 +110,22 @@ fn addchain_exp_by_neg_t(x: Fq12, field_nz: NonZero<u256>) -> Fq12 {
 impl Fq12FinalExpo of FinalExponentiationTrait {
     // Karabina compress Fq12 a0, a1, a2, a3, a4, a5 to a2, a3, a4, a5
     // For Karabina sqr 2345
+    //
+    // https://github.com/mratsim/constantine/blob/c7979b003372b329dd450ff152bb5945cafb0db5/constantine/math/pairings/cyclotomic_subgroups.nim#L639
+    // Karabina uses the cubic over quadratic representation
+    // But we use the quadratic over cubic Fq12 -> Fq6 -> Fq2
+    // `Fq12` --quadratic-- `Fq6` --cubic-- `Fq2`
+    // canonical <=> cubic over quadratic <=> quadratic over cubic
+    //    c0     <=>        g0            <=>            b0
+    //    c1     <=>        g2            <=>            b3
+    //    c2     <=>        g4            <=>            b1
+    //    c3     <=>        g1            <=>            b4
+    //    c4     <=>        g3            <=>            b2
+    //    c5     <=>        g5            <=>            b5
     #[inline(always)]
-    fn krbn_compress(self: Fq12) -> Fq12Krbn {
-        (self.c0.c2, self.c1.c0, self.c1.c1, self.c1.c2,)
+    fn krbn_compress_2345(self: Fq12) -> Fq12Krbn {
+        let Fq12 { c0: Fq6 { c0: _0, c1: g4, c2: g3 }, c1: Fq6 { c0: g2, c1: _1, c2: g5 } } = self;
+        (g2, g3, g4, g5)
     }
 
     // Karabina decompress a2, a3, a4, a5 to Fq12 a0, a1, a2, a3, a4, a5
@@ -151,6 +164,8 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         }
     }
 
+    // This Karabina implementation is adjusted for the quadratic over cubic representation
+    // https://github.com/Consensys/gnark-crypto/blob/v0.12.1/ecc/bn254/internal/fptower/e12.go#L143
     #[inline(always)]
     fn sqr_krbn_1235(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
@@ -163,19 +178,6 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         let S5: (u512, u512) = g5.u_sqr();
         let S1_5: (u512, u512) = (g1 + g5).u_sqr();
         let S2_3: (u512, u512) = (g2 + g3).u_sqr();
-
-        //   # canonical <=> cubic over quadratic <=> quadratic over cubic
-        //   #    c0     <=>        a0            <=>            b0
-        //   #    c1     <=>        a2            <=>            b3
-        //   #    c2     <=>        a4            <=>            b1
-        //   #    c3     <=>        a1            <=>            b4
-        //   #    c4     <=>        a3            <=>            b2
-        //   #    c5     <=>        a5            <=>            b5
-
-        // h₂ = 3ξ((c₄+c₅)²-c₄²-c₅²) + 2c₂
-        // h₃ = 3(c₄² + c₅²ξ) - 2c₃
-        // h₄ = 3(c₂² + c₃²ξ) - 2c₄
-        // h₅ = 3 ((c₂+c₃)²-c₂²-c₃²) + 2c₅
 
         // h1 = 3 * g3² + 3 * nr * g2² - 2*g1
         let Tmp = S3 + mul_by_xi(S2); // g3² + nr * g2²
@@ -206,56 +208,12 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
 
     // https://eprint.iacr.org/2010/542.pdf
     // Compressed Karabina 2345 square
-    // For some reason, the Karabina squaring off the paper is not working
-    // So we use yelhousni's impl in
-    // https://github.com/Consensys/gnark-crypto/blob/v0.12.1/ecc/bn254/internal/fptower/e12.go#L143
     #[inline(always)]
     fn sqr_krbn(self: Fq12Krbn, field_nz: NonZero<u256>) -> Fq12Krbn {
         core::internal::revoke_ap_tracking();
         // Input: self = (a2 +a3s)t+(a4 +a5s)t2 ∈ Gφ6(Fp2)
         // Output: a^2 = (c2 +c3s)t+(c4 +c5s)t2 ∈ Gφ6 (Fp2 ).
         let (g2, g3, g4, g5) = self;
-
-        // TO IMPL KARABINA SQR
-        // t0 = g1²
-        // t1 = g5²
-        // t5 = g1 + g5
-        // t2 = (g1 + g5)²
-        // t3 = g1² + g5²
-        // t5 = 2 * g1 * g5
-        // t6 = g3 + g2
-        // t3 = (g3 + g2)²
-        // t2 = g3²
-        // t6 = 2 * nr * g1 * g5
-        // t5 = 4 * nr * g1 * g5 + 2 * g3
-        // h3 = 6 * nr * g1 * g5 + 2 * g3
-
-        // t4 = nr * g5²
-        // t5 = nr * g5² + g1²
-        // t6 = nr * g5² + g1² - g2
-        // t1 = g2²
-        // t6 = 2 * nr * g5² + 2 * g1² - 2*g2
-        // h2 = 3 * nr * g5² + 3 * g1² - 2*g2
-
-        // t4 = nr * g2²
-        // t5 = g3² + nr * g2²
-        // t6 = g3² + nr * g2² - g1
-        // t6 = 2 * g3² + 2 * nr * g2² - 2 * g1
-        // h1 = 3 * g3² + 3 * nr * g2² - 2 * g1
-
-        // t0 = g2² + g3²
-        // t5 = 2 * g3 * g2
-        // t6 = 2 * g3 * g2 + g5
-        // t6 = 4 * g3 * g2 + 2 * g5
-        // h5 = 6 * g3 * g2 + 2 * g5
-
-        // https://eprint.iacr.org/2010/542.pdf
-        // Compressed Karabina 2345 square
-
-        // h₂ = 3ξ((g₄+g₅)²-g₄²-g₅²) + 2g₂
-        // h₃ = 3(g₄² + g₅²ξ) - 2g₃
-        // h₄ = 3(g₂² + g₃²ξ) - 2g₄
-        // h₅ = 3 ((g₂+g₃)²-g₂²-g₃²) + 2g₅
 
         // Si,j = (gi + gj )^2 and Si = gi^2
         let S2: (u512, u512) = g2.u_sqr();
