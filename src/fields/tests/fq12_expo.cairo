@@ -9,7 +9,7 @@ use bn::fields::{
 use bn::curve::{
     FIELD, u512, Tuple2Add, Tuple2Sub, U512BnAdd, U512BnSub, u512_sub_u256, u512_add, u512_sub
 };
-use bn::fields::fq_12_expo::{x2, x3, x4, X2, X3, X4, mul_by_xi,};
+use bn::fields::fq_12_expo::{x2, x3, x4, X2, X3, X4, mul_by_xi, Krbn2345};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq12Display, Fq2Display};
 use debug::PrintTrait;
@@ -109,8 +109,8 @@ fn krbn1235() {
 fn krbn2345() {
     let field_nz: NonZero<u256> = FIELD.try_into().unwrap();
     let a = a_cyc().krbn_compress_2345().sqr_krbn(field_nz);
-    let (g2, g3, g4, g5,) = a;
-    let (s2, s3, s4, s5,) = sqr().krbn_compress_2345();
+    let Krbn2345 { g2, g3, g4, g5, } = a;
+    let Krbn2345 { g2: s2, g3: s3, g4: s4, g5: s5, } = sqr().krbn_compress_2345();
     assert(g2 == s2, 'krbn1235 wrong g1');
     assert(g3 == s3, 'krbn1235 wrong g2');
     assert(g4 == s4, 'krbn1235 wrong g3');
@@ -154,10 +154,8 @@ fn krbn_experiments() {
 fn expand_2345() {
     let a = a_cyc();
     let field_nz = FIELD.try_into().unwrap();
-    let asq = a.sqr();
-
-    let asq_decompressed = asq.krbn_compress_2345().krbn_decompress(field_nz);
-    assert(asq == asq_decompressed, 'incorrect krbn_decompress');
+    let asq_decompressed = a.krbn_compress_2345().krbn_decompress(field_nz);
+    assert(a == asq_decompressed, 'incorrect krbn_decompress');
 }
 
 #[test]

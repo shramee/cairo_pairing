@@ -3,30 +3,34 @@ use core::traits::TryInto;
 use bn::traits::FieldShortcuts;
 use bn::traits::FieldMulShortcuts;
 use core::array::ArrayTrait;
-use bn::curve::{
-    u512, mul_by_xi, mul_by_v, U512BnAdd, U512BnSub, Tuple2Add,
-    Tuple2Sub, // u512_high_add, u512_high_sub
-};
-use bn::curve::{t_naf, FIELD, FIELD_X2, u512_high_add, u512_high_sub};
+use bn::curve::{t_naf, FIELD, FIELD_X2};
+use bn::curve::{u512, mul_by_xi, mul_by_v, U512BnAdd, U512BnSub, Tuple2Add, Tuple2Sub,};
+use bn::curve::{u512_add, u512_sub, u512_high_add, u512_high_sub};
 use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, Fq12Frobenius};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
+use bn::fields::print::{Fq2Display, FqDisplay, u512Display};
 
-type Fq12Krbn = (Fq2, Fq2, Fq2, Fq2,);
+struct Krbn2345 {
+    g2: Fq2,
+    g3: Fq2,
+    g4: Fq2,
+    g5: Fq2,
+}
 
 #[inline(always)]
 fn x2(a: Fq2) -> Fq2 {
-    a.u_add(a)
+    a + a
 }
 
 #[inline(always)]
 fn x3(a: Fq2) -> Fq2 {
-    a.u_add(a).u_add(a)
+    a + a + a
 }
 
 #[inline(always)]
 fn x4(a: Fq2) -> Fq2 {
-    let a_plus_a = a.u_add(a);
-    a_plus_a.u_add(a_plus_a)
+    let a_plus_a = a + a;
+    a_plus_a + a_plus_a
 }
 
 #[inline(always)]
@@ -123,16 +127,16 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
     //    c4     <=>        g3            <=>            b2
     //    c5     <=>        g5            <=>            b5
     #[inline(always)]
-    fn krbn_compress_2345(self: Fq12) -> Fq12Krbn {
+    fn krbn_compress_2345(self: Fq12) -> Krbn2345 {
         let Fq12 { c0: Fq6 { c0: _0, c1: g4, c2: g3 }, c1: Fq6 { c0: g2, c1: _1, c2: g5 } } = self;
-        (g2, g3, g4, g5)
+        Krbn2345 { g2, g3, g4, g5 }
     }
 
     // Karabina decompress a2, a3, a4, a5 to Fq12 a0, a1, a2, a3, a4, a5
     #[inline(always)]
-    fn krbn_decompress(self: Fq12Krbn, field_nz: NonZero<u256>) -> Fq12 {
+    fn krbn_decompress(self: Krbn2345, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
-        let (g2, g3, g4, g5) = self;
+        let Krbn2345 { g2, g3, g4, g5 } = self;
         // Si = gi^2
         if g2.c0.c0 == 0 && g2.c1.c0 == 0 {
             // g1 = 2g4g5/g3
@@ -147,7 +151,7 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
             let mut g0: Fq2 = (T2S1 - T3g3g4).to_fq(field_nz).mul_by_nonresidue(); // Mul by ξ
             g0.c0.c0 = g0.c0.c0 + 1; // Add 1
 
-            Fq12 { c0: Fq6 { c0: g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: g4, c2: g5 } }
+            Fq12 { c0: Fq6 { c0: g0, c1: g4, c2: g3 }, c1: Fq6 { c0: g2, c1: g1, c2: g5 } }
         } else {
             // g1 = (S5ξ + 3S4 - 2g3)/4g2
             let TS5xi = mul_by_xi(g5.u_sqr());
@@ -160,7 +164,7 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
             let mut g0: Fq2 = G0.to_fq(field_nz).mul_by_nonresidue(); // 2S1 + g2g5 - 3g3g4
             g0.c0.c0 = g0.c0.c0 + 1; // Add 1
 
-            Fq12 { c0: Fq6 { c0: g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: g4, c2: g5 } }
+            Fq12 { c0: Fq6 { c0: g0, c1: g4, c2: g3 }, c1: Fq6 { c0: g2, c1: g1, c2: g5 } }
         }
     }
 
@@ -209,11 +213,11 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
     // https://eprint.iacr.org/2010/542.pdf
     // Compressed Karabina 2345 square
     #[inline(always)]
-    fn sqr_krbn(self: Fq12Krbn, field_nz: NonZero<u256>) -> Fq12Krbn {
+    fn sqr_krbn(self: Krbn2345, field_nz: NonZero<u256>) -> Krbn2345 {
         core::internal::revoke_ap_tracking();
         // Input: self = (a2 +a3s)t+(a4 +a5s)t2 ∈ Gφ6(Fp2)
         // Output: a^2 = (c2 +c3s)t+(c4 +c5s)t2 ∈ Gφ6 (Fp2 ).
-        let (g2, g3, g4, g5) = self;
+        let Krbn2345 { g2, g3, g4, g5 } = self;
 
         // Si,j = (gi + gj )^2 and Si = gi^2
         let S2: (u512, u512) = g2.u_sqr();
@@ -239,32 +243,27 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         let h5 = X3(S2_3 - S2 - S3).u512_add_fq(x2(g5));
         let h5 = h5.to_fq(field_nz);
 
-        (h2, h3, h4, h5,)
+        Krbn2345 { g2: h2, g3: h3, g4: h4, g5: h5, }
     }
 
-
-    // #[inline(always)]
-    fn krbn_sqr_4x(self: Fq12Krbn, field_nz: NonZero<u256>) -> Fq12Krbn {
+    fn krbn_sqr_4x(self: Krbn2345, field_nz: NonZero<u256>) -> Krbn2345 {
         self.sqr_krbn(field_nz).sqr_krbn(field_nz).sqr_krbn(field_nz).sqr_krbn(field_nz)
     }
 
-
-    // #[inline(always)]
     fn sqr_6_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         self
-            .krbn_compress()
+            .krbn_compress_2345()
             .krbn_sqr_4x(field_nz) // ^2^4
             .sqr_krbn(field_nz) // ^2^5
             .sqr_krbn(field_nz) // ^2^6
             .krbn_decompress(field_nz)
     }
 
-    // #[inline(always)]
     fn sqr_7_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         self
-            .krbn_compress()
+            .krbn_compress_2345()
             .krbn_sqr_4x(field_nz) // ^2^4
             .sqr_krbn(field_nz) // ^2^5
             .sqr_krbn(field_nz) // ^2^6
@@ -272,17 +271,19 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
             .krbn_decompress(field_nz)
     }
 
-    // #[inline(always)]
     fn sqr_8_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
-        self.krbn_compress().krbn_sqr_4x(field_nz).krbn_sqr_4x(field_nz).krbn_decompress(field_nz)
+        self
+            .krbn_compress_2345()
+            .krbn_sqr_4x(field_nz)
+            .krbn_sqr_4x(field_nz)
+            .krbn_decompress(field_nz)
     }
 
-    // #[inline(always)]
     fn sqr_10_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         self
-            .krbn_compress()
+            .krbn_compress_2345()
             .krbn_sqr_4x(field_nz) // ^2^4
             .krbn_sqr_4x(field_nz) // ^2^8
             .sqr_krbn(field_nz) // ^2^9
@@ -291,7 +292,6 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
     }
 
     // Cyclotomic squaring 
-    // #[inline(always)]
     fn cyclotomic_sqr(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
 
@@ -381,13 +381,6 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
     #[inline(always)]
     fn exp_by_neg_t(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         addchain_exp_by_neg_t(self, field_nz)
-    }
-
-    #[inline(always)]
-    fn exp_by_neg_t_old(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
-        // let result = FieldUtils::one(); // Results init as self
-        // P
-        self.exp_naf(t_naf(), field_nz).conjugate()
     }
 
     // Software Implementation of the Optimal Ate Pairing
