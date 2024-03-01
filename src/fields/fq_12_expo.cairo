@@ -160,6 +160,47 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         // Output: a^2 = (c2 +c3s)t+(c4 +c5s)t2 ∈ Gφ6 (Fp2 ).
         let (g2, g3, g4, g5) = self;
 
+        // TO IMPL KARABINA SQR
+        // t0 = g1²
+        // t1 = g5²
+        // t5 = g1 + g5
+        // t2 = (g1 + g5)²
+        // t3 = g1² + g5²
+        // t5 = 2 * g1 * g5
+        // t6 = g3 + g2
+        // t3 = (g3 + g2)²
+        // t2 = g3²
+        // t6 = 2 * nr * g1 * g5
+        // t5 = 4 * nr * g1 * g5 + 2 * g3
+        // h3 = 6 * nr * g1 * g5 + 2 * g3
+
+        // t4 = nr * g5²
+        // t5 = nr * g5² + g1²
+        // t6 = nr * g5² + g1² - g2
+        // t1 = g2²
+        // t6 = 2 * nr * g5² + 2 * g1² - 2*g2
+        // h2 = 3 * nr * g5² + 3 * g1² - 2*g2
+
+        // t4 = nr * g2²
+        // t5 = g3² + nr * g2²
+        // t6 = g3² + nr * g2² - g1
+        // t6 = 2 * g3² + 2 * nr * g2² - 2 * g1
+        // h1 = 3 * g3² + 3 * nr * g2² - 2 * g1
+
+        // t0 = g2² + g3²
+        // t5 = 2 * g3 * g2
+        // t6 = 2 * g3 * g2 + g5
+        // t6 = 4 * g3 * g2 + 2 * g5
+        // h5 = 6 * g3 * g2 + 2 * g5
+
+        // https://eprint.iacr.org/2010/542.pdf
+        // Compressed Karabina 2345 square
+
+        // h₂ = 3ξ((g₄+g₅)²-g₄²-g₅²) + 2g₂
+        // h₃ = 3(g₄² + g₅²ξ) - 2g₃
+        // h₄ = 3(g₂² + g₃²ξ) - 2g₄
+        // h₅ = 3 ((g₂+g₃)²-g₂²-g₃²) + 2g₅
+
         // Si,j = (gi + gj )^2 and Si = gi^2
         let S2: (u512, u512) = g2.u_sqr();
         let S3: (u512, u512) = g3.u_sqr();
