@@ -379,13 +379,13 @@ mod fq12 {
     #[test]
     #[available_gas(20000000)]
     fn ksqr() {
-        a().krbn_compress().sqr_krbn(FIELD.try_into().unwrap());
+        a().krbn_compress_2345().sqr_krbn(FIELD.try_into().unwrap());
     }
 
     #[test]
     #[available_gas(20000000)]
     fn kdcmp() {
-        a().krbn_compress().krbn_decompress(FIELD.try_into().unwrap());
+        a().krbn_compress_2345().krbn_decompress(FIELD.try_into().unwrap());
     }
 
     #[test]

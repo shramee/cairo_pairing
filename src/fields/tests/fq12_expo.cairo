@@ -136,10 +136,6 @@ fn krbn_experiments() {
     let Fq12 { c0: Fq6 { c0: _s0, c1: _s4, c2: _s3 }, c1: Fq6 { c0: s2, c1: _s1, c2: _s5 } } =
         sqr();
 
-    // // h1 = 3 * g3² + 3 * nr * g2² - 2 * g1
-    // let h1 = g3.sqr().scale(fq(3)) + fq2(9, 1).scale(fq(3)) * g2.sqr() - g1 - g1;
-    // assert(h1 == s1, 'base calc wrong');
-
     let _S0: (u512, u512) = g0.u_sqr();
     let _S1: (u512, u512) = g1.u_sqr();
     let _S2: (u512, u512) = g2.u_sqr();
@@ -148,112 +144,26 @@ fn krbn_experiments() {
     let S5: (u512, u512) = g5.u_sqr();
     // let S4_5: (u512, u512) = g4.u_add(g5).u_sqr();
     let S4_5: (u512, u512) = (g4 + g5).u_sqr();
-
-    // // 0235 h2
-    // // h2 = 3 * nr * g5² + 3 * g1² - 2*g2
-    // let h2 = X3(mul_by_xi(S5) + S1).u512_sub_fq(x2(g2));
-    // let h2 = h2.to_fq(field_nz);
-    // compare_fq2(s2, h2, "h2");
-    // assert(h2 == s2, 'h2 0235 calc wrong');
-    // // THIS WORKS
-
-    // // h1 = 3 * g3² + 3 * nr * g2² - 2 * g1
-    // let h1 = X3(S3 + mul_by_xi(S2)).u512_sub_fq(x2(g1));
-    // assert(h1.to_fq(field_nz) == s1, 'h1 optim calc wrong');
-
-    // h2 = 3 * nr * g5² + 3 * g1² - 2*g2
-    // Potential bug with u512_sub_u256
-    // let h2 = X3(mul_by_xi(S5) + S1).u512_sub_fq(x2(g2));
-
-    // print_fq2(S4_5, "S4_5");
-
-    // h2 = 3(S4_5 - S4 - S5)ξ + 2g2;
     let h2 = X3(mul_by_xi(S4_5 - S4 - S5)) + x2(g2).into();
     let h2 = h2.to_fq(field_nz);
     assert(h2 == s2, 'h2 2345 calc wrong');
 }
-// #[test]
-// #[available_gas(50000000)]
-// fn sqr_2345() {
-//     let a = a_cyc();
-//     let field_nz: NonZero<u256> = FIELD.try_into().unwrap();
-//     let Fq12 { c0: Fq6 { c0: g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: g4, c2: g5 } } = a_cyc();
-//     let Fq12 { c0: Fq6 { c0: s0, c1: s1, c2: s2 }, c1: Fq6 { c0: s3, c1: s4, c2: s5 } } = sqr();
 
-//     let (a2, a3, a4, a5,) = a.krbn_compress_2345().sqr_krbn(field_nz);
+#[test]
+#[available_gas(50000000)]
+fn expand_2345() {
+    let a = a_cyc();
+    let field_nz = FIELD.try_into().unwrap();
+    let asq = a.sqr();
 
-//     println!("\n\nMatching a2? {} {} {}", s2 == a2, s2, a2);
-//     println!("\n\nMatching a3? {} {} {}", s3 == a3, s3, a3);
-//     println!("\n\nMatching a4? {} {} {}", s4 == a4, s4, a4);
-//     println!("\n\nMatching a5? {} {} {}", s5 == a5, s5, a5);
+    let asq_decompressed = asq.krbn_compress_2345().krbn_decompress(field_nz);
+    assert(asq == asq_decompressed, 'incorrect krbn_decompress');
+}
 
-//     assert(g4 == a4, 'incorrect k_sqr a4');
-//     assert(g2 == a2, 'incorrect k_sqr a2');
-//     assert(g3 == a3, 'incorrect k_sqr a3');
-//     assert(g5 == a5, 'incorrect k_sqr a5');
-// }
-// #[test]
-// #[available_gas(50000000)]
-// fn expand_2345() {
-//     let a = a_cyc();
-//     let field_nz = FIELD.try_into().unwrap();
-//     let asq = a.sqr();
-
-//     let asq_decompressed = asq.krbn_compress_2345().krbn_decompress(field_nz);
-//     assert(asq == asq_decompressed, 'incorrect krbn_decompress');
-// }
-
-// #[test]
-// #[available_gas(50000000)]
-// fn sqr_cyc() {
-//     let a = a_cyc();
-//     let field_nz = FIELD.try_into().unwrap();
-//     assert(a.cyclotomic_sqr(field_nz) == sqr(), 'incorrect square');
-// }
-
-// h2 = 3(S4_5 − S4 − S5)ξ + 2a2;
-
-// S4 ← a4 ×2 a4
-// S5 ← a5 ×2 a5
-// t0 ← a4 ⊕2 a5
-
-// S4_5 ← t0 ×2 t0
-// T3 ← S4 +2 S5
-// T3 ← S4_5 ⊖2 T3 // S4_5 − S4 − S5
-
-// t0 ← T3 mod2 p // reduced(S4_5 − S4 − S5)
-
-// t1 ← ξ·t0 // (S4_5 − S4 − S5)ξ
-
-// t0 ← t1 ⊕2 a2 // (S4_5 − S4 − S5)ξ + a2
-// t0 ← t0 ⊕2 t0 // 2((S4_5 − S4 − S5)ξ + a2)
-
-// c2 ← t0 ⊕2 t1 // 2((S4_5 − S4 − S5)ξ + a2) + (S4_5 − S4 − S5)ξ
-
-// t1 ← a2 ⊕2 a3
-// S2_3 ← t1 ×2 t1
-// S2 ← a2 ×2 a2
-
-// Input: a = (a2 +a3s)t+(a4 +a5s)t2 ∈ Gφ6(Fp2) Output: c = a2 = (c2 +c3s)t+(c4 +c5s)t2 ∈ Gφ6 (Fp2 ).
-
-// T0 ← a4 ×2 a4
-// T1 ← a5 ×2 a5
-// t0 ← a4 ⊕2 a5
-
-// T2 ← t0 ×2 t0
-// T3 ← T0 +2 T1
-// T3 ← T2 ⊖2 T3
-
-// t0 ← T3 mod2 p
-// t1 ← a2 ⊕2 a3
-// T3 ← t1 ×2 t1
-// T2 ← a2 ×2 a2
-
-// t1← ξ·t0
-
-// t0 ← t1 ⊕2 a2
-// t0 ← t0 ⊕2 t0
-
-// c2 ← t0 ⊕2 t1
-
-
+#[test]
+#[available_gas(50000000)]
+fn sqr_cyc() {
+    let a = a_cyc();
+    let field_nz = FIELD.try_into().unwrap();
+    assert(a.cyclotomic_sqr(field_nz) == sqr(), 'incorrect square');
+}
