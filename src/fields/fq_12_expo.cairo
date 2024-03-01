@@ -10,6 +10,7 @@ use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, Fq12Frobeni
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq2Display, FqDisplay, u512Display};
 
+#[derive(Copy, Drop,)]
 struct Krbn2345 {
     g2: Fq2,
     g3: Fq2,
