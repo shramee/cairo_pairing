@@ -151,6 +151,59 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         }
     }
 
+    #[inline(always)]
+    fn sqr_krbn_1235(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
+        core::internal::revoke_ap_tracking();
+        let Fq12 { c0: Fq6 { c0: _g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: _g4, c2: g5 } } =
+            self;
+
+        let S1: (u512, u512) = g1.u_sqr();
+        let S2: (u512, u512) = g2.u_sqr();
+        let S3: (u512, u512) = g3.u_sqr();
+        let S5: (u512, u512) = g5.u_sqr();
+        let S1_5: (u512, u512) = (g1 + g5).u_sqr();
+        let S2_3: (u512, u512) = (g2 + g3).u_sqr();
+
+        //   # canonical <=> cubic over quadratic <=> quadratic over cubic
+        //   #    c0     <=>        a0            <=>            b0
+        //   #    c1     <=>        a2            <=>            b3
+        //   #    c2     <=>        a4            <=>            b1
+        //   #    c3     <=>        a1            <=>            b4
+        //   #    c4     <=>        a3            <=>            b2
+        //   #    c5     <=>        a5            <=>            b5
+
+        // h₂ = 3ξ((c₄+c₅)²-c₄²-c₅²) + 2c₂
+        // h₃ = 3(c₄² + c₅²ξ) - 2c₃
+        // h₄ = 3(c₂² + c₃²ξ) - 2c₄
+        // h₅ = 3 ((c₂+c₃)²-c₂²-c₃²) + 2c₅
+
+        // h1 = 3 * g3² + 3 * nr * g2² - 2*g1
+        let Tmp = S3 + mul_by_xi(S2); // g3² + nr * g2²
+        let h1 = X2(Tmp.u512_sub_fq(g1)) + Tmp;
+        let h1 = h1.to_fq(field_nz);
+
+        // h2 = 3 * nr * g5² + 3 * g1² - 2*g2
+        let Tmp = mul_by_xi(S5) + S1; // nr * g5² + g1²
+        let h2 = X2(Tmp.u512_sub_fq(g2)) + Tmp;
+        let h2 = h2.to_fq(field_nz);
+
+        // 2 * g1 * g5 = (S1_5 - S1 - S5)
+        // h3 = 6 * nr * g1 * g5 + 2*g3
+        let Tmp = mul_by_xi(S1_5 - S1 - S5); // 2 * g1 * g5
+        let h3 = X2(Tmp.u512_add_fq(g3)) + Tmp;
+        let h3 = h3.to_fq(field_nz);
+
+        // 2 * g3 * g2 = (S2_3 - S2 - S3)
+        // h5 = 6 * g3 * g2 + 2*g5
+        let Tmp = S2_3 - S2 - S3; // 2 * g2 * g3
+        let h5 = X2(Tmp.u512_add_fq(g5)) + Tmp;
+        let h5 = h5.to_fq(field_nz);
+
+        let _0 = FieldUtils::zero();
+
+        Fq12 { c0: Fq6 { c0: _0, c1: h1, c2: h2 }, c1: Fq6 { c0: h3, c1: _0, c2: h5 } }
+    }
+
     // https://eprint.iacr.org/2010/542.pdf
     // Compressed Karabina 2345 square
     // For some reason, the Karabina squaring off the paper is not working
