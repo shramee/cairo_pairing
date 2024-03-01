@@ -228,19 +228,23 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         let S2_3: (u512, u512) = (g2 + g3).u_sqr();
 
         // h2 = 3(S4_5 − S4 − S5)ξ + 2g2;
-        let h2 = X3(mul_by_xi(S4_5 - S4 - S5)).u512_add_fq(x2(g2));
+        let Tmp = mul_by_xi(S4_5 - S4 - S5);
+        let h2 = X2(Tmp.u512_add_fq(g2)) + Tmp;
         let h2 = h2.to_fq(field_nz);
 
         // h3 = 3(S4 + S5ξ) - 2g3;
-        let h3 = X3(S4 + mul_by_xi(S5)).u512_sub_fq(x2(g3));
-        let h3 = h3.to_fq(field_nz).fix_mod();
+        let Tmp = S4 + mul_by_xi(S5);
+        let h3 = X2(Tmp.u512_sub_fq(g3)) + Tmp;
+        let h3 = h3.to_fq(field_nz);
 
         // h4 = 3(S2 + S3ξ) - 2g4;
-        let h4 = X3(S2 + mul_by_xi(S3)).u512_sub_fq(x2(g4));
+        let Tmp = S2 + mul_by_xi(S3);
+        let h4 = X2(Tmp.u512_sub_fq(g4)) + Tmp;
         let h4 = h4.to_fq(field_nz);
 
         // h5 = 3(S2_3 - S2 - S3) + 2g5;
-        let h5 = X3(S2_3 - S2 - S3).u512_add_fq(x2(g5));
+        let Tmp = S2_3 - S2 - S3;
+        let h5 = X2(Tmp.u512_add_fq(g5)) + Tmp;
         let h5 = h5.to_fq(field_nz);
 
         Krbn2345 { g2: h2, g3: h3, g4: h4, g5: h5, }
