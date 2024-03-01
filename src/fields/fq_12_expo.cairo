@@ -151,8 +151,11 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         }
     }
 
-    // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
+    // https://eprint.iacr.org/2010/542.pdf
     // Compressed Karabina 2345 square
+    // For some reason, the Karabina squaring off the paper is not working
+    // So we use yelhousni's impl in
+    // https://github.com/Consensys/gnark-crypto/blob/v0.12.1/ecc/bn254/internal/fptower/e12.go#L143
     #[inline(always)]
     fn sqr_krbn(self: Fq12Krbn, field_nz: NonZero<u256>) -> Fq12Krbn {
         core::internal::revoke_ap_tracking();
@@ -206,19 +209,26 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         let S3: (u512, u512) = g3.u_sqr();
         let S4: (u512, u512) = g4.u_sqr();
         let S5: (u512, u512) = g5.u_sqr();
-        let S4_5: (u512, u512) = g4.u_add(g5).u_sqr();
-        let S2_3: (u512, u512) = g2.u_add(g3).u_sqr();
+        let S4_5: (u512, u512) = (g4 + g5).u_sqr();
+        let S2_3: (u512, u512) = (g2 + g3).u_sqr();
 
         // h2 = 3(S4_5 − S4 − S5)ξ + 2g2;
-        let h2 = X3(mul_by_xi(S4_5 - S4 - S5)).u512_add_fq(g2.u_add(g2));
-        // h4 = 3(S2 + S3ξ) - 2g4;
-        let h4 = X3(S2 + mul_by_xi(S3)).u512_sub_fq(g4.u_add(g2));
-        // h3 = 3(S4 + S5ξ) - 2g3;
-        let h3 = X3(S4 + mul_by_xi(S5)).u512_sub_fq(g3.u_add(g3));
-        // h5 = 3(S2_3 - S2 - S3) + 2g5;
-        let h5 = X3(S2_3 - S2 - S3).u512_add_fq(g5.u_add(g5));
+        let h2 = X3(mul_by_xi(S4_5 - S4 - S5)).u512_add_fq(x2(g2));
+        let h2 = h2.to_fq(field_nz);
 
-        (h2.to_fq(field_nz), h4.to_fq(field_nz), h3.to_fq(field_nz), h5.to_fq(field_nz),)
+        // h3 = 3(S4 + S5ξ) - 2g3;
+        let h3 = X3(S4 + mul_by_xi(S5)).u512_sub_fq(x2(g3));
+        let h3 = h3.to_fq(field_nz).fix_mod();
+
+        // h4 = 3(S2 + S3ξ) - 2g4;
+        let h4 = X3(S2 + mul_by_xi(S3)).u512_sub_fq(x2(g4));
+        let h4 = h4.to_fq(field_nz);
+
+        // h5 = 3(S2_3 - S2 - S3) + 2g5;
+        let h5 = X3(S2_3 - S2 - S3).u512_add_fq(x2(g5));
+        let h5 = h5.to_fq(field_nz);
+
+        (h2, h3, h4, h5,)
     }
 
 
