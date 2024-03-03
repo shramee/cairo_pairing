@@ -28,74 +28,62 @@ fn fq12(
 
 #[generate_trait]
 impl Fq12Frobenius of Fq12FrobeniusTrait {
-    #[inline(always)]
     fn frob0(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob0(), c1: c1.frob0().scale(fq2(frob::Q_0_C0, frob::Q_0_C1)), }
     }
 
-    #[inline(always)]
     fn frob1(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob1(), c1: c1.frob1().scale(fq2(frob::Q_1_C0, frob::Q_1_C1)), }
     }
 
-    #[inline(always)]
     fn frob2(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob2(), c1: c1.frob2().scale(fq2(frob::Q_2_C0, frob::Q_2_C1)), }
     }
 
-    #[inline(always)]
     fn frob3(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob3(), c1: c1.frob3().scale(fq2(frob::Q_3_C0, frob::Q_3_C1)), }
     }
 
-    #[inline(always)]
     fn frob4(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob4(), c1: c1.frob4().scale(fq2(frob::Q_4_C0, frob::Q_4_C1)), }
     }
 
-    #[inline(always)]
     fn frob5(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob5(), c1: c1.frob5().scale(fq2(frob::Q_5_C0, frob::Q_5_C1)), }
     }
 
-    #[inline(always)]
     fn frob6(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob0(), c1: c1.frob0().scale(fq2(frob::Q_6_C0, frob::Q_6_C1)), }
     }
 
-    #[inline(always)]
     fn frob7(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob1(), c1: c1.frob1().scale(fq2(frob::Q_7_C0, frob::Q_7_C1)), }
     }
 
-    #[inline(always)]
     fn frob8(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob2(), c1: c1.frob2().scale(fq2(frob::Q_8_C0, frob::Q_8_C1)), }
     }
 
-    #[inline(always)]
     fn frob9(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob3(), c1: c1.frob3().scale(fq2(frob::Q_9_C0, frob::Q_9_C1)), }
     }
 
-    #[inline(always)]
     fn frob10(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob4(), c1: c1.frob4().scale(fq2(frob::Q_10_C0, frob::Q_10_C1)), }
     }
 
 
-    #[inline(always)]
     fn frob11(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
         Fq12 { c0: c0.frob5(), c1: c1.frob5().scale(fq2(frob::Q_11_C0, frob::Q_11_C1)), }
@@ -130,7 +118,6 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
         Fq12Utils::one()
     }
 
-    #[inline(always)]
     fn frobenius_map(self: Fq12, power: usize) -> Fq12 {
         let rem = power % 12;
         if rem == 1 {
@@ -164,27 +151,22 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
 type Fq6U512 = ((u512, u512), (u512, u512), (u512, u512));
 
 impl Fq12Ops of FieldOps<Fq12> {
-    #[inline(always)]
     fn add(self: Fq12, rhs: Fq12) -> Fq12 {
         Fq12 { c0: self.c0 + rhs.c0, c1: self.c1 + rhs.c1, }
     }
 
-    #[inline(always)]
     fn sub(self: Fq12, rhs: Fq12) -> Fq12 {
         Fq12 { c0: self.c0 - rhs.c0, c1: self.c1 - rhs.c1, }
     }
 
-    #[inline(always)]
     fn div(self: Fq12, rhs: Fq12) -> Fq12 {
         self.mul(rhs.inv(FIELD.try_into().unwrap()))
     }
 
-    #[inline(always)]
     fn neg(self: Fq12) -> Fq12 {
         Fq12 { c0: -self.c0, c1: -self.c1, }
     }
 
-    #[inline(always)]
     fn eq(lhs: @Fq12, rhs: @Fq12) -> bool {
         lhs.c0 == rhs.c0 && lhs.c1 == rhs.c1
     }
@@ -222,7 +204,6 @@ impl Fq12Ops of FieldOps<Fq12> {
         Fq12 { c0: C0.to_fq(field_nz), c1: C1.to_fq(field_nz) }
     }
 
-    #[inline(always)]
     fn inv(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         let t = (self.c0.u_sqr() - mul_by_v(self.c1.u_sqr())).to_fq(field_nz).inv(field_nz);

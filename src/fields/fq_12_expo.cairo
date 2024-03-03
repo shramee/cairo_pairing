@@ -129,7 +129,6 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
     }
 
     // Karabina decompress a2, a3, a4, a5 to Fq12 a0, a1, a2, a3, a4, a5
-    #[inline(always)]
     fn krbn_decompress(self: Krbn2345, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         let Krbn2345 { g2, g3, g4, g5 } = self;
@@ -171,7 +170,6 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
 
     // This Karabina implementation is adjusted for the quadratic over cubic representation
     // https://github.com/Consensys/gnark-crypto/blob/v0.12.1/ecc/bn254/internal/fptower/e12.go#L143
-    #[inline(always)]
     fn sqr_krbn_1235(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         let Fq12 { c0: Fq6 { c0: _g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: _g4, c2: g5 } } =
@@ -213,7 +211,6 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
 
     // https://eprint.iacr.org/2010/542.pdf
     // Compressed Karabina 2345 square
-    #[inline(always)]
     fn sqr_krbn(self: Krbn2345, field_nz: NonZero<u256>) -> Krbn2345 {
         core::internal::revoke_ap_tracking();
         // Input: self = (a2 +a3s)t+(a4 +a5s)t2 ∈ Gφ6(Fp2)
@@ -251,6 +248,7 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         Krbn2345 { g2: h2, g3: h3, g4: h4, g5: h5, }
     }
 
+    #[inline(always)]
     fn krbn_sqr_4x(self: Krbn2345, field_nz: NonZero<u256>) -> Krbn2345 {
         self.sqr_krbn(field_nz).sqr_krbn(field_nz).sqr_krbn(field_nz).sqr_krbn(field_nz)
     }

@@ -91,8 +91,8 @@ fn fix_overflow_u512(result: u512, sub: u256, add: u256) -> u512 {
 #[inline(always)]
 fn add_u_wrapping(lhs: u256, rhs: u256) -> u256 {
     match m::u256_overflow_add(lhs, rhs) {
-        Result::Ok(res) => { res },
-        Result::Err(res) => { fix_overflow(res, U256_MOD_FIELD_INV, U256_MOD_FIELD) }
+        Result::Ok(res) => res,
+        Result::Err(res) => fix_overflow(res, U256_MOD_FIELD_INV, U256_MOD_FIELD),
     }
 }
 
