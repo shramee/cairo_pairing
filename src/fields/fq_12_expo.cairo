@@ -222,8 +222,8 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
         let S3: (u512, u512) = g3.u_sqr();
         let S4: (u512, u512) = g4.u_sqr();
         let S5: (u512, u512) = g5.u_sqr();
-        let S4_5: (u512, u512) = (g4.u_add(g5)).u_sqr();
-        let S2_3: (u512, u512) = (g2.u_add(g3)).u_sqr();
+        let S4_5: (u512, u512) = (g4 + g5).u_sqr();
+        let S2_3: (u512, u512) = (g2 + g3).u_sqr();
 
         // h2 = 3(S4_5 − S4 − S5)ξ + 2g2;
         let Tmp = mul_by_xi(S4_5 - S4.u_add(S5));
@@ -389,26 +389,28 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
     // Software Implementation of the Optimal Ate Pairing
     // Page 9, 4.2 Final exponentiation
 
-    // f^(p^6-1) = conjugate(f) · f^(-1)
-    // returns cyclotomic Fp12
     #[inline(always)]
-    fn pow_p6_minus_1(self: Fq12) -> Fq12 {
-        self.conjugate() / self
+    fn final_exponentiation_easy_part(self: Fq12) -> Fq12 {
+        // f^(p^6-1) = conjugate(f) · f^(-1)
+        // returns cyclotomic Fp12
+        let self = self.conjugate() / self;
+        // Software Implementation of the Optimal Ate Pairing
+        // Page 9, 4.2 Final exponentiation
+        // Page 5 - 6, 3.2 Frobenius Operator
+        // f^(p^2+1) = f^(p^2) * f = f.frob2() * f
+        self.frob2() * self
     }
 
-    // Software Implementation of the Optimal Ate Pairing
-    // Page 9, 4.2 Final exponentiation
-    // Page 5 - 6, 3.2 Frobenius Operator
-    // f^(p^2+1) = f^(p^2) * f = f.frob2() * f
-    #[inline(always)]
-    fn pow_p2_plus_1(self: Fq12) -> Fq12 {
-        self.frob2() * self
+    fn final_exponentiation(self: Fq12) -> Fq12 {
+        let field_nz = FIELD.try_into().unwrap();
+        self.final_exponentiation_easy_part().final_exponentiation_hard_part(field_nz)
     }
 
     // p^4 - p^2 + 1
     // This seems to be the most efficient counting operations performed
     // https://github.com/paritytech/bn/blob/master/src/fields/fq12.rs#L75
-    fn pow_p4_minus_p2_plus_1(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
+    #[inline(always)]
+    fn final_exponentiation_hard_part(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         internal::revoke_ap_tracking();
         let field_nz = FIELD.try_into().unwrap();
 

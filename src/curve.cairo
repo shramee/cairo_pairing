@@ -13,7 +13,6 @@ use bn::fields::print::u512Display;
 // mod groups_tests;
 
 mod pairing {
-    mod final_exponentiation;
     mod miller_utils;
     mod tate_bkls;
 // #[cfg(test)]

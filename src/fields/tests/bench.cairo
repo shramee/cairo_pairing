@@ -23,17 +23,17 @@
 // test bn::fields::tests::bench::fq06::sqr ... ok (gas usage est.: 930930)
 // test bn::fields::tests::bench::fq06::sqru ... ok (gas usage est.: 784370)
 // test bn::fields::tests::bench::fq06::sub ... ok (gas usage est.: 31500)
-// test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 118820)
-// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6370670)
-// test bn::fields::tests::bench::fq12::kdcmp ... ok (gas usage est.: 1200280)
-// test bn::fields::tests::bench::fq12::ksqr ... ok (gas usage est.: 1202820)
+// test bn::fields::tests::bench::fq12::add ... ok (gas usage est.: 127020)
+// test bn::fields::tests::bench::fq12::inv ... ok (gas usage est.: 6376070)
+// test bn::fields::tests::bench::fq12::kdcmp ... ok (gas usage est.: 1204880)
+// test bn::fields::tests::bench::fq12::ksqr ... ok (gas usage est.: 1236120)
 // test bn::fields::tests::bench::fq12::mul ... ok (gas usage est.: 3917880)
 // test bn::fields::tests::bench::fq12::sqr ... ok (gas usage est.: 2942820)
 // test bn::fields::tests::bench::fq12::sqrc ... ok (gas usage est.: 2162450)
-// test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 63200)
-// test bn::fields::tests::bench::fq12::xp_t ... ok (gas usage est.: 155412610)
-// test bn::fields::tests::bench::fq12::z_esy ... ok (gas usage est.: 15287440)
-// test bn::fields::tests::bench::fq12::z_hrd ... ok (gas usage est.: 515180050)
+// test bn::fields::tests::bench::fq12::sub ... ok (gas usage est.: 73700)
+// test bn::fields::tests::bench::fq12::xp_t ... ok (gas usage est.: 157278510)
+// test bn::fields::tests::bench::fq12::z_esy ... ok (gas usage est.: 15302640)
+// test bn::fields::tests::bench::fq12::z_hrd ... ok (gas usage est.: 520810850)
 // test bn::fields::tests::bench::u512::add ... ok (gas usage est.: 7490)
 // test bn::fields::tests::bench::u512::add_bn ... ok (gas usage est.: 14090)
 // test bn::fields::tests::bench::u512::fq_add ... ok (gas usage est.: 5480)
@@ -397,7 +397,7 @@ mod fq12 {
     #[test]
     #[available_gas(30000000)]
     fn z_esy() {
-        a().pow_p6_minus_1().pow_p2_plus_1();
+        a().final_exponentiation_easy_part();
     }
 
     #[test]
@@ -423,7 +423,7 @@ mod fq12 {
             0x2ed2c21f4810cf49ad8f51cc1bd2d28972a066bb153f23f87e955496865cccb4,
             0x24c11b663b70d224c7c3f096026b6aa418a4945ffcc6d8aaa5522633b2836b49,
         )
-            .pow_p4_minus_p2_plus_1(FIELD.try_into().unwrap());
+            .final_exponentiation_hard_part(FIELD.try_into().unwrap());
     }
 }
 

@@ -8,9 +8,8 @@ trait IBN_Pairing<T> {
 
 #[starknet::contract]
 mod BN_Pairing {
-    use bn::fields::{Fq12, fq12};
+    use bn::fields::{Fq12, fq12, Fq12FinalExpo};
     use bn::curve::pairing::tate_bkls::{tate_pairing, tate_miller_loop};
-    use bn::curve::pairing::final_exponentiation::{final_exponentiation};
 
     #[storage]
     struct Storage {}
@@ -21,10 +20,10 @@ mod BN_Pairing {
     #[abi(embed_v0)]
     impl BN_Pairing of super::IBN_Pairing<ContractState> {
         fn final_exponentiation(self: @ContractState, a: Fq12) -> Fq12 {
-            final_exponentiation(a)
+            a.final_exponentiation()
         }
         fn final_exponentiation_bench(self: @ContractState) -> Fq12 {
-            let a = fq12(
+            fq12(
                 0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
                 0x13b8616ce25df6105d793af41913a57b0ab221b193d48107e89204e19568411f,
                 0x1c8ab87de856aafdfb56d051cd79517ae10b4490cc01bd75b347a669d58698da,
@@ -37,8 +36,8 @@ mod BN_Pairing {
                 0x2d0c275838257edb77665b9aafbbd40626b6a35fe12b4ccacee5613bf3408fc2,
                 0x289d6d934bc5994e10f4dc4bfe3a5ac9cddfce66ee76df1e751b064bfdb5533d,
                 0x1e18e64906693e6f4c9cd40273060c504a78843d903489abb13377666679d33f,
-            );
-            final_exponentiation(a)
+            )
+                .final_exponentiation()
         }
     }
 }

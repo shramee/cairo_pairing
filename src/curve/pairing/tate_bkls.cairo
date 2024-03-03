@@ -19,8 +19,7 @@
 // This can probably use a lot of optimisation from NAF/short miller loop implementations
 
 use core::debug::PrintTrait;
-use bn::fields::{Fq12, Fq12Utils};
-use bn::curve::pairing::final_exponentiation::final_exponentiation;
+use bn::fields::{Fq12, Fq12Utils, Fq12FinalExpo};
 use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use print::{FqPrintImpl, Fq2PrintImpl, Fq12PrintImpl};
@@ -60,7 +59,7 @@ fn tate_miller_loop(p: AffineG1, q: AffineG2) -> Fq12 {
 
 #[inline(always)]
 fn tate_pairing(p: AffineG1, q: AffineG2) -> Fq12 {
-    final_exponentiation(tate_miller_loop(p, q))
+    tate_miller_loop(p, q).final_exponentiation()
 }
 
 fn tate_loop_bools() -> Array<bool> {
