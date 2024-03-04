@@ -263,6 +263,8 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
             .krbn_decompress(field_nz)
     }
 
+    // Called only once hence inlined
+    #[inline(always)]
     fn sqr_7_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         self
@@ -283,6 +285,8 @@ impl Fq12FinalExpo of FinalExponentiationTrait {
             .krbn_decompress(field_nz)
     }
 
+    // Called only once hence inlined
+    #[inline(always)]
     fn sqr_10_times(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
         self

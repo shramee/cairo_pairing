@@ -39,7 +39,7 @@ fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
 
 #[generate_trait]
 impl U512Fq2Ops of U512Fq2OpsTrait {
-    #[inline(always)]
+    // #[inline(always)]
     fn u_add(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
         let (L0, L1) = self;
         let (R0, R1) = rhs;
@@ -47,7 +47,7 @@ impl U512Fq2Ops of U512Fq2OpsTrait {
         (u512_add(L0, R0), u512_add(L1, R1))
     }
 
-    #[inline(always)]
+    // #[inline(always)]
     fn u_sub(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
         let (L0, L1) = self;
         let (R0, R1) = rhs;
@@ -97,7 +97,7 @@ fn add_u_wrapping(lhs: u256, rhs: u256) -> u256 {
 
 impl U512BnAdd of Add<u512> {
     // Adds u512 for bn field
-    #[inline(always)]
+    // #[inline(always)]
     fn add(lhs: u512, rhs: u512) -> u512 {
         let (result, overflow) = u512_add_overflow(lhs, rhs);
         if overflow {
@@ -117,7 +117,7 @@ impl U512BnAdd of Add<u512> {
 
 impl U512BnSub of Sub<u512> {
     // Subtracts u512 for bn field
-    #[inline(always)]
+    // #[inline(always)]
     fn sub(lhs: u512, rhs: u512) -> u512 {
         let (result, overflow) = u512_sub_overflow(lhs, rhs);
         if overflow {
