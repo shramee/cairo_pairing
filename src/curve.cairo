@@ -62,9 +62,11 @@ impl U512Fq2Ops of U512Fq2OpsTrait {
 // And it will proceed optimally avoiding overflow
 #[inline(always)]
 fn fix_overflow(result: u256, sub: u256, add: u256) -> u256 {
-    match u128_overflowing_sub(result.high, sub.high) {
-        Result::Ok(_) => m::u256_overflow_sub(result, sub).unwrap(),
-        Result::Err(_) => m::u256_overflow_add(result, add).unwrap(),
+    match u128_overflowing_sub(sub.high, result.high) {
+        // If sub >= result, then we add
+        Result::Ok(_) => m::u256_overflow_add(result, add).expect('fix overflow add failed'),
+        // If sub < result, then we subtract
+        Result::Err(_) => m::u256_overflow_sub(result, sub).expect('fix overflow sub failed'),
     }
 }
 
