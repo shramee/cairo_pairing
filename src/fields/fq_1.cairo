@@ -86,10 +86,10 @@ impl FqUtils of FieldUtils<Fq, u128> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq,) -> Fq {
-        if self.c0 > 0 {
-            -self
-        } else {
+        if self.c0 == 0 {
             self
+        } else {
+            -self
         }
     }
 

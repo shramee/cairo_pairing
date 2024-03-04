@@ -22,6 +22,7 @@ mod pairing {
 use bn::fields as f;
 use bn::math::fast_mod as m;
 use m::{u512};
+use m::utils::u128_overflowing_sub;
 use m::{add_u, sub_u, mul_u, sqr_u, scl_u, reduce, u512_add, u512_sub};
 use m::{u512_add_u256, u512_sub_u256, u512_add_overflow, u512_sub_overflow, u512_scl, u512_reduce};
 use m::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub};
@@ -39,7 +40,7 @@ fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
 
 #[generate_trait]
 impl U512Fq2Ops of U512Fq2OpsTrait {
-    // #[inline(always)]
+    #[inline(always)]
     fn u_add(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
         let (L0, L1) = self;
         let (R0, R1) = rhs;
@@ -47,7 +48,7 @@ impl U512Fq2Ops of U512Fq2OpsTrait {
         (u512_add(L0, R0), u512_add(L1, R1))
     }
 
-    // #[inline(always)]
+    #[inline(always)]
     fn u_sub(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
         let (L0, L1) = self;
         let (R0, R1) = rhs;
@@ -61,11 +62,9 @@ impl U512Fq2Ops of U512Fq2OpsTrait {
 // And it will proceed optimally avoiding overflow
 #[inline(always)]
 fn fix_overflow(result: u256, sub: u256, add: u256) -> u256 {
-    if result.high > sub.high {
-        // Safe to sub, no overflow
-        m::u256_overflow_sub(result, sub).unwrap()
-    } else {
-        m::u256_overflow_add(result, add).unwrap()
+    match u128_overflowing_sub(result.high, sub.high) {
+        Result::Ok(_) => m::u256_overflow_sub(result, sub).unwrap(),
+        Result::Err(_) => m::u256_overflow_add(result, add).unwrap(),
     }
 }
 
@@ -76,15 +75,8 @@ fn fix_overflow(result: u256, sub: u256, add: u256) -> u256 {
 fn fix_overflow_u512(result: u512, sub: u256, add: u256) -> u512 {
     let u512 { limb0, limb1, limb2, limb3 } = result;
     let u512_high = u256 { low: limb2, high: limb3 };
-
-    if u512_high.high > sub.high {
-        // Safe to sub, no overflow
-        let u256 { low: limb2, high: limb3 } = m::u256_overflow_sub(u512_high, sub).unwrap();
-        u512 { limb0, limb1, limb2, limb3 }
-    } else {
-        let u256 { low: limb2, high: limb3 } = m::u256_overflow_add(u512_high, add).unwrap();
-        u512 { limb0, limb1, limb2, limb3 }
-    }
+    let u256 { low: limb2, high: limb3 } = fix_overflow(u512_high, sub, add);
+    u512 { limb0, limb1, limb2, limb3 }
 }
 
 #[inline(always)]
@@ -97,7 +89,6 @@ fn add_u_wrapping(lhs: u256, rhs: u256) -> u256 {
 
 impl U512BnAdd of Add<u512> {
     // Adds u512 for bn field
-    // #[inline(always)]
     fn add(lhs: u512, rhs: u512) -> u512 {
         let (result, overflow) = u512_add_overflow(lhs, rhs);
         if overflow {
@@ -117,7 +108,6 @@ impl U512BnAdd of Add<u512> {
 
 impl U512BnSub of Sub<u512> {
     // Subtracts u512 for bn field
-    // #[inline(always)]
     fn sub(lhs: u512, rhs: u512) -> u512 {
         let (result, overflow) = u512_sub_overflow(lhs, rhs);
         if overflow {
