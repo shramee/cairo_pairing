@@ -4,3 +4,10 @@ version = 1
 [[package]]
 name = "bn"
 version = "0.1.0"
+
+[[package]]
+name = "bn_contracts"
+version = "0.1.0"
+dependencies = [
+ "bn",
+]

@@ -1,3 +1,9 @@
+[workspace]
+
+members = [
+	"bn_contracts",
+]
+
 [package]
 name = "bn"
 version = "0.1.0"
