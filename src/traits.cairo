@@ -35,9 +35,9 @@ trait FieldOps<TFq> {
 trait MillerEngine<TPairsPQ, TTempR, TFq> {
     fn get_temp_r(self: @TPairsPQ) -> TTempR;
     // 0 bit
-    fn bit_o(self: @TPairsPQ, temp_r: TTempR, f: TFq) -> (TTempR, TFq);
+    fn miller_bit_o(self: @TPairsPQ, ref temp_r: TTempR, ref f: TFq) -> (TTempR, TFq);
     // 1 bit
-    fn bit_p(self: @TPairsPQ, temp_r: TTempR, f: TFq) -> (TTempR, TFq);
+    fn miller_bit_p(self: @TPairsPQ, ref temp_r: TTempR, ref f: TFq) -> (TTempR, TFq);
     // -1 bit
-    fn bit_n(self: @TPairsPQ, temp_r: TTempR, f: TFq) -> (TTempR, TFq);
+    fn miller_bit_n(self: @TPairsPQ, ref temp_r: TTempR, ref f: TFq) -> (TTempR, TFq);
 }
