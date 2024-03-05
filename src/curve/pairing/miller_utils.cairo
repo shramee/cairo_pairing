@@ -30,26 +30,6 @@ impl G2LineEvals of LineEvaluationsTrait<AffineG2, AffineG1> {
     }
 }
 
-impl G1LineEvals of LineEvaluationsTrait<AffineG1, AffineG2> {
-    /// The sloped line function for doubling a point
-    fn at_tangent(self: AffineG1, p: AffineG2) -> Fq12 {
-        // -3px^2
-        let _cx = -p.x.sqr().scale(-fq(3));
-        // 2p.y
-        let _cy = p.y + p.y;
-        // TODO return Fq12
-        Fq12Utils::one()
-    }
-
-    /// The sloped line function for adding two points
-    fn at_chord(self: AffineG1, p1: AffineG2, p2: AffineG2) -> Fq12 {
-        let _cx = p2.y - p1.y;
-        let _cy = p1.x - p2.x;
-        // TODO return Fq12
-        Fq12Utils::one()
-    }
-}
-
 /// The tangent and cord functions output sparse Fp12 elements.
 /// This map embeds the nonzero coefficients into an Fp12.
 fn sparse_fq12(g000: Fq, g01: Fq2, g11: Fq2) -> Fq12 {

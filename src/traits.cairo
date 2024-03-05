@@ -32,12 +32,12 @@ trait FieldOps<TFq> {
     fn inv(self: TFq, field_nz: NonZero<u256>) -> TFq;
 }
 
-trait MillerEngine<TPairsPQ, TTempR, TFq> {
-    fn get_temp_r(self: @TPairsPQ) -> TTempR;
+trait MillerEngine<TPairs, TPreComp, TTempR, TFq> {
+    fn get_precompute_and_temp_r(self: @TPairs) -> (TPreComp, TTempR);
     // 0 bit
-    fn miller_bit_o(self: @TPairsPQ, ref temp_r: TTempR, ref f: TFq) -> (TTempR, TFq);
+    fn miller_bit_o(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
     // 1 bit
-    fn miller_bit_p(self: @TPairsPQ, ref temp_r: TTempR, ref f: TFq) -> (TTempR, TFq);
+    fn miller_bit_p(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
     // -1 bit
-    fn miller_bit_n(self: @TPairsPQ, ref temp_r: TTempR, ref f: TFq) -> (TTempR, TFq);
+    fn miller_bit_n(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
 }
