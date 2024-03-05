@@ -11,13 +11,14 @@ version = "0.1.0"
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 
 [scripts]
+addchain_gen_t = "addchain gen -tmpl addchain/tpl addchain/t"
 contracts = "scarb build -p bn_contracts"
 # Declares class for the contract
 ktn_declare = "starkli declare target/dev/bn_contracts_BN_Pairing.contract_class.json --account katana --rpc=http://localhost:5050"
 # Deploys the contract for input classhash
 ktn_deploy = "starkli deploy $1 --account katana --rpc=http://localhost:5050"
 # Invokes final_exponentiation_bench on input contract address
-ktn_fin_expo = "starkli invoke $1 final_exponentiation_bench --account katana --rpc=http://localhost:5050"
+ktn_expo = "starkli invoke $1 final_exponentiation_bench --account katana --rpc=http://localhost:5050"
 # Invokes miller_bench on input contract address
 ktn_miller = "starkli invoke $1 miller_bench --account katana --rpc=http://localhost:5050"
 # Invokes pairing_bench on input contract address

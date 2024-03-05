@@ -236,7 +236,6 @@ mod g1_line {
     }
 }
 
-
 #[test]
 #[available_gas(2000000000)]
 fn t_naf_verify() {

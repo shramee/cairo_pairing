@@ -25,9 +25,3 @@ fn addchain_exp_by_neg_t(x: Fq12, field_nz: NonZero<u256>) -> Fq12 {
 	{{- end }}
 	z.conjugate()
 }
-
-
-
-
-
-

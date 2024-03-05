@@ -106,7 +106,7 @@ fn t_naf() -> Array<(bool, bool)> {
 }
 
 #[inline(always)]
-fn six_t_plus_2_naf_rev_first_sign() -> (bool, bool) {
+fn six_t_plus_2_naf_rev_first() -> (bool, bool) {
     let P = (true, true);
     P
 }
@@ -122,7 +122,7 @@ fn six_t_plus_2_naf_rev_except_first() -> Array<(bool, bool)> {
     let P = (true, true);
     let N = (true, false);
     array![
-        // in six_t_plus_2_naf_rev_first_sign()
+        // in six_t_plus_2_naf_rev_first()
         // P,
         P,
         O,
