@@ -31,3 +31,13 @@ trait FieldOps<TFq> {
     fn eq(lhs: @TFq, rhs: @TFq) -> bool;
     fn inv(self: TFq, field_nz: NonZero<u256>) -> TFq;
 }
+
+trait MillerEngine<TPairsPQ, TTempR, TFq> {
+    fn get_temp_r(self: @TPairsPQ) -> TTempR;
+    // 0 bit
+    fn bit_o(self: @TPairsPQ, temp_r: TTempR, f: TFq) -> (TTempR, TFq);
+    // 1 bit
+    fn bit_p(self: @TPairsPQ, temp_r: TTempR, f: TFq) -> (TTempR, TFq);
+    // -1 bit
+    fn bit_n(self: @TPairsPQ, temp_r: TTempR, f: TFq) -> (TTempR, TFq);
+}

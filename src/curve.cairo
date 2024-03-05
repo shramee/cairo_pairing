@@ -15,6 +15,7 @@ use bn::fields::print::u512Display;
 mod pairing {
     mod miller_utils;
     mod tate_bkls;
+    mod optimal_ate;
 // #[cfg(test)]
 // mod tests;
 }
