@@ -19,7 +19,9 @@ trait ECGroup<TCoord> {
 
 trait ECOperations<TCoord> {
     fn pt_on_slope(self: @Affine<TCoord>, slope: TCoord, x2: TCoord) -> Affine<TCoord>;
+    fn chord(self: @Affine<TCoord>, rhs: Affine<TCoord>) -> TCoord;
     fn add(self: @Affine<TCoord>, rhs: Affine<TCoord>) -> Affine<TCoord>;
+    fn tangent(self: @Affine<TCoord>) -> TCoord;
     fn double(self: @Affine<TCoord>) -> Affine<TCoord>;
     fn multiply(self: @Affine<TCoord>, multiplier: u256) -> Affine<TCoord>;
 }
@@ -29,38 +31,36 @@ impl AffineOps<
 > of ECOperations<T> {
     #[inline(always)]
     fn pt_on_slope(self: @Affine<T>, slope: T, x2: T) -> Affine<T> {
-        let Affine{x: sx, y: sy } = *self;
-        // x = slope^2 - sx - x2
+        let Affine { x: sx, y: sy } = *self;
+        // x = λ^2 - sx - x2
         let x = slope.sqr() - sx - x2;
-        // y = m(sx - x) - sy
+        // y = λ(sx - x) - sy
         let y = slope * (sx - x) - sy;
         Affine { x, y }
     }
 
+    fn chord(self: @Affine<T>, rhs: Affine<T>) -> T {
+        let Affine { x: x1, y: y1 } = *self;
+        let Affine { x: x2, y: y2 } = rhs;
+        (y2 - y1) / (x2 - x1)
+    }
+
     fn add(self: @Affine<T>, rhs: Affine<T>) -> Affine<T> {
-        let Affine{x: x1, y: y1 } = *self;
-        let Affine{x: x2, y: y2 } = rhs;
+        self.pt_on_slope(self.chord(rhs), rhs.x)
+    }
 
-        let m = (y2 - y1) / (x2 - x1);
+    fn tangent(self: @Affine<T>) -> T {
+        let Affine { x, y } = *self;
 
-        self.pt_on_slope(m, x2)
+        // λ = (3x^2 + a) / 2y
+        // But BN curve has a == 0 so that's one less addition
+        // λ = 3x^2 / 2y
+        let x_2 = x.sqr();
+        x_2.u_add(x_2).u_add(x_2) / y.u_add(y)
     }
 
     fn double(self: @Affine<T>) -> Affine<T> {
-        let Affine{x, y } = *self;
-
-        // m = (3x^2 + a) / 2y
-        // let m = div(
-        //     add(mul(3, mul(x, x)), a),
-        //     mul(2, y),
-        //     FIELD
-        // );
-        // But BN curve has a == 0 so that's one less addition
-        // m = 3x^2 / 2y
-        let x_2 = x.sqr();
-        let m = x_2.u_add(x_2).u_add(x_2) / y.u_add(y);
-
-        self.pt_on_slope(m, x)
+        self.pt_on_slope(self.tangent(), *self.x)
     }
 
     fn multiply(self: @Affine<T>, mut multiplier: u256) -> Affine<T> {
@@ -81,7 +81,7 @@ impl AffineOps<
                         // self is zero, return rhs
                         dbl_step
                     } else {
-                        result.add(dbl_step)
+                        result.add(@dbl_step)
                     }
             }
 
