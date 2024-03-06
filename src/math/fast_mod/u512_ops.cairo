@@ -192,10 +192,8 @@ fn u512_high_add(lhs: u512, rhs: u256) -> Result<u512, u512> {
     let u512 { limb0, limb1, limb2: low, limb3: high } = lhs;
     let lhs = u256 { low, high };
     match u256_overflow_add(lhs, rhs) {
-        Result::Ok(u256 { low: limb2,
-        high: limb3 }) => Result::Ok(u512 { limb0, limb1, limb2, limb3 }),
-        Result::Err(u256 { low: limb2,
-        high: limb3 }) => Result::Err(u512 { limb0, limb1, limb2, limb3 })
+        Result::Ok(res) => Result::Ok(u512 { limb0, limb1, limb2: res.low, limb3: res.high }),
+        Result::Err(res) => Result::Err(u512 { limb0, limb1, limb2: res.low, limb3: res.high })
     }
 }
 
@@ -206,10 +204,8 @@ fn u512_high_sub(lhs: u512, rhs: u256) -> Result<u512, u512> {
     let u512 { limb0, limb1, limb2: low, limb3: high } = lhs;
     let lhs = u256 { low, high };
     match u256_overflow_sub(lhs, rhs) {
-        Result::Ok(u256 { low: limb2,
-        high: limb3 }) => Result::Ok(u512 { limb0, limb1, limb2, limb3 }),
-        Result::Err(u256 { low: limb2,
-        high: limb3 }) => Result::Err(u512 { limb0, limb1, limb2, limb3 })
+        Result::Ok(res) => Result::Ok(u512 { limb0, limb1, limb2: res.low, limb3: res.high }),
+        Result::Err(res) => Result::Err(u512 { limb0, limb1, limb2: res.low, limb3: res.high })
     }
 }
 
