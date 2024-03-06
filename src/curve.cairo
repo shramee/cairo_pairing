@@ -135,9 +135,9 @@ fn u512_reduce_bn(a: u512) -> u256 {
 }
 
 #[inline(always)]
-fn u512_scl_9(a: u512) -> u512 {
+fn u512_scl_9(a: u512, field_nz: NonZero<u256>) -> u512 {
     let u512 { limb0, limb1, limb2: low, limb3: high, } = a;
-    let u256 { low: limb2, high: limb3 } = reduce(u256 { high, low }, FIELD.try_into().unwrap());
+    let u256 { low: limb2, high: limb3 } = reduce(u256 { high, low }, field_nz);
     let (result, overflow) = u512_scl(u512 { limb0, limb1, limb2, limb3, }, 9);
 
     if (overflow == 0) {
@@ -149,9 +149,16 @@ fn u512_scl_9(a: u512) -> u512 {
 
 // ξ = 9 + i
 fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
+    let field_nz = FIELD.try_into().unwrap();
     let (t0, t1): (u512, u512) = t;
-    (u512_scl_9(t0) - t1, //
-     t0 + u512_scl_9(t1))
+    (u512_scl_9(t0, field_nz) - t1, //
+     t0 + u512_scl_9(t1, field_nz))
+}
+
+fn mul_by_xi_nz(t: (u512, u512), field_nz: NonZero<u256>) -> (u512, u512) {
+    let (t0, t1): (u512, u512) = t;
+    (u512_scl_9(t0, field_nz) - t1, //
+     t0 + u512_scl_9(t1, field_nz))
 }
 
 #[inline(always)]
@@ -161,6 +168,15 @@ fn mul_by_v(
     // https://github.com/paritytech/bn/blob/master/src/fields/fq6.rs#L110
     let (t0, t1, t2) = t;
     (mul_by_xi(t2), t0, t1,)
+}
+
+#[inline(always)]
+fn mul_by_v_nz(
+    t: ((u512, u512), (u512, u512), (u512, u512)), field_nz: NonZero<u256>
+) -> ((u512, u512), (u512, u512), (u512, u512)) {
+    // https://github.com/paritytech/bn/blob/master/src/fields/fq6.rs#L110
+    let (t0, t1, t2) = t;
+    (mul_by_xi_nz(t2, field_nz), t0, t1)
 }
 
 #[inline(always)]

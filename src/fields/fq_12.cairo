@@ -7,7 +7,7 @@ use bn::fields::{Fq6, fq6, Fq6Utils, fq2, Fq6Frobenius, Fq6MulShort, Fq6Short};
 use bn::fields::frobenius::fp12 as frob;
 use bn::curve::{FIELD};
 use bn::curve::{
-    u512, U512BnAdd, Tuple2Add, Tuple3Add, U512BnSub, Tuple2Sub, Tuple3Sub, u512_reduce, mul_by_v
+    u512, U512BnAdd, Tuple2Add, Tuple3Add, U512BnSub, Tuple2Sub, Tuple3Sub, u512_reduce, mul_by_v_nz
 };
 use debug::PrintTrait;
 
@@ -174,16 +174,16 @@ impl Fq12Ops of FieldOps<Fq12> {
     fn mul(self: Fq12, rhs: Fq12) -> Fq12 {
         core::internal::revoke_ap_tracking();
         // Input: a = (a0 + a1i) and b = (b0 + b1i) ∈ Fp2 Output: c = a·b = (c0 +c1i) ∈ Fp2
+        let field_nz = FIELD.try_into().unwrap();
+
         let Fq12 { c0: a0, c1: a1 } = self;
         let Fq12 { c0: b0, c1: b1 } = rhs;
 
         let U = a0.u_mul(b0);
         let V = a1.u_mul(b1);
 
-        let C0 = mul_by_v(V) + U;
+        let C0 = mul_by_v_nz(V, field_nz) + U;
         let C1 = (a0 + a1).u_mul(b0 + b1) - U - V;
-
-        let field_nz = FIELD.try_into().unwrap();
         Fq12 { //
          c0: C0.to_fq(field_nz), //
          c1: C1.to_fq(field_nz), //
@@ -192,21 +192,24 @@ impl Fq12Ops of FieldOps<Fq12> {
 
     fn sqr(self: Fq12) -> Fq12 {
         core::internal::revoke_ap_tracking();
+        let field_nz = FIELD.try_into().unwrap();
+
         let Fq12 { c0: a0, c1: a1 } = self;
 
         // Complex squaring
         let V = a0.u_mul(a1);
         // (a0 + a1) * (a0 + βa1) - v - βv
-        let C0 = (a0 + a1).u_mul(a0 + a1.mul_by_nonresidue()) - V - mul_by_v(V);
+        let C0 = (a0 + a1).u_mul(a0 + a1.mul_by_nonresidue()) - V - mul_by_v_nz(V, field_nz);
         // 2v
         let C1 = V + V;
-        let field_nz = FIELD.try_into().unwrap();
         Fq12 { c0: C0.to_fq(field_nz), c1: C1.to_fq(field_nz) }
     }
 
     fn inv(self: Fq12, field_nz: NonZero<u256>) -> Fq12 {
         core::internal::revoke_ap_tracking();
-        let t = (self.c0.u_sqr() - mul_by_v(self.c1.u_sqr())).to_fq(field_nz).inv(field_nz);
+        let t = (self.c0.u_sqr() - mul_by_v_nz(self.c1.u_sqr(), field_nz))
+            .to_fq(field_nz)
+            .inv(field_nz);
 
         Fq12 { c0: self.c0 * t, c1: -(self.c1 * t), }
     }

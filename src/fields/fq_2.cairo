@@ -110,6 +110,7 @@ impl Fq2Short of FieldShortcuts<Fq2> {
          }
     }
 
+    #[inline(always)]
     fn fix_mod(self: Fq2) -> Fq2 {
         // Operation without modding can only be done like 4 times
         Fq2 { //

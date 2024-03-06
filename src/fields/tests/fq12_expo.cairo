@@ -9,7 +9,7 @@ use bn::fields::{
 use bn::curve::{
     FIELD, u512, Tuple2Add, Tuple2Sub, U512BnAdd, U512BnSub, u512_sub_u256, u512_add, u512_sub
 };
-use bn::fields::fq_12_expo::{x2, x3, x4, X2, mul_by_xi, Krbn2345};
+use bn::fields::fq_12_expo::{x2, x3, x4, X2, mul_by_xi_nz, Krbn2345};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq12Display, Fq2Display};
 use debug::PrintTrait;
@@ -52,7 +52,7 @@ fn sqr() -> Fq12 {
 // fn krbn_experiments() {
 //     let Fq12 { c0: Fq6 { c0: _, c1: _, c2: g2 }, c1: Fq6 { c0: g3, c1: g4, c2: g5 } } =
 //         a_cyc();
-//     let _field_nz: NonZero<u256> = FIELD.try_into().unwrap();
+//     let field_nz: NonZero<u256> = FIELD.try_into().unwrap();
 //     let asq = sqr();
 //     // Si,j = (gi + gj )^2 and Si = gi^2
 //     // let S2: (u512, u512) = g2.u_sqr();
@@ -72,7 +72,7 @@ fn sqr() -> Fq12 {
 //     // h₅ = 2g₅ + 3 ((g₂+g₃)²-g₂²-g₃²)
 
 //     // h2 = 3(S4_5 − S4 − S5)ξ + 2g2;
-//     // let _h2: (u512, u512) = X3(mul_by_xi(S4_5 - S4 - S5)).u512_add_fq(g2.u_add(g2));
+//     // let _h2: (u512, u512) = X3(mul_by_xi_nz(S4_5 - S4 - S5, field_nz)).u512_add_fq(g2.u_add(g2));
 //     // let h2: Fq2 = _h2.to_fq(field_nz);
 
 //     // h₂ = 2g₂ + 3ξ((g₄+g₅)²-g₄²-g₅²)
