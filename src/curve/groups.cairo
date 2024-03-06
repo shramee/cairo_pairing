@@ -81,7 +81,7 @@ impl AffineOps<
                         // self is zero, return rhs
                         dbl_step
                     } else {
-                        result.add(@dbl_step)
+                        result.add(dbl_step)
                     }
             }
 
