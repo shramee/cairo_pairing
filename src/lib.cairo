@@ -11,7 +11,7 @@ mod fields {
     mod fq_2;
     mod fq_6;
     mod fq_12;
-    mod fq_12_expo;
+    mod fq_12_utils;
     mod frobenius;
     mod print;
 
@@ -30,7 +30,7 @@ mod fields {
     use fq_2::{Fq2, Fq2Ops, Fq2Short, Fq2MulShort, Fq2Utils, fq2, Fq2Frobenius, Fq2IntoU512Tuple};
     use fq_6::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6, Fq6Frobenius};
     use fq_12::{Fq12, Fq12Ops, Fq12Utils, fq12, Fq12Frobenius};
-    use fq_12_expo::{Fq12PairingUtils, Fq12Sparse034, Fq12Sparse01234};
+    use fq_12_utils::{Fq12PairingUtils, Fq12Sparse034, Fq12Sparse01234};
     use bn::traits::{FieldOps, FieldUtils};
 }
 

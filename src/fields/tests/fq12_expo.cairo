@@ -8,7 +8,7 @@ use bn::fields::{
 use bn::curve::{
     FIELD, u512, Tuple2Add, Tuple2Sub, U512BnAdd, U512BnSub, u512_sub_u256, u512_add, u512_sub
 };
-use bn::fields::fq_12_expo::{x2, x3, x4, X2, mul_by_xi_nz, Krbn2345};
+use bn::fields::fq_12_utils::{x2, x4, X2, mul_by_xi_nz, Krbn2345};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq12Display, Fq2Display};
 use debug::PrintTrait;
