@@ -18,6 +18,8 @@ trait ECGroup<TCoord> {
 }
 
 trait ECOperations<TCoord> {
+    fn x_on_slope(self: @Affine<TCoord>, slope: TCoord, x2: TCoord) -> TCoord;
+    fn y_on_slope(self: @Affine<TCoord>, slope: TCoord, x: TCoord) -> TCoord;
     fn pt_on_slope(self: @Affine<TCoord>, slope: TCoord, x2: TCoord) -> Affine<TCoord>;
     fn chord(self: @Affine<TCoord>, rhs: Affine<TCoord>) -> TCoord;
     fn add(self: @Affine<TCoord>, rhs: Affine<TCoord>) -> Affine<TCoord>;
@@ -30,15 +32,25 @@ impl AffineOps<
     T, +FOps<T>, +FShort<T>, +Copy<T>, +Print<T>, +Drop<T>, impl ECGImpl: ECGroup<T>
 > of ECOperations<T> {
     #[inline(always)]
-    fn pt_on_slope(self: @Affine<T>, slope: T, x2: T) -> Affine<T> {
-        let Affine { x: sx, y: sy } = *self;
+    fn x_on_slope(self: @Affine<T>, slope: T, x2: T) -> T {
         // x = λ^2 - x1 - x2
-        let x = slope.sqr() - sx - x2;
+        slope.sqr() - *self.x - x2
+    }
+
+    #[inline(always)]
+    fn y_on_slope(self: @Affine<T>, slope: T, x: T) -> T {
         // y = λ(x1 - x) - y1
-        let y = slope * (sx - x) - sy;
+        slope * (*self.x - x) - *self.y
+    }
+
+    #[inline(always)]
+    fn pt_on_slope(self: @Affine<T>, slope: T, x2: T) -> Affine<T> {
+        let x = self.x_on_slope(slope, x2);
+        let y = self.y_on_slope(slope, x);
         Affine { x, y }
     }
 
+    #[inline(always)]
     fn chord(self: @Affine<T>, rhs: Affine<T>) -> T {
         let Affine { x: x1, y: y1 } = *self;
         let Affine { x: x2, y: y2 } = rhs;
@@ -46,10 +58,12 @@ impl AffineOps<
         (y2 - y1) / (x2 - x1)
     }
 
+    #[inline(always)]
     fn add(self: @Affine<T>, rhs: Affine<T>) -> Affine<T> {
         self.pt_on_slope(self.chord(rhs), rhs.x)
     }
 
+    #[inline(always)]
     fn tangent(self: @Affine<T>) -> T {
         let Affine { x, y } = *self;
 
@@ -60,6 +74,7 @@ impl AffineOps<
         x_2.u_add(x_2).u_add(x_2) / y.u_add(y)
     }
 
+    #[inline(always)]
     fn double(self: @Affine<T>) -> Affine<T> {
         self.pt_on_slope(self.tangent(), *self.x)
     }
