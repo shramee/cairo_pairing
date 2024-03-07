@@ -1,7 +1,7 @@
 use bn::traits::{FieldShortcuts, FieldUtils};
 use bn::curve::groups::ECOperations;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::fields::{Fq, Fq2, Fq12, Fq12Utils, Fq12Ops, FqOps, Fq2Utils, Fq2Ops, Fq12Expo,};
+use bn::fields::{Fq, Fq2, Fq12, Fq12Utils, Fq12Ops, FqOps, Fq2Utils, Fq2Ops, Fq12Exponentiation,};
 use bn::fields::{Fq12Sparse034, Fq12Sparse01234, Fq12Sparse};
 use bn::curve::groups::{g1, g2, ECGroup};
 use bn::curve::groups::{Affine, AffineG1 as PtG1, AffineG2 as PtG2, AffineOps};

@@ -265,7 +265,7 @@ mod fq06 {
 mod fq12 {
     use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
     use integer::u512;
-    use bn::fields::{fq12, fq6, Fq12, Fq12Expo, Fq12Squaring, print::Fq12Display};
+    use bn::fields::{fq12, fq6, Fq12, Fq12Exponentiation, Fq12Squaring, print::Fq12Display};
     use bn::curve::FIELD;
 
     fn a() -> Fq12 {
@@ -370,7 +370,7 @@ mod fq12 {
 }
 
 mod sprs {
-    use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Expo,};
+    use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Exponentiation,};
     use bn::curve::{FIELD, u512,};
     use bn::fields::{Fq12Sparse, Fq12Sparse034, Fq12Sparse01234};
 

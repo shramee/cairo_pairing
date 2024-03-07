@@ -1,5 +1,5 @@
 use bn::traits::{FieldOps, FieldUtils};
-use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Expo,};
+use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Exponentiation,};
 use bn::curve::{FIELD, u512,};
 use bn::fields::{Fq12Sparse, Fq12Sparse034, Fq12Sparse01234};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};

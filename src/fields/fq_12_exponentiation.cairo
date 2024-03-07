@@ -73,7 +73,7 @@ fn addchain_exp_by_neg_t(x: Fq12, field_nz: NonZero<u256>) -> Fq12 {
 }
 
 #[generate_trait]
-impl Fq12Expo of PairingUtilsTrait {
+impl Fq12Exponentiation of PairingExponentiationTrait {
     fn exp_naf(mut self: Fq12, mut naf: Array<(bool, bool)>, field_nz: NonZero<u256>) -> Fq12 {
         let mut temp_sq = self;
         let mut result = FieldUtils::one();
