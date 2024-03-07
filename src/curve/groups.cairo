@@ -32,9 +32,9 @@ impl AffineOps<
     #[inline(always)]
     fn pt_on_slope(self: @Affine<T>, slope: T, x2: T) -> Affine<T> {
         let Affine { x: sx, y: sy } = *self;
-        // x = λ^2 - sx - x2
+        // x = λ^2 - x1 - x2
         let x = slope.sqr() - sx - x2;
-        // y = λ(sx - x) - sy
+        // y = λ(x1 - x) - y1
         let y = slope * (sx - x) - sy;
         Affine { x, y }
     }
@@ -42,6 +42,7 @@ impl AffineOps<
     fn chord(self: @Affine<T>, rhs: Affine<T>) -> T {
         let Affine { x: x1, y: y1 } = *self;
         let Affine { x: x2, y: y2 } = rhs;
+        // λ = (y2-y1) / (x2-x1)
         (y2 - y1) / (x2 - x1)
     }
 
