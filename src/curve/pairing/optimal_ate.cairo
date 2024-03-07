@@ -1,10 +1,10 @@
 use core::debug::PrintTrait;
 use bn::traits::MillerEngine as MillEng;
-use bn::curve::six_t_plus_2_naf_rev_trimmed;
 use bn::fields::{Fq12, Fq12Utils, Fq12PairingUtils};
 use bn::curve::groups;
 use groups::{g1, g2, ECGroup};
 use groups::{Affine, AffineG1, AffineG2, AffineOps};
+use bn::curve::{six_t_plus_2_naf_rev_trimmed, FIELD};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use print::{FqPrintImpl, Fq2PrintImpl, Fq12PrintImpl};
 use bn::curve::pairing::miller_utils::{LineEvaluationsTrait};
@@ -44,8 +44,9 @@ fn ate_miller_loop<
     pairs: TPair
 ) -> Fq12 {
     core::internal::revoke_ap_tracking();
+    let field_nz = FIELD.try_into().unwrap();
 
-    let (pre_compute, mut q_acc) = pairs.precompute_and_acc();
+    let (pre_compute, mut q_acc) = pairs.precompute_and_acc(field_nz);
     let mut f = Fq12Utils::one();
     let mut array_items = six_t_plus_2_naf_rev_trimmed();
 
@@ -57,12 +58,12 @@ fn ate_miller_loop<
                 f = f.sqr();
                 if b1 {
                     if b2 {
-                        pairs.miller_bit_p(@pre_compute, ref q_acc, ref f);
+                        pairs.miller_bit_p(@pre_compute, ref q_acc, ref f, field_nz);
                     } else {
-                        pairs.miller_bit_n(@pre_compute, ref q_acc, ref f);
+                        pairs.miller_bit_n(@pre_compute, ref q_acc, ref f, field_nz);
                     }
                 } else {
-                    pairs.miller_bit_o(@pre_compute, ref q_acc, ref f);
+                    pairs.miller_bit_o(@pre_compute, ref q_acc, ref f, field_nz);
                 }
             //
             },

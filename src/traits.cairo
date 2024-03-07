@@ -33,11 +33,17 @@ trait FieldOps<TFq> {
 }
 
 trait MillerEngine<TPairs, TPreComp, TTempR, TFq> {
-    fn precompute_and_acc(self: @TPairs) -> (TPreComp, TTempR);
+    fn precompute_and_acc(self: @TPairs, field_nz: NonZero<u256>) -> (TPreComp, TTempR);
     // 0 bit
-    fn miller_bit_o(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
+    fn miller_bit_o(
+        self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq, field_nz: NonZero<u256>
+    );
     // 1 bit
-    fn miller_bit_p(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
+    fn miller_bit_p(
+        self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq, field_nz: NonZero<u256>
+    );
     // -1 bit
-    fn miller_bit_n(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
+    fn miller_bit_n(
+        self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq, field_nz: NonZero<u256>
+    );
 }
