@@ -372,7 +372,7 @@ mod fq12 {
 mod sprs {
     use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Expo,};
     use bn::curve::{FIELD, u512,};
-    use bn::fields::fq_12_utils::{Fq12Sparse034, Fq12Sparse01234};
+    use bn::fields::{Fq12Sparse, Fq12Sparse034, Fq12Sparse01234};
 
     fn a_12() -> Fq12 {
         fq12(
