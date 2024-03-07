@@ -22,6 +22,7 @@ mod fields {
     // mod fq6;
     // mod fq12;
     // mod fq12_expo;
+    // mod fq12_sparse;
     // mod u512;
     // mod frobenius;
     }
