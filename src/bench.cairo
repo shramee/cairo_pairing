@@ -53,63 +53,6 @@ fn u512_one() -> integer::u512 {
     integer::u512 { limb0: 1, limb1: 0, limb2: 0, limb3: 0 }
 }
 
-mod u512 {
-    use bn::traits::FieldUtils;
-    use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
-    use integer::u512;
-    use bn::curve as c;
-    use c::{U512BnAdd, U512BnSub};
-    use bn::fields::{fq, Fq, FqMulShort};
-
-    #[test]
-    #[available_gas(2000000)]
-    fn add_bn() {
-        u512_one() + u512_one();
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn sub_bn() {
-        u512_one() - u512_one();
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn add() {
-        c::u512_add_overflow(u512_one(), u512_one());
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn sub() {
-        c::u512_sub_overflow(u512_one(), u512_one());
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn mxi() {
-        c::mul_by_xi((u512_one(), u512_one()));
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn fq_n2() -> u512 {
-        fq(1).into()
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn fq_add() -> u512 {
-        u512_one().u512_add_fq(fq(1))
-    }
-
-    #[test]
-    #[available_gas(2000000)]
-    fn fq_sub() -> u512 {
-        u512_one().u512_sub_fq(fq(1))
-    }
-}
-
 mod fq01 {
     use bn::traits::FieldUtils;
     use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
@@ -320,10 +263,9 @@ mod fq06 {
 }
 
 mod fq12 {
-    use bn::fields::fq_12_expo::FinalExponentiationTrait;
     use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
     use integer::u512;
-    use bn::fields::{fq12, fq6, Fq12, Fq12FinalExpo, print::Fq12Display};
+    use bn::fields::{fq12, fq6, Fq12, Fq12PairingUtils, print::Fq12Display};
     use bn::curve::FIELD;
 
     fn a() -> Fq12 {
@@ -424,6 +366,63 @@ mod fq12 {
             0x24c11b663b70d224c7c3f096026b6aa418a4945ffcc6d8aaa5522633b2836b49,
         )
             .final_exponentiation_hard_part(FIELD.try_into().unwrap());
+    }
+}
+
+mod u512 {
+    use bn::traits::FieldUtils;
+    use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
+    use integer::u512;
+    use bn::curve as c;
+    use c::{U512BnAdd, U512BnSub};
+    use bn::fields::{fq, Fq, FqMulShort};
+
+    #[test]
+    #[available_gas(2000000)]
+    fn add_bn() {
+        u512_one() + u512_one();
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn sub_bn() {
+        u512_one() - u512_one();
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn add() {
+        c::u512_add_overflow(u512_one(), u512_one());
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn sub() {
+        c::u512_sub_overflow(u512_one(), u512_one());
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn mxi() {
+        c::mul_by_xi((u512_one(), u512_one()));
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn fq_n2() -> u512 {
+        fq(1).into()
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn fq_add() -> u512 {
+        u512_one().u512_add_fq(fq(1))
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn fq_sub() -> u512 {
+        u512_one().u512_sub_fq(fq(1))
     }
 }
 
