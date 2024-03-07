@@ -19,14 +19,26 @@ struct Krbn2345 {
     g5: Fq2,
 }
 
-#[inline(always)]
-fn x2(a: Fq2) -> Fq2 {
-    a.u_add(a)
+// Sparse Fp12 element containing only c3 and c4 Fq2s (c0 is 1)
+#[derive(Copy, Drop,)]
+struct Fq12Sparse034 {
+    c3: Fq2,
+    c4: Fq2,
+}
+
+// Sparse Fp12 element containing c0, c1, c2, c3 and c4 Fq2s
+#[derive(Copy, Drop,)]
+struct Fq12Sparse01234 {
+    c0: Fq2,
+    c1: Fq2,
+    c2: Fq2,
+    c3: Fq2,
+    c4: Fq2,
 }
 
 #[inline(always)]
-fn x3(a: Fq2) -> Fq2 {
-    a.u_add(a).u_add(a)
+fn x2(a: Fq2) -> Fq2 {
+    a.u_add(a)
 }
 
 #[inline(always)]
@@ -38,11 +50,6 @@ fn x4(a: Fq2) -> Fq2 {
 #[inline(always)]
 fn X2(a: (u512, u512)) -> (u512, u512) {
     a + a
-}
-
-#[inline(always)]
-fn X3(a: (u512, u512)) -> (u512, u512) {
-    a + a + a
 }
 
 // Computes FQ12 exponentiated by -t = -4965661367192848881 = 0x44e992b44a6909f1
@@ -107,7 +114,7 @@ fn addchain_exp_by_neg_t(x: Fq12, field_nz: NonZero<u256>) -> Fq12 {
 }
 
 #[generate_trait]
-impl Fq12FinalExpo of FinalExponentiationTrait {
+impl Fq12PairingUtils of PairingUtilsTrait {
     // Karabina compress Fq12 a0, a1, a2, a3, a4, a5 to a2, a3, a4, a5
     // For Karabina sqr 2345
     //

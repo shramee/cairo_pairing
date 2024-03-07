@@ -10,7 +10,7 @@ use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2};
 use bn::fields::{Fq, Fq2, fq12, Fq12, print::Fq12Display};
 use bn::curve::pairing::tate_bkls::{tate_pairing, tate_miller_loop};
-use bn::fields::Fq12FinalExpo;
+use bn::fields::Fq12PairingUtils;
 use debug::PrintTrait;
 
 fn p(n: u8) -> Affine<Fq> {

@@ -1,9 +1,8 @@
-use bn::fields::fq_12_expo::FinalExponentiationTrait;
 use bn::traits::FieldMulShortcuts;
 use bn::traits::FieldShortcuts;
 use bn::traits::{FieldOps, FieldUtils};
 use bn::fields::{
-    fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq2MulShort, Fq2Ops, Fq2Short, Fq12Ops, Fq12FinalExpo,
+    fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq2MulShort, Fq2Ops, Fq2Short, Fq12Ops, Fq12PairingUtils,
     Fq2IntoU512Tuple
 };
 use bn::curve::{

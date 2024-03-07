@@ -1,9 +1,10 @@
 use core::debug::PrintTrait;
 use bn::traits::MillerEngine as MillEng;
-use bn::fields::{Fq12, Fq12Utils, Fq12FinalExpo};
-use bn::curve::groups::{g1, g2, ECGroup};
-use bn::curve::groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::curve::six_t_plus_2_naf_rev_trimmed;
+use bn::fields::{Fq12, Fq12Utils, Fq12PairingUtils};
+use bn::curve::groups;
+use groups::{g1, g2, ECGroup};
+use groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use print::{FqPrintImpl, Fq2PrintImpl, Fq12PrintImpl};
 use bn::curve::pairing::miller_utils::{LineEvaluationsTrait};
