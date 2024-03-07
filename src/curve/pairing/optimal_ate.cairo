@@ -44,7 +44,7 @@ fn ate_miller_loop<
 ) -> Fq12 {
     core::internal::revoke_ap_tracking();
 
-    let (pre_compute, mut q_acc) = pairs.get_precompute_and_temp_r();
+    let (pre_compute, mut q_acc) = pairs.precompute_and_acc();
     let mut f = Fq12Utils::one();
     let mut array_items = six_t_plus_2_naf_rev_trimmed();
 
