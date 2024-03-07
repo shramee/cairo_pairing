@@ -10,7 +10,7 @@ trait IBN_Pairing<T> {
 
 #[starknet::contract]
 mod BN_Pairing {
-    use bn::fields::{Fq12, fq12, Fq12PairingUtils};
+    use bn::fields::{Fq12, fq12, Fq12Expo};
     use bn::curve::groups::{g1, g2};
     use bn::curve::pairing::tate_bkls::{tate_pairing, tate_miller_loop};
 

@@ -55,7 +55,7 @@ fn pairing() {
 }
 
 mod exponentiation {
-    use bn::curve::pairing::final_exponentiation::Fq12PairingUtils;
+    use bn::curve::pairing::final_exponentiation::Fq12Expo;
     use bn::curve::pairing::final_exponentiation::final_exponentiation;
     use core::array::ArrayTrait;
     use bn::fields::{

@@ -1,6 +1,6 @@
 use core::debug::PrintTrait;
 use bn::traits::MillerEngine as MillEng;
-use bn::fields::{Fq12, Fq12Utils, Fq12PairingUtils};
+use bn::fields::{Fq12, Fq12Utils, Fq12Expo};
 use bn::curve::groups;
 use groups::{g1, g2, ECGroup};
 use groups::{Affine, AffineG1, AffineG2, AffineOps};

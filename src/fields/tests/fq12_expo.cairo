@@ -2,13 +2,13 @@ use bn::traits::FieldMulShortcuts;
 use bn::traits::FieldShortcuts;
 use bn::traits::{FieldOps, FieldUtils};
 use bn::fields::{
-    fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq2MulShort, Fq2Ops, Fq2Short, Fq12Ops, Fq12PairingUtils,
+    fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq2MulShort, Fq2Ops, Fq2Short, Fq12Ops, Fq12Expo,
     Fq2IntoU512Tuple
 };
 use bn::curve::{
     FIELD, u512, Tuple2Add, Tuple2Sub, U512BnAdd, U512BnSub, u512_sub_u256, u512_add, u512_sub
 };
-use bn::fields::fq_12_utils::{x2, x4, X2, mul_by_xi_nz, Krbn2345};
+use bn::fields::fq_12_squaring::{x2, x4, X2, mul_by_xi_nz, Krbn2345, Fq12Squaring};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq12Display, Fq2Display};
 use debug::PrintTrait;
