@@ -95,4 +95,12 @@ fn step_double(ref acc: PtG2, precomp: @PreCompute, p: PtG1) -> Fq12Sparse034 {
     // acc = acc + (acc + q)
     // line function
     let s = acc;
+
+    // λ = 3x²/2y
+    let slope = s.tangent();
+    // p = (λ²-2x, λ(x-xr)-y)
+    acc = s.pt_on_slope(slope, acc.x);
+    Fq12Sparse034 {
+        c3: slope.scale(*precomp.p.x_over_y), c4: (slope * s.x - s.y).scale(*precomp.p.y_inv),
+    }
 }
