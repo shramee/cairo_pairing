@@ -84,6 +84,13 @@ fn step_double_and_add(ref acc: PtG2, precomp: @PreCompute, q: PtG2, p: PtG1) ->
     // acc = acc + (acc + q)
     // line function
     let s = acc;
+    Fq12Sparse01234 {
+        c0: FieldUtils::one(),
+        c1: FieldUtils::one(),
+        c2: FieldUtils::one(),
+        c3: FieldUtils::one(),
+        c4: FieldUtils::one()
+    }
 }
 
 
