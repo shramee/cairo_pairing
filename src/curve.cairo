@@ -28,6 +28,7 @@ use m::utils::u128_overflowing_sub;
 use m::{add_u, sub_u, mul_u, sqr_u, scl_u, reduce, u512_add, u512_sub};
 use m::{u512_add_u256, u512_sub_u256, u512_add_overflow, u512_sub_overflow, u512_scl, u512_reduce};
 use m::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub};
+use f::{SixU512};
 
 #[inline(always)]
 fn u512_high_add(lhs: u512, rhs: u256) -> u512 {
@@ -38,7 +39,6 @@ fn u512_high_add(lhs: u512, rhs: u256) -> u512 {
 fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
     m::u512_high_sub(lhs, rhs).expect('u512_high_sub overflow')
 }
-
 
 #[generate_trait]
 impl U512Fq2Ops of U512Fq2OpsTrait {
@@ -56,6 +56,25 @@ impl U512Fq2Ops of U512Fq2OpsTrait {
         let (R0, R1) = rhs;
         // Operation without modding can only be done like 4 times
         (u512_sub(L0, R0), u512_sub(L1, R1))
+    }
+}
+
+#[generate_trait]
+impl U512Fq6Ops of U512Fq6OpsTrait {
+    #[inline(always)]
+    fn u_add(self: SixU512, rhs: SixU512) -> SixU512 {
+        let (L0, L1, L2) = self;
+        let (R0, R1, R2) = rhs;
+        // Operation without modding can only be done like 4 times
+        (L0.u_add(R0), L1.u_add(R1), L2.u_add(R2))
+    }
+
+    #[inline(always)]
+    fn u_sub(self: SixU512, rhs: SixU512) -> SixU512 {
+        let (L0, L1, L2) = self;
+        let (R0, R1, R2) = rhs;
+        // Operation without modding can only be done like 4 times
+        (L0.u_sub(R0), L1.u_sub(R1), L2.u_sub(R2))
     }
 }
 

@@ -1,3 +1,4 @@
+use bn::curve::U512Fq6OpsTrait;
 use bn::curve::U512Fq2OpsTrait;
 use core::starknet::secp256_trait::Secp256PointTrait;
 use core::traits::TryInto;
@@ -7,13 +8,13 @@ use core::array::ArrayTrait;
 use bn::curve::{t_naf, FIELD, FIELD_X2};
 use bn::curve::{
     u512, mul_by_xi_nz, mul_by_v_nz, U512BnAdd, U512BnSub, Tuple2Add, Tuple2Sub, Tuple3Add,
-    Tuple3Sub,
+    Tuple3Sub, U512Fq6Ops
 };
 use bn::curve::{u512_add, u512_sub, u512_high_add, u512_high_sub, U512Fq2Ops};
 use bn::fields::{
     FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, fq6, Fq12, fq12, Fq12Frobenius, Fq12Squaring
 };
-use bn::fields::fq_6::SixU512;
+use bn::fields::SixU512;
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq2Display, FqDisplay, u512Display};
 
@@ -179,7 +180,7 @@ impl FqSparse of FqSparseTrait {
         // zC1 := e.Ext6.Add(&a0, b)
         // zC1 = e.Ext6.Neg(zC1)
         // zC1 = e.Ext6.Add(zC1, d)
-        // C1 = D + (-(a0 + B))
+        // equivalent to, C1 = D + (-(a0 + B))
         let C1 = D - B.u512_add_fq(a0);
         // zC0 := e.Ext6.MulByNonResidue(b)
         let C0 = mul_by_v_nz(B, field_nz);
@@ -193,20 +194,24 @@ impl FqSparse of FqSparseTrait {
     }
 
     // Mul Fq12 with a sparse 034 Fq12
-    // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/fields_bn254/e12_pairing.go#L116
     // Same as Fq12 mul but with a sparse b1 i.e. b1.c2 as 0 and associated ops removed
     fn mul_01234(self: Fq12, rhs: Fq12Sparse01234, field_nz: NonZero<u256>) -> Fq12 {
         let Fq12 { c0: a0, c1: a1 } = self;
         let Fq12Sparse01234 { c0, c1, c2, c3, c4 } = rhs;
+
         let b0 = Fq6 { c0, c1, c2 };
         let b1 = sparse_fq6(c3, c4);
+
+        // Doing this part before U, V cost less for some reason
+        let b = Fq6 { c0: b0.c0 + b1.c0, c1: b0.c1 + b1.c1, c2: b0.c2 };
+        let C1 = (a0 + a1).u_mul(b);
 
         let U = a0.u_mul(b0);
         let V = a1.u_mul_01(b1, field_nz);
 
         let C0 = mul_by_v_nz(V, field_nz) + U;
-        let b0_plus_b1 = Fq6 { c0: b0.c0 + b1.c0, c1: b0.c1 + b1.c1, c2: b0.c2 };
-        let C1 = (a0 + a1).u_mul(b0_plus_b1) - U - V;
+        let C1 = C1 - (U + V);
+
         Fq12 { //
          c0: C0.to_fq(field_nz), //
          c1: C1.to_fq(field_nz), //

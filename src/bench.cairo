@@ -34,11 +34,13 @@
 // test bn::bench::fq12::xp_t ... ok (gas usage est.: 163091970)
 // test bn::bench::fq12::z_esy ... ok (gas usage est.: 15862820)
 // test bn::bench::fq12::z_hrd ... ok (gas usage est.: 540241830)
+// test bn::bench::sprs::l1f_l2f ... ok (gas usage est.: 4414980)
+// test bn::bench::sprs::l1l2_f ... ok (gas usage est.: 4423410)
 // test bn::bench::sprs::s01_01 ... ok (gas usage est.: 802270)
 // test bn::bench::sprs::s01_fq6 ... ok (gas usage est.: 811210)
 // test bn::bench::sprs::s034_034 ... ok (gas usage est.: 651640)
 // test bn::bench::sprs::s034_fq12 ... ok (gas usage est.: 2208740)
-// test bn::bench::sprs::s01234_fq12 ... ok (gas usage est.: 3778870)
+// test bn::bench::sprs::s01234_fq12 ... ok (gas usage est.: 3776570)
 // test bn::bench::u512::add ... ok (gas usage est.: 7490)
 // test bn::bench::u512::add_bn ... ok (gas usage est.: 15390)
 // test bn::bench::u512::fq_add ... ok (gas usage est.: 5480)
@@ -375,6 +377,7 @@ mod fq12 {
 }
 
 mod sprs {
+    use bn::fields::fq_sparse::FqSparseTrait;
     use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Exponentiation,};
     use bn::curve::{FIELD, u512,};
     use bn::fields::{sparse_fq6, FqSparse, Fq6Sparse01, Fq12Sparse034, Fq12Sparse01234};
@@ -417,7 +420,6 @@ mod sprs {
     fn a() -> Fq12Sparse034 {
         Fq12Sparse034 {
             c3: fq2(
-                //30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
                 0x2e3a5a8e0529c430c27e3673b9519767e265dcbcde8fea81cdd820918c4bd107,
                 0xe6c5e3ec8c33c105e56e0ff3969bd92b2c4f6b05be655dcf21238f80c72030f
             ),
@@ -482,6 +484,26 @@ mod sprs {
     fn s01234_fq12() {
         let field_nz = FIELD.try_into().unwrap();
         a_12().mul_01234(a_sparse_01234(), field_nz);
+    }
+
+    #[test]
+    #[available_gas(200000000)]
+    fn l1l2_f() {
+        let field_nz = FIELD.try_into().unwrap();
+        let f = a_12();
+        let l1 = a();
+        let l2 = b();
+        f.mul_01234(l1.mul_034_by_034(l2, field_nz), field_nz);
+    }
+
+    #[test]
+    #[available_gas(200000000)]
+    fn l1f_l2f() {
+        let field_nz = FIELD.try_into().unwrap();
+        let f = a_12();
+        let l1 = a();
+        let l2 = b();
+        f.mul_034(l1, field_nz).mul_034(l2, field_nz);
     }
 }
 
