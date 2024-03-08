@@ -1,7 +1,9 @@
+use bn::traits::FieldMulShortcuts;
+use bn::fields::fq_sparse::FqSparseTrait;
 use bn::traits::{FieldOps, FieldUtils};
 use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Exponentiation,};
 use bn::curve::{FIELD, u512,};
-use bn::fields::{FqSparse, Fq12Sparse034, Fq12Sparse01234};
+use bn::fields::{FqSparse, Fq6Sparse01, Fq12Sparse034, Fq12Sparse01234, sparse_fq6};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq12Display, Fq2Display};
 use debug::PrintTrait;
@@ -19,6 +21,10 @@ const N8: u256 = 0x122268beeda258f397785a4150e7557a7621ee6162d05a27ace4f719f6b0c
 const N9: u256 = 0x30190d0f16d7222c83db31cd4bff91a51d2b1991b7a177459a06d4e50cae2448;
 const N10: u256 = 0xee6ccfeef156e1a3f34f7b5629b518389bc49197bacf5aa1c438139fd24df10;
 const N11: u256 = 0x270c8d4ba7c1f3e200ab9a1123a1ecb1cd6b8cd2c8c92601210007b6759f7351;
+
+fn a_12() -> Fq12 {
+    fq12(N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11,)
+}
 
 // Sparse 034 element contains only c3 and c4 Fq2s (c0 is 1)
 // Equivalent to,
@@ -42,11 +48,29 @@ fn set_b() -> (Fq12, Fq12Sparse034) {
 
 #[test]
 #[available_gas(200000000)]
-fn mul_034_034() {
+fn fq6_mul_01() {
+    let field_nz = FIELD.try_into().unwrap();
+    let (Fq12 { c0: _, c1: a }, a_s) = set_a();
+    let a_s = sparse_fq6(a_s.c3, a_s.c4);
+    let Fq12 { c0: b, c1: _ } = a_12();
+    let c = a * b;
+    let c_s: Fq6 = b.u_mul_01(a_s, field_nz).to_fq(field_nz);
+    // for c0 to c4
+    // println!("{}", c);
+    // println!("{}{}{}{}{}", c_s.c0, c_s.c1, c_s.c2, c_s.c3, c_s.c4);
+    assert(c.c0 == c_s.c0, 'mul034034 c0 failed');
+    assert(c.c1 == c_s.c1, 'mul034034 c1 failed');
+    assert(c.c2 == c_s.c2, 'mul034034 c2 failed');
+}
+
+#[test]
+#[available_gas(200000000)]
+fn s034_mul_034() {
+    let field_nz = FIELD.try_into().unwrap();
     let (a, a_s) = set_a();
     let (b, b_s) = set_b();
     let c = a * b;
-    let c_s = a_s.mul_034_by_034(b_s);
+    let c_s = a_s.mul_034_by_034(b_s, field_nz);
     // for c0 to c4
     // println!("{}", c);
     // println!("{}{}{}{}{}", c_s.c0, c_s.c1, c_s.c2, c_s.c3, c_s.c4);

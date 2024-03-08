@@ -372,7 +372,7 @@ mod fq12 {
 mod sprs {
     use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Exponentiation,};
     use bn::curve::{FIELD, u512,};
-    use bn::fields::{Fq12Sparse, Fq12Sparse034, Fq12Sparse01234};
+    use bn::fields::{sparse_fq6, FqSparse, Fq6Sparse01, Fq12Sparse034, Fq12Sparse01234};
 
     fn a_12() -> Fq12 {
         fq12(
@@ -417,6 +417,18 @@ mod sprs {
         }
     }
 
+    // #[test]
+    // #[available_gas(20000000)]
+    // fn mul_01_01() {
+    //     // let field_nz = FIELD.try_into().unwrap();
+    //     // let a = a();
+    //     // let a = sparse_fq6(a.c3, a.c4);
+    //     // let Fq12 { c0: b, c1: _ } = a_12();
+    //     // b.u_mul_01(a, field_nz);
+    // }
+    fn fq6_mul_01() {
+        let field_nz = FIELD.try_into().unwrap();
+        let a = a();
     #[test]
     #[available_gas(20000000)]
     fn mul_034_034() {
