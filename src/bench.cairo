@@ -36,7 +36,7 @@
 // test bn::bench::fq12::z_hrd ... ok (gas usage est.: 540241830)
 // test bn::bench::sprs::l1f_l2f ... ok (gas usage est.: 4414980)
 // test bn::bench::sprs::l1l2_f ... ok (gas usage est.: 4423410)
-// test bn::bench::sprs::s01_01 ... ok (gas usage est.: 802270)
+// test bn::bench::sprs::s01_01 ... ok (gas usage est.: 382270)
 // test bn::bench::sprs::s01_fq6 ... ok (gas usage est.: 811210)
 // test bn::bench::sprs::s034_034 ... ok (gas usage est.: 651640)
 // test bn::bench::sprs::s034_fq12 ... ok (gas usage est.: 2208740)

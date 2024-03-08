@@ -107,13 +107,18 @@ impl FqSparse of FqSparseTrait {
         let (V0, V1,) = (a0.u_mul(b0), a1.u_mul(b1),);
 
         // c0 = v0 + ξ((a1 + a2)(b1 + b2) - v1 - v2)
-        let C0 = V0 + mul_by_xi_nz(a1.u_mul(b1) - V1, field_nz);
+        // c0 = v0 + ξ((a1b1) - v1 - v2)
+        // c0 = v0 + ξ(v1 - v1 - v2)
+        // c0 = v0, v2 is 0
+
         // c1 =(a0 + a1)(b0 + b1) - v0 - v1 + ξv2
         let C1 = a0.u_add(a1).u_mul(b0.u_add(b1)) - V0 - V1;
         // c2 = (a0 + a2)(b0 + b2) - v0 + v1 - v2,
-        let C2 = a0.u_mul(b0) - V0 + V1;
+        // c2 = a0b0 - v0 + v1 - v2,
+        // c2 = v0 - v0 + v1 - v2,
+        // c2 = v1, v2 is 0
 
-        (C0, C1, C2)
+        (V0, C1, V1)
     }
 
     //////////////////////////////////////////////////////////////
@@ -171,7 +176,7 @@ impl FqSparse of FqSparseTrait {
         // b := e.MulBy01(&z.C1, c3, c4)
         let B = a1.u_mul_01(sparse_fq6(c3, c4), field_nz);
         // c3 = e.Ext2.Add(e.Ext2.One(), c3)
-        c3.c0.c0 += 1;
+        c3.c0.c0 = c3.c0.c0 + 1; // POTENTIAL OVERFLOW
         // d := e.Ext6.Add(&z.C0, &z.C1)
         let d = a0 + a1; // Requires reduction, or overflow in next step
         // d = e.MulBy01(d, c3, c4)
