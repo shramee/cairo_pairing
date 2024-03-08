@@ -430,15 +430,16 @@ mod sprs {
         }
     }
 
-    // #[test]
-    // #[available_gas(20000000)]
-    // fn mul_01_01() {
-    //     // let field_nz = FIELD.try_into().unwrap();
-    //     // let a = a();
-    //     // let a = sparse_fq6(a.c3, a.c4);
-    //     // let Fq12 { c0: b, c1: _ } = a_12();
-    //     // b.u_mul_01(a, field_nz);
-    // }
+    #[test]
+    #[available_gas(20000000)]
+    fn mul_01_01() {
+        let field_nz = FIELD.try_into().unwrap();
+        let a = a();
+        let a = sparse_fq6(a.c3, a.c4);
+        let b = b();
+        let b = sparse_fq6(b.c3, b.c4);
+        b.mul_01_by_01(a, field_nz);
+    }
 
     #[test]
     #[available_gas(20000000)]

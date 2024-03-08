@@ -171,7 +171,7 @@ impl FqSparse of FqSparseTrait {
         // c3 = e.Ext2.Add(e.Ext2.One(), c3)
         c3.c0.c0 += 1;
         // d := e.Ext6.Add(&z.C0, &z.C1)
-        let d = a0.u_add(a1);
+        let d = a0 + a1; // Requires reduction, or overflow in next step
         // d = e.MulBy01(d, c3, c4)
         let D = d.u_mul_01(sparse_fq6(c3, c4), field_nz);
 
