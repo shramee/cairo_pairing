@@ -60,6 +60,12 @@ fn set_b() -> (Fq12, Fq12Sparse034) {
     )
 }
 
+fn set_01234() -> (Fq12, Fq12Sparse01234) {
+    let a = fq12(N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, 0, 0);
+    let Fq12 { c0: Fq6 { c0, c1, c2 }, c1: Fq6 { c0: c3, c1: c4, c2: _ } } = a;
+    (a, Fq12Sparse01234 { c0, c1, c2, c3, c4 })
+}
+
 #[test]
 #[available_gas(200000000)]
 fn s01_mul_01() {
@@ -124,4 +130,17 @@ fn fq12_mul_034() {
     assert(c.c1.c0 == c_s.c1.c0, 'mul034034 c1.c0 failed');
     assert(c.c1.c1 == c_s.c1.c1, 'mul034034 c1.c1 failed');
     assert(c.c1.c2 == c_s.c1.c2, 'mul034034 c1.c2 failed');
+}
+
+#[test]
+#[available_gas(200000000)]
+fn fq12_mul_01234() {
+    let field_nz = FIELD.try_into().unwrap();
+    let a = a_12();
+    let (b, b_s) = set_01234();
+    let c = a * b;
+    let c_s = a.mul_01234(b_s, field_nz);
+    // println!("a * b: {}", c);
+    // println!("a * b_s: {}", c_s);
+    assert(c == c_s, 'mul01234 incorrect');
 }
