@@ -23,7 +23,21 @@ const N10: u256 = 0xee6ccfeef156e1a3f34f7b5629b518389bc49197bacf5aa1c438139fd24d
 const N11: u256 = 0x270c8d4ba7c1f3e200ab9a1123a1ecb1cd6b8cd2c8c92601210007b6759f7351;
 
 fn a_12() -> Fq12 {
-    fq12(N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11,)
+    fq12(
+        //30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
+        0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
+        0x13b8616ce25df6105d793af41913a57b0ab221b193d48107e89204e19568411f,
+        0x1c8ab87de856aafdfb56d051cd79517ae10b4490cc01bd75b347a669d58698da,
+        0x2e7918e3f3702ec1f031bcd571b3c23730ab030a0e7a875c6f99f4536ab3f0bb,
+        0x21f3d1e320a26684b45a7f73a82bbcdabcee7b6b7f1b1073985de6d4f3867bcd,
+        0x2cbf9b28de156b9f479d3a97a216b566d98f9b976f25a5ca31fbab41d9de224d,
+        0x2da44e38ec26bde1ad31495943114856dd885beb7889c590079bb300bb6ec023,
+        0x1c40f4619c21dbd91ba610a8943188e35402e587a071361f60288e7e96fa33b,
+        0x9ebfb41a99f28109afed1112aab3c8ab4ff6dd90097e880669c960f11106b52,
+        0x2d0c275838257edb77665b9aafbbd40626b6a35fe12b4ccacee5613bf3408fc2,
+        0x289d6d934bc5994e10f4dc4bfe3a5ac9cddfce66ee76df1e751b064bfdb5533d,
+        0x1e18e64906693e6f4c9cd40273060c504a78843d903489abb13377666679d33f,
+    )
 }
 
 // Sparse 034 element contains only c3 and c4 Fq2s (c0 is 1)
@@ -44,6 +58,19 @@ fn set_b() -> (Fq12, Fq12Sparse034) {
         fq12(1, 0, 0, 0, 0, 0, N4, N5, N6, N7, 0, 0),
         Fq12Sparse034 { c3: fq2(N4, N5), c4: fq2(N6, N7), }
     )
+}
+
+#[test]
+#[available_gas(200000000)]
+fn s01_mul_01() {
+    let field_nz = FIELD.try_into().unwrap();
+    let (Fq12 { c0: _, c1: a }, a_s) = set_a();
+    let a_s = sparse_fq6(a_s.c3, a_s.c4);
+    let (Fq12 { c0: _, c1: b }, b_s) = set_b();
+    let _b_s = sparse_fq6(b_s.c3, b_s.c4);
+    let c = a * b;
+    let c_s: Fq6 = b.u_mul_01(a_s, field_nz).to_fq(field_nz);
+    assert(c == c_s, 'mul0101 incorrect failed');
 }
 
 #[test]
@@ -80,7 +107,6 @@ fn s034_mul_034() {
     assert(c.c1.c0 == c_s.c3, 'mul034034 c3 failed');
     assert(c.c1.c1 == c_s.c4, 'mul034034 c4 failed');
 }
-
 
 #[test]
 #[available_gas(200000000)]

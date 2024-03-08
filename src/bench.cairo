@@ -387,6 +387,7 @@ mod sprs {
 
     fn a_12() -> Fq12 {
         fq12(
+            //30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
             0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
             0x13b8616ce25df6105d793af41913a57b0ab221b193d48107e89204e19568411f,
             0x1c8ab87de856aafdfb56d051cd79517ae10b4490cc01bd75b347a669d58698da,
@@ -405,6 +406,7 @@ mod sprs {
     fn a() -> Fq12Sparse034 {
         Fq12Sparse034 {
             c3: fq2(
+                //30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
                 0x2e3a5a8e0529c430c27e3673b9519767e265dcbcde8fea81cdd820918c4bd107,
                 0xe6c5e3ec8c33c105e56e0ff3969bd92b2c4f6b05be655dcf21238f80c72030f
             ),
