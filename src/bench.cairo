@@ -374,6 +374,17 @@ mod sprs {
     use bn::curve::{FIELD, u512,};
     use bn::fields::{sparse_fq6, FqSparse, Fq6Sparse01, Fq12Sparse034, Fq12Sparse01234};
 
+    fn a_6() -> Fq6 {
+        fq6(
+            0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
+            0x13b8616ce25df6105d793af41913a57b0ab221b193d48107e89204e19568411f,
+            0x1c8ab87de856aafdfb56d051cd79517ae10b4490cc01bd75b347a669d58698da,
+            0x2e7918e3f3702ec1f031bcd571b3c23730ab030a0e7a875c6f99f4536ab3f0bb,
+            0x21f3d1e320a26684b45a7f73a82bbcdabcee7b6b7f1b1073985de6d4f3867bcd,
+            0x2cbf9b28de156b9f479d3a97a216b566d98f9b976f25a5ca31fbab41d9de224d,
+        )
+    }
+
     fn a_12() -> Fq12 {
         fq12(
             0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
@@ -426,13 +437,30 @@ mod sprs {
     //     // let Fq12 { c0: b, c1: _ } = a_12();
     //     // b.u_mul_01(a, field_nz);
     // }
+
+    #[test]
+    #[available_gas(20000000)]
     fn fq6_mul_01() {
         let field_nz = FIELD.try_into().unwrap();
         let a = a();
+        let a = sparse_fq6(a.c3, a.c4);
+        let b = a_6();
+        b.u_mul_01(a, field_nz);
+    }
+
     #[test]
     #[available_gas(20000000)]
     fn mul_034_034() {
-        a().mul_034_by_034(b());
+        let field_nz = FIELD.try_into().unwrap();
+        a().mul_034_by_034(b(), field_nz);
+    }
+
+    #[test]
+    #[available_gas(20000000)]
+    fn fq12_mul_034() {
+        let field_nz = FIELD.try_into().unwrap();
+        let a = a_12();
+        a.mul_034(b(), field_nz);
     }
 // #[test]
 // #[available_gas(20000000)]

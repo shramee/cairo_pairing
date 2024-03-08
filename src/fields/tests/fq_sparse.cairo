@@ -80,3 +80,22 @@ fn s034_mul_034() {
     assert(c.c1.c0 == c_s.c3, 'mul034034 c3 failed');
     assert(c.c1.c1 == c_s.c4, 'mul034034 c4 failed');
 }
+
+
+#[test]
+#[available_gas(200000000)]
+fn fq12_mul_034() {
+    let field_nz = FIELD.try_into().unwrap();
+    let a = a_12();
+    let (b, b_s) = set_b();
+    let c = a * b;
+    let c_s = a.mul_034(b_s, field_nz);
+    // for c0 to c4
+    // println!("{}", c);
+    assert(c.c0.c0 == c_s.c0.c0, 'mul034034 c0.c0 failed');
+    assert(c.c0.c1 == c_s.c0.c1, 'mul034034 c0.c1 failed');
+    assert(c.c0.c2 == c_s.c0.c2, 'mul034034 c0.c2 failed');
+    assert(c.c1.c0 == c_s.c1.c0, 'mul034034 c1.c0 failed');
+    assert(c.c1.c1 == c_s.c1.c1, 'mul034034 c1.c1 failed');
+    assert(c.c1.c2 == c_s.c1.c2, 'mul034034 c1.c2 failed');
+}
