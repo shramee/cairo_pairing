@@ -60,6 +60,40 @@ struct Fq12Sparse01234 {
 // }
 #[generate_trait]
 impl FqSparse of FqSparseTrait {
+    //////////////////////////////////////////////////////////////
+    /////////////////////// Fq6 sparse ///////////////////////////
+    //////////////////////////////////////////////////////////////
+    // These methods are used internally and work with Fq6Sparse01
+
+    // Mul Fq6 with a sparse Fq6 01 derived from a sparse 034 Fq12
+    // Same as Fq6 u_mul but with b2 as zero (and associated ops removed)
+    #[inline(always)]
+    fn u_mul_01(self: Fq6, rhs: Fq6Sparse01, field_nz: NonZero<u256>) -> SixU512 {
+        core::internal::revoke_ap_tracking();
+        // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v) ∈ Fp6
+        // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
+        let Fq6 { c0: a0, c1: a1, c2: a2 } = self;
+        let Fq6Sparse01 { c0: b0, c1: b1, } = rhs;
+
+        // b2 is zero so all ops associated ar removed
+
+        // v0 = a0b0, v1 = a1b1, v2 = a2b2
+        let (V0, V1,) = (a0.u_mul(b0), a1.u_mul(b1),);
+
+        // c0 = v0 + ξ((a1 + a2)(b1 + b2) - v1 - v2)
+        let C0 = V0 + mul_by_xi_nz(a1.u_add(a2).u_mul(b1) - V1, field_nz);
+        // c1 =(a0 + a1)(b0 + b1) - v0 - v1 + ξv2
+        let C1 = a0.u_add(a1).u_mul(b0.u_add(b1)) - V0 - V1;
+        // c2 = (a0 + a2)(b0 + b2) - v0 + v1 - v2,
+        let C2 = a0.u_add(a2).u_mul(b0) - V0 + V1;
+
+        (C0, C1, C2)
+    }
+
+    //////////////////////////////////////////////////////////////
+    /////////////////////// Fq12 sparse //////////////////////////
+    //////////////////////////////////////////////////////////////
+
     // Mul a sparse 034 Fq12 by another 034 Fq12 resulting in a sparse 01234
     // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/fields_bn254/e12_pairing.go#L150
     #[inline(always)]
@@ -100,32 +134,6 @@ impl FqSparse of FqSparseTrait {
             c0: zC0B0, c1: X3.to_fq(field_nz), c2: X34.to_fq(field_nz), c3: x03, c4: x04,
         }
     }
-
-    // Mul Fq6 with a sparse Fq6 01 derived from a sparse 034 Fq12
-    // Same as Fq6 u_mul but with b2 as zero (and associated ops removed)
-    #[inline(always)]
-    fn u_mul_01(self: Fq6, rhs: Fq6Sparse01, field_nz: NonZero<u256>) -> SixU512 {
-        core::internal::revoke_ap_tracking();
-        // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v) ∈ Fp6
-        // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
-        let Fq6 { c0: a0, c1: a1, c2: a2 } = self;
-        let Fq6Sparse01 { c0: b0, c1: b1, } = rhs;
-
-        // b2 is zero so all ops associated ar removed
-
-        // v0 = a0b0, v1 = a1b1, v2 = a2b2
-        let (V0, V1,) = (a0.u_mul(b0), a1.u_mul(b1),);
-
-        // c0 = v0 + ξ((a1 + a2)(b1 + b2) - v1 - v2)
-        let C0 = V0 + mul_by_xi_nz(a1.u_add(a2).u_mul(b1) - V1, field_nz);
-        // c1 =(a0 + a1)(b0 + b1) - v0 - v1 + ξv2
-        let C1 = a0.u_add(a1).u_mul(b0.u_add(b1)) - V0 - V1;
-        // c2 = (a0 + a2)(b0 + b2) - v0 + v1 - v2,
-        let C2 = a0.u_add(a2).u_mul(b0) - V0 + V1;
-
-        (C0, C1, C2)
-    }
-
 
     // Mul Fq12 with a sparse 034 Fq12
     // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/fields_bn254/e12_pairing.go#L116
