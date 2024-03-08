@@ -7,13 +7,13 @@ mod math {
 mod traits;
 mod fields {
     mod fq_generics;
+    mod fq_sparse;
     mod fq_1;
     mod fq_2;
     mod fq_6;
     mod fq_12;
     mod fq_12_squaring;
     mod fq_12_exponentiation;
-    mod fq_12_sparse;
     mod frobenius;
     mod print;
 
@@ -24,7 +24,7 @@ mod fields {
     // mod fq6;
     // mod fq12;
     // mod fq12_expo;
-    // mod fq12_sparse;
+    // mod fq_sparse;
     // mod u512;
     // mod frobenius;
     }
@@ -34,7 +34,7 @@ mod fields {
     use fq_6::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6, Fq6Frobenius};
     use fq_12::{Fq12, Fq12Ops, Fq12Utils, fq12, Fq12Frobenius};
     use fq_12_exponentiation::Fq12Exponentiation;
-    use fq_12_sparse::{Fq12Sparse, Fq12Sparse034, Fq12Sparse01234};
+    use fq_sparse::{FqSparse, Fq12Sparse034, Fq12Sparse01234};
     use fq_12_squaring::{Fq12Squaring, Krbn2345};
     use bn::traits::{FieldOps, FieldUtils};
 }

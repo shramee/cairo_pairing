@@ -34,7 +34,7 @@ struct Fq12Sparse01234 {
 }
 
 #[generate_trait]
-impl Fq12Sparse of Fq12SparseTrait {
+impl FqSparse of FqSparseTrait {
     // Sparse Fp12 element containing only c3 and c4 Fq2s (c0 is 1)
     // Equivalent to,
     // Fq12{
