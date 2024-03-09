@@ -134,23 +134,22 @@ impl FqSparse of FqSparseTrait {
         let Fq12Sparse034 { c3: c3, c4: c4 } = self;
         let Fq12Sparse034 { c3: d3, c4: d4 } = rhs;
         // x3 = c3 * d3
-        let X3 = c3.u_mul(d3);
+        let C3D3 = c3.u_mul(d3);
         // x4 = c4 * d4
-        let X4 = c4.u_mul(d4);
+        let C4D4 = c4.u_mul(d4);
         // x04 = c4 + d4
         let x04 = c4 + d4;
         // x03 = c3 + d3
         let x03 = c3 + d3;
         // tmp = c3 + c4
-        let tmp = c3.u_add(c4);
         // x34 = d3 + d4
-        let x34 = d3.u_add(d4);
         // x34 = x34 * tmp
-        let X34 = x34.u_mul(tmp);
+        let X34 = d3.u_add(d4).u_mul(c3.u_add(c4));
         // x34 = x34 - x3
-        let X34 = X34 - X3;
+        let (X34_0, X34_1) = X34.u_sub(C3D3);
+        let (C4D4_0, C4D4_1) = C4D4;
         // x34 = x34 - x4
-        let X34 = X34 - X4;
+        let X34 = (X34_0 - C4D4_0, u512_sub(X34_1, C4D4_1));
 
         // zC0B0 = ξx4
         // zC0B0 = zC0B0 + 1
@@ -159,10 +158,10 @@ impl FqSparse of FqSparseTrait {
         // zC1B0 = x03
         // zC1B1 = x04
 
-        let mut zC0B0: Fq2 = X4.to_fq(field_nz).mul_by_nonresidue();
+        let mut zC0B0: Fq2 = C4D4.to_fq(field_nz).mul_by_nonresidue();
         zC0B0.c0.c0 = zC0B0.c0.c0 + 1; // POTENTIAL OVERFLOW
         Fq12Sparse01234 {
-            c0: zC0B0, c1: X3.to_fq(field_nz), c2: X34.to_fq(field_nz), c3: x03, c4: x04,
+            c0: zC0B0, c1: C3D3.to_fq(field_nz), c2: X34.to_fq(field_nz), c3: x03, c4: x04,
         }
     }
 
