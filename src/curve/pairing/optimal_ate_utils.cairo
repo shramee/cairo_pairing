@@ -75,20 +75,30 @@ impl SinglePairMiller of MillerEngine<Pair, PreCompute, PtG2, Fq12> {
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
-// computes acc = acc + q + acc and line eval for p
+// computes acc = acc + q + acc and line evals for p
 // returns product of line evaluations to multiply with f
-fn step_double_and_add(ref acc: PtG2, precomp: @PreCompute, q: PtG2, p: PtG1) -> Fq12Sparse01234 {
-    // acc + q
-    // acc = acc + (acc + q)
-    // line function
+#[inline(always)]
+fn step_dbl_add(
+    ref acc: PtG2, precomp: @PreCompute, q: PtG2, p: PtG1
+) -> (Fq12Sparse034, Fq12Sparse034) {
     let s = acc;
-    Fq12Sparse01234 {
-        c0: FieldUtils::one(),
-        c1: FieldUtils::one(),
-        c2: FieldUtils::one(),
-        c3: FieldUtils::one(),
-        c4: FieldUtils::one()
-    }
+    // s + q
+    let slope1 = s.chord(q);
+    let x1 = s.x_on_slope(slope1, q.x);
+    let line1 = Fq12Sparse034 {
+        c3: slope1.scale(*precomp.p.x_over_y), c4: (slope1 * s.x - s.y).scale(*precomp.p.y_inv),
+    };
+    // we skip y1 calculation and sub slope1 directly in second slope calculation
+
+    // s + (s + q)
+    let slope2 = -slope1 - (s.y.u_add(s.y)) / (x1 - s.x);
+    acc = s.pt_on_slope(slope2, x1);
+    let line2 = Fq12Sparse034 {
+        c3: slope2.scale(*precomp.p.x_over_y), c4: (slope2 * s.x - s.y).scale(*precomp.p.y_inv),
+    };
+
+    // line functions
+    (line1, line2)
 }
 
 
