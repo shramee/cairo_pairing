@@ -86,8 +86,15 @@ impl FqSparse of FqSparseTrait {
         let C0 = V0 + mul_by_xi_nz(a1.u_add(a2).u_mul(b1) - V1, field_nz);
         // c1 =(a0 + a1)(b0 + b1) - v0 - v1 + ξv2
         let C1 = a0.u_add(a1).u_mul(b0.u_add(b1)) - V0 - V1;
+
+        // https://eprint.iacr.org/2006/471.pdf Sec 4
+        // Karatsuba:
         // c2 = (a0 + a2)(b0 + b2) - v0 + v1 - v2,
-        let C2 = a0.u_add(a2).u_mul(b0) - V0 + V1;
+        // c2 = (a0 + a2)(b0) - v0 + v1 - v2, b2 = 0
+        // Schoolbook will be faster than Karatsuba for this,
+        // c2 = a0b2 + a1b1 + a2b0,
+        // c2 = V1 + a2b0 ∵ b2 = 0, V1 = a1b1
+        let C2 = a2.u_mul(b0) + V1;
 
         (C0, C1, C2)
     }
