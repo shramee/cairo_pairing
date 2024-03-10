@@ -74,6 +74,12 @@ impl SinglePairMiller of MillerEngine<Pair, PreCompute, PtG2, Fq12> {
     }
 }
 
+fn step_dbl_add_to_f(ref acc: PtG2, ref f: Fq12, precomp: @PreCompute, q: PtG2, p: PtG1) {
+    let (l1, l2) = step_dbl_add(ref acc, precomp, q, p);
+    f = f.mul_034(l1, *precomp.field_nz);
+    f = f.mul_034(l2, *precomp.field_nz);
+}
+
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
 // computes acc = acc + q + acc and line evals for p
 // returns product of line evaluations to multiply with f
@@ -101,10 +107,14 @@ fn step_dbl_add(
     (line1, line2)
 }
 
+fn step_double_to_f(ref acc: PtG2, ref f: Fq12, precomp: @PreCompute, p: PtG1) {
+    f = f.mul_034(step_double(ref acc, precomp, p), *precomp.field_nz);
+}
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
 // computes acc = 2 * acc and line eval for p
 // returns line evaluation to multiply with f
+#[inline(always)]
 fn step_double(ref acc: PtG2, precomp: @PreCompute, p: PtG1) -> Fq12Sparse034 {
     // acc + q
     // acc = acc + (acc + q)
