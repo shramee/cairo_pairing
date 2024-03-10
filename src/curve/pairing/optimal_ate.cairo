@@ -1,13 +1,12 @@
 use core::debug::PrintTrait;
 use bn::traits::MillerEngine as MillEng;
 use bn::fields::{Fq12, Fq12Utils, Fq12Exponentiation};
-use bn::curve::groups;
+use bn::curve::{groups, pairing::optimal_ate_utils};
 use groups::{g1, g2, ECGroup};
 use groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::curve::{six_t_plus_2_naf_rev_trimmed, FIELD};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
-use print::{FqPrintImpl, Fq2PrintImpl, Fq12PrintImpl};
-use bn::curve::pairing::miller_utils::{LineEvaluationsTrait};
+use optimal_ate_utils::SinglePairMiller;
 
 // Pairing Implementation Revisited - Michael Scott
 //
@@ -47,7 +46,7 @@ fn ate_miller_loop<
     let field_nz = FIELD.try_into().unwrap();
 
     let (pre_compute, mut q_acc) = pairs.precompute_and_acc(field_nz);
-    let mut f = Fq12Utils::one();
+    let mut f = pairs.miller_first_second(@pre_compute, ref q_acc);
     let mut array_items = six_t_plus_2_naf_rev_trimmed();
 
     loop {
@@ -58,12 +57,12 @@ fn ate_miller_loop<
                 f = f.sqr();
                 if b1 {
                     if b2 {
-                        pairs.miller_bit_p(@pre_compute, ref q_acc, ref f, field_nz);
+                        pairs.miller_bit_p(@pre_compute, ref q_acc, ref f);
                     } else {
-                        pairs.miller_bit_n(@pre_compute, ref q_acc, ref f, field_nz);
+                        pairs.miller_bit_n(@pre_compute, ref q_acc, ref f);
                     }
                 } else {
-                    pairs.miller_bit_o(@pre_compute, ref q_acc, ref f, field_nz);
+                    pairs.miller_bit_o(@pre_compute, ref q_acc, ref f);
                 }
             //
             },
@@ -73,10 +72,14 @@ fn ate_miller_loop<
     f
 }
 
-fn pairing<
+fn ate_pairing<
     TPair, TG2, TPreC, +MillEng<TPair, TPreC, TG2, Fq12>, +Drop<TPair>, +Drop<TG2>, +Drop<TPreC>
 >(
     pairs: TPair
 ) -> Fq12 {
+    ate_miller_loop(pairs).final_exponentiation()
+}
+
+fn single_ate_pairing(pairs: (AffineG1, AffineG2)) -> Fq12 {
     ate_miller_loop(pairs).final_exponentiation()
 }
