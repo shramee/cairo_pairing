@@ -71,7 +71,7 @@ impl AffineOps<
         // But BN curve has a == 0 so that's one less addition
         // λ = 3x^2 / 2y
         let x_2 = x.sqr();
-        x_2.u_add(x_2).u_add(x_2) / y.u_add(y)
+        (x_2 + x_2 + x_2) / y.u_add(y)
     }
 
     #[inline(always)]
