@@ -106,41 +106,44 @@ fn t_naf() -> Array<(bool, bool)> {
 }
 
 #[inline(always)]
-fn six_t_plus_2_naf_rev_first_part() -> (bool, bool) {
+fn six_t_plus_2_naf_rev_first_part() -> ((bool, bool), (bool, bool)) {
     let P = (true, true);
-    P
+    let O = (false, false);
+    (P, O)
 }
 
 #[inline(always)]
 fn six_t_plus_2_naf_rev_trimmed() -> Array<(bool, bool)> {
     // sixuPlus2NAF is 6u+2 in non-adjacent form, reversed and first element removed.
     // NAF form,
-    // O,O,O,P,O,P,O,N,O,O,P,N,O,O,P,O,O,P,P,O,N,O,O,P,O,N,O,O,O,O,P,P,P,O,O,N,O,O,P,O,O,O,O,O,N,O,O,P,P,O,O,N,O,O,O,P,P,O,N,O,O,P,O,P,P
-    // Reversed,
-    // P,P,O,P,O,O,N,O,P,P,O,O,O,N,O,O,P,P,O,O,N,O,O,O,O,O,P,O,O,N,O,O,P,P,P,O,O,O,O,N,O,P,O,O,N,O,P,P,O,O,P,O,O,N,P,O,O,N,O,P,O,P,O,O,O
+    // PONOPOOONONOOONOPONOONOOOOOPOONOPOONOOOONOPOOONONOOPOOONOONOPOPOOO
+    // P,O,N,O,P,O,O,O,N,O,N,O,O,O,N,O,P,O,N,O,O,N,O,O,O,O,O,P,O,O,N,O,P,O,O,N,O,O,O,O,N,O,P,O,O,O,N,O,N,O,O,P,O,O,O,N,O,O,N,O,P,O,P,O,O,O
+
     let O = (false, false);
     let P = (true, true);
     let N = (true, false);
     array![
         // in six_t_plus_2_naf_rev_first_part()
+        // First one is skipped by default, second and third handled outside the loop
         // P,
-        P,
+        // O,
+        // N,
         O,
-        P,
-        O,
-        O,
-        N,
-        O,
-        P,
         P,
         O,
         O,
         O,
         N,
         O,
+        N,
+        O,
+        O,
+        O,
+        N,
         O,
         P,
-        P,
+        O,
+        N,
         O,
         O,
         N,
@@ -150,16 +153,6 @@ fn six_t_plus_2_naf_rev_trimmed() -> Array<(bool, bool)> {
         O,
         O,
         P,
-        O,
-        O,
-        N,
-        O,
-        O,
-        P,
-        P,
-        P,
-        O,
-        O,
         O,
         O,
         N,
@@ -169,24 +162,34 @@ fn six_t_plus_2_naf_rev_trimmed() -> Array<(bool, bool)> {
         O,
         N,
         O,
-        P,
-        P,
         O,
-        O,
-        P,
-        O,
-        O,
-        N,
-        P,
         O,
         O,
         N,
         O,
         P,
         O,
+        O,
+        O,
+        N,
+        O,
+        N,
+        O,
+        O,
         P,
         O,
         O,
         O,
+        N,
+        O,
+        O,
+        N,
+        O,
+        P,
+        O,
+        P,
+        O,
+        O,
+        O
     ]
 }
