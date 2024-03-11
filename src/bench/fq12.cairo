@@ -3,6 +3,7 @@ use integer::u512;
 use bn::fields::{fq12, fq6, Fq12, Fq12Exponentiation, Fq12Squaring, print::Fq12Display};
 use bn::curve::FIELD;
 
+#[inline(always)]
 fn a() -> Fq12 {
     fq12(
         0x1da92e958487e1515456e89aa06f4b08040231ec5492a3873c0e5a51743b93ae,
