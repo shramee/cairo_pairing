@@ -42,4 +42,6 @@ trait MillerEngine<TPairs, TPreComp, TTempR, TFq> {
     fn miller_bit_p(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
     // -1 bit
     fn miller_bit_n(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
+    // last step
+    fn miller_last(self: @TPairs, pre_comp: @TPreComp, ref acc: TTempR, ref f: TFq);
 }

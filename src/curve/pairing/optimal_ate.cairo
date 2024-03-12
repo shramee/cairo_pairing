@@ -45,8 +45,10 @@ fn ate_miller_loop<
     core::internal::revoke_ap_tracking();
     let field_nz = FIELD.try_into().unwrap();
 
-    let (pre_compute, mut q_acc) = pairs.precompute_and_acc(field_nz);
-    let mut f = pairs.miller_first_second(@pre_compute, ref q_acc);
+    let pairs_snap = @pairs;
+    let (pre_compute, mut q_acc) = pairs_snap.precompute_and_acc(field_nz);
+    let pre_comp_snap = @pre_compute;
+    let mut f = pairs_snap.miller_first_second(pre_comp_snap, ref q_acc);
     let mut array_items = six_t_plus_2_naf_rev_trimmed();
 
     loop {
@@ -57,18 +59,19 @@ fn ate_miller_loop<
                 f = f.sqr();
                 if b1 {
                     if b2 {
-                        pairs.miller_bit_p(@pre_compute, ref q_acc, ref f);
+                        pairs_snap.miller_bit_p(pre_comp_snap, ref q_acc, ref f);
                     } else {
-                        pairs.miller_bit_n(@pre_compute, ref q_acc, ref f);
+                        pairs_snap.miller_bit_n(pre_comp_snap, ref q_acc, ref f);
                     }
                 } else {
-                    pairs.miller_bit_o(@pre_compute, ref q_acc, ref f);
+                    pairs_snap.miller_bit_o(pre_comp_snap, ref q_acc, ref f);
                 }
             //
             },
             Option::None => { break; }
         }
     };
+    pairs_snap.miller_last(pre_comp_snap, ref q_acc, ref f);
     f
 }
 

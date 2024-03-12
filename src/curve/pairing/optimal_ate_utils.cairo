@@ -89,6 +89,12 @@ impl SinglePairMiller of MillerEngine<Pair, PreCompute, PtG2, Fq12> {
         // use neg q
         step_dbl_add_to_f(ref acc, ref f, pre_comp.ppc, *p, *pre_comp.neg_q, *pre_comp.field_nz);
     }
+
+    // last step
+    fn miller_last(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
+        let (p, _) = self;
+    // TODO
+    }
 }
 
 fn step_dbl_add_to_f(
