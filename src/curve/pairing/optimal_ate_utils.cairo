@@ -33,14 +33,14 @@ use bn::traits::MillerEngine;
 // 
 
 #[derive(Copy, Drop)]
-struct LineEvalPrecompute {
+struct PPrecompute {
     x_over_y: Fq,
     y_inv: Fq,
 }
 
 #[derive(Copy, Drop)]
 struct PreCompute {
-    p: LineEvalPrecompute,
+    ppc: PPrecompute,
     neg_q: PtG2,
     field_nz: NonZero<u256>,
 }
@@ -53,15 +53,16 @@ impl SinglePairMiller of MillerEngine<Pair, PreCompute, PtG2, Fq12> {
         let neg_q = PtG2 { x: *q.x, y: -*q.y, };
         let y_inv = (*p.y).inv(field_nz);
         let precomp = PreCompute {
-            p: LineEvalPrecompute { x_over_y: *p.x * y_inv, y_inv }, neg_q, field_nz
+            ppc: PPrecompute { x_over_y: *p.x * y_inv, y_inv }, neg_q, field_nz
         };
         (precomp, q.clone(),)
     }
+
     fn miller_first_second(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2) -> Fq12 {
-        // Handle O, N steps
         let (p, _) = self;
+        // Handle O, N steps
         // step 0, run step double
-        let l0 = step_double(ref acc, pre_comp, *p);
+        let l0 = step_double(ref acc, pre_comp.ppc, *p, *pre_comp.field_nz);
         // sqr with mul 034 by 034
         let Fq12Sparse01234 { c0, c1, c2, c3, c4 } = l0.mul_034_by_034(l0, *pre_comp.field_nz);
         let mut f = Fq12 { c0: Fq6 { c0, c1, c2 }, c1: Fq6 { c0: c3, c1: c4, c2: fq2(0, 0) }, };
@@ -69,28 +70,33 @@ impl SinglePairMiller of MillerEngine<Pair, PreCompute, PtG2, Fq12> {
         self.miller_bit_n(pre_comp, ref acc, ref f);
         f
     }
+
     // 0 bit
     fn miller_bit_o(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
         let (p, _) = self;
-        step_double_to_f(ref acc, ref f, pre_comp, *p);
+        step_double_to_f(ref acc, ref f, pre_comp.ppc, *p, *pre_comp.field_nz);
     }
+
     // 1 bit
     fn miller_bit_p(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
         let (p, q) = self;
-        step_dbl_add_to_f(ref acc, ref f, pre_comp, *q, *p);
+        step_dbl_add_to_f(ref acc, ref f, pre_comp.ppc, *p, *q, *pre_comp.field_nz);
     }
+
     // -1 bit
     fn miller_bit_n(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
         let (p, _) = self;
         // use neg q
-        step_dbl_add_to_f(ref acc, ref f, pre_comp, *pre_comp.neg_q, *p);
+        step_dbl_add_to_f(ref acc, ref f, pre_comp.ppc, *p, *pre_comp.neg_q, *pre_comp.field_nz);
     }
 }
 
-fn step_dbl_add_to_f(ref acc: PtG2, ref f: Fq12, precomp: @PreCompute, q: PtG2, p: PtG1) {
-    let (l1, l2) = step_dbl_add(ref acc, precomp, q, p);
-    f = f.mul_034(l1, *precomp.field_nz);
-    f = f.mul_034(l2, *precomp.field_nz);
+fn step_dbl_add_to_f(
+    ref acc: PtG2, ref f: Fq12, precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
+) {
+    let (l1, l2) = step_dbl_add(ref acc, precomp, p, q, field_nz);
+    f = f.mul_034(l1, field_nz);
+    f = f.mul_034(l2, field_nz);
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
@@ -98,14 +104,14 @@ fn step_dbl_add_to_f(ref acc: PtG2, ref f: Fq12, precomp: @PreCompute, q: PtG2, 
 // returns product of line evaluations to multiply with f
 #[inline(always)]
 fn step_dbl_add(
-    ref acc: PtG2, precomp: @PreCompute, q: PtG2, p: PtG1
+    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
 ) -> (Fq12Sparse034, Fq12Sparse034) {
     let s = acc;
     // s + q
     let slope1 = s.chord(q);
     let x1 = s.x_on_slope(slope1, q.x);
     let line1 = Fq12Sparse034 {
-        c3: slope1.scale(*precomp.p.x_over_y), c4: (slope1 * s.x - s.y).scale(*precomp.p.y_inv),
+        c3: slope1.scale(*p_precomp.x_over_y), c4: (slope1 * s.x - s.y).scale(*p_precomp.y_inv),
     };
     // we skip y1 calculation and sub slope1 directly in second slope calculation
 
@@ -113,22 +119,26 @@ fn step_dbl_add(
     let slope2 = -slope1 - (s.y.u_add(s.y)) / (x1 - s.x);
     acc = s.pt_on_slope(slope2, x1);
     let line2 = Fq12Sparse034 {
-        c3: slope2.scale(*precomp.p.x_over_y), c4: (slope2 * s.x - s.y).scale(*precomp.p.y_inv),
+        c3: slope2.scale(*p_precomp.x_over_y), c4: (slope2 * s.x - s.y).scale(*p_precomp.y_inv),
     };
 
     // line functions
     (line1, line2)
 }
 
-fn step_double_to_f(ref acc: PtG2, ref f: Fq12, precomp: @PreCompute, p: PtG1) {
-    f = f.mul_034(step_double(ref acc, precomp, p), *precomp.field_nz);
+fn step_double_to_f(
+    ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, field_nz: NonZero<u256>
+) {
+    f = f.mul_034(step_double(ref acc, p_precomp, p, field_nz), field_nz);
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
 // computes acc = 2 * acc and line eval for p
 // returns line evaluation to multiply with f
 #[inline(always)]
-fn step_double(ref acc: PtG2, precomp: @PreCompute, p: PtG1) -> Fq12Sparse034 {
+fn step_double(
+    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, field_nz: NonZero<u256>
+) -> Fq12Sparse034 {
     // acc + q
     // acc = acc + (acc + q)
     // line function
@@ -139,6 +149,6 @@ fn step_double(ref acc: PtG2, precomp: @PreCompute, p: PtG1) -> Fq12Sparse034 {
     // p = (λ²-2x, λ(x-xr)-y)
     acc = s.pt_on_slope(slope, acc.x);
     Fq12Sparse034 {
-        c3: slope.scale(*precomp.p.x_over_y), c4: (slope * s.x - s.y).scale(*precomp.p.y_inv),
+        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
     }
 }
