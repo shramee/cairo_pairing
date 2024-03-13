@@ -1,12 +1,12 @@
 use core::debug::PrintTrait;
-use bn::traits::MillerEngine as MillEng;
+use bn::traits::{MillerPrecompute, MillerSteps};
 use bn::fields::{Fq12, Fq12Utils, Fq12Exponentiation};
-use bn::curve::{groups, pairing::optimal_ate_utils};
+use bn::curve::{groups, pairing::optimal_ate_impls};
 use groups::{g1, g2, ECGroup};
 use groups::{Affine, AffineG1, AffineG2, AffineOps};
 use bn::curve::{six_t_plus_2_naf_rev_trimmed, FIELD};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
-use optimal_ate_utils::SinglePairMiller;
+use optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 
 // Pairing Implementation Revisited - Michael Scott
 //
@@ -38,17 +38,21 @@ use optimal_ate_utils::SinglePairMiller;
 // 5: return f
 // 
 fn ate_miller_loop<
-    TPair, TG2, TPreC, +MillEng<TPair, TPreC, TG2, Fq12>, +Drop<TPair>, +Drop<TG2>, +Drop<TPreC>
+    TG1,
+    TG2,
+    TPreC,
+    +MillerPrecompute<TG1, TG2, TPreC>,
+    +MillerSteps<TPreC, TG2, Fq12>,
+    +Drop<TG2>,
+    +Drop<TPreC>,
 >(
-    pairs: TPair
+    p: TG1, q: TG2
 ) -> Fq12 {
     core::internal::revoke_ap_tracking();
     let field_nz = FIELD.try_into().unwrap();
-
-    let pairs_snap = @pairs;
-    let (pre_compute, mut q_acc) = pairs_snap.precompute_and_acc(field_nz);
-    let pre_comp_snap = @pre_compute;
-    let mut f = pairs_snap.miller_first_second(pre_comp_snap, ref q_acc);
+    let (precompute, mut q_acc) = (p, q).precompute(field_nz);
+    let precompute = @precompute; // To avoid copying, use snapshot var
+    let mut f = precompute.miller_first_second(ref q_acc);
     let mut array_items = six_t_plus_2_naf_rev_trimmed();
 
     loop {
@@ -59,30 +63,36 @@ fn ate_miller_loop<
                 f = f.sqr();
                 if b1 {
                     if b2 {
-                        pairs_snap.miller_bit_p(pre_comp_snap, ref q_acc, ref f);
+                        precompute.miller_bit_p(ref q_acc, ref f);
                     } else {
-                        pairs_snap.miller_bit_n(pre_comp_snap, ref q_acc, ref f);
+                        precompute.miller_bit_n(ref q_acc, ref f);
                     }
                 } else {
-                    pairs_snap.miller_bit_o(pre_comp_snap, ref q_acc, ref f);
+                    precompute.miller_bit_o(ref q_acc, ref f);
                 }
             //
             },
             Option::None => { break; }
         }
     };
-    pairs_snap.miller_last(pre_comp_snap, ref q_acc, ref f);
+    precompute.miller_bit_o(ref q_acc, ref f);
     f
 }
 
 fn ate_pairing<
-    TPair, TG2, TPreC, +MillEng<TPair, TPreC, TG2, Fq12>, +Drop<TPair>, +Drop<TG2>, +Drop<TPreC>
+    TG1,
+    TG2,
+    TPreC,
+    +MillerPrecompute<TG1, TG2, TPreC>,
+    +MillerSteps<TPreC, TG2, Fq12>,
+    +Drop<TG2>,
+    +Drop<TPreC>,
 >(
-    pairs: TPair
+    p: TG1, q: TG2
 ) -> Fq12 {
-    ate_miller_loop(pairs).final_exponentiation()
+    ate_miller_loop(p, q).final_exponentiation()
 }
 
-fn single_ate_pairing(pairs: (AffineG1, AffineG2)) -> Fq12 {
-    ate_miller_loop(pairs).final_exponentiation()
+fn single_ate_pairing(p: AffineG1, q: AffineG2) -> Fq12 {
+    ate_miller_loop(p, q).final_exponentiation()
 }

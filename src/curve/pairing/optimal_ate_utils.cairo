@@ -9,7 +9,6 @@ use bn::fields::{Fq12Sparse034, Fq12Sparse01234, FqSparse};
 use bn::fields::print::{Fq2Display, Fq12Display, FqDisplay};
 use bn::curve::groups::{g1, g2, ECGroup};
 use bn::curve::groups::{Affine, AffineG1 as PtG1, AffineG2 as PtG2, AffineOps};
-use bn::traits::MillerEngine;
 
 // This implementation follows the paper at https://eprint.iacr.org/2022/1162
 // Pairings in Rank-1 Constraint Systems, Youssef El Housni et al.
@@ -36,65 +35,6 @@ use bn::traits::MillerEngine;
 struct PPrecompute {
     x_over_y: Fq,
     y_inv: Fq,
-}
-
-#[derive(Copy, Drop)]
-struct PreCompute {
-    ppc: PPrecompute,
-    neg_q: PtG2,
-    field_nz: NonZero<u256>,
-}
-
-type Pair = (PtG1, PtG2);
-
-impl SinglePairMiller of MillerEngine<Pair, PreCompute, PtG2, Fq12> {
-    fn precompute_and_acc(self: @Pair, field_nz: NonZero<u256>) -> (PreCompute, PtG2) {
-        let (p, q) = self;
-        let neg_q = PtG2 { x: *q.x, y: -*q.y, };
-        let y_inv = (*p.y).inv(field_nz);
-        let precomp = PreCompute {
-            ppc: PPrecompute { x_over_y: *p.x * y_inv, y_inv }, neg_q, field_nz
-        };
-        (precomp, q.clone(),)
-    }
-
-    fn miller_first_second(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2) -> Fq12 {
-        let (p, _) = self;
-        // Handle O, N steps
-        // step 0, run step double
-        let l0 = step_double(ref acc, pre_comp.ppc, *p, *pre_comp.field_nz);
-        // sqr with mul 034 by 034
-        let Fq12Sparse01234 { c0, c1, c2, c3, c4 } = l0.mul_034_by_034(l0, *pre_comp.field_nz);
-        let mut f = Fq12 { c0: Fq6 { c0, c1, c2 }, c1: Fq6 { c0: c3, c1: c4, c2: fq2(0, 0) }, };
-        // step -1, the next negative one step
-        self.miller_bit_n(pre_comp, ref acc, ref f);
-        f
-    }
-
-    // 0 bit
-    fn miller_bit_o(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
-        let (p, _) = self;
-        step_double_to_f(ref acc, ref f, pre_comp.ppc, *p, *pre_comp.field_nz);
-    }
-
-    // 1 bit
-    fn miller_bit_p(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
-        let (p, q) = self;
-        step_dbl_add_to_f(ref acc, ref f, pre_comp.ppc, *p, *q, *pre_comp.field_nz);
-    }
-
-    // -1 bit
-    fn miller_bit_n(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
-        let (p, _) = self;
-        // use neg q
-        step_dbl_add_to_f(ref acc, ref f, pre_comp.ppc, *p, *pre_comp.neg_q, *pre_comp.field_nz);
-    }
-
-    // last step
-    fn miller_last(self: @Pair, pre_comp: @PreCompute, ref acc: PtG2, ref f: Fq12) {
-        let (p, _) = self;
-    // TODO
-    }
 }
 
 fn step_dbl_add_to_f(

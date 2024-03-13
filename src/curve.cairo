@@ -16,6 +16,7 @@ mod pairing {
     mod miller_utils;
     mod tate_bkls;
     mod optimal_ate_utils;
+    mod optimal_ate_impls;
     mod optimal_ate;
 // #[cfg(test)]
 // mod tests;
