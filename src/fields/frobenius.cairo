@@ -144,3 +144,41 @@ mod fp12 {
     const Q_11_C1: u256 =
         16165975933942742336466353786298926857552937457188450663314217659523851788715;
 }
+
+mod pi {
+    // π (Pi) - Untwist-Frobenius-Twist Endomorphisms on twisted curves
+    // -----------------------------------------------------------------
+    // BN254_Snarks is a D-Twist: pi1_coef1 = ξ^((p-1)/6)
+    // https://github.com/mratsim/constantine/blob/976c8bb215a3f0b21ce3d05f894eb506072a6285/constantine/math/constants/bn254_snarks_frobenius.nim#L131
+    // In the link above this is referred to as ψ (Psi)
+
+    // pi2_coef3 is always -1 (mod p^m) with m = embdeg/twdeg
+    // Recap, with ξ (xi) the sextic non-residue for D-Twist or 1/SNR for M-Twist
+    // pi_2 ≡ ξ^((p-1)/6)^2 ≡ ξ^(2(p-1)/6) ≡ ξ^((p-1)/3)
+    // pi_3 ≡ pi_2 * ξ^((p-1)/6) ≡ ξ^((p-1)/3) * ξ^((p-1)/6) ≡ ξ^((p-1)/2)
+
+    // -----------------------------------------------------------------
+    // for πₚ mapping
+
+    // Fp2::NONRESIDUE^(2((q^1) - 1) / 6)
+    const X2Q_1_C0: u256 =
+        21575463638280843010398324269430826099269044274347216827212613867836435027261;
+    const X2Q_1_C1: u256 =
+        10307601595873709700152284273816112264069230130616436755625194854815875713954;
+
+    // Fp2::NONRESIDUE^(3((q^1) - 1) / 6)
+    const X3Q_1_C0: u256 =
+        2821565182194536844548159561693502659359617185244120367078079554186484126554;
+    const X3Q_1_C1: u256 =
+        3505843767911556378687030309984248845540243509899259641013678093033130930403;
+
+    // -----------------------------------------------------------------
+    // for π² mapping
+
+    // Fp2::NONRESIDUE^(2(p^2-1)/6)
+    const X2Q_2_C0: u256 = 0x30644e72e131a0295e6dd9e7e0acccb0c28f069fbb966e3de4bd44e5607cfd48;
+    const X2Q_2_C1: u256 = 0x0;
+    // Fp2::NONRESIDUE^(3(p^2-1)/6)
+    const X3Q_2_C0: u256 = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd46;
+    const X3Q_2_C1: u256 = 0x0;
+}
