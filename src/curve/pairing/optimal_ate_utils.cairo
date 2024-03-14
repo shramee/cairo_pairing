@@ -146,10 +146,18 @@ fn correction_step(
     // Q1.X = *pr.Ext12.Ext2.MulByNonResidue1Power2(&Q1.X)
     // Q1.Y = *pr.Ext12.Ext2.Conjugate(&Q.Y)
     // Q1.Y = *pr.Ext12.Ext2.MulByNonResidue1Power3(&Q1.Y)
+    let Q1 = Affine {
+        x: fq2_by_nonresidue_1p_2(q.x.conjugate()), //
+        y: fq2_by_nonresidue_1p_3(q.y.conjugate()), //
+    };
     // Q2 = -π²(Q)
     // Q2.X = *pr.Ext12.Ext2.MulByNonResidue2Power2(&Q[k].X)
     // Q2.Y = *pr.Ext12.Ext2.MulByNonResidue2Power3(&Q[k].Y)
     // Q2.Y = *pr.Ext12.Ext2.Neg(&Q2.Y)
+    let Q2 = Affine {
+        x: fq2_by_nonresidue_2p_2(q.x.conjugate()),
+        y: fq2_by_nonresidue_2p_3(q.y.conjugate()).neg(),
+    };
 // Line 10: if u < 0 then T ← −T,f ← fp6
 // skip line 10, ∵ x > 0
 
