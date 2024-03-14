@@ -43,6 +43,7 @@ fn ate_miller_loop<
     TPreC,
     +MillerPrecompute<TG1, TG2, TPreC>,
     +MillerSteps<TPreC, TG2, Fq12>,
+    +Drop<TG1>,
     +Drop<TG2>,
     +Drop<TPreC>,
 >(
@@ -75,7 +76,7 @@ fn ate_miller_loop<
             Option::None => { break; }
         }
     };
-    precompute.miller_bit_o(ref q_acc, ref f);
+    precompute.miller_last(ref q_acc, ref f);
     f
 }
 
@@ -85,6 +86,7 @@ fn ate_pairing<
     TPreC,
     +MillerPrecompute<TG1, TG2, TPreC>,
     +MillerSteps<TPreC, TG2, Fq12>,
+    +Drop<TG1>,
     +Drop<TG2>,
     +Drop<TPreC>,
 >(
