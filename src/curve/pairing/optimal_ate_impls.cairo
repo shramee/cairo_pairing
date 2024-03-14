@@ -11,7 +11,8 @@ use bn::curve::groups::{g1, g2, ECGroup};
 use bn::curve::groups::{Affine, AffineG1 as PtG1, AffineG2 as PtG2, AffineOps};
 use bn::traits::{MillerPrecompute, MillerSteps};
 use bn::curve::pairing::optimal_ate_utils::{
-    PPrecompute, step_dbl_add_to_f, step_dbl_add, step_double_to_f, step_double
+    PPrecompute, step_dbl_add_to_f, step_dbl_add, step_double_to_f, step_double,
+    correction_step_to_f
 };
 
 #[derive(Copy, Drop)]
@@ -67,7 +68,6 @@ impl SingleMillerSteps of MillerSteps<PreCompute, PtG2, Fq12> {
 
     // last step
     fn miller_last(self: @PreCompute, ref acc: PtG2, ref f: Fq12) { //
-        // TODO
-        f;
+        correction_step_to_f(ref acc, ref f, self.ppc, *self.p, *self.q, *self.field_nz);
     }
 }
