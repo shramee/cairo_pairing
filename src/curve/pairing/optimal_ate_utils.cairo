@@ -142,9 +142,9 @@ fn correction_step(
 
     // πₚ(x,y) = (xp,yp)
     //Q1 = π(Q)
-    // Q1.X = *pr.Ext12.Ext2.Conjugate(&Q[k].X)
+    // Q1.X = *pr.Ext12.Ext2.Conjugate(&Q.X)
     // Q1.X = *pr.Ext12.Ext2.MulByNonResidue1Power2(&Q1.X)
-    // Q1.Y = *pr.Ext12.Ext2.Conjugate(&Q[k].Y)
+    // Q1.Y = *pr.Ext12.Ext2.Conjugate(&Q.Y)
     // Q1.Y = *pr.Ext12.Ext2.MulByNonResidue1Power3(&Q1.Y)
     // Q2 = -π²(Q)
     // Q2.X = *pr.Ext12.Ext2.MulByNonResidue2Power2(&Q[k].X)
@@ -155,19 +155,19 @@ fn correction_step(
 
 // Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2, f ← f·(d·e)
 
-// // Qacc[k] ← Qacc[k]+π(Q) and
-// // l1 the line passing Qacc[k] and π(Q)
-// Qacc[k], l1 = pr.addStep(Qacc[k], Q1)
+// // Qacc ← Qacc+π(Q) and
+// // l1 the line passing Qacc and π(Q)
+// Qacc, l1 = pr.addStep(Qacc, Q1)
 
-// // line evaluation at P[k]
-// l1.R0 = *pr.Ext2.MulByElement(&l1.R0, xOverY[k])
-// l1.R1 = *pr.Ext2.MulByElement(&l1.R1, yInv[k])
+// // line evaluation at P
+// l1.R0 = *pr.Ext2.MulByElement(&l1.R0, xOverY)
+// l1.R1 = *pr.Ext2.MulByElement(&l1.R1, yInv)
 
-// // l2 the line passing Qacc[k] and -π²(Q)
-// l2 = pr.lineCompute(Qacc[k], Q2)
-// // line evaluation at P[k]
-// l2.R0 = *pr.MulByElement(&l2.R0, xOverY[k])
-// l2.R1 = *pr.MulByElement(&l2.R1, yInv[k])
+// // l2 the line passing Qacc and -π²(Q)
+// l2 = pr.lineCompute(Qacc, Q2)
+// // line evaluation at P
+// l2.R0 = *pr.MulByElement(&l2.R0, xOverY)
+// l2.R1 = *pr.MulByElement(&l2.R1, yInv)
 
 // // ℓ × ℓ
 // prodLines = *pr.Mul034By034(&l1.R0, &l1.R1, &l2.R0, &l2.R1)
