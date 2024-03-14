@@ -137,11 +137,11 @@ fn correction_step_to_f(
 #[inline(always)]
 fn correction_step(
     ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
-) {
+) -> (Fq12Sparse034, Fq12Sparse034) {
     // Line 9: Q1 ← πₚ(Q),Q2 ← πₚ²(Q)
 
     // πₚ(x,y) = (xp,yp)
-    //Q1 = π(Q)
+    // Q1 = π(Q)
     // Q1.X = *pr.Ext12.Ext2.Conjugate(&Q.X)
     // Q1.X = *pr.Ext12.Ext2.MulByNonResidue1Power2(&Q1.X)
     // Q1.Y = *pr.Ext12.Ext2.Conjugate(&Q.Y)
@@ -171,17 +171,28 @@ fn correction_step(
     // l1.R0 = *pr.Ext2.MulByElement(&l1.R0, xOverY)
     // l1.R1 = *pr.Ext2.MulByElement(&l1.R1, yInv)
 
+    // // Qacc ← Qacc+π(Q) and
+    // // l1 the line passing Qacc and π(Q)
+    // Qacc, l1 = pr.addStep(Qacc, Q1)
+    // d ← (gT,Q1)(P), T ← T + Q1
+    let d = step_add(ref acc, p_precomp, p, q, field_nz);
     // // l2 the line passing Qacc and -π²(Q)
     // l2 = pr.lineCompute(Qacc, Q2)
     // // line evaluation at P
     // l2.R0 = *pr.MulByElement(&l2.R0, xOverY)
     // l2.R1 = *pr.MulByElement(&l2.R1, yInv)
+    // e ← (gT,−Q2)(P), T ← T − Q2
+    // we can skip the T ← T − Q2 step coz we don't need the final point, just the line function
+    let slope = acc.chord(Q2);
+    let e = Fq12Sparse034 {
+        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
+    };
 
     // // ℓ × ℓ
     // prodLines = *pr.Mul034By034(&l1.R0, &l1.R1, &l2.R0, &l2.R1)
     // // (ℓ × ℓ) × res
     // res = pr.MulBy01234(res, &prodLines)
-    ();
+    (d, e)
 }
 
 // https://github.com/mratsim/constantine/blob/976c8bb215a3f0b21ce3d05f894eb506072a6285/constantine/math/isogenies/frobenius.nim#L109
