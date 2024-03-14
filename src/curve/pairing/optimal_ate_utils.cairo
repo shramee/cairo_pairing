@@ -158,29 +158,30 @@ fn correction_step(
         x: fq2_by_nonresidue_2p_2(q.x.conjugate()),
         y: fq2_by_nonresidue_2p_3(q.y.conjugate()).neg(),
     };
-// Line 10: if u < 0 then T ← −T,f ← fp6
-// skip line 10, ∵ x > 0
+    // Line 10: if u < 0 then T ← −T,f ← fp6
+    // skip line 10, ∵ x > 0
 
-// Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2, f ← f·(d·e)
+    // Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2, f ← f·(d·e)
 
-// // Qacc ← Qacc+π(Q) and
-// // l1 the line passing Qacc and π(Q)
-// Qacc, l1 = pr.addStep(Qacc, Q1)
+    // // Qacc ← Qacc+π(Q) and
+    // // l1 the line passing Qacc and π(Q)
+    // Qacc, l1 = pr.addStep(Qacc, Q1)
 
-// // line evaluation at P
-// l1.R0 = *pr.Ext2.MulByElement(&l1.R0, xOverY)
-// l1.R1 = *pr.Ext2.MulByElement(&l1.R1, yInv)
+    // // line evaluation at P
+    // l1.R0 = *pr.Ext2.MulByElement(&l1.R0, xOverY)
+    // l1.R1 = *pr.Ext2.MulByElement(&l1.R1, yInv)
 
-// // l2 the line passing Qacc and -π²(Q)
-// l2 = pr.lineCompute(Qacc, Q2)
-// // line evaluation at P
-// l2.R0 = *pr.MulByElement(&l2.R0, xOverY)
-// l2.R1 = *pr.MulByElement(&l2.R1, yInv)
+    // // l2 the line passing Qacc and -π²(Q)
+    // l2 = pr.lineCompute(Qacc, Q2)
+    // // line evaluation at P
+    // l2.R0 = *pr.MulByElement(&l2.R0, xOverY)
+    // l2.R1 = *pr.MulByElement(&l2.R1, yInv)
 
-// // ℓ × ℓ
-// prodLines = *pr.Mul034By034(&l1.R0, &l1.R1, &l2.R0, &l2.R1)
-// // (ℓ × ℓ) × res
-// res = pr.MulBy01234(res, &prodLines)
+    // // ℓ × ℓ
+    // prodLines = *pr.Mul034By034(&l1.R0, &l1.R1, &l2.R0, &l2.R1)
+    // // (ℓ × ℓ) × res
+    // res = pr.MulBy01234(res, &prodLines)
+    ();
 }
 
 // https://github.com/mratsim/constantine/blob/976c8bb215a3f0b21ce3d05f894eb506072a6285/constantine/math/isogenies/frobenius.nim#L109
