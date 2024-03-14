@@ -126,8 +126,11 @@ fn step_add(
 fn correction_step_to_f(
     ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
 ) {
-    // @TODO incorporate results into f
-    let _ = correction_step(ref acc, p_precomp, p, q, field_nz);
+    // Realm of pairings, Algorithm 1, lines 10 mul into f
+    // f ← f·(d·e)
+    let (l1, l2) = correction_step(ref acc, p_precomp, p, q, field_nz);
+    f = f.mul_034(l1, field_nz);
+    f = f.mul_034(l2, field_nz);
 }
 
 // Realm of pairings, Algorithm 1, lines 8, 9, 10
@@ -142,13 +145,13 @@ fn correction_step(
 
     // πₚ(x,y) = (xp,yp)
     // Q1 = π(Q)
-    let Q1 = Affine {
+    let q1 = Affine {
         x: fq2_by_nonresidue_1p_2(q.x.conjugate()), //
         y: fq2_by_nonresidue_1p_3(q.y.conjugate()), //
     };
 
     // Q2 = -π²(Q)
-    let Q2 = Affine {
+    let q2 = Affine {
         x: fq2_by_nonresidue_2p_2(q.x.conjugate()),
         y: fq2_by_nonresidue_2p_3(q.y.conjugate()).neg(),
     };
@@ -159,13 +162,13 @@ fn correction_step(
     // Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2
 
     // d ← (gT,Q1)(P), T ← T + Q1
-    let d = step_add(ref acc, p_precomp, p, q, field_nz);
+    let d = step_add(ref acc, p_precomp, p, q1, field_nz);
 
     // e ← (gT,−Q2)(P), T ← T − Q2
     // we can skip the T ← T − Q2 step coz we don't need the final point, just the line function
-    let slope = acc.chord(Q2);
+    let slope = acc.chord(q2);
     let e = Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
+        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * acc.x - acc.y).scale(*p_precomp.y_inv),
     };
 
     // f ← f·(d·e) is left for the caller
