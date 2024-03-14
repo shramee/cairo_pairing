@@ -146,6 +146,7 @@ fn correction_step(
         x: fq2_by_nonresidue_1p_2(q.x.conjugate()), //
         y: fq2_by_nonresidue_1p_3(q.y.conjugate()), //
     };
+
     // Q2 = -π²(Q)
     let Q2 = Affine {
         x: fq2_by_nonresidue_2p_2(q.x.conjugate()),
@@ -173,17 +174,26 @@ fn correction_step(
     (d, e)
 }
 
-// https://github.com/mratsim/constantine/blob/976c8bb215a3f0b21ce3d05f894eb506072a6285/constantine/math/isogenies/frobenius.nim#L109
-
+// For πₚ frobeneusmap
+// Multiply by Fp2::NONRESIDUE^(2((q^1) - 1)/6)
 fn fq2_by_nonresidue_1p_2(a: Fq2) -> Fq2 {
     a * fq2(pi::X2Q_1_C0, pi::X2Q_1_C1)
 }
+
+// For πₚ frobeneusmap
+// Multiply by Fp2::NONRESIDUE^(3((q^1) - 1)/6)
 fn fq2_by_nonresidue_1p_3(a: Fq2) -> Fq2 {
     a * fq2(pi::X3Q_1_C0, pi::X3Q_1_C1)
 }
+
+// For πₚ² frobeneusmap
+// Multiply by Fp2::NONRESIDUE^(2(p^2-1)/6)
 fn fq2_by_nonresidue_2p_2(a: Fq2) -> Fq2 {
     a.scale(fq(pi::X2Q_2_C0))
 }
+
+// For πₚ² frobeneusmap
+// Multiply by Fp2::NONRESIDUE^(3(p^2-1)/6)
 fn fq2_by_nonresidue_2p_3(a: Fq2) -> Fq2 {
     a.scale(fq(pi::X3Q_2_C0))
 }
