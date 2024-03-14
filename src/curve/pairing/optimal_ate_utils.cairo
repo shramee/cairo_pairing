@@ -142,45 +142,24 @@ fn correction_step(
 
     // πₚ(x,y) = (xp,yp)
     // Q1 = π(Q)
-    // Q1.X = *pr.Ext12.Ext2.Conjugate(&Q.X)
-    // Q1.X = *pr.Ext12.Ext2.MulByNonResidue1Power2(&Q1.X)
-    // Q1.Y = *pr.Ext12.Ext2.Conjugate(&Q.Y)
-    // Q1.Y = *pr.Ext12.Ext2.MulByNonResidue1Power3(&Q1.Y)
     let Q1 = Affine {
         x: fq2_by_nonresidue_1p_2(q.x.conjugate()), //
         y: fq2_by_nonresidue_1p_3(q.y.conjugate()), //
     };
     // Q2 = -π²(Q)
-    // Q2.X = *pr.Ext12.Ext2.MulByNonResidue2Power2(&Q[k].X)
-    // Q2.Y = *pr.Ext12.Ext2.MulByNonResidue2Power3(&Q[k].Y)
-    // Q2.Y = *pr.Ext12.Ext2.Neg(&Q2.Y)
     let Q2 = Affine {
         x: fq2_by_nonresidue_2p_2(q.x.conjugate()),
         y: fq2_by_nonresidue_2p_3(q.y.conjugate()).neg(),
     };
+
     // Line 10: if u < 0 then T ← −T,f ← fp6
     // skip line 10, ∵ x > 0
 
-    // Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2, f ← f·(d·e)
+    // Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2
 
-    // // Qacc ← Qacc+π(Q) and
-    // // l1 the line passing Qacc and π(Q)
-    // Qacc, l1 = pr.addStep(Qacc, Q1)
-
-    // // line evaluation at P
-    // l1.R0 = *pr.Ext2.MulByElement(&l1.R0, xOverY)
-    // l1.R1 = *pr.Ext2.MulByElement(&l1.R1, yInv)
-
-    // // Qacc ← Qacc+π(Q) and
-    // // l1 the line passing Qacc and π(Q)
-    // Qacc, l1 = pr.addStep(Qacc, Q1)
     // d ← (gT,Q1)(P), T ← T + Q1
     let d = step_add(ref acc, p_precomp, p, q, field_nz);
-    // // l2 the line passing Qacc and -π²(Q)
-    // l2 = pr.lineCompute(Qacc, Q2)
-    // // line evaluation at P
-    // l2.R0 = *pr.MulByElement(&l2.R0, xOverY)
-    // l2.R1 = *pr.MulByElement(&l2.R1, yInv)
+
     // e ← (gT,−Q2)(P), T ← T − Q2
     // we can skip the T ← T − Q2 step coz we don't need the final point, just the line function
     let slope = acc.chord(Q2);
@@ -188,10 +167,9 @@ fn correction_step(
         c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
     };
 
-    // // ℓ × ℓ
-    // prodLines = *pr.Mul034By034(&l1.R0, &l1.R1, &l2.R0, &l2.R1)
-    // // (ℓ × ℓ) × res
-    // res = pr.MulBy01234(res, &prodLines)
+    // f ← f·(d·e) is left for the caller
+
+    // return line functions
     (d, e)
 }
 
