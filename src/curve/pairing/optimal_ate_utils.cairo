@@ -100,6 +100,60 @@ fn step_double(
         c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
     }
 }
+
+
+fn correction_step_to_f(
+    ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
+) {
+    // @TODO incorporate results into f
+    let _ = correction_step(ref acc, p_precomp, p, q, field_nz);
+}
+
+// Realm of pairings, Algorithm 1, lines 8, 9, 10
+// https://eprint.iacr.org/2013/722.pdf
+// Code referenced from gnark
+// https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/sw_bn254/pairing.go#L529
+#[inline(always)]
+fn correction_step(
+    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
+) {
+    // Line 9: Q1 ← πₚ(Q),Q2 ← πₚ²(Q)
+
+    // πₚ(x,y) = (xp,yp)
+    //Q1 = π(Q)
+    // Q1.X = *pr.Ext12.Ext2.Conjugate(&Q[k].X)
+    // Q1.X = *pr.Ext12.Ext2.MulByNonResidue1Power2(&Q1.X)
+    // Q1.Y = *pr.Ext12.Ext2.Conjugate(&Q[k].Y)
+    // Q1.Y = *pr.Ext12.Ext2.MulByNonResidue1Power3(&Q1.Y)
+    // Q2 = -π²(Q)
+    // Q2.X = *pr.Ext12.Ext2.MulByNonResidue2Power2(&Q[k].X)
+    // Q2.Y = *pr.Ext12.Ext2.MulByNonResidue2Power3(&Q[k].Y)
+    // Q2.Y = *pr.Ext12.Ext2.Neg(&Q2.Y)
+// Line 10: if u < 0 then T ← −T,f ← fp6
+// skip line 10, ∵ x > 0
+
+// Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2, f ← f·(d·e)
+
+// // Qacc[k] ← Qacc[k]+π(Q) and
+// // l1 the line passing Qacc[k] and π(Q)
+// Qacc[k], l1 = pr.addStep(Qacc[k], Q1)
+
+// // line evaluation at P[k]
+// l1.R0 = *pr.Ext2.MulByElement(&l1.R0, xOverY[k])
+// l1.R1 = *pr.Ext2.MulByElement(&l1.R1, yInv[k])
+
+// // l2 the line passing Qacc[k] and -π²(Q)
+// l2 = pr.lineCompute(Qacc[k], Q2)
+// // line evaluation at P[k]
+// l2.R0 = *pr.MulByElement(&l2.R0, xOverY[k])
+// l2.R1 = *pr.MulByElement(&l2.R1, yInv[k])
+
+// // ℓ × ℓ
+// prodLines = *pr.Mul034By034(&l1.R0, &l1.R1, &l2.R0, &l2.R1)
+// // (ℓ × ℓ) × res
+// res = pr.MulBy01234(res, &prodLines)
+}
+
 // https://github.com/mratsim/constantine/blob/976c8bb215a3f0b21ce3d05f894eb506072a6285/constantine/math/isogenies/frobenius.nim#L109
 
 fn fq2_by_nonresidue_1p_2(a: Fq2) -> Fq2 {
