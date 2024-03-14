@@ -101,6 +101,27 @@ fn step_double(
     }
 }
 
+// https://eprint.iacr.org/2022/1162 (Section 6.1)
+// computes acc = 2 * acc and line eval for p
+// returns line evaluation to multiply with f
+#[inline(always)]
+fn step_add(
+    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
+) -> Fq12Sparse034 {
+    // acc + q
+    // acc = acc + (acc + q)
+    // line function
+    let s = acc;
+
+    // λ = 3x²/2y
+    let slope = s.chord(q);
+    // p = (λ²-2x, λ(x-xr)-y)
+    acc = s.pt_on_slope(slope, acc.x);
+    Fq12Sparse034 {
+        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
+    }
+}
+
 
 fn correction_step_to_f(
     ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
