@@ -105,15 +105,19 @@ fn t_naf() -> Array<(bool, bool)> {
     ]
 }
 
+// NafBit = (bit, is_positive)
+type NafBit = (bool, bool);
+
 #[inline(always)]
-fn six_t_plus_2_naf_rev_first_part() -> ((bool, bool), (bool, bool)) {
+fn six_t_plus_2_naf_rev_first_part() -> (NafBit, NafBit, NafBit) {
     let P = (true, true);
     let O = (false, false);
-    (P, O)
+    let N = (true, false);
+    (P, O, N)
 }
 
 #[inline(always)]
-fn six_t_plus_2_naf_rev_trimmed() -> Array<(bool, bool)> {
+fn six_t_plus_2_naf_rev_trimmed() -> Array<NafBit> {
     // sixuPlus2NAF is 6u+2 in non-adjacent form, reversed and first element removed.
     // NAF form,
     // PONOPOOONONOOONOPONOONOOOOOPOONOPOONOOOONOPOOONONOOPOOONOONOPOPOOO
@@ -124,7 +128,7 @@ fn six_t_plus_2_naf_rev_trimmed() -> Array<(bool, bool)> {
     let N = (true, false);
     array![
         // in six_t_plus_2_naf_rev_first_part()
-        // First one is skipped by default, second and third handled outside the loop
+        // First one is always skipped, second and third handled outside the loop
         // P,
         // O,
         // N,
@@ -190,6 +194,6 @@ fn six_t_plus_2_naf_rev_trimmed() -> Array<(bool, bool)> {
         P,
         O,
         O,
-        O
+        O,
     ]
 }
