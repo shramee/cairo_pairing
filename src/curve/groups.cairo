@@ -28,6 +28,15 @@ trait ECOperations<TCoord> {
     fn multiply(self: @Affine<TCoord>, multiplier: u256) -> Affine<TCoord>;
 }
 
+impl AffinePartialEq<T, +PartialEq<T>> of PartialEq<Affine<T>> {
+    fn eq(lhs: @Affine<T>, rhs: @Affine<T>) -> bool {
+        lhs.x == rhs.x && lhs.y == rhs.y
+    }
+    fn ne(lhs: @Affine<T>, rhs: @Affine<T>) -> bool {
+        lhs.x == rhs.x && lhs.y == rhs.y
+    }
+}
+
 impl AffineOps<
     T, +FOps<T>, +FShort<T>, +Copy<T>, +Print<T>, +Drop<T>, impl ECGImpl: ECGroup<T>
 > of ECOperations<T> {
