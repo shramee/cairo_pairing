@@ -19,6 +19,8 @@ mod pairing {
     mod optimal_ate_impls;
     mod optimal_ate;
 // #[cfg(test)]
+// mod ate_tests;
+// #[cfg(test)]
 // mod tests;
 }
 
