@@ -153,7 +153,7 @@ impl FqSparse of FqSparseTrait {
         // x34 = x34 * tmp
         let X34 = d3.u_add(d4).u_mul(c3.u_add(c4));
         // x34 = x34 - x3
-        let (X34_0, X34_1) = X34.u_sub(C3D3);
+        let (X34_0, X34_1) = X34 - C3D3;
         let (C4D4_0, C4D4_1) = C4D4;
         // x34 = x34 - x4
         let X34 = (X34_0 - C4D4_0, u512_sub(X34_1, C4D4_1));
