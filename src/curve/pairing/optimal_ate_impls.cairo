@@ -31,7 +31,7 @@ impl SingleMillerPrecompute of MillerPrecompute<PtG1, PtG2, PreCompute> {
         let neg_q = PtG2 { x: q.x, y: -q.y, };
         let y_inv = (p.y).inv(field_nz);
         let precomp = PreCompute {
-            ppc: PPrecompute { x_over_y: p.x * y_inv, y_inv }, neg_q, field_nz, p, q,
+            ppc: PPrecompute { neg_x_over_y: -p.x * y_inv, y_inv }, neg_q, field_nz, p, q,
         };
         (precomp, q.clone(),)
     }
@@ -67,7 +67,7 @@ impl SingleMillerSteps of MillerSteps<PreCompute, PtG2, Fq12> {
     }
 
     // last step
-    fn miller_last(self: @PreCompute, ref acc: PtG2, ref f: Fq12) { //
+    fn miller_last(self: @PreCompute, ref acc: PtG2, ref f: Fq12) {
         correction_step_to_f(ref acc, ref f, self.ppc, *self.p, *self.q, *self.field_nz);
     }
 }

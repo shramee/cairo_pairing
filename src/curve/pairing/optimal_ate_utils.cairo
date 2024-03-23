@@ -35,7 +35,7 @@ use bn::fields::frobenius::pi;
 
 #[derive(Copy, Drop)]
 struct PPrecompute {
-    x_over_y: Fq,
+    neg_x_over_y: Fq,
     y_inv: Fq,
 }
 
@@ -59,7 +59,7 @@ fn step_dbl_add(
     let slope1 = s.chord(q);
     let x1 = s.x_on_slope(slope1, q.x);
     let line1 = Fq12Sparse034 {
-        c3: slope1.scale(*p_precomp.x_over_y), c4: (slope1 * s.x - s.y).scale(*p_precomp.y_inv),
+        c3: slope1.scale(*p_precomp.neg_x_over_y), c4: (slope1 * s.x - s.y).scale(*p_precomp.y_inv),
     };
     // we skip y1 calculation and sub slope1 directly in second slope calculation
 
@@ -67,7 +67,7 @@ fn step_dbl_add(
     let slope2 = -slope1 - (s.y.u_add(s.y)) / (x1 - s.x);
     acc = s.pt_on_slope(slope2, x1);
     let line2 = Fq12Sparse034 {
-        c3: slope2.scale(*p_precomp.x_over_y), c4: (slope2 * s.x - s.y).scale(*p_precomp.y_inv),
+        c3: slope2.scale(*p_precomp.neg_x_over_y), c4: (slope2 * s.x - s.y).scale(*p_precomp.y_inv),
     };
 
     // line functions
@@ -97,7 +97,7 @@ fn step_double(
     // p = (λ²-2x, λ(x-xr)-y)
     acc = s.pt_on_slope(slope, acc.x);
     Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
+        c3: slope.scale(*p_precomp.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
     }
 }
 
@@ -118,10 +118,9 @@ fn step_add(
     // p = (λ²-2x, λ(x-xr)-y)
     acc = s.pt_on_slope(slope, acc.x);
     Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
+        c3: slope.scale(*p_precomp.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
     }
 }
-
 
 fn correction_step_to_f(
     ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
@@ -168,7 +167,8 @@ fn correction_step(
     // we can skip the T ← T − Q2 step coz we don't need the final point, just the line function
     let slope = acc.chord(q2);
     let e = Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.x_over_y), c4: (slope * acc.x - acc.y).scale(*p_precomp.y_inv),
+        c3: slope.scale(*p_precomp.neg_x_over_y),
+        c4: (slope * acc.x - acc.y).scale(*p_precomp.y_inv),
     };
 
     // f ← f·(d·e) is left for the caller

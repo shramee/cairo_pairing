@@ -18,7 +18,7 @@
 // }
 
 // fn mock_pre_compute() -> PreCompute {
-//     PreCompute { p: LineEvalPrecompute { x_over_y: fq(5), y_inv: fq(1) }, neg_q: pt2() }
+//     PreCompute { p: LineEvalPrecompute { neg_x_over_y: fq(5), y_inv: fq(1) }, neg_q: pt2() }
 // }
 
 // #[test]
@@ -46,4 +46,5 @@
 // fn g2_add() -> AffineG2 {
 //     ECGroup::one().add(pt2())
 // }
+
 
