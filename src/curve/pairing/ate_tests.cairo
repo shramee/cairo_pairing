@@ -51,3 +51,52 @@ fn test_step_double() {
     assert(lines.c4 == expected_c4, 'wrong dbl c4');
     assert(q == expected, 'wrong dbl point');
 }
+
+#[test]
+#[available_gas(2000000)]
+fn test_step_dbl_add() {
+    let (p, q) = points();
+    let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
+
+    let mut acc = g2(
+        0x20101834550a7d15aa7a685d3f0095b689822cb568dfc9690e0cc58e9826d8fb,
+        0x566eed2b6bb584ca75fbe0ca9ffc98eb586c25812617df7e01a2b6d8270f0bf,
+        0x19ea09d089c848b2dee00082395883e0b405de1da65d4b4aeebd50c84e47349d,
+        0xa66c012d8ebf11c9a9fc4ccfeeab0ace62b1c1fa744f6c6173f1994e9241db7,
+    );
+
+    let (l1, l2) = step_dbl_add(ref acc, @pc.ppc, p, pc.neg_q, pc.field_nz);
+
+    let expected = g2(
+        0x13f6762080e4a32b0d11bf75b55989e08b3be57060b4bd2148e9be49fc1ca587,
+        0x1ace10298838161fdd3a6bb5dd157a808c19d4dac316bb5c001f68ee586f30b,
+        0x51d866c133978bdaf7b2ea418164cc0c60477b9364bf9acae265a87e861daf,
+        0xbc83eb241f95b562bfabecd0c21f1b335bdfb10d49ade6efa26ccef5dd4b570,
+    );
+
+    let expected_l1c3 = fq2(
+        0x1c43298c88df08230fee9d84ac09ee48d34a29e278e8d58cb18769030ec4438,
+        0x1c5954ca0cd04a09cd9b039b450f0241731c800e47aaa858c7e7142df032479c,
+    );
+
+    let expected_l1c4 = fq2(
+        0x2269a2f98ab148f9c027b04961479c312d53748fc7eeba24a6a08850431486e7,
+        0x200812b02c8345ebc2ac8cfd83b0ab717735e789edc6fbed6427646339d76800,
+    );
+
+    let expected_l2c3 = fq2(
+        0x1c43298c88df08230fee9d84ac09ee48d34a29e278e8d58cb18769030ec4438,
+        0x1c5954ca0cd04a09cd9b039b450f0241731c800e47aaa858c7e7142df032479c,
+    );
+
+    let expected_l2c4 = fq2(
+        0x2269a2f98ab148f9c027b04961479c312d53748fc7eeba24a6a08850431486e7,
+        0x200812b02c8345ebc2ac8cfd83b0ab717735e789edc6fbed6427646339d76800,
+    );
+
+    assert(q == expected, 'wrong dbl point');
+    assert(l1.c3 == expected_l1c3, 'wrong dbl c3');
+    assert(l1.c4 == expected_l1c4, 'wrong dbl c4');
+    assert(l2.c3 == expected_l2c3, 'wrong dbl c3');
+    assert(l2.c4 == expected_l2c4, 'wrong dbl c4');
+}
