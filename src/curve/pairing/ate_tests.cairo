@@ -1,5 +1,5 @@
 use core::traits::TryInto;
-use super::optimal_ate_utils::{step_double, step_dbl_add, PtG1, PtG2};
+use super::optimal_ate_utils::{step_double, step_dbl_add, correction_step, PtG1, PtG2};
 use super::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use bn::curve::FIELD;
 use bn::curve::groups::{g1, g2};
@@ -94,9 +94,45 @@ fn test_step_dbl_add() {
         0x2a0a12744f9deeb8e3aa6a42ee95f27d9939cdd9e62904e1f65cb72b98e9dfd8,
     );
 
-    assert(acc == expected, 'wrong dbl point');
-    assert(l1.c3 == expected_l1c3, 'wrong dbl l1c3');
-    assert(l1.c4 == expected_l1c4, 'wrong dbl l1c4');
-    assert(l2.c3 == expected_l2c3, 'wrong dbl l2c3');
-    assert(l2.c4 == expected_l2c4, 'wrong dbl l2c4');
+    assert(acc == expected, 'wrong dbl_add point');
+    assert(l1.c3 == expected_l1c3, 'wrong dbl_add l1c3');
+    assert(l1.c4 == expected_l1c4, 'wrong dbl_add l1c4');
+    assert(l2.c3 == expected_l2c3, 'wrong dbl_add l2c3');
+    assert(l2.c4 == expected_l2c4, 'wrong dbl_add l2c4');
+}
+
+#[test]
+#[available_gas(2500000)]
+fn test_step_correction() {
+    let (p, q) = points();
+    let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
+    let mut acc = g2(
+        0x235817357e89826e377fd16a7f1a2ff53e0df7e86895b1958bd95fb6560fa941,
+        0x22108c7158743b9927b624e1a61a4aa7ba9b2f717799e4e0c5424e8343de2884,
+        0x934368739662af976071d3e9152e3172a82cd6012bf0d605f67e735e3b3cdfe,
+        0x15484f6b2822b319e27f88795c1512a5bf6b1837e4749dffb7086239979f4d21,
+    );
+    let (l1, l2) = correction_step(ref acc, @pc.ppc, p, pc.neg_q, pc.field_nz);
+
+    let expected = g2(
+        0x242898b9a67f64300e584ef995ba56d75a6a66b236ee16145e9b1308dc24e3ce,
+        0x290d75d7b30b60ea7a2809bb7fd095e5c4131719ff499b33ddc8c67d95a743c7,
+        0x275fc70fde9a73de316c4ba654097840197be9141f31d3567188a8de06525572,
+        0x1c79853dd0050acf0f1de573eed5b81d5e287994df2452eb560c6262746e07fc,
+    );
+
+    let expected_l1c3 = fq2(0x00, 0x00,);
+
+    let expected_l1c4 = fq2(0x00, 0x00,);
+
+    let expected_l2c3 = fq2(0x00, 0x00,);
+
+    let expected_l2c4 = fq2(0x00, 0x00,);
+
+    assert(acc == expected, 'wrong correction point');
+    assert(l1.c3 == expected_l1c3, 'wrong correction l1c3');
+    assert(l1.c4 == expected_l1c4, 'wrong correction l1c4');
+    assert(l2.c3 == expected_l2c3, 'wrong correction l2c3');
+    assert(l2.c4 == expected_l2c4, 'wrong correction l2c4');
+    assert(q == expected, 'wrong correction point');
 }
