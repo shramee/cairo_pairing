@@ -30,7 +30,22 @@ impl Fq6Display of Display<Fq6> {
 
 impl Fq12Display of Display<Fq12> {
     fn fmt(self: @Fq12, ref f: Formatter) -> Result<(), Error> {
-        write!(f, "{}{}", *self.c0, *self.c1)
+        write!(
+            f,
+            "fq12({},{},{},{},{},{},{},{},{},{},{},{}\n),",
+            self.c0.c0.c0,
+            self.c0.c0.c1,
+            self.c0.c1.c0,
+            self.c0.c1.c1,
+            self.c0.c2.c0,
+            self.c0.c2.c1,
+            self.c1.c0.c0,
+            self.c1.c0.c1,
+            self.c1.c1.c0,
+            self.c1.c1.c1,
+            self.c1.c2.c0,
+            self.c1.c2.c1
+        )
     }
 }
 
