@@ -18,13 +18,13 @@ impl FqDisplay of Display<Fq> {
 
 impl Fq2Display of Display<Fq2> {
     fn fmt(self: @Fq2, ref f: Formatter) -> Result<(), Error> {
-        write!(f, "\nfq2({},{}\n),", *self.c0, *self.c1)
+        write!(f, "fq2({},{}\n),", *self.c0, *self.c1)
     }
 }
 
 impl Fq6Display of Display<Fq6> {
     fn fmt(self: @Fq6, ref f: Formatter) -> Result<(), Error> {
-        write!(f, "{}{}{}", *self.c0, *self.c1, *self.c2)
+        write!(f, "\n{}\n{}\n{}", *self.c0, *self.c1, *self.c2)
     }
 }
 

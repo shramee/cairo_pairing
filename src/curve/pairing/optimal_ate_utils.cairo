@@ -64,6 +64,7 @@ fn step_dbl_add(
     // we skip y1 calculation and sub slope1 directly in second slope calculation
 
     // s + (s + q)
+    // λ2 = (y2-y1)/(x2-x1), subbing y1 = λ(x2-x1)+y1
     let slope2 = -slope1 - (s.y.u_add(s.y)) / (x1 - s.x);
     acc = s.pt_on_slope(slope2, x1);
     let line2 = Fq12Sparse034 {

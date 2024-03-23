@@ -23,7 +23,7 @@ fn points() -> (PtG1, PtG2) {
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(2500000)]
 fn test_step_double() {
     let (p, mut q) = points();
     let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
@@ -53,7 +53,7 @@ fn test_step_double() {
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(2500000)]
 fn test_step_dbl_add() {
     let (p, q) = points();
     let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
@@ -75,28 +75,28 @@ fn test_step_dbl_add() {
     );
 
     let expected_l1c3 = fq2(
-        0x1c43298c88df08230fee9d84ac09ee48d34a29e278e8d58cb18769030ec4438,
-        0x1c5954ca0cd04a09cd9b039b450f0241731c800e47aaa858c7e7142df032479c,
+        0x2ea01bda18a3afa787515bde36c0b9790a4cc7f340e33d3471081586a790b90f,
+        0x140af9a8d461561feab5421b3c72561c2464ea8320c72234743977e8e84ab5ab,
     );
 
     let expected_l1c4 = fq2(
-        0x2269a2f98ab148f9c027b04961479c312d53748fc7eeba24a6a08850431486e7,
-        0x200812b02c8345ebc2ac8cfd83b0ab717735e789edc6fbed6427646339d76800,
+        0xdfaab795680572ff828956d2039bc2c6a2df601a0831068958003c695687660,
+        0x105c3bc2b4ae5a3df5a3b8b8fdd0acec204b83077aaace9fd7f927b39ea59547,
     );
 
     let expected_l2c3 = fq2(
-        0x1c43298c88df08230fee9d84ac09ee48d34a29e278e8d58cb18769030ec4438,
-        0x1c5954ca0cd04a09cd9b039b450f0241731c800e47aaa858c7e7142df032479c,
+        0x25891a7b883843168b2ed6ed8b42d4fdada5df85402f00d884d7937fae24e496,
+        0x1dfb565c82eac32c96880b9b1da38241175076b36ae8abbb8379ebec2f907b81,
     );
 
     let expected_l2c4 = fq2(
-        0x2269a2f98ab148f9c027b04961479c312d53748fc7eeba24a6a08850431486e7,
-        0x200812b02c8345ebc2ac8cfd83b0ab717735e789edc6fbed6427646339d76800,
+        0x2558f709e26d6843da2ffd7122906325c7fd61e6efd90886e94177d2520a6a50,
+        0x2a0a12744f9deeb8e3aa6a42ee95f27d9939cdd9e62904e1f65cb72b98e9dfd8,
     );
 
-    assert(q == expected, 'wrong dbl point');
-    assert(l1.c3 == expected_l1c3, 'wrong dbl c3');
-    assert(l1.c4 == expected_l1c4, 'wrong dbl c4');
-    assert(l2.c3 == expected_l2c3, 'wrong dbl c3');
-    assert(l2.c4 == expected_l2c4, 'wrong dbl c4');
+    assert(acc == expected, 'wrong dbl point');
+    assert(l1.c3 == expected_l1c3, 'wrong dbl l1c3');
+    assert(l1.c4 == expected_l1c4, 'wrong dbl l1c4');
+    assert(l2.c3 == expected_l2c3, 'wrong dbl l2c3');
+    assert(l2.c4 == expected_l2c4, 'wrong dbl l2c4');
 }
