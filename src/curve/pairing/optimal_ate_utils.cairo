@@ -22,15 +22,18 @@ use bn::fields::frobenius::pi;
 // ------------
 //
 // Double step:
-// * Acc + ACC
+// * acc + acc
 //
 // Double and Add step:
-// * Acc + Q + ACC (to save on extra steps in doubling vs adding)
+// * acc + Q + acc (to save on extra steps in doubling vs adding)
 // * Skip intermediate (Acc + Q) y calculation and substitute in final slope calculation
 //
 // Line evaluations
 // ----------------
-//
+// Line evaluations use a D-type twist,
+// g[2]ψ(S)(P) = 1 − λ·xₚ/yₚ·w + (λxₛ − yₛ)/yₚ·w³
+// Represented by a 034 sparse element in Fq12 over Fq2
+// (1, 0, 0, -λ·xₚ/yₚ, (λxₛ − yₛ)/yₚ, 0)
 // 
 
 #[derive(Copy, Drop)]
