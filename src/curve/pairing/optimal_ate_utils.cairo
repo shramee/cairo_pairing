@@ -154,10 +154,7 @@ fn correction_step(
     };
 
     // Q2 = -π²(Q)
-    let q2 = Affine {
-        x: fq2_by_nonresidue_2p_2(q.x.conjugate()),
-        y: fq2_by_nonresidue_2p_3(q.y.conjugate()).neg(),
-    };
+    let q2 = Affine { x: fq2_by_nonresidue_2p_2(q.x), y: fq2_by_nonresidue_2p_3(q.y).neg(), };
 
     // Line 10: if u < 0 then T ← −T,f ← fp6
     // skip line 10, ∵ x > 0
