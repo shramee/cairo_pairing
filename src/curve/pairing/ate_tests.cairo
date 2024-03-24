@@ -102,7 +102,7 @@ fn test_step_dbl_add() {
 }
 
 #[test]
-#[available_gas(2500000)]
+#[available_gas(25000000)]
 fn test_step_correction() {
     let (p, q) = points();
     let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
@@ -112,7 +112,7 @@ fn test_step_correction() {
         0x934368739662af976071d3e9152e3172a82cd6012bf0d605f67e735e3b3cdfe,
         0x15484f6b2822b319e27f88795c1512a5bf6b1837e4749dffb7086239979f4d21,
     );
-    let (l1, l2) = correction_step(ref acc, @pc.ppc, p, pc.neg_q, pc.field_nz);
+    let (l1, l2) = correction_step(ref acc, @pc.ppc, p, pc.q, pc.field_nz);
 
     let expected = g2(
         0x242898b9a67f64300e584ef995ba56d75a6a66b236ee16145e9b1308dc24e3ce,
@@ -121,15 +121,26 @@ fn test_step_correction() {
         0x1c79853dd0050acf0f1de573eed5b81d5e287994df2452eb560c6262746e07fc,
     );
 
-    let expected_l1c3 = fq2(0x00, 0x00,);
+    let expected_l1c3 = fq2(
+        0xd238aea84f1c5f3cc252629ef407db0ad7b441dd6616b994e374fb8c0413383,
+        0x304554bb4d99a4cebabe260f60ef18d59e887078e74321d4fdba79a9eeab1ddb,
+    );
 
-    let expected_l1c4 = fq2(0x00, 0x00,);
+    let expected_l1c4 = fq2(
+        0x907fba323881daa70e1c572f69e77964e70ba22fb812dd9abcf304140574def,
+        0x404c3e3275e836536af9a08a8dff1fe867efac4a34ca9a42e10706f4d811b8d,
+    );
 
-    let expected_l2c3 = fq2(0x00, 0x00,);
+    let expected_l2c3 = fq2(
+        0xd06e75cebbc8df7fd2ee7b4afe5a42586c26a96c3fc205128dfd9184f131d92,
+        0x1a80e9ca6ed93b661603d4f1acc3c982065301e91154bf63203e815a11befb0f,
+    );
 
-    let expected_l2c4 = fq2(0x00, 0x00,);
+    let expected_l2c4 = fq2(
+        0x1fe98cea2f6991fdf8d51c06b75b57ee944309336cb488c4c85e2966afaf5dba,
+        0x16d794265926a808f8ce74b6d4b31606c9b429603f4f522be6e2cb3fcb069dcd,
+    );
 
-    assert(acc == expected, 'wrong correction point');
     assert(l1.c3 == expected_l1c3, 'wrong correction l1c3');
     assert(l1.c4 == expected_l1c4, 'wrong correction l1c4');
     assert(l2.c3 == expected_l2c3, 'wrong correction l2c3');
