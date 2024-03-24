@@ -42,6 +42,15 @@ struct PPrecompute {
     y_inv: Fq,
 }
 
+// Takes p precompute, slope and a g2 point to return line evaluation at p
+// line evaluation is of the form (1, 0, 0, -λ·xₚ/yₚ, (λxₛ − yₛ)/yₚ, 0)
+#[inline(always)]
+fn line_evaluation_at_p(slope: Fq2, p_precomp: @PPrecompute, s: PtG2) -> Fq12Sparse034 {
+    Fq12Sparse034 {
+        c3: slope.scale(*p_precomp.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
+    }
+}
+
 fn step_dbl_add_to_f(
     ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
 ) {
@@ -61,18 +70,15 @@ fn step_dbl_add(
     // s + q
     let slope1 = s.chord(q);
     let x1 = s.x_on_slope(slope1, q.x);
-    let line1 = Fq12Sparse034 {
-        c3: slope1.scale(*p_precomp.neg_x_over_y), c4: (slope1 * s.x - s.y).scale(*p_precomp.y_inv),
-    };
+    let line1 = line_evaluation_at_p(slope1, p_precomp, s);
+
     // we skip y1 calculation and sub slope1 directly in second slope calculation
 
     // s + (s + q)
     // λ2 = (y2-y1)/(x2-x1), subbing y1 = λ(x2-x1)+y1
     let slope2 = -slope1 - (s.y.u_add(s.y)) / (x1 - s.x);
     acc = s.pt_on_slope(slope2, x1);
-    let line2 = Fq12Sparse034 {
-        c3: slope2.scale(*p_precomp.neg_x_over_y), c4: (slope2 * s.x - s.y).scale(*p_precomp.y_inv),
-    };
+    let line2 = line_evaluation_at_p(slope2, p_precomp, s);
 
     // line functions
     (line1, line2)
@@ -100,9 +106,7 @@ fn step_double(
     let slope = s.tangent();
     // p = (λ²-2x, λ(x-xr)-y)
     acc = s.pt_on_slope(slope, acc.x);
-    Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
-    }
+    line_evaluation_at_p(slope, p_precomp, s)
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
@@ -121,9 +125,7 @@ fn step_add(
     let slope = s.chord(q);
     // p = (λ²-2x, λ(x-xr)-y)
     acc = s.pt_on_slope(slope, acc.x);
-    Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
-    }
+    line_evaluation_at_p(slope, p_precomp, s)
 }
 
 fn correction_step_to_f(
@@ -167,10 +169,7 @@ fn correction_step(
     // e ← (gT,−Q2)(P), T ← T − Q2
     // we can skip the T ← T − Q2 step coz we don't need the final point, just the line function
     let slope = acc.chord(q2);
-    let e = Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.neg_x_over_y),
-        c4: (slope * acc.x - acc.y).scale(*p_precomp.y_inv),
-    };
+    let e = line_evaluation_at_p(slope, p_precomp, acc);
 
     // f ← f·(d·e) is left for the caller
 
