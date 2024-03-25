@@ -153,7 +153,7 @@ impl U512BnSub of Sub<u512> {
 
 #[inline(always)]
 fn u512_reduce_bn(a: u512) -> u256 {
-    u512_reduce(a, FIELD.try_into().unwrap())
+    u512_reduce(a, FIELD_NZ)
 }
 
 #[inline(always)]
@@ -171,7 +171,7 @@ fn u512_scl_9(a: u512, field_nz: NonZero<u256>) -> u512 {
 
 // ξ = 9 + i
 fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let (t0, t1): (u512, u512) = t;
     (u512_scl_9(t0, field_nz) - t1, //
      t0 + u512_scl_9(t1, field_nz))
