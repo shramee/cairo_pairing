@@ -49,33 +49,142 @@ fn ate_miller_loop<
 >(
     p: TG1, q: TG2
 ) -> Fq12 {
+    gas::withdraw_gas().unwrap();
     core::internal::revoke_ap_tracking();
     let field_nz = FIELD.try_into().unwrap();
     let (precompute, mut q_acc) = (p, q).precompute(field_nz);
     let precompute = @precompute; // To avoid copying, use snapshot var
-    let mut f = precompute.miller_first_second(ref q_acc);
-    let mut array_items = six_t_plus_2_naf_rev_trimmed();
 
-    loop {
-        match array_items.pop_front() {
-            Option::Some((
-                b1, b2
-            )) => {
-                f = f.sqr();
-                if b1 {
-                    if b2 {
-                        precompute.miller_bit_p(ref q_acc, ref f);
-                    } else {
-                        precompute.miller_bit_n(ref q_acc, ref f);
-                    }
-                } else {
-                    precompute.miller_bit_o(ref q_acc, ref f);
-                }
-            //
-            },
-            Option::None => { break; }
-        }
-    };
+    // ate_loop[64] = O and ate_loop[63] = N
+    let mut f = precompute.miller_first_second(ref q_acc);
+
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[62] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[61] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[60] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[59] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[58] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[57] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[56] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[55] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[54] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[53] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[52] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[51] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[50] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[49] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[48] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[47] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[46] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[45] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[44] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[43] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[42] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[41] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[40] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[39] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[38] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[37] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[36] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[35] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[34] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[33] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[32] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[31] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[30] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[29] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[28] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[27] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[26] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[25] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[24] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[23] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[22] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[21] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[20] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[19] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[18] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[17] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[16] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[15] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[14] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[13] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[12] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[11] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[10] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[ 9] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[ 8] = O
+    f = f.sqr();
+    precompute.miller_bit_n(ref q_acc, ref f); // ate_loop[ 7] = N
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[ 6] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[ 5] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[ 4] = O
+    f = f.sqr();
+    precompute.miller_bit_p(ref q_acc, ref f); // ate_loop[ 3] = P
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[ 2] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[ 1] = O
+    f = f.sqr();
+    precompute.miller_bit_o(ref q_acc, ref f); // ate_loop[ 0] = O
+
     precompute.miller_last(ref q_acc, ref f);
     f
 }
