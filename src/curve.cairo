@@ -4,8 +4,8 @@ mod constants;
 mod groups;
 
 use constants::{
-    T, ORDER, FIELD, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD, U256_MOD_FIELD_INV, B,
-    t_naf, field_nz
+    T, ORDER, FIELD, FIELD_NZ, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD,
+    U256_MOD_FIELD_INV, B, t_naf
 };
 use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT, six_t_plus_2_naf_rev_trimmed};
 use bn::fields::print::u512Display;
@@ -203,12 +203,12 @@ fn mul_by_v_nz(
 
 #[inline(always)]
 fn mul(a: u256, b: u256) -> u256 {
-    m::mul_nz(a, b, field_nz())
+    m::mul_nz(a, b, FIELD_NZ)
 }
 
 #[inline(always)]
 fn scl(a: u256, b: u128) -> u256 {
-    m::scl(a, b, field_nz())
+    m::scl(a, b, FIELD_NZ)
 }
 
 #[inline(always)]
@@ -223,7 +223,7 @@ fn add(mut a: u256, mut b: u256) -> u256 {
 
 #[inline(always)]
 fn sqr(mut a: u256) -> u256 {
-    m::sqr_nz(a, field_nz())
+    m::sqr_nz(a, FIELD_NZ)
 }
 
 #[inline(always)]
@@ -233,10 +233,10 @@ fn sub(mut a: u256, mut b: u256) -> u256 {
 
 #[inline(always)]
 fn div(a: u256, b: u256) -> u256 {
-    m::div_nz(a, b, field_nz())
+    m::div_nz(a, b, FIELD_NZ)
 }
 
 #[inline(always)]
 fn inv(b: u256) -> u256 {
-    m::inv(b, field_nz())
+    m::inv(b, FIELD_NZ)
 }
