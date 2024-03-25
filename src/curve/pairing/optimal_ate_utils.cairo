@@ -124,7 +124,7 @@ fn step_add(
     // λ = 3x²/2y
     let slope = s.chord(q);
     // p = (λ²-2x, λ(x-xr)-y)
-    acc = s.pt_on_slope(slope, acc.x);
+    acc = s.pt_on_slope(slope, q.x);
     line_evaluation_at_p(slope, p_precomp, s)
 }
 
