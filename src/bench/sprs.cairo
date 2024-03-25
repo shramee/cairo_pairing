@@ -1,6 +1,6 @@
 use bn::fields::fq_sparse::FqSparseTrait;
 use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Exponentiation,};
-use bn::curve::{FIELD, u512,};
+use bn::curve::{FIELD, FIELD_NZ, u512,};
 use bn::fields::{sparse_fq6, FqSparse, Fq6Sparse01, Fq12Sparse034, Fq12Sparse01234};
 
 fn a_6() -> Fq6 {
@@ -67,7 +67,7 @@ fn b() -> Fq12Sparse034 {
 #[test]
 #[available_gas(20000000)]
 fn s01_01() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = a();
     let a = sparse_fq6(a.c3, a.c4);
     let b = b();
@@ -78,7 +78,7 @@ fn s01_01() {
 #[test]
 #[available_gas(20000000)]
 fn s01_fq6() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = a();
     let a = sparse_fq6(a.c3, a.c4);
     let b = a_6();
@@ -88,14 +88,14 @@ fn s01_fq6() {
 #[test]
 #[available_gas(20000000)]
 fn s034_034() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     a().mul_034_by_034(b(), field_nz);
 }
 
 #[test]
 #[available_gas(20000000)]
 fn s034_fq12() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = a_12();
     a.mul_034(b(), field_nz);
 }
@@ -103,14 +103,14 @@ fn s034_fq12() {
 #[test]
 #[available_gas(200000000)]
 fn s01234_fq12() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     a_12().mul_01234(a_sparse_01234(), field_nz);
 }
 
 #[test]
 #[available_gas(200000000)]
 fn l1l2_f() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let f = a_12();
     let l1 = a();
     let l2 = b();
@@ -120,7 +120,7 @@ fn l1l2_f() {
 #[test]
 #[available_gas(200000000)]
 fn l1f_l2f() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let f = a_12();
     let l1 = a();
     let l2 = b();

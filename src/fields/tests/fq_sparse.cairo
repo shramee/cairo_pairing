@@ -69,7 +69,7 @@ fn set_01234() -> (Fq12, Fq12Sparse01234) {
 #[test]
 #[available_gas(200000000)]
 fn s01_mul_01() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let (Fq12 { c0: _, c1: a }, a_s) = set_a();
     let a_s = sparse_fq6(a_s.c3, a_s.c4);
     let (Fq12 { c0: _, c1: b }, b_s) = set_b();
@@ -82,7 +82,7 @@ fn s01_mul_01() {
 #[test]
 #[available_gas(200000000)]
 fn fq6_mul_01() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let (Fq12 { c0: _, c1: a }, a_s) = set_a();
     let a_s = sparse_fq6(a_s.c3, a_s.c4);
     let Fq12 { c0: b, c1: _ } = a_12();
@@ -99,7 +99,7 @@ fn fq6_mul_01() {
 #[test]
 #[available_gas(200000000)]
 fn s034_mul_034() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let (a, a_s) = set_a();
     let (b, b_s) = set_b();
     let c = a * b;
@@ -117,7 +117,7 @@ fn s034_mul_034() {
 #[test]
 #[available_gas(200000000)]
 fn fq12_mul_034() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = a_12();
     let (b, b_s) = set_b();
     let c = a * b;
@@ -135,7 +135,7 @@ fn fq12_mul_034() {
 #[test]
 #[available_gas(200000000)]
 fn fq12_mul_01234() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = a_12();
     let (b, b_s) = set_01234();
     let c = a * b;

@@ -71,13 +71,13 @@ mod bench {
     #[test]
     #[available_gas(1000000)]
     fn scl() {
-        f::scl(a, b.low, FIELD.try_into().unwrap());
+        f::scl(a, b.low, FIELD_NZ);
     }
 
     #[test]
     #[available_gas(1000000)]
     fn sqr() {
-        f::sqr_nz(a, FIELD.try_into().unwrap());
+        f::sqr_nz(a, FIELD_NZ);
     }
 
     #[test]
@@ -89,7 +89,7 @@ mod bench {
     #[test]
     #[available_gas(100000000)]
     fn inv() {
-        f::inv(a, FIELD.try_into().unwrap());
+        f::inv(a, FIELD_NZ);
     }
 
     #[test]
@@ -131,7 +131,7 @@ mod bench {
     #[test]
     #[available_gas(100000000)]
     fn div_u() {
-        f::div_u(a, b, FIELD.try_into().unwrap());
+        f::div_u(a, b, FIELD_NZ);
     }
 
     #[test]
@@ -242,11 +242,11 @@ fn test_all_mod_ops() {
         'incorrect div'
     );
     let sqr_mul = f::mul(a, a, FIELD);
-    let sqr = f::sqr_nz(a, FIELD.try_into().unwrap());
+    let sqr = f::sqr_nz(a, FIELD_NZ);
     assert(sqr == sqr_mul, 'incorrect square');
 
     let scl_mul = f::mul(a, u256 { high: 0, low: b.low }, FIELD);
-    let scl = f::scl(a, b.low, FIELD.try_into().unwrap());
+    let scl = f::scl(a, b.low, FIELD_NZ);
     assert(scl == scl_mul, 'incorrect square');
 
     assert(

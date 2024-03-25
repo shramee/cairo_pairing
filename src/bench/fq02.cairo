@@ -3,7 +3,7 @@ use bn::curve as c;
 use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use integer::u512;
 use bn::fields::{fq2, Fq2};
-use bn::curve::FIELD;
+use bn::curve::{FIELD, FIELD_NZ};
 #[test]
 #[available_gas(2000000)]
 fn add() {
@@ -46,8 +46,7 @@ fn mxi() {
 #[test]
 #[available_gas(2000000)]
 fn rdc() {
-    let field_nz = c::FIELD.try_into().unwrap();
-    let _: Fq2 = (u512_one(), u512_one()).to_fq(field_nz);
+    let _: Fq2 = (u512_one(), u512_one()).to_fq(FIELD_NZ);
 }
 
 #[test]
@@ -68,5 +67,5 @@ fn sqru() {
 #[available_gas(2000000)]
 fn inv() {
     let a = fq2(34, 645);
-    a.inv(FIELD.try_into().unwrap());
+    a.inv(FIELD_NZ);
 }

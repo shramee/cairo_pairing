@@ -26,7 +26,7 @@ fn points() -> (PtG1, PtG2) {
 #[available_gas(2500000)]
 fn test_step_double() {
     let (p, mut q) = points();
-    let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
+    let (pc, _) = (p, q).precompute(FIELD_NZ);
 
     let lines = step_double(ref q, @pc.ppc, p, pc.field_nz);
 
@@ -56,7 +56,7 @@ fn test_step_double() {
 #[available_gas(2500000)]
 fn test_step_dbl_add() {
     let (p, q) = points();
-    let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
+    let (pc, _) = (p, q).precompute(FIELD_NZ);
 
     let mut acc = g2(
         0x20101834550a7d15aa7a685d3f0095b689822cb568dfc9690e0cc58e9826d8fb,
@@ -105,7 +105,7 @@ fn test_step_dbl_add() {
 #[available_gas(25000000)]
 fn test_step_correction() {
     let (p, q) = points();
-    let (pc, _) = (p, q).precompute(FIELD.try_into().unwrap());
+    let (pc, _) = (p, q).precompute(FIELD_NZ);
     let mut acc = g2(
         0x235817357e89826e377fd16a7f1a2ff53e0df7e86895b1958bd95fb6560fa941,
         0x22108c7158743b9927b624e1a61a4aa7ba9b2f717799e4e0c5424e8343de2884,

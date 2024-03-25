@@ -1,7 +1,7 @@
 use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use integer::u512;
 use bn::fields::{fq12, fq6, Fq12, Fq12Exponentiation, Fq12Squaring, print::Fq12Display};
-use bn::curve::FIELD;
+use bn::curve::{FIELD, FIELD_NZ};
 
 #[inline(always)]
 fn a() -> Fq12 {
@@ -51,25 +51,25 @@ fn sqr() {
 #[test]
 #[available_gas(20000000)]
 fn sqrc() {
-    a().cyclotomic_sqr(FIELD.try_into().unwrap());
+    a().cyclotomic_sqr(FIELD_NZ);
 }
 
 #[test]
 #[available_gas(20000000)]
 fn ksqr() {
-    a().krbn_compress_2345().sqr_krbn(FIELD.try_into().unwrap());
+    a().krbn_compress_2345().sqr_krbn(FIELD_NZ);
 }
 
 #[test]
 #[available_gas(20000000)]
 fn kdcmp() {
-    a().krbn_compress_2345().krbn_decompress(FIELD.try_into().unwrap());
+    a().krbn_compress_2345().krbn_decompress(FIELD_NZ);
 }
 
 #[test]
 #[available_gas(30000000)]
 fn inv() {
-    a().inv(FIELD.try_into().unwrap());
+    a().inv(FIELD_NZ);
 }
 
 #[test]
@@ -81,7 +81,7 @@ fn z_esy() {
 #[test]
 #[available_gas(20000000000)]
 fn xp_t() {
-    a().exp_by_neg_t(FIELD.try_into().unwrap());
+    a().exp_by_neg_t(FIELD_NZ);
 }
 
 #[test]
@@ -101,5 +101,5 @@ fn z_hrd() {
         0x2ed2c21f4810cf49ad8f51cc1bd2d28972a066bb153f23f87e955496865cccb4,
         0x24c11b663b70d224c7c3f096026b6aa418a4945ffcc6d8aaa5522633b2836b49,
     )
-        .final_exponentiation_hard_part(FIELD.try_into().unwrap());
+        .final_exponentiation_hard_part(FIELD_NZ);
 }

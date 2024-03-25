@@ -23,7 +23,7 @@ fn u512_basic() {
 #[test]
 #[available_gas(20000000)]
 fn u512_add_overflow() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = bi(
         0xb644cf8c3632b365f7ecd91ecbc56e37,
         0x7c98ebc8858f41d26746b3b9cd81f524,
@@ -67,7 +67,7 @@ fn u512_add_overflow() {
 #[test]
 #[available_gas(20000000)]
 fn u512_u256_add() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = bi(FIELD.high, FIELD.low, FIELD.high, FIELD.low,); // a = 0 mod FIELD
     let b = 0xf444d17ddb44b1e72ef0b482a1ceaaf4ec43dcc2c5a0b44f59c9ee33ed61806a;
     let b_r = reduce(b, field_nz);
@@ -88,7 +88,7 @@ fn u512_u256_add() {
 #[test]
 #[available_gas(20000000)]
 fn u512_u256_sub() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = bi(FIELD.high, FIELD.low, FIELD.high, FIELD.low,); // a = 0 mod FIELD
     let b = 0xf444d17ddb44b1e72ef0b482a1ceaaf4ec43dcc2c5a0b44f59c9ee33ed61806a;
     let b_r = reduce(b, field_nz);
@@ -109,7 +109,7 @@ fn u512_u256_sub() {
 #[test]
 #[available_gas(20000000)]
 fn u512_sub_overflow() {
-    let field_nz = FIELD.try_into().unwrap();
+    let field_nz = FIELD_NZ;
     let a = bi(
         0xb644cf8c3632b365f7ecd91ecbc56e37,
         0x7c98ebc8858f41d26746b3b9cd81f524,

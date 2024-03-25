@@ -1,7 +1,7 @@
 use bn::traits::FieldUtils;
 use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use integer::u512;
-use bn::curve::{U512BnAdd, U512BnSub, FIELD};
+use bn::curve::{U512BnAdd, U512BnSub, FIELD, FIELD_NZ};
 use bn::fields::{fq, Fq, FqMulShort};
 #[test]
 #[available_gas(2000000)]
@@ -46,8 +46,7 @@ fn mulu() {
 #[test]
 #[available_gas(2000000)]
 fn rdc() {
-    let field_nz = FIELD.try_into().unwrap();
-    let _: Fq = u512_one().to_fq(field_nz);
+    let _: Fq = u512_one().to_fq(FIELD_NZ);
 }
 
 #[test]
@@ -68,5 +67,5 @@ fn sqru() {
 #[available_gas(2000000)]
 fn inv() {
     let a = fq(645);
-    a.inv(FIELD.try_into().unwrap());
+    a.inv(FIELD_NZ);
 }

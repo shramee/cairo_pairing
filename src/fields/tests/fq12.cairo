@@ -114,7 +114,7 @@ fn div() {
 fn inv() {
     let a = fq12(34, 645, 31, 55, 140, 105, 1, 1, 1, 1, 1, 1);
     let b = fq12(25, 45, 11, 43, 86, 101, 1, 1, 1, 1, 1, 1);
-    let a_inv = FieldOps::inv(a, FIELD.try_into().unwrap());
+    let a_inv = FieldOps::inv(a, FIELD_NZ);
     let c = a * a_inv;
     let d = b * a_inv;
 

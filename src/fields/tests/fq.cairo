@@ -30,7 +30,7 @@ fn u256_mod_ops() -> Array<u256> {
 #[available_gas(0xf0000)]
 fn inv_one() {
     let one: Fq = FieldUtils::one();
-    assert(one.inv(FIELD.try_into().unwrap()) == one, 'incorrect inverse of one');
+    assert(one.inv(FIELD_NZ) == one, 'incorrect inverse of one');
 }
 
 #[test]

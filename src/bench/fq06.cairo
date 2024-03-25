@@ -1,7 +1,7 @@
 use super::{u512_one, m, PrintTrait, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use integer::u512;
 use bn::fields::{fq6, Fq6};
-use bn::curve::{FIELD};
+use bn::curve::{FIELD, FIELD_NZ};
 #[test]
 #[available_gas(20000000)]
 fn add() {
@@ -52,5 +52,5 @@ fn sqru() {
 #[available_gas(20000000)]
 fn inv() {
     let a = fq6(34, 645, 20, 55, 140, 105);
-    a.inv(FIELD.try_into().unwrap());
+    a.inv(FIELD_NZ);
 }
