@@ -1,15 +1,17 @@
 // test bn::tests::bench_exponentiation ... ok (gas usage est.: 481387400)
-// test bn::tests::bench_miller ... ok (gas usage est.: 2718980270)
-// test bn::tests::bench_pairing ... ok (gas usage est.: 3200369570)
-// test bn::tests::bilinear_g1 ... ok (gas usage est.: 9604662570)
-// test bn::tests::bilinear_g2 ... ok (gas usage est.: 9604662570)
-// test bn::tests::bilinearity ... ok (gas usage est.: 6400749840)
-// test bn::tests::quadratic_constraints ... ok (gas usage est.: 6401351370)
+// test bn::tests::bench_miller ... ok (gas usage est.: 528721710)
+// test bn::tests::bench_pairing ... ok (gas usage est.: 1010111010)
+// test bn::tests::bilinear_g1 ... ok (gas usage est.: 3033886890)
+// test bn::tests::bilinear_g2 ... ok (gas usage est.: 3033886890)
+// test bn::tests::bilinearity ... ok (gas usage est.: 2020232720)
+// test bn::tests::quadratic_constraints ... ok (gas usage est.: 2020834250)
 
 use bn::curve::groups::ECOperations;
-use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2};
+use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, Fq2, fq12, Fq12, print::Fq12Display};
-use bn::curve::pairing::tate_bkls::{tate_pairing, tate_miller_loop};
+use bn::curve::pairing;
+use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
+use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use bn::fields::Fq12Exponentiation;
 use debug::PrintTrait;
 
@@ -66,11 +68,16 @@ fn q(n: u8) -> Affine<Fq2> {
         AffineG2Impl::one()
     }
 }
+#[test]
+#[available_gas(20000000000)]
+fn bench_pairing() -> Fq12 {
+    single_ate_pairing(p(5), q(3))
+}
 
 #[test]
 #[available_gas(20000000000)]
 fn bench_miller() {
-    tate_miller_loop(p(5), q(3));
+    ate_miller_loop(p(5), q(3));
 }
 
 #[test]
@@ -93,11 +100,6 @@ fn bench_exponentiation() {
         .final_exponentiation();
 }
 
-#[test]
-#[available_gas(20000000000)]
-fn bench_pairing() -> Fq12 {
-    tate_pairing(p(5), q(3))
-}
 // In tests below, P is G1 generator and Q is G2 generator
 
 // Tests switched inputs,
@@ -106,9 +108,8 @@ fn bench_pairing() -> Fq12 {
 #[available_gas(20000000000)]
 fn bilinearity() {
     internal::revoke_ap_tracking();
-    let p_5_3 = tate_pairing(p(5), q(3));
-    let p_3_5 = tate_pairing(p(3), q(5));
-    // println!("{}",p_5_3);
+    let p_5_3 = single_ate_pairing(p(5), q(3));
+    let p_3_5 = single_ate_pairing(p(3), q(5));
     assert(p_5_3 == p_3_5, 'p_5_3 == p_3_5 failed')
 }
 
@@ -118,9 +119,9 @@ fn bilinearity() {
 #[available_gas(20000000000)]
 fn bilinear_g1() {
     internal::revoke_ap_tracking();
-    let p_5_3 = tate_pairing(p(5), q(3));
-    let p_2_3 = tate_pairing(p(2), q(3));
-    let p_3_3 = tate_pairing(p(3), q(3));
+    let p_5_3 = single_ate_pairing(p(5), q(3));
+    let p_2_3 = single_ate_pairing(p(2), q(3));
+    let p_3_3 = single_ate_pairing(p(3), q(3));
     assert(p_5_3 == p_2_3 * p_3_3, 'e([2+3]g1,[3]g2) failed')
 }
 
@@ -131,7 +132,8 @@ fn bilinear_g1() {
 fn bilinear_g2() {
     internal::revoke_ap_tracking();
     assert(
-        tate_pairing(p(2), q(5)) == tate_pairing(p(2), q(2)) * tate_pairing(p(2), q(3)),
+        single_ate_pairing(p(2), q(5)) == single_ate_pairing(p(2), q(2))
+            * single_ate_pairing(p(2), q(3)),
         'e([2]g1,[2+3]g2) failed'
     )
 }
@@ -142,5 +144,9 @@ fn bilinear_g2() {
 #[available_gas(20000000000)]
 fn quadratic_constraints() {
     internal::revoke_ap_tracking();
-    assert(tate_pairing(p(3), q(2)) == tate_pairing(p(1), q(5).add(q(1))), 'e([3]g1,[2]g2) failed')
+    assert(
+        single_ate_pairing(p(3), q(2)) == single_ate_pairing(p(1), q(5).add(q(1))),
+        'e([3]g1,[2]g2) failed'
+    )
 }
+
