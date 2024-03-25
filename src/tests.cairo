@@ -1,10 +1,10 @@
-// test bn::tests::bench_exponentiation ... ok (gas usage est.: 557407850)
-// test bn::tests::bench_miller ... ok (gas usage est.: 3142295590)
-// test bn::tests::bench_pairing ... ok (gas usage est.: 3699705340)
-// test bn::tests::bilinear_g1 ... ok (gas usage est.: 11103255380)
-// test bn::tests::bilinear_g2 ... ok (gas usage est.: 11103255380)
-// test bn::tests::bilinearity ... ok (gas usage est.: 7399460780)
-// test bn::tests::quadratic_constraints ... ok (gas usage est.: 7400153700)
+// test bn::tests::bench_exponentiation ... ok (gas usage est.: 481387400)
+// test bn::tests::bench_miller ... ok (gas usage est.: 2718980270)
+// test bn::tests::bench_pairing ... ok (gas usage est.: 3200369570)
+// test bn::tests::bilinear_g1 ... ok (gas usage est.: 9604662570)
+// test bn::tests::bilinear_g2 ... ok (gas usage est.: 9604662570)
+// test bn::tests::bilinearity ... ok (gas usage est.: 6400749840)
+// test bn::tests::quadratic_constraints ... ok (gas usage est.: 6401351370)
 
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2};
