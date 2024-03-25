@@ -31,7 +31,7 @@ use bn::fields::frobenius::pi;
 // Line evaluations
 // ----------------
 // Line evaluations use a D-type twist,
-// g[2]ψ(S)(P) = 1 − λ·xₚ/yₚ·w + (λxₛ − yₛ)/yₚ·w³
+// gψₛ(P) = 1 − λ·xₚ/yₚ·w + (λxₛ − yₛ)/yₚ·w³
 // Represented by a 034 sparse element in Fq12 over Fq2
 // (1, 0, 0, -λ·xₚ/yₚ, (λxₛ − yₛ)/yₚ, 0)
 // 
@@ -76,6 +76,7 @@ fn step_dbl_add(
 
     // s + (s + q)
     // λ2 = (y2-y1)/(x2-x1), subbing y1 = λ(x2-x1)+y1
+    // λ2 = -λ1-2y1/(x3-x1)
     let slope2 = -slope1 - (s.y.u_add(s.y)) / (x1 - s.x);
     acc = s.pt_on_slope(slope2, x1);
     let line2 = line_evaluation_at_p(slope2, p_precomp, s);
@@ -97,11 +98,7 @@ fn step_double_to_f(
 fn step_double(
     ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, field_nz: NonZero<u256>
 ) -> Fq12Sparse034 {
-    // acc + q
-    // acc = acc + (acc + q)
-    // line function
     let s = acc;
-
     // λ = 3x²/2y
     let slope = s.tangent();
     // p = (λ²-2x, λ(x-xr)-y)
@@ -116,11 +113,7 @@ fn step_double(
 fn step_add(
     ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
 ) -> Fq12Sparse034 {
-    // acc + q
-    // acc = acc + (acc + q)
-    // line function
     let s = acc;
-
     // λ = 3x²/2y
     let slope = s.chord(q);
     // p = (λ²-2x, λ(x-xr)-y)
@@ -177,25 +170,25 @@ fn correction_step(
     (d, e)
 }
 
-// For πₚ frobeneusmap
+// For πₚ frobeneus map
 // Multiply by Fp2::NONRESIDUE^(2((q^1) - 1)/6)
 fn fq2_by_nonresidue_1p_2(a: Fq2) -> Fq2 {
     a * fq2(pi::Q1X2_C0, pi::Q1X2_C1)
 }
 
-// For πₚ frobeneusmap
+// For πₚ frobeneus map
 // Multiply by Fp2::NONRESIDUE^(3((q^1) - 1)/6)
 fn fq2_by_nonresidue_1p_3(a: Fq2) -> Fq2 {
     a * fq2(pi::Q1X3_C0, pi::Q1X3_C1)
 }
 
-// For πₚ² frobeneusmap
+// For πₚ² frobeneus map
 // Multiply by Fp2::NONRESIDUE^(2(p^2-1)/6)
 fn fq2_by_nonresidue_2p_2(a: Fq2) -> Fq2 {
     a.scale(fq(pi::Q2X2_C0))
 }
 
-// For πₚ² frobeneusmap
+// For πₚ² frobeneus map
 // Multiply by Fp2::NONRESIDUE^(3(p^2-1)/6)
 fn fq2_by_nonresidue_2p_3(a: Fq2) -> Fq2 {
     a.scale(fq(pi::Q2X3_C0))
