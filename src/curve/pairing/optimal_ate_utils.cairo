@@ -42,19 +42,19 @@ struct PPrecompute {
     y_inv: Fq,
 }
 
+type PPre = PPrecompute;
+type NZNum = NonZero<u256>;
+type F034 = Fq12Sparse034;
+
 // Takes p precompute, slope and a g2 point to return line evaluation at p
 // line evaluation is of the form (1, 0, 0, -λ·xₚ/yₚ, (λxₛ − yₛ)/yₚ, 0)
 #[inline(always)]
-fn line_evaluation_at_p(slope: Fq2, p_precomp: @PPrecompute, s: PtG2) -> Fq12Sparse034 {
-    Fq12Sparse034 {
-        c3: slope.scale(*p_precomp.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_precomp.y_inv),
-    }
+fn line_evaluation_at_p(slope: Fq2, p_pre: @PPre, s: PtG2) -> F034 {
+    F034 { c3: slope.scale(*p_pre.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_pre.y_inv), }
 }
 
-fn step_dbl_add_to_f(
-    ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
-) {
-    let (l1, l2) = step_dbl_add(ref acc, p_precomp, p, q, field_nz);
+fn step_dbl_add_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) {
+    let (l1, l2) = step_dbl_add(ref acc, p_pre, p, q, field_nz);
     f = f.mul_034(l1, field_nz);
     f = f.mul_034(l2, field_nz);
 }
@@ -63,106 +63,92 @@ fn step_dbl_add_to_f(
 // computes acc = acc + q + acc and line evals for p
 // returns product of line evaluations to multiply with f
 #[inline(always)]
-fn step_dbl_add(
-    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
-) -> (Fq12Sparse034, Fq12Sparse034) {
+fn step_dbl_add(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> (F034, F034) {
     let s = acc;
     // s + q
     let slope1 = s.chord(q);
     let x1 = s.x_on_slope(slope1, q.x);
-    let line1 = line_evaluation_at_p(slope1, p_precomp, s);
+    let line1 = line_evaluation_at_p(slope1, p_pre, s);
 
     // we skip y1 calculation and sub slope1 directly in second slope calculation
 
     // s + (s + q)
-    // λ2 = (y2-y1)/(x2-x1), subbing y1 = λ(x2-x1)+y1
+    // λ2 = (y2-y1)/(x2-x1), subbing y2 = λ(x2-x1)+y1
     // λ2 = -λ1-2y1/(x3-x1)
     let slope2 = -slope1 - (s.y.u_add(s.y)) / (x1 - s.x);
     acc = s.pt_on_slope(slope2, x1);
-    let line2 = line_evaluation_at_p(slope2, p_precomp, s);
+    let line2 = line_evaluation_at_p(slope2, p_pre, s);
 
     // line functions
     (line1, line2)
 }
 
-fn step_double_to_f(
-    ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, field_nz: NonZero<u256>
-) {
-    f = f.mul_034(step_double(ref acc, p_precomp, p, field_nz), field_nz);
+fn step_double_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, field_nz: NZNum) {
+    f = f.mul_034(step_double(ref acc, p_pre, p, field_nz), field_nz);
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
 // computes acc = 2 * acc and line eval for p
 // returns line evaluation to multiply with f
 #[inline(always)]
-fn step_double(
-    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, field_nz: NonZero<u256>
-) -> Fq12Sparse034 {
+fn step_double(ref acc: PtG2, p_pre: @PPre, p: PtG1, field_nz: NZNum) -> F034 {
     let s = acc;
     // λ = 3x²/2y
     let slope = s.tangent();
     // p = (λ²-2x, λ(x-xr)-y)
     acc = s.pt_on_slope(slope, acc.x);
-    line_evaluation_at_p(slope, p_precomp, s)
+    line_evaluation_at_p(slope, p_pre, s)
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
 // computes acc = 2 * acc and line eval for p
 // returns line evaluation to multiply with f
 #[inline(always)]
-fn step_add(
-    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
-) -> Fq12Sparse034 {
+fn step_add(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> F034 {
     let s = acc;
     // λ = 3x²/2y
     let slope = s.chord(q);
     // p = (λ²-2x, λ(x-xr)-y)
     acc = s.pt_on_slope(slope, q.x);
-    line_evaluation_at_p(slope, p_precomp, s)
+    line_evaluation_at_p(slope, p_pre, s)
 }
 
 fn correction_step_to_f(
-    ref acc: PtG2, ref f: Fq12, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
+    ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum
 ) {
     // Realm of pairings, Algorithm 1, lines 10 mul into f
     // f ← f·(d·e)
-    let (l1, l2) = correction_step(ref acc, p_precomp, p, q, field_nz);
+    let (l1, l2) = correction_step(ref acc, p_pre, p, q, field_nz);
     f = f.mul_034(l1, field_nz);
     f = f.mul_034(l2, field_nz);
 }
 
 // Realm of pairings, Algorithm 1, lines 8, 9, 10
 // https://eprint.iacr.org/2013/722.pdf
-// Code referenced from gnark
+// Code inspired by gnark
 // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/sw_bn254/pairing.go#L529
 #[inline(always)]
-fn correction_step(
-    ref acc: PtG2, p_precomp: @PPrecompute, p: PtG1, q: PtG2, field_nz: NonZero<u256>
-) -> (Fq12Sparse034, Fq12Sparse034) {
+fn correction_step(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> (F034, F034) {
     // Line 9: Q1 ← πₚ(Q),Q2 ← πₚ²(Q)
-
     // πₚ(x,y) = (xp,yp)
     // Q1 = π(Q)
-    let q1 = Affine {
-        x: fq2_by_nonresidue_1p_2(q.x.conjugate()), //
-        y: fq2_by_nonresidue_1p_3(q.y.conjugate()), //
-    };
+    let q1 = Affine { x: fq2_mul_nr_1p_2(q.x.conjugate()), y: fq2_mul_nr_1p_3(q.y.conjugate()), };
 
     // Q2 = -π²(Q)
-    let q2 = Affine { x: fq2_by_nonresidue_2p_2(q.x), y: fq2_by_nonresidue_2p_3(q.y).neg(), };
+    let q2 = Affine { x: fq2_mul_nr_2p_2(q.x), y: fq2_mul_nr_2p_3(q.y).neg(), };
 
-    // Line 10: if u < 0 then T ← −T,f ← fp6
+    // Line 10: if u < 0 then T ← −T, f ← fp6
     // skip line 10, ∵ x > 0
 
     // Line 11: d ← (gT,Q1)(P), T ← T + Q1, e ← (gT,−Q2)(P), T ← T − Q2
 
     // d ← (gT,Q1)(P), T ← T + Q1
-    let d = step_add(ref acc, p_precomp, p, q1, field_nz);
+    let d = step_add(ref acc, p_pre, p, q1, field_nz);
 
     // e ← (gT,−Q2)(P), T ← T − Q2
     // we can skip the T ← T − Q2 step coz we don't need the final point, just the line function
     let slope = acc.chord(q2);
-    let e = line_evaluation_at_p(slope, p_precomp, acc);
+    let e = line_evaluation_at_p(slope, p_pre, acc);
 
     // f ← f·(d·e) is left for the caller
 
@@ -172,24 +158,24 @@ fn correction_step(
 
 // For πₚ frobeneus map
 // Multiply by Fp2::NONRESIDUE^(2((q^1) - 1)/6)
-fn fq2_by_nonresidue_1p_2(a: Fq2) -> Fq2 {
+fn fq2_mul_nr_1p_2(a: Fq2) -> Fq2 {
     a * fq2(pi::Q1X2_C0, pi::Q1X2_C1)
 }
 
 // For πₚ frobeneus map
 // Multiply by Fp2::NONRESIDUE^(3((q^1) - 1)/6)
-fn fq2_by_nonresidue_1p_3(a: Fq2) -> Fq2 {
+fn fq2_mul_nr_1p_3(a: Fq2) -> Fq2 {
     a * fq2(pi::Q1X3_C0, pi::Q1X3_C1)
 }
 
 // For πₚ² frobeneus map
 // Multiply by Fp2::NONRESIDUE^(2(p^2-1)/6)
-fn fq2_by_nonresidue_2p_2(a: Fq2) -> Fq2 {
+fn fq2_mul_nr_2p_2(a: Fq2) -> Fq2 {
     a.scale(fq(pi::Q2X2_C0))
 }
 
 // For πₚ² frobeneus map
 // Multiply by Fp2::NONRESIDUE^(3(p^2-1)/6)
-fn fq2_by_nonresidue_2p_3(a: Fq2) -> Fq2 {
+fn fq2_mul_nr_2p_3(a: Fq2) -> Fq2 {
     a.scale(fq(pi::Q2X3_C0))
 }
