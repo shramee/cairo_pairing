@@ -3,7 +3,7 @@ use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fast_mod::{u512_high_add};
 use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce, u512_add, u512_sub};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::curve::FIELD;
+use bn::curve::{FIELD, FIELD_NZ};
 use bn::fields::{Fq, fq,};
 use debug::PrintTrait;
 use bn::fields::print::u512Display;
@@ -162,9 +162,10 @@ impl Fq2MulShort of FieldMulShortcuts<Fq2, (u512, u512)> {
     fn u_sqr(self: Fq2) -> (u512, u512) {
         let Fq2 { c0: a0, c1: a1 } = self;
 
-        // 1: t0 ←a0 +a1,t1 ←a0 ⊖a1 2: T0 ← t0 × t1
+        // 1: t0 ← a0 + a1, t1 ← a0 ⊖ a1
         let t0 = a0.u_add(a1);
         let t1 = a0 - a1; // ⊖ = modded sub
+        // 2: T0 ← t0 × t1
         let T0 = t0.u_mul(t1);
         // 3: t0 ← a0 + a0
         let t0 = a0.u_add(a0);
@@ -195,7 +196,7 @@ impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn mul(self: Fq2, rhs: Fq2) -> Fq2 {
         // Aranha mul_u + 2r
-        let field_nz = FIELD.try_into().unwrap();
+        let field_nz = FIELD_NZ;
         self.u_mul(rhs).to_fq(field_nz)
     // Karatsuba
     // let Fq2{c0: a0, c1: a1 } = self;
@@ -222,7 +223,7 @@ impl Fq2Ops of FieldOps<Fq2> {
 
     #[inline(always)]
     fn div(self: Fq2, rhs: Fq2) -> Fq2 {
-        self.mul(rhs.inv(FIELD.try_into().unwrap()))
+        self.mul(rhs.inv(FIELD_NZ))
     }
 
     #[inline(always)]
@@ -238,7 +239,7 @@ impl Fq2Ops of FieldOps<Fq2> {
     #[inline(always)]
     fn sqr(self: Fq2) -> Fq2 {
         // Aranha sqr_u + 2r
-        let field_nz = FIELD.try_into().unwrap();
+        let field_nz = FIELD_NZ;
         self.u_sqr().to_fq(field_nz)
     // // Complex squaring
     // let Fq2{c0: a0, c1: a1 } = self;

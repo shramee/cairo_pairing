@@ -6,32 +6,32 @@
 // test bn::math::fast_mod_tests::bench::add ... ok (gas usage est.: 9060)
 // test bn::math::fast_mod_tests::bench::add_u ... ok (gas usage est.: 3110)
 // test bn::math::fast_mod_tests::bench::div ... ok (gas usage est.: 69700)
-// test bn::math::fast_mod_tests::bench::div_u ... ok (gas usage est.: 48710)
-// test bn::math::fast_mod_tests::bench::inv ... ok (gas usage est.: 29070)
+// test bn::math::fast_mod_tests::bench::div_u ... ok (gas usage est.: 48510)
+// test bn::math::fast_mod_tests::bench::inv ... ok (gas usage est.: 28870)
 // test bn::math::fast_mod_tests::bench::mul ... ok (gas usage est.: 41830)
 // test bn::math::fast_mod_tests::bench::mul_u ... ok (gas usage est.: 20130)
-// test bn::math::fast_mod_tests::bench::reduce ... ok (gas usage est.: 6950)
-// test bn::math::fast_mod_tests::bench::scl ... ok (gas usage est.: 28630)
+// test bn::math::fast_mod_tests::bench::rdc ... ok (gas usage est.: 6950)
+// test bn::math::fast_mod_tests::bench::scl ... ok (gas usage est.: 28430)
 // test bn::math::fast_mod_tests::bench::scl_u ... ok (gas usage est.: 7140)
-// test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 38600)
+// test bn::math::fast_mod_tests::bench::sqr ... ok (gas usage est.: 38100)
 // test bn::math::fast_mod_tests::bench::sqr_u ... ok (gas usage est.: 16900)
 // test bn::math::fast_mod_tests::bench::sub ... ok (gas usage est.: 5240)
 // test bn::math::fast_mod_tests::bench::sub_u ... ok (gas usage est.: 3110)
 // test bn::math::fast_mod_tests::bench::u512_add ... ok (gas usage est.: 7980)
 // test bn::math::fast_mod_tests::bench::u512_add_high ... ok (gas usage est.: 3420)
 // test bn::math::fast_mod_tests::bench::u512_add_u256 ... ok (gas usage est.: 4960)
-// test bn::math::fast_mod_tests::bench::u512_red ... ok (gas usage est.: 21390)
+// test bn::math::fast_mod_tests::bench::u512_rdc ... ok (gas usage est.: 21390)
 // test bn::math::fast_mod_tests::bench::u512_scl ... ok (gas usage est.: 14950)
 // test bn::math::fast_mod_tests::bench::u512_sub ... ok (gas usage est.: 7980)
 // test bn::math::fast_mod_tests::bench::u512_sub_high ... ok (gas usage est.: 3420)
 // test bn::math::fast_mod_tests::bench::u512_sub_u256 ... ok (gas usage est.: 4960)
-// test bn::math::fast_mod_tests::test_all_mod_ops ... ok (gas usage est.: 364370)
+// test bn::math::fast_mod_tests::test_all_mod_ops ... ok (gas usage est.: 363770)
 
 use core::option::OptionTrait;
 use core::traits::TryInto;
 use bn::fast_mod as f;
 use f::{u512, u512Display};
-use bn::curve::FIELD;
+use bn::curve::{FIELD, FIELD_NZ};
 use debug::PrintTrait;
 
 const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
@@ -48,8 +48,7 @@ mod bench {
     use super::mu512;
     use bn::fast_mod as f;
     use f::{u512};
-
-    use super::{a, b, FIELD};
+    use super::{a, b, FIELD, FIELD_NZ};
     #[test]
     #[available_gas(1000000)]
     fn add() {
@@ -94,7 +93,7 @@ mod bench {
 
     #[test]
     #[available_gas(100000000)]
-    fn reduce() {
+    fn rdc() {
         f::reduce(a, b.try_into().unwrap());
     }
 
@@ -172,7 +171,7 @@ mod bench {
 
     #[test]
     #[available_gas(100000000)]
-    fn u512_red() {
+    fn u512_rdc() {
         f::u512_reduce(mu512(a.low, a.high, b.low, b.high), b.try_into().unwrap());
     }
 

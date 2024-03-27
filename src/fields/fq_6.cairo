@@ -1,4 +1,4 @@
-use bn::curve::{FIELD};
+use bn::curve::{FIELD, FIELD_NZ};
 use bn::curve::{
     U512Fq2Ops, u512, U512BnAdd, Tuple2Add, U512BnSub, Tuple2Sub, mul_by_xi, mul_by_xi_nz,
     u512_reduce, u512_add, u512_sub
@@ -194,7 +194,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
         let Fq6 { c0: a0, c1: a1, c2: a2 } = self;
         let Fq6 { c0: b0, c1: b1, c2: b2 } = rhs;
-        let field_nz = FIELD.try_into().unwrap();
+        let field_nz = FIELD_NZ;
 
         // v0 = a0b0, v1 = a1b1, v2 = a2b2
         let (V0, V1, V2,) = (a0.u_mul(b0), a1.u_mul(b1), a2.u_mul(b2),);
@@ -216,7 +216,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
     fn u_sqr(self: Fq6) -> SixU512 {
         core::internal::revoke_ap_tracking();
         let Fq6 { c0, c1, c2 } = self;
-        let field_nz = FIELD.try_into().unwrap();
+        let field_nz = FIELD_NZ;
 
         // let s0 = c0.sqr();
         let S0 = c0.u_sqr();
@@ -268,7 +268,7 @@ impl Fq6Ops of FieldOps<Fq6> {
 
     #[inline(always)]
     fn div(self: Fq6, rhs: Fq6) -> Fq6 {
-        let field_nz = FIELD.try_into().unwrap();
+        let field_nz = FIELD_NZ;
         self.u_mul(rhs.inv(field_nz)).to_fq(field_nz)
     }
 
@@ -285,6 +285,7 @@ impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]
     fn sqr(self: Fq6) -> Fq6 {
         core::internal::revoke_ap_tracking();
+        // try_into is faster than FIELD_NZ for some reason
         let field_nz = FIELD.try_into().unwrap();
         self.u_sqr().to_fq(field_nz)
     }
@@ -292,6 +293,7 @@ impl Fq6Ops of FieldOps<Fq6> {
     #[inline(always)]
     fn inv(self: Fq6, field_nz: NonZero<u256>) -> Fq6 {
         core::internal::revoke_ap_tracking();
+        // try_into is faster than FIELD_NZ for some reason
         let field_nz = FIELD.try_into().unwrap();
         let Fq6 { c0, c1, c2 } = self;
         // let c0 = self.c0.sqr() - self.c1 * self.c2.mul_by_nonresidue();
@@ -311,3 +313,31 @@ impl Fq6Ops of FieldOps<Fq6> {
     }
 }
 
+fn ch_sqr2(a: Fq6, rhs: Fq6) -> SixU512 {
+    core::internal::revoke_ap_tracking();
+    let Fq6 { c0, c1, c2 } = a;
+    let field_nz = FIELD.try_into().unwrap();
+
+    // let s0 = c0.sqr();
+    let S0 = c0.u_sqr();
+    // let ab = c0 * c1;
+    let AB = c0.u_mul(c1);
+    // let s1 = ab + ab;
+    let S1 = AB + AB;
+    // let s2 = (c0 + c2 - c1).sqr();
+    let S2 = (c0.u_add(c2) - c1).u_sqr();
+    // let bc = c1 * c2;
+    let BC = c1.u_mul(c2);
+    // let s3 = bc + bc;
+    let S3 = BC + BC;
+    // let s4 = a.c2.sqr();
+    let S4 = c2.u_sqr();
+
+    // let c0 = s0 + s3.mul_by_nonresidue();
+    let C0 = S0 + mul_by_xi_nz(S3, field_nz);
+    // let c1 = s1 + s4.mul_by_nonresidue();
+    let C1 = S1 + mul_by_xi_nz(S4, field_nz);
+    // let c2 = s1 + s2 + s3 - s0 - s4;
+    let C2 = S1 + S2 + S3 - S0 - S4;
+    (C0, C1, C2)
+}
