@@ -7,7 +7,7 @@ use core::array::ArrayTrait;
 use bn::curve::{t_naf, FIELD, FIELD_X2};
 use bn::curve::{u512, mul_by_xi_nz, mul_by_v, U512BnAdd, U512BnSub, Tuple2Add, Tuple2Sub,};
 use bn::curve::{u512_add, u512_sub, u512_high_add, u512_high_sub, U512Fq2Ops};
-use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, Fq12Frobenius};
+use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, ufq2_inv, Fq6, Fq12, fq12, Fq12Frobenius};
 use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq2Display, FqDisplay, u512Display};
 
@@ -82,7 +82,7 @@ impl Fq12Squaring of Fq12SquaringTrait {
             let S4 = g4.u_sqr();
             let Tmp = S4.u512_sub_fq(g3); // S4 - g3
             let g1: Fq2 = (S5xi + S4.u_add(Tmp.u_add(Tmp))).to_fq(field_nz); // (S5ξ + 3S4 - 2g3)
-            let g1 = g1.mul(x4(g2).fix_mod().inv(field_nz)); // div by 4g2
+            let g1 = g1.mul(ufq2_inv(x4(g2), field_nz)); // div by 4g2
 
             // g0 = (2S1 + g2g5 - 3g3g4)ξ + 1
             let S1 = g1.u_sqr();

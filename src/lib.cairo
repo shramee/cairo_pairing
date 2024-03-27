@@ -30,7 +30,9 @@ mod fields {
     }
     use fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
     use fq_1::{Fq, FqOps, FqShort, FqMulShort, FqUtils, fq, FqIntoU512Tuple};
-    use fq_2::{Fq2, Fq2Ops, Fq2Short, Fq2MulShort, Fq2Utils, fq2, Fq2Frobenius, Fq2IntoU512Tuple};
+    use fq_2::{
+        Fq2, Fq2Ops, Fq2Short, Fq2MulShort, Fq2Utils, fq2, Fq2Frobenius, Fq2IntoU512Tuple, ufq2_inv
+    };
     use fq_6::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6, Fq6Frobenius, SixU512};
     use fq_12::{Fq12, Fq12Ops, Fq12Utils, fq12, Fq12Frobenius};
     use fq_12_exponentiation::Fq12Exponentiation;
