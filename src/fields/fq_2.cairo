@@ -258,8 +258,8 @@ impl Fq2Ops of FieldOps<Fq2> {
         // Mul by non residue -1 makes negative
         // Lazy reduction applied from Faster Explicit Formulas for Computing Pairings over Ordinary Curves
 
-        let field_nz = FIELD.try_into().unwrap();
-        let t = (self.c0.u_sqr() + self.c1.u_sqr()).to_fq(field_nz).inv(field_nz);
+        let field_nz = FIELD_NZ;
+        let t = u512_add(self.c0.u_sqr(), self.c1.u_sqr()).to_fq(field_nz).inv(field_nz);
 
         Fq2 { c0: self.c0 * t, c1: self.c1 * -t, }
     }
