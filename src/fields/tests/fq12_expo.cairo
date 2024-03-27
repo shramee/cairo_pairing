@@ -52,7 +52,7 @@ fn sqr() -> Fq12 {
 // fn krbn_experiments() {
 //     let Fq12 { c0: Fq6 { c0: _, c1: _, c2: g2 }, c1: Fq6 { c0: g3, c1: g4, c2: g5 } } =
 //         a_cyc();
-//     let field_nz: NonZero<u256> = FIELD_NZ;
+//     let field_nz: NonZero<u256> = get_field_nz();
 //     let asq = sqr();
 //     // Si,j = (gi + gj )^2 and Si = gi^2
 //     // let S2: (u512, u512) = g2.u_sqr();
@@ -87,14 +87,14 @@ fn compare_fq2(a: Fq2, b: Fq2, help: ByteArray) {
     println!("\n\n{} match: {}{}{}", help, a == b, a, b);
 }
 fn print_fq2(a: (u512, u512), help: ByteArray) {
-    let a: Fq2 = a.to_fq(FIELD_NZ);
+    let a: Fq2 = a.to_fq(get_field_nz());
     println!("\n\n{} {}", help, a);
 }
 
 #[test]
 #[available_gas(200000000)]
 fn krbn1235() {
-    let field_nz: NonZero<u256> = FIELD_NZ;
+    let field_nz: NonZero<u256> = get_field_nz();
     let a = a_cyc().sqr_krbn_1235(field_nz);
     let Fq12 { c0: Fq6 { c0: _g0, c1: g1, c2: g2 }, c1: Fq6 { c0: g3, c1: _g4, c2: g5 } } = a;
     let Fq12 { c0: Fq6 { c0: _s0, c1: s1, c2: s2 }, c1: Fq6 { c0: s3, c1: _s4, c2: s5 } } = sqr();
@@ -107,7 +107,7 @@ fn krbn1235() {
 #[test]
 #[available_gas(200000000)]
 fn krbn2345() {
-    let field_nz: NonZero<u256> = FIELD_NZ;
+    let field_nz: NonZero<u256> = get_field_nz();
     let a = a_cyc().krbn_compress_2345().sqr_krbn(field_nz);
     let Krbn2345 { g2, g3, g4, g5, } = a;
     let Krbn2345 { g2: s2, g3: s3, g4: s4, g5: s5, } = sqr().krbn_compress_2345();
@@ -121,7 +121,7 @@ fn krbn2345() {
 #[available_gas(50000000)]
 fn expand_2345() {
     let a = a_cyc();
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     let asq_decompressed = a.krbn_compress_2345().krbn_decompress(field_nz);
     assert(a == asq_decompressed, 'incorrect krbn_decompress');
 }
@@ -130,7 +130,7 @@ fn expand_2345() {
 #[available_gas(50000000)]
 fn sqr_cyc() {
     let a = a_cyc();
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     assert(a.cyclotomic_sqr(field_nz) == sqr(), 'incorrect square');
 }
 
@@ -215,13 +215,13 @@ fn exponentiation_compare() {
 #[test]
 #[available_gas(100000000)]
 fn pow_test() {
-    let field_nz: NonZero<u256> = FIELD_NZ;
+    let field_nz: NonZero<u256> = get_field_nz();
     let x = easy_result();
     let o = (false, false);
     let p = (true, true);
     let n = (true, false);
     let xpow = x.exp_naf(array![n, o, o, p], field_nz);
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     let expected = x.cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz).cyclotomic_sqr(field_nz) / x;
     assert(xpow == expected, 'incorrect pow');
 }

@@ -4,7 +4,7 @@ use core::traits::TryInto;
 use bn::traits::FieldShortcuts;
 use bn::traits::FieldMulShortcuts;
 use core::array::ArrayTrait;
-use bn::curve::{t_naf, FIELD_NZ, FIELD_X2};
+use bn::curve::{t_naf, get_field_nz, FIELD_X2};
 use bn::curve::{u512, mul_by_xi_nz, mul_by_v, U512BnAdd, U512BnSub, Tuple2Add, Tuple2Sub,};
 use bn::curve::{u512_add, u512_sub, u512_high_add, u512_high_sub, U512Fq2Ops};
 use bn::fields::{FieldUtils, FieldOps, fq, Fq, Fq2, Fq6, Fq12, fq12, Fq12Frobenius, Fq12Squaring};
@@ -120,7 +120,7 @@ impl Fq12Exponentiation of PairingExponentiationTrait {
     }
 
     fn final_exponentiation(self: Fq12) -> Fq12 {
-        let field_nz = FIELD_NZ;
+        let field_nz = get_field_nz();
         self.final_exponentiation_easy_part().final_exponentiation_hard_part(field_nz)
     }
 

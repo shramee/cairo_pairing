@@ -5,7 +5,7 @@ use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq6, fq6, Fq6Utils, fq2, Fq6Frobenius, Fq6MulShort, Fq6Short};
 use bn::fields::frobenius::fp12 as frob;
-use bn::curve::{FIELD};
+use bn::curve::{FIELD, get_field_nz};
 use bn::curve::{
     u512, U512BnAdd, Tuple2Add, Tuple3Add, U512BnSub, Tuple2Sub, Tuple3Sub, u512_reduce, mul_by_v_nz
 };
@@ -162,7 +162,7 @@ impl Fq12Ops of FieldOps<Fq12> {
     }
 
     fn div(self: Fq12, rhs: Fq12) -> Fq12 {
-        self.mul(rhs.inv(FIELD.try_into().unwrap()))
+        self.mul(rhs.inv(get_field_nz()))
     }
 
     fn neg(self: Fq12) -> Fq12 {

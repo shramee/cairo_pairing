@@ -31,7 +31,7 @@ use core::option::OptionTrait;
 use core::traits::TryInto;
 use bn::fast_mod as f;
 use f::{u512, u512Display};
-use bn::curve::{FIELD, FIELD_NZ};
+use bn::curve::{FIELD, get_field_nz};
 use debug::PrintTrait;
 
 const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
@@ -48,7 +48,7 @@ mod bench {
     use super::mu512;
     use bn::fast_mod as f;
     use f::{u512};
-    use super::{a, b, FIELD, FIELD_NZ};
+    use super::{a, b, FIELD, get_field_nz};
     #[test]
     #[available_gas(1000000)]
     fn add() {
@@ -70,13 +70,13 @@ mod bench {
     #[test]
     #[available_gas(1000000)]
     fn scl() {
-        f::scl(a, b.low, FIELD_NZ);
+        f::scl(a, b.low, get_field_nz());
     }
 
     #[test]
     #[available_gas(1000000)]
     fn sqr() {
-        f::sqr_nz(a, FIELD_NZ);
+        f::sqr_nz(a, get_field_nz());
     }
 
     #[test]
@@ -88,7 +88,7 @@ mod bench {
     #[test]
     #[available_gas(100000000)]
     fn inv() {
-        f::inv(a, FIELD_NZ);
+        f::inv(a, get_field_nz());
     }
 
     #[test]
@@ -130,7 +130,7 @@ mod bench {
     #[test]
     #[available_gas(100000000)]
     fn div_u() {
-        f::div_u(a, b, FIELD_NZ);
+        f::div_u(a, b, get_field_nz());
     }
 
     #[test]
@@ -241,11 +241,11 @@ fn test_all_mod_ops() {
         'incorrect div'
     );
     let sqr_mul = f::mul(a, a, FIELD);
-    let sqr = f::sqr_nz(a, FIELD_NZ);
+    let sqr = f::sqr_nz(a, get_field_nz());
     assert(sqr == sqr_mul, 'incorrect square');
 
     let scl_mul = f::mul(a, u256 { high: 0, low: b.low }, FIELD);
-    let scl = f::scl(a, b.low, FIELD_NZ);
+    let scl = f::scl(a, b.low, get_field_nz());
     assert(scl == scl_mul, 'incorrect square');
 
     assert(

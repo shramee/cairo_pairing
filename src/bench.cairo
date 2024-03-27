@@ -32,7 +32,7 @@
 // test bn::bench::fq12::sqrc ... ok (gas usage est.: 1928850)
 // test bn::bench::fq12::sub ... ok (gas usage est.: 62990)
 // test bn::bench::fq12::xp_t ... ok (gas usage est.: 141137180)
-// test bn::bench::fq12::z_esy ... ok (gas usage est.: 13714740)
+// test bn::bench::fq12::z_esy ... ok (gas usage est.: 13714340)
 // test bn::bench::fq12::z_hrd ... ok (gas usage est.: 467526370)
 // test bn::bench::sprs::l1f_l2f ... ok (gas usage est.: 3740860)
 // test bn::bench::sprs::l1l2_f ... ok (gas usage est.: 3801510)

@@ -114,7 +114,7 @@ fn mul_aggregate() {
         i += 1;
     };
 
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     assert(acc_sum_u.to_fq(field_nz) == acc_sum, 'incorrect mul');
     assert(acc_sub_u.to_fq(field_nz) == acc_sub, 'incorrect mul');
 }
@@ -128,7 +128,7 @@ fn mul_assoc() {
     let ab = a * b;
     let C: (u512, u512) = a.u_mul(b);
 
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     assert(ab * c == a * (b * c), 'incorrect mul');
     assert(ab == C.to_fq(field_nz), 'incorrect u512 mul');
 }
@@ -145,7 +145,7 @@ fn div() {
 #[test]
 #[available_gas(2000000)]
 fn inv() {
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     let a = fq2(34, 645);
     let b = fq2(25, 45);
     let a_inv = FieldOps::inv(a, field_nz);
@@ -165,7 +165,7 @@ fn inv() {
 #[available_gas(0xf0000)]
 fn inv_one() {
     let one: Fq2 = FieldUtils::one();
-    let one_inv = one.inv(FIELD_NZ);
+    let one_inv = one.inv(get_field_nz());
     assert(one_inv == one, 'incorrect inverse of one');
 }
 
@@ -186,7 +186,7 @@ fn non_residue() {
 #[test]
 #[available_gas(5000000)]
 fn non_residue_u512() {
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     let AB = a().u_mul(b());
     let ab_xi = mul_by_xi(AB);
     let ab = a() * b();

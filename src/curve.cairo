@@ -4,7 +4,7 @@ mod constants;
 mod groups;
 
 use constants::{
-    T, ORDER, FIELD, FIELD_NZ, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD,
+    T, ORDER, FIELD, FIELD_NZ, get_field_nz, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD,
     U256_MOD_FIELD_INV, B, t_naf
 };
 use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT, six_t_plus_2_naf_rev_trimmed};
@@ -153,7 +153,7 @@ impl U512BnSub of Sub<u512> {
 
 #[inline(always)]
 fn u512_reduce_bn(a: u512) -> u256 {
-    u512_reduce(a, FIELD_NZ)
+    u512_reduce(a, get_field_nz())
 }
 
 #[inline(always)]
@@ -171,7 +171,7 @@ fn u512_scl_9(a: u512, field_nz: NonZero<u256>) -> u512 {
 
 // ξ = 9 + i
 fn mul_by_xi(t: (u512, u512)) -> (u512, u512) {
-    let field_nz = FIELD_NZ;
+    let field_nz = get_field_nz();
     let (t0, t1): (u512, u512) = t;
     (u512_scl_9(t0, field_nz) - t1, //
      t0 + u512_scl_9(t1, field_nz))
@@ -203,12 +203,12 @@ fn mul_by_v_nz(
 
 #[inline(always)]
 fn mul(a: u256, b: u256) -> u256 {
-    m::mul_nz(a, b, FIELD_NZ)
+    m::mul_nz(a, b, get_field_nz())
 }
 
 #[inline(always)]
 fn scl(a: u256, b: u128) -> u256 {
-    m::scl(a, b, FIELD_NZ)
+    m::scl(a, b, get_field_nz())
 }
 
 #[inline(always)]
@@ -223,7 +223,7 @@ fn add(mut a: u256, mut b: u256) -> u256 {
 
 #[inline(always)]
 fn sqr(mut a: u256) -> u256 {
-    m::sqr_nz(a, FIELD_NZ)
+    m::sqr_nz(a, get_field_nz())
 }
 
 #[inline(always)]
@@ -233,10 +233,10 @@ fn sub(mut a: u256, mut b: u256) -> u256 {
 
 #[inline(always)]
 fn div(a: u256, b: u256) -> u256 {
-    m::div_nz(a, b, FIELD_NZ)
+    m::div_nz(a, b, get_field_nz())
 }
 
 #[inline(always)]
 fn inv(b: u256) -> u256 {
-    m::inv(b, FIELD_NZ)
+    m::inv(b, get_field_nz())
 }

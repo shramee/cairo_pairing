@@ -98,7 +98,7 @@ fn div() {
 #[available_gas(500000000)]
 fn inv() {
     core::internal::revoke_ap_tracking();
-    let b_inv = b().inv(FIELD_NZ);
+    let b_inv = b().inv(get_field_nz());
     let one = b() * b_inv;
     assert(one == FieldUtils::one(), 'incorrect inv 1');
     let aob = a() * b_inv;

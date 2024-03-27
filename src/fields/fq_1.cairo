@@ -1,4 +1,4 @@
-use bn::curve::{FIELD, FIELD_NZ, add, sub, mul, scl, sqr, div, neg, inv};
+use bn::curve::{FIELD, get_field_nz, add, sub, mul, scl, sqr, div, neg, inv};
 use bn::curve::{add_u, sub_u, mul_u, sqr_u, scl_u, u512_reduce, u512_add_u256, u512_sub_u256};
 use integer::u512;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
@@ -36,7 +36,7 @@ impl FqShort of FieldShortcuts<Fq> {
 
     #[inline(always)]
     fn fix_mod(self: Fq) -> Fq {
-        let (_q, c0, _) = integer::u256_safe_divmod(self.c0, FIELD_NZ);
+        let (_q, c0, _) = integer::u256_safe_divmod(self.c0, get_field_nz());
         Fq { c0 }
     }
 }

@@ -4,7 +4,7 @@ use bn::fields::{Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::{groups, pairing::optimal_ate_impls};
 use groups::{g1, g2, ECGroup};
 use groups::{Affine, AffineG1, AffineG2, AffineOps};
-use bn::curve::{six_t_plus_2_naf_rev_trimmed, FIELD_NZ};
+use bn::curve::{six_t_plus_2_naf_rev_trimmed, get_field_nz};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 
@@ -51,7 +51,7 @@ fn ate_miller_loop<
 ) -> Fq12 {
     gas::withdraw_gas().unwrap();
     core::internal::revoke_ap_tracking();
-    let (precompute, mut q_acc) = (p, q).precompute(FIELD_NZ);
+    let (precompute, mut q_acc) = (p, q).precompute(get_field_nz());
     let precompute = @precompute; // To avoid copying, use snapshot var
 
     // ate_loop[64] = O and ate_loop[63] = N
