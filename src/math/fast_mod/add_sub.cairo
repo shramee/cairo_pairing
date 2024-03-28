@@ -41,7 +41,11 @@ fn add_nz(mut a: u256, mut b: u256, modulo: NonZero<u256>) -> u256 {
 
 #[inline(always)]
 fn add(mut a: u256, mut b: u256, modulo: u256) -> u256 {
-    add_nz(a, b, modulo.try_into().unwrap())
+    let res = add_u(a, b);
+    match u256_overflow_sub(res, modulo) {
+        Result::Ok(v) => v,
+        Result::Err(_) => res
+    }
 }
 
 #[inline(always)]
