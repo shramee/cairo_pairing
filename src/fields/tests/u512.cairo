@@ -1,6 +1,6 @@
 use core::traits::TryInto;
 use bn::traits::FieldOps;
-use bn::curve::{FIELD, u512, U512BnAdd, U512BnSub, u512Display};
+use bn::curve::{FIELD, get_field_nz, u512, U512BnAdd, U512BnSub, u512Display};
 use bn::curve::{u512_reduce, u512_sub_u256, u512_add_u256, reduce};
 use bn::fields::{fq, Fq, fq2, Fq2, FieldUtils, FqIntoU512Tuple, Fq2IntoU512Tuple};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};

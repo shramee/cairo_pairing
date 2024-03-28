@@ -7,7 +7,8 @@ use bn::fields::{
     Fq2IntoU512Tuple
 };
 use bn::curve::{
-    FIELD, u512, Tuple2Add, Tuple2Sub, U512BnAdd, U512BnSub, u512_sub_u256, u512_add, u512_sub
+    FIELD, get_field_nz, u512, Tuple2Add, Tuple2Sub, U512BnAdd, U512BnSub, u512_sub_u256, u512_add,
+    u512_sub
 };
 use bn::fields::fq_12_squaring::{x2, x4, X2, mul_by_xi_nz, Krbn2345, Fq12Squaring};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};

@@ -1,7 +1,7 @@
 use bn::traits::FieldOps;
 use bn::fields::{fq, Fq, fq2, Fq2, FieldUtils};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::curve::FIELD;
+use bn::curve::{FIELD, get_field_nz};
 use debug::PrintTrait;
 
 fn ops() -> Array<Fq> {

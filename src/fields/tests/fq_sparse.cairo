@@ -2,7 +2,7 @@ use bn::traits::FieldMulShortcuts;
 use bn::fields::fq_sparse::FqSparseTrait;
 use bn::traits::{FieldOps, FieldUtils};
 use bn::fields::{fq, fq2, Fq2, fq12, Fq12, Fq6, fq6, Fq12Ops, Fq12Exponentiation,};
-use bn::curve::{FIELD, u512,};
+use bn::curve::{FIELD, u512, get_field_nz};
 use bn::fields::{FqSparse, Fq6Sparse01, Fq12Sparse034, Fq12Sparse01234, sparse_fq6};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{Fq12Display, Fq2Display};

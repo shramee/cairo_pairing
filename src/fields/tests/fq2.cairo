@@ -1,7 +1,7 @@
 use core::array::ArrayTrait;
 use core::clone::Clone;
 use core::traits::TryInto;
-use bn::curve::FIELD;
+use bn::curve::{FIELD, get_field_nz};
 use bn::fast_mod as f;
 use f::u512;
 

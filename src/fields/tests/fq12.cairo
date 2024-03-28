@@ -3,7 +3,7 @@ use bn::fields::{fq12, Fq12, Fq6, fq6, Fq12Ops};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl, Fq6PrintImpl, Fq12PrintImpl};
 use bn::fields::print::Fq12Display;
-use bn::curve::FIELD;
+use bn::curve::{FIELD, get_field_nz};
 use debug::PrintTrait;
 
 fn a() -> Fq12 {
@@ -38,6 +38,27 @@ fn b() -> Fq12 {
         0x236942b30ace732d8b186b0702ea748b375e4405799aa59cf2ae5459f99216f4,
         0x10fc55420be890b138082d746e66bf86f4efe8190cc83313a792dd156bc76e1f,
     )
+}
+
+fn fq12_with_issue() -> Fq12 {
+    Fq12 {
+        c0: fq6(
+            0xe8d05700cbaab93b441c09983f3685aef9224168ff238592f258563ac99832e,
+            0x256e979abb0949c663912f0c94c783083b2f9aef60eed3874f0c05b509ece77e,
+            0x136422ebea152069595d9a5c34c2555c1a73d633dec2ab3948a2d9032aa35902,
+            0x59fa24a21586beb933cef7182d9fd408e2a6b073d2b3a864b1e22d15715d92a,
+            0x9b3a0af3cb4d116007cd0403ff969c4394dec287e28978a789a9201f5f349d1,
+            0x13f5161a12c927da1cd9c1e93f74f171464863e6a3c5eb97477a0d4ec77033d5
+        ),
+        c1: fq6(
+            0xbfacc92c92431c069df3a3b2e4bc81b7c5c48a45cf04f601d2cd65732729d51,
+            0x298580f69115463837b2ef9be7f010b43853f38f6a2377498ca726d2a8525577,
+            0x6c5640eaaa11a66ffd4c16d45e4b56ae7fcb32b863d844074ecae02d9c69733,
+            0x11a2d812bbd400ad3785d75ca26ff0ba1f18c3d7aa2d4a47f8e640272a0a6e05,
+            0x9782d0b27035aa1fb4b67c6c1ba49279aec08798044cb78748b1a7d6dfddfff,
+            0x2e864adc49640c05e1940de8011858fb5fd1abf52c5b941d46ec7717a50fbd9c
+        )
+    }
 }
 
 // Needs to be updated for new xi = 1 + i
@@ -79,7 +100,8 @@ fn one() {
 #[test]
 #[available_gas(50000000)]
 fn sqr() {
-    assert(a().sqr() == a() * a(), 'incorrect square');
+    let a = fq12_with_issue();
+    assert(a.sqr() == a * a, 'incorrect square');
 }
 
 #[test]
