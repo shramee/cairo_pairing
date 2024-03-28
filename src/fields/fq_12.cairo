@@ -5,9 +5,11 @@ use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{Fq6, fq6, Fq6Utils, fq2, Fq6Frobenius, Fq6MulShort, Fq6Short};
 use bn::fields::frobenius::fp12 as frob;
+use bn::fields::print::{Fq6Display};
 use bn::curve::{FIELD, get_field_nz};
 use bn::curve::{
-    u512, U512BnAdd, Tuple2Add, Tuple3Add, U512BnSub, Tuple2Sub, Tuple3Sub, u512_reduce, mul_by_v_nz
+    u512, U512BnAdd, Tuple2Add, Tuple3Add, U512BnSub, Tuple2Sub, Tuple3Sub, u512_reduce,
+    mul_by_v_nz, U512Fq6Ops
 };
 use debug::PrintTrait;
 
@@ -195,9 +197,7 @@ impl Fq12Ops of FieldOps<Fq12> {
     fn sqr(self: Fq12) -> Fq12 {
         core::internal::revoke_ap_tracking();
         let field_nz = FIELD.try_into().unwrap();
-
         let Fq12 { c0: a0, c1: a1 } = self;
-
         // Complex squaring
         let V = a0.u_mul(a1);
         // (a0 + a1) * (a0 + βa1) - v - βv
@@ -215,4 +215,19 @@ impl Fq12Ops of FieldOps<Fq12> {
 
         Fq12 { c0: self.c0 * t, c1: -(self.c1 * t), }
     }
+}
+fn fq12_karatsuba_sqr(a: Fq12) -> Fq12 {
+    core::internal::revoke_ap_tracking();
+    let field_nz = FIELD.try_into().unwrap();
+    let Fq12 { c0: a0, c1: a1 } = a;
+    // Karatsuba squaring
+    // v0 = a0² , v1 = a1²
+    let V0 = a0.u_sqr();
+    let V1 = a1.u_sqr();
+
+    // c0 = v0 + βv1
+    let C0 = V0 + mul_by_v_nz(V1, field_nz);
+    // c1 = (a0 +a1)² - v0 - v1,
+    let C1 = (a0 + a1).u_sqr() - V0 - V1;
+    Fq12 { c0: C0.to_fq(field_nz), c1: C1.to_fq(field_nz) }
 }
