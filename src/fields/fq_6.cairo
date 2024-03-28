@@ -185,8 +185,8 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         (C0.u512_sub_fq(rhs.c0), C1.u512_sub_fq(rhs.c1), C2.u512_sub_fq(rhs.c2))
     }
 
+    // A reimplementation in Karatsuba multiplication with lazy reduction
     // Faster Explicit Formulas for Computing Pairings over Ordinary Curves
-    // A reimplementation in Karatsuba squaring with lazy reduction
     // uppercase vars are u512, lower case are u256
     #[inline(always)]
     fn u_mul(self: Fq6, rhs: Fq6) -> SixU512 {
@@ -226,7 +226,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         // let s1 = ab + ab;
         let S1 = AB + AB;
         // let s2 = (c0 + c2 - c1).sqr();
-        let S2 = (c0.u_add(c2) - c1).u_sqr();
+        let S2 = (c0 + c2 - c1).u_sqr();
         // let bc = c1 * c2;
         let BC = c1.u_mul(c2);
         // let s3 = bc + bc;
@@ -240,6 +240,7 @@ impl Fq6MulShort of FieldMulShortcuts<Fq6, SixU512> {
         let C1 = S1 + mul_by_xi_nz(S4, field_nz);
         // let c2 = s1 + s2 + s3 - s0 - s4;
         let C2 = S1 + S2 + S3 - S0 - S4;
+
         (C0, C1, C2)
     }
 
@@ -312,31 +313,20 @@ impl Fq6Ops of FieldOps<Fq6> {
     }
 }
 
-fn ch_sqr2(a: Fq6, rhs: Fq6) -> SixU512 {
+fn fq6_karatsuba_sqr(a: Fq6, rhs: Fq6) -> SixU512 {
     core::internal::revoke_ap_tracking();
-    let Fq6 { c0, c1, c2 } = a;
+    let Fq6 { c0: a0, c1: a1, c2: a2 } = a;
     let field_nz = get_field_nz();
 
-    // let s0 = c0.sqr();
-    let S0 = c0.u_sqr();
-    // let ab = c0 * c1;
-    let AB = c0.u_mul(c1);
-    // let s1 = ab + ab;
-    let S1 = AB + AB;
-    // let s2 = (c0 + c2 - c1).sqr();
-    let S2 = (c0.u_add(c2) - c1).u_sqr();
-    // let bc = c1 * c2;
-    let BC = c1.u_mul(c2);
-    // let s3 = bc + bc;
-    let S3 = BC + BC;
-    // let s4 = a.c2.sqr();
-    let S4 = c2.u_sqr();
+    // Karatsuba squaring
+    // v0 = a0a0, v1 = a1a1, v2 = a2a2
+    let (V0, V1, V2,) = (a0.u_sqr(), a1.u_sqr(), a2.u_sqr(),);
 
-    // let c0 = s0 + s3.mul_by_nonresidue();
-    let C0 = S0 + mul_by_xi_nz(S3, field_nz);
-    // let c1 = s1 + s4.mul_by_nonresidue();
-    let C1 = S1 + mul_by_xi_nz(S4, field_nz);
-    // let c2 = s1 + s2 + s3 - s0 - s4;
-    let C2 = S1 + S2 + S3 - S0 - S4;
+    // c0 = v0 + ξ((a1 + a2)(a1 + a2) - v1 - v2)
+    let C0 = V0 + mul_by_xi_nz((a1 + a2).u_sqr() - V1 - V2, field_nz);
+    // c1 =(a0 + a1)(a0 + a1) - v0 - v1 + ξv2
+    let C1 = (a0 + a1).u_sqr() - V0 - V1 + mul_by_xi_nz(V2, field_nz);
+    // c2 = (a0 + a2)(a0 + a2) - v0 + v1 - v2,
+    let C2 = (a0 + a2).u_sqr() - V0 + V1 - V2;
     (C0, C1, C2)
 }
