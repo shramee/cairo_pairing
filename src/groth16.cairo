@@ -27,6 +27,5 @@ fn simple_test() {
     let lhs = single_ate_pairing(A_G1, B_G2);
     let rhs = single_ate_pairing(C_G1, AffineG2Impl::one());
     let nlhs = single_ate_pairing(neg_A_G1, B_G2);
-    println!("nlhs * rhs = {}", nlhs * rhs);
-    assert(lhs == rhs, 'lhs == rhs failed')
+    assert(nlhs * rhs == fq12(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 'lhs == rhs failed')
 }
