@@ -6,6 +6,7 @@ use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
+
 #[test]
 #[available_gas(20000000000)]
 fn simple_test() {
@@ -24,8 +25,9 @@ fn simple_test() {
         21755526246297599392782387322262927251662305599666002632514868138515690603377,
         19883332083442129478217826420060112230198011363938980948134718366700920887106
     );
-    let lhs = single_ate_pairing(A_G1, B_G2);
-    let rhs = single_ate_pairing(C_G1, AffineG2Impl::one());
-    let nlhs = single_ate_pairing(neg_A_G1, B_G2);
-    assert(nlhs * rhs == fq12(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 'lhs == rhs failed')
+    let rhs = ate_miller_loop(C_G1, AffineG2Impl::one());
+    let nlhs = ate_miller_loop(neg_A_G1, B_G2);
+    let pairing_product = (nlhs * rhs).final_exponentiation();
+    assert(pairing_product == fq12(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 'lhs == rhs failed')
 }
+
