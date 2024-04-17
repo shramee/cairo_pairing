@@ -107,3 +107,26 @@ fn test_alphabeta_miller() {
     let (alpha, beta, _, _, alphabeta_miller, _) = vk();
     assert(alphabeta_miller == ate_miller_loop(alpha, beta), 'incorrect miller precompute');
 }
+
+#[test]
+#[available_gas(20000000000)]
+fn groth16_verify() {
+    // Verification key parameters
+    let (_, _, gamma, delta, albe_miller, ic) = vk();
+    let (ic1, ic2) = ic;
+    // Proof parameters
+    let (pi_a, pi_b, pi_c, pub_input,) = proof();
+
+    let k = ic1.add(ic2.multiply(pub_input));
+    println!("k =  g1(\n{},\n{}\n)", k.x.c0, k.y.c0);
+
+    let neg_pi_a = g1(pi_a.x.c0, pi_a.y.neg().c0);
+
+    // -A * B + alpha * beta + C * delta + K * gamma = 0
+    let proof = ate_miller_loop(neg_pi_a, pi_b)
+        * albe_miller
+        * ate_miller_loop(k, gamma)
+        * ate_miller_loop(pi_c, delta);
+
+    assert(proof.final_exponentiation() == Fq12Utils::one(), 'verification failed');
+}
