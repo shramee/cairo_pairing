@@ -1,3 +1,4 @@
+use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
@@ -28,7 +29,7 @@ fn simple_test() {
     let rhs = ate_miller_loop(C_G1, AffineG2Impl::one());
     let nlhs = ate_miller_loop(neg_A_G1, B_G2);
     let pairing_product = (nlhs * rhs).final_exponentiation();
-    assert(pairing_product == fq12(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 'lhs == rhs failed')
+    assert(pairing_product == Fq12Utils::one(), 'lhs == rhs failed')
 }
 
 fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) {
@@ -64,7 +65,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) 
             10404924572941018678793755094259635830045501866471999610240845041996101882275
         )
     );
-    let alpha_beta_miller = fq12(
+    let alphabeta_miller = fq12(
         0x27c20318505e03cea84a04223b8679a6c84c1e55e83957a21e8986c1b8140510,
         0x104bb1b78f934618c94ba0290a964c58f1400e450e9e19680c39a8aca6fa15f4,
         0x2e56f81476f8d79f0caef927ac110b77cec88490d0860c746d82583440bb8919,
@@ -78,5 +79,13 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) 
         0x248dde6270e066921eb8b68c10a9b7cec6c6578448ca84545f3cb401a20ce0b1,
         0x2e430a046c424c8096a48dfde0872d5eb21ce9195b5e5ec6f28f1cfae9c7d29d
     );
-    (alpha, beta, gamma, delta, alpha_beta_miller, inputs)
+    (alpha, beta, gamma, delta, alphabeta_miller, inputs)
+}
+
+#[test]
+#[available_gas(20000000000)]
+fn test_alphabeta_miller() {
+    let (alpha, beta, _, _, alphabeta_miller, _) = vk();
+    assert(alphabeta_miller == ate_miller_loop(alpha, beta), 'incorrect miller precompute');
+}
 }
