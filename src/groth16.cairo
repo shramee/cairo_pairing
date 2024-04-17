@@ -55,7 +55,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) 
         20154620275540267962893477662314018482859018034691595131178696575286779357689,
         4547106032091524596969837323375385497187441697194445474662172759730343393129
     );
-    let inputs = (
+    let ic = (
         g1(
             1655549413518972190198478012616802994254462093161203201613599472264958303841,
             21742734017792296281216385119397138748114275727065024271646515586404591497876
@@ -79,14 +79,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) 
         0x248dde6270e066921eb8b68c10a9b7cec6c6578448ca84545f3cb401a20ce0b1,
         0x2e430a046c424c8096a48dfde0872d5eb21ce9195b5e5ec6f28f1cfae9c7d29d
     );
-    (alpha, beta, gamma, delta, alphabeta_miller, inputs)
-}
-
-#[test]
-#[available_gas(20000000000)]
-fn test_alphabeta_miller() {
-    let (alpha, beta, _, _, alphabeta_miller, _) = vk();
-    assert(alphabeta_miller == ate_miller_loop(alpha, beta), 'incorrect miller precompute');
+    (alpha, beta, gamma, delta, alphabeta_miller, ic)
 }
 
 fn proof() -> (AffineG1, AffineG2, AffineG1, u256) {
@@ -107,4 +100,10 @@ fn proof() -> (AffineG1, AffineG2, AffineG1, u256) {
     let pub_input = 16941831391195391826097405368824996545623792600381113317588874714920518273658;
     (pi_a, pi_b, pi_c, pub_input,)
 }
+
+#[test]
+#[available_gas(20000000000)]
+fn test_alphabeta_miller() {
+    let (alpha, beta, _, _, alphabeta_miller, _) = vk();
+    assert(alphabeta_miller == ate_miller_loop(alpha, beta), 'incorrect miller precompute');
 }
