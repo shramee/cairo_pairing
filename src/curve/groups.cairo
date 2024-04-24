@@ -90,7 +90,7 @@ impl AffineOps<
 
     fn multiply(self: @Affine<T>, mut multiplier: u256) -> Affine<T> {
         let nz2: NonZero<u256> = 2_u256.try_into().unwrap();
-        let mut dbl_step = ECGImpl::one();
+        let mut dbl_step = *self;
         let mut result = ECGImpl::one();
         let mut first_add_done = false;
 
