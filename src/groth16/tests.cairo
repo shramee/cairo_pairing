@@ -2,11 +2,12 @@ use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
-use bn::fields::{Fq, Fq2, print::Fq12Display};
+use bn::fields::{Fq, Fq2, print::{FqDisplay, Fq12Display}};
 use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
+use bn::groth16::utils::{process_input_constraints};
 
 #[test]
 #[available_gas(20000000000)]
@@ -117,15 +118,13 @@ fn groth16_verify() {
     let (pi_a, pi_b, pi_c, pub_input,) = proof();
     let neg_pi_a = g1(pi_a.x.c0, pi_a.y.neg().c0);
 
-    let k = ic0.add(ic1.multiply(pub_input));
-    println!("k_eval = g1(\n{},\n{}\n)", k.x, k.y);
+    // let k = ic0.add(ic1.multiply(pub_input)).add(AffineG1Impl::one());
+    let k = process_input_constraints(ic0, (ic1, pub_input));
 
     let k = g1(
         0x2a19c7f11730a65418bf61072fd2f53e14fed6af20bb2e2afd02fec373b0d88b,
         0x105516a7cbc84b625b7b27806881921d5988f63e5dcbdecaf31ad02334e05e89
     );
-
-    println!("k_expected =  g1(\n{},\n{}\n)", k.x, k.y);
 
     // -A * B + alpha * beta + C * delta + K * gamma = 0
     let proof = ate_miller_loop(neg_pi_a, pi_b)
@@ -134,8 +133,6 @@ fn groth16_verify() {
         * ate_miller_loop(pi_c, delta);
 
     let proved = proof.final_exponentiation();
-
-    println!("proof =  {}", proved);
 
     assert(proved == Fq12Utils::one(), 'verification failed');
 }
