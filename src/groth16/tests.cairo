@@ -121,11 +121,6 @@ fn groth16_verify() {
     // let k = ic0.add(ic1.multiply(pub_input)).add(AffineG1Impl::one());
     let k = process_input_constraints(ic0, (ic1, pub_input));
 
-    let k = g1(
-        0x2a19c7f11730a65418bf61072fd2f53e14fed6af20bb2e2afd02fec373b0d88b,
-        0x105516a7cbc84b625b7b27806881921d5988f63e5dcbdecaf31ad02334e05e89
-    );
-
     // -A * B + alpha * beta + C * delta + K * gamma = 0
     let proof = ate_miller_loop(neg_pi_a, pi_b)
         * albe_miller

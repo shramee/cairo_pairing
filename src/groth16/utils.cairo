@@ -12,13 +12,8 @@ use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 type G1 = AffineG1;
 
 fn process_input_constraints<T, +ICProcess<T>, +Drop<T>>(start_pt: G1, ic: T) -> G1 {
-    let k = g1(0, 1);
-
-    let ic_point = ic.process_inputs_and_ic();
-
-    let k = k.add(ic_point);
-
-    k.add(start_pt)
+    // println!("\nstart_pt = g1({},{})", start_pt.x, start_pt.y);
+    start_pt.add(ic.process_inputs_and_ic())
 }
 
 trait ICProcess<T> {
@@ -26,6 +21,7 @@ trait ICProcess<T> {
 }
 
 impl IC1Input of ICProcess<(G1, u256)> {
+    #[inline(always)]
     fn process_inputs_and_ic(self: (G1, u256)) -> G1 {
         let (ic, input) = self;
         ic.multiply(input)
@@ -33,6 +29,7 @@ impl IC1Input of ICProcess<(G1, u256)> {
 }
 
 impl IC2Inputs of ICProcess<((G1, G1), (u256, u256))> {
+    #[inline(always)]
     fn process_inputs_and_ic(self: ((G1, G1), (u256, u256))) -> G1 {
         let ((ic0, ic1), (in0, in1)) = self;
         ic0.multiply(in0) //
@@ -41,6 +38,7 @@ impl IC2Inputs of ICProcess<((G1, G1), (u256, u256))> {
 }
 
 impl IC3Inputs of ICProcess<((G1, G1, G1), (u256, u256, u256))> {
+    #[inline(always)]
     fn process_inputs_and_ic(self: ((G1, G1, G1), (u256, u256, u256))) -> G1 {
         let ((ic0, ic1, ic2), (in0, in1, in2)) = self;
 
@@ -51,6 +49,7 @@ impl IC3Inputs of ICProcess<((G1, G1, G1), (u256, u256, u256))> {
 }
 
 impl IC4Inputs of ICProcess<((G1, G1, G1, G1), (u256, u256, u256, u256))> {
+    #[inline(always)]
     fn process_inputs_and_ic(self: ((G1, G1, G1, G1), (u256, u256, u256, u256))) -> G1 {
         let ((ic0, ic1, ic2, ic3), (in0, in1, in2, in3)) = self;
 
