@@ -1,3 +1,4 @@
+use core::array::ArrayTrait;
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::{FieldOps, FieldShortcuts};
 use bn::curve::groups::ECOperations;
@@ -28,5 +29,35 @@ impl IC1Input of ICProcess<(G1, u256)> {
     fn process_inputs_and_ic(self: (G1, u256)) -> G1 {
         let (ic, input) = self;
         ic.multiply(input)
+    }
+}
+
+impl IC2Inputs of ICProcess<((G1, G1), (u256, u256))> {
+    fn process_inputs_and_ic(self: ((G1, G1), (u256, u256))) -> G1 {
+        let ((ic0, ic1), (in0, in1)) = self;
+        ic0.multiply(in0) //
+        .add(ic1.multiply(in1))
+    }
+}
+
+impl IC3Inputs of ICProcess<((G1, G1, G1), (u256, u256, u256))> {
+    fn process_inputs_and_ic(self: ((G1, G1, G1), (u256, u256, u256))) -> G1 {
+        let ((ic0, ic1, ic2), (in0, in1, in2)) = self;
+
+        ic0.multiply(in0) //
+        .add(ic1.multiply(in1)) //
+        .add(ic2.multiply(in2))
+    }
+}
+
+impl IC4Inputs of ICProcess<((G1, G1, G1, G1), (u256, u256, u256, u256))> {
+    fn process_inputs_and_ic(self: ((G1, G1, G1, G1), (u256, u256, u256, u256))) -> G1 {
+        let ((ic0, ic1, ic2, ic3), (in0, in1, in2, in3)) = self;
+
+        ic0
+            .multiply(in0) //
+            .add(ic1.multiply(in1)) //
+            .add(ic2.multiply(in2)) //
+            .add(ic3.multiply(in3))
     }
 }
