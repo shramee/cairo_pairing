@@ -70,8 +70,8 @@ fn q(n: u8) -> Affine<Fq2> {
 }
 #[test]
 #[available_gas(20000000000)]
-fn bench_pairing() -> Fq12 {
-    single_ate_pairing(p(5), q(3))
+fn bench_pairing() {
+    single_ate_pairing(p(5), q(3));
 }
 
 #[test]
