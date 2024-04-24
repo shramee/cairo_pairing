@@ -40,12 +40,8 @@ fn g1_mul() {
         0x17c139df0efee0f766bc0204762b774362e4ded88953a39ce849a8a7fa163fa9,
         0x1e0559bacb160664764a357af8a9fe70baa9258e0b959273ffc5718c6d4cc7c
     );
+
     let ptx125 = pt.multiply(0x1e424966e10667c3d185512e7409ca7a);
-    println!("\nptx125 = g1({},\n{})", ptx125.x.c0, ptx125.y.c0);
-
-    let ptx250 = pt.multiply(0x2150ec3e42dd5b118e4bd9c40a05b7adf1fa64af817e7c3d185512e7409ca7a);
-    println!("\nptx250 = g1({},\n{})", ptx250.x.c0, ptx250.y.c0);
-
     assert(
         ptx125 == g1(
             7752846241341734434024187269145433576429990719025134712626574884614125378714,
@@ -53,6 +49,8 @@ fn g1_mul() {
         ),
         'wrong mul 125 bit'
     );
+
+    let ptx250 = pt.multiply(0x2150ec3e42dd5b118e4bd9c40a05b7adf1fa64af817e7c3d185512e7409ca7a);
     assert(
         ptx250 == g1(
             8453943020253287278117062548565477428817612735773430345154413404924876875605,
