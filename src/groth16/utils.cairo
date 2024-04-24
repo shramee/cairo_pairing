@@ -61,3 +61,23 @@ impl IC4Inputs of ICProcess<((G1, G1, G1, G1), (u256, u256, u256, u256))> {
             .add(ic3.multiply(in3))
     }
 }
+
+impl ICArrayInputs of ICProcess<(Array<G1>, Array<u256>)> {
+    fn process_inputs_and_ic(self: (Array<G1>, Array<u256>)) -> G1 {
+        let (ic_arr, in_arr) = self;
+        let len = ic_arr.len();
+        assert(len == in_arr.len(), '');
+
+        let mut k = ic_arr[0].multiply(*in_arr[0]);
+        let mut i = 1;
+
+        // Computes and returns k
+        loop {
+            k = k.add(ic_arr[i].multiply(*in_arr[i]));
+            i += 1;
+            if i == len {
+                break k;
+            }
+        }
+    }
+}
