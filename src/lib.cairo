@@ -41,14 +41,18 @@ mod fields {
     use bn::traits::{FieldOps, FieldUtils};
 }
 
+mod groth16 {
+    mod utils;
+    #[cfg(test)]
+    mod tests;
+}
+
 use bn::traits::{FieldOps, FieldUtils};
 mod curve;
 use math::fast_mod;
 use curve::{groups as g, pairing};
 // #[cfg(test)]
 // mod playground;
-#[cfg(test)]
-mod groth16;
 // #[cfg(test)]
 // mod tests;
 // #[cfg(test)]

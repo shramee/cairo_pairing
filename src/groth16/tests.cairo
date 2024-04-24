@@ -112,15 +112,20 @@ fn test_alphabeta_miller() {
 #[available_gas(20000000000)]
 fn groth16_verify() {
     // Verification key parameters
-    let (_, _, gamma, delta, albe_miller, ic) = vk();
-    let (ic1, ic2) = ic;
+    let (_, _, gamma, delta, albe_miller, (ic0, ic1)) = vk();
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input,) = proof();
-
-    let k = ic1.add(ic2.multiply(pub_input));
-    println!("k =  g1(\n{},\n{}\n)", k.x.c0, k.y.c0);
-
     let neg_pi_a = g1(pi_a.x.c0, pi_a.y.neg().c0);
+
+    let k = ic0.add(ic1.multiply(pub_input));
+    println!("k_eval = g1(\n{},\n{}\n)", k.x, k.y);
+
+    let k = g1(
+        0x2a19c7f11730a65418bf61072fd2f53e14fed6af20bb2e2afd02fec373b0d88b,
+        0x105516a7cbc84b625b7b27806881921d5988f63e5dcbdecaf31ad02334e05e89
+    );
+
+    println!("k_expected =  g1(\n{},\n{}\n)", k.x, k.y);
 
     // -A * B + alpha * beta + C * delta + K * gamma = 0
     let proof = ate_miller_loop(neg_pi_a, pi_b)
@@ -128,5 +133,9 @@ fn groth16_verify() {
         * ate_miller_loop(k, gamma)
         * ate_miller_loop(pi_c, delta);
 
-    assert(proof.final_exponentiation() == Fq12Utils::one(), 'verification failed');
+    let proved = proof.final_exponentiation();
+
+    println!("proof =  {}", proved);
+
+    assert(proved == Fq12Utils::one(), 'verification failed');
 }
