@@ -35,10 +35,15 @@ fn g1_add() {
 #[test]
 #[available_gas(100000000)]
 fn g1_mul() {
-    let g_3x = AffineG1Impl::one().multiply(3);
+    let g_5x = AffineG1Impl::one().multiply(5);
 
-    assert(g_3x.x.c0 == TPL_X, 'wrong add x');
-    assert(g_3x.y.c0 == TPL_Y, 'wrong add y');
+    assert(
+        g_5x == g1(
+            0x17c139df0efee0f766bc0204762b774362e4ded88953a39ce849a8a7fa163fa9,
+            0x1e0559bacb160664764a357af8a9fe70baa9258e0b959273ffc5718c6d4cc7c
+        ),
+        'wrong mul 5'
+    );
 }
 const DBL_X_0: u256 = 18029695676650738226693292988307914797657423701064905010927197838374790804409;
 const DBL_X_1: u256 = 14583779054894525174450323658765874724019480979794335525732096752006891875705;

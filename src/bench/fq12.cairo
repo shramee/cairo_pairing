@@ -81,6 +81,9 @@ fn z_esy() {
 #[test]
 #[available_gas(20000000000)]
 fn xp_t() {
+    println!(
+        "a = {}\n\na ** 2 = {}\n\na ** t = {}", a(), a().sqr(), a().exp_by_neg_t(get_field_nz())
+    );
     a().exp_by_neg_t(get_field_nz());
 }
 
