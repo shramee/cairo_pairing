@@ -83,30 +83,32 @@ fn proof() -> (AffineG1, AffineG2, AffineG1, u256) {
 
 #[test]
 #[available_gas(20000000000)]
-fn test_alphabeta_precompute() {
-    let (alpha, beta, _, _, alphabeta_miller, _) = vk();
-    assert(alphabeta_miller == ate_miller_loop(alpha, beta), 'incorrect miller precompute');
-}
-
-#[test]
-#[available_gas(20000000000)]
 fn groth16_verify() {
     // Verification key parameters
     let (_, _, gamma, delta, albe_miller, (ic0, ic1)) = vk();
+
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input,) = proof();
     let neg_pi_a = g1(pi_a.x.c0, pi_a.y.neg().c0);
 
-    // let k = ic0.add(ic1.multiply(pub_input)).add(AffineG1Impl::one());
     let k = process_input_constraints(ic0, (ic1, pub_input));
 
-    // -A * B + alpha * beta + C * delta + K * gamma = 0
+    // Miller loop for all the pairs
+    // -A * B + alpha * beta + C * delta + K * gamma
     let proof = ate_miller_loop(neg_pi_a, pi_b)
-        * albe_miller
+        * albe_miller // precomputed alpha, beta miller loop
         * ate_miller_loop(k, gamma)
         * ate_miller_loop(pi_c, delta);
 
+    // Final exponentiation together
     let proved = proof.final_exponentiation();
 
     assert(proved == Fq12Utils::one(), 'verification failed');
+}
+
+#[test]
+#[available_gas(20000000000)]
+fn test_alphabeta_precompute() {
+    let (alpha, beta, _, _, alphabeta_miller, _) = vk();
+    assert(alphabeta_miller == ate_miller_loop(alpha, beta), 'incorrect miller precompute');
 }
