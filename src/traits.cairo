@@ -32,24 +32,26 @@ trait FieldOps<TFq> {
     fn inv(self: TFq, field_nz: NonZero<u256>) -> TFq;
 }
 
+use bn::curve::groups::AffineG2;
+use bn::fields::Fq12;
 
 trait MillerPrecompute<TG1, TG2, TPreComp> {
-    fn precompute(self: (TG1, TG2), field_nz: NonZero<u256>) -> (TPreComp, TG2);
+    fn precompute(self: (TG1, TG2), field_nz: NonZero<u256>) -> (TPreComp, AffineG2);
 }
 
-trait MillerSteps<TPreComp, TG2, TFq> {
+trait MillerSteps<TPreComp> {
     // first and second step
-    fn miller_first_second(self: @TPreComp, ref acc: TG2) -> TFq;
+    fn miller_first_second(self: @TPreComp, i1: u32, i2: u32, ref acc: AffineG2) -> Fq12;
 
     // 0 bit
-    fn miller_bit_o(self: @TPreComp, ref acc: TG2, ref f: TFq);
+    fn miller_bit_o(self: @TPreComp, i: u32, ref acc: AffineG2, ref f: Fq12);
 
     // 1 bit
-    fn miller_bit_p(self: @TPreComp, ref acc: TG2, ref f: TFq);
+    fn miller_bit_p(self: @TPreComp, i: u32, ref acc: AffineG2, ref f: Fq12);
 
     // -1 bit
-    fn miller_bit_n(self: @TPreComp, ref acc: TG2, ref f: TFq);
+    fn miller_bit_n(self: @TPreComp, i: u32, ref acc: AffineG2, ref f: Fq12);
 
     // last step
-    fn miller_last(self: @TPreComp, ref acc: TG2, ref f: TFq);
+    fn miller_last(self: @TPreComp, ref acc: AffineG2, ref f: Fq12);
 }

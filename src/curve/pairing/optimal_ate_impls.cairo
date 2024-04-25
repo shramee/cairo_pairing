@@ -37,8 +37,8 @@ impl SingleMillerPrecompute of MillerPrecompute<PtG1, PtG2, PreCompute> {
     }
 }
 
-impl SingleMillerSteps of MillerSteps<PreCompute, PtG2, Fq12> {
-    fn miller_first_second(self: @PreCompute, ref acc: PtG2) -> Fq12 {
+impl SingleMillerSteps of MillerSteps<PreCompute> {
+    fn miller_first_second(self: @PreCompute, i1: u32, i2: u32, ref acc: PtG2) -> Fq12 {
         // Handle O, N steps
         // step 0, run step double
         let l0 = step_double(ref acc, self.ppc, *self.p, *self.field_nz);
@@ -46,22 +46,22 @@ impl SingleMillerSteps of MillerSteps<PreCompute, PtG2, Fq12> {
         let Fq12Sparse01234 { c0, c1, c2, c3, c4 } = l0.mul_034_by_034(l0, *self.field_nz);
         let mut f = Fq12 { c0: Fq6 { c0, c1, c2 }, c1: Fq6 { c0: c3, c1: c4, c2: fq2(0, 0) }, };
         // step -1, the next negative one step
-        self.miller_bit_n(ref acc, ref f);
+        self.miller_bit_n(i2, ref acc, ref f);
         f
     }
 
     // 0 bit
-    fn miller_bit_o(self: @PreCompute, ref acc: PtG2, ref f: Fq12) {
+    fn miller_bit_o(self: @PreCompute, i: u32, ref acc: PtG2, ref f: Fq12) {
         step_double_to_f(ref acc, ref f, self.ppc, *self.p, *self.field_nz);
     }
 
     // 1 bit
-    fn miller_bit_p(self: @PreCompute, ref acc: PtG2, ref f: Fq12) {
+    fn miller_bit_p(self: @PreCompute, i: u32, ref acc: PtG2, ref f: Fq12) {
         step_dbl_add_to_f(ref acc, ref f, self.ppc, *self.p, *self.q, *self.field_nz);
     }
 
     // -1 bit
-    fn miller_bit_n(self: @PreCompute, ref acc: PtG2, ref f: Fq12) {
+    fn miller_bit_n(self: @PreCompute, i: u32, ref acc: PtG2, ref f: Fq12) {
         // use neg q
         step_dbl_add_to_f(ref acc, ref f, self.ppc, *self.p, *self.neg_q, *self.field_nz);
     }
