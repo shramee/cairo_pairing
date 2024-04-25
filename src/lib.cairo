@@ -1,10 +1,17 @@
+mod traits;
+use traits::{FieldOps, FieldUtils};
+
+mod curve;
+use curve::{groups as g, pairing};
+
 mod math {
     mod i257;
     mod fast_mod;
 // #[cfg(test)]
 // mod fast_mod_tests;
 }
-mod traits;
+use math::fast_mod;
+
 mod fields {
     mod fq_generics;
     mod fq_sparse;
@@ -28,6 +35,7 @@ mod fields {
     // mod u512;
     // mod frobenius;
     }
+
     use fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
     use fq_1::{Fq, FqOps, FqShort, FqMulShort, FqUtils, fq, FqIntoU512Tuple};
     use fq_2::{
@@ -46,11 +54,6 @@ mod groth16 {
     #[cfg(test)]
     mod tests;
 }
-
-use bn::traits::{FieldOps, FieldUtils};
-mod curve;
-use math::fast_mod;
-use curve::{groups as g, pairing};
 // #[cfg(test)]
 // mod playground;
 // #[cfg(test)]
