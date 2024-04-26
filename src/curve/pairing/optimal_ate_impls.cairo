@@ -37,7 +37,7 @@ impl SingleMillerPrecompute of MillerPrecompute<PtG1, PtG2, PreCompute> {
     }
 }
 
-impl SingleMillerSteps of MillerSteps<PreCompute> {
+impl SingleMillerSteps of MillerSteps<PreCompute, PtG2> {
     fn miller_first_second(self: @PreCompute, i1: u32, i2: u32, ref acc: PtG2) -> Fq12 {
         // Handle O, N steps
         // step 0, run step double
