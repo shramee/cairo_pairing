@@ -51,6 +51,7 @@ mod fields {
 
 mod groth16 {
     mod utils;
+    mod verifier;
     #[cfg(test)]
     mod tests;
 }
