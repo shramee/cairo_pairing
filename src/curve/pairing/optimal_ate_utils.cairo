@@ -42,6 +42,12 @@ struct PPrecompute {
     y_inv: Fq,
 }
 
+fn pair_precompute(p: PtG1, q: PtG2, field_nz: NonZero<u256>) -> (PPrecompute, PtG2) {
+    let neg_q = PtG2 { x: q.x, y: -q.y, };
+    let y_inv = (p.y).inv(field_nz);
+    (PPrecompute { neg_x_over_y: -p.x * y_inv, y_inv }, neg_q,)
+}
+
 type PPre = PPrecompute;
 type NZNum = NonZero<u256>;
 type F034 = Fq12Sparse034;
