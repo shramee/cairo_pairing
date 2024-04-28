@@ -54,6 +54,22 @@ struct Fq12Sparse01234 {
     c4: Fq2,
 }
 
+impl Fq12Sparse01234PartialEq of PartialEq<Fq12Sparse01234> {
+    #[inline(always)]
+    fn eq(lhs: @Fq12Sparse01234, rhs: @Fq12Sparse01234) -> bool {
+        lhs.c0 == rhs.c0
+            && lhs.c1 == rhs.c1
+            && lhs.c2 == rhs.c2
+            && lhs.c3 == rhs.c3
+            && lhs.c4 == rhs.c4
+    }
+
+    #[inline(always)]
+    fn ne(lhs: @Fq12Sparse01234, rhs: @Fq12Sparse01234) -> bool {
+        !Fq12Sparse01234PartialEq::eq(lhs, rhs)
+    }
+}
+
 // Sparse Fp12 element containing only c3 and c4 Fq2s (c0 is 1)
 // Equivalent to,
 // Fq12{
