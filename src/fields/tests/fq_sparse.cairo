@@ -98,6 +98,13 @@ fn fq6_mul_01() {
 
 #[test]
 #[available_gas(200000000)]
+fn s034_sqr() {
+    let field_nz = get_field_nz();
+    assert(a().sqr_034(field_nz) == a().mul_034_by_034(a(), field_nz), '');
+}
+
+#[test]
+#[available_gas(200000000)]
 fn s034_mul_034() {
     let field_nz = get_field_nz();
     let (a, a_s) = set_a();
