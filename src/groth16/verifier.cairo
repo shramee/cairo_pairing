@@ -11,13 +11,13 @@ use bn::groth16::utils::{process_input_constraints};
 
 struct Groth16MillerG1 { // Points in G1
     pi_a: AffineG1,
-    pi_b: AffineG1,
+    pi_c: AffineG1,
     k: AffineG1,
 }
 struct Groth16MillerG2 { // Points in G2
-    gamma: AffineG2,
+    pi_b: AffineG2,
     delta: AffineG2,
-    pi_c: AffineG2,
+    gamma: AffineG2,
 }
 
 #[derive(Copy, Drop)]
