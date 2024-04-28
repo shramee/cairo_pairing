@@ -7,7 +7,7 @@ use debug::PrintTrait as Print;
 type AffineG1 = Affine<Fq>;
 type AffineG2 = Affine<Fq2>;
 
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, Serde)]
 struct Affine<T> {
     x: T,
     y: T

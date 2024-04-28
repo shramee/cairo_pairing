@@ -9,11 +9,14 @@ use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
 use bn::groth16::utils::{process_input_constraints};
 
+#[derive(Copy, Drop)]
 struct Groth16MillerG1 { // Points in G1
     pi_a: AffineG1,
     pi_c: AffineG1,
     k: AffineG1,
 }
+
+#[derive(Copy, Drop)]
 struct Groth16MillerG2 { // Points in G2
     pi_b: AffineG2,
     delta: AffineG2,
