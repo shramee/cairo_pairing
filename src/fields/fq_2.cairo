@@ -46,6 +46,14 @@ impl Fq2Frobenius of Fq2FrobeniusTrait {
     }
 }
 
+#[inline(always)]
+fn scale_9(a: Fq) -> Fq {
+    // addchain for a to 9a
+    let a2 = a + a;
+    let a4 = a2 + a2;
+    a4 + a4 + a
+}
+
 impl Fq2Utils of FieldUtils<Fq2, Fq> {
     #[inline(always)]
     fn one() -> Fq2 {
@@ -69,14 +77,13 @@ impl Fq2Utils of FieldUtils<Fq2, Fq> {
 
     #[inline(always)]
     fn mul_by_nonresidue(self: Fq2,) -> Fq2 {
-        // TODO: Optimise
         let Fq2 { c0: a0, c1: a1 } = self;
         // fq2(9, 1)
         Fq2 { //
          //  a0 * b0 + a1 * βb1,
-        c0: a0.scale(9) - a1, //
+        c0: scale_9(a0) - a1, //
          //  c1: a0 * b1 + a1 * b0,
-        c1: a0 + a1.scale(9), //
+        c1: a0 + scale_9(a1), //
          }
     }
 
