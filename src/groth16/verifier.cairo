@@ -20,3 +20,20 @@ struct Groth16MillerG2 { // Points in G2
     pi_c: AffineG2,
 }
 
+#[derive(Copy, Drop)]
+struct Groth16PreCompute {
+    p: Groth16MillerG1,
+    q: Groth16MillerG2,
+    ppc: (PPrecompute, PPrecompute, PPrecompute),
+    neg_q: Groth16MillerG2,
+    field_nz: NonZero<u256>,
+}
+
+// Does verification
+fn verify() { //
+// Compute k from ic and public_inputs
+// Compute optimise triple miller loop for the points
+// multiply precomputed alphabeta_miller with the pairings
+// final exponentiation
+// return result == 1
+}
