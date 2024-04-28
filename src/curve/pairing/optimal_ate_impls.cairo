@@ -11,7 +11,7 @@ use bn::curve::groups::{g1, g2, ECGroup};
 use bn::curve::groups::{Affine, AffineG1 as PtG1, AffineG2 as PtG2, AffineOps};
 use bn::traits::{MillerPrecompute, MillerSteps};
 use bn::curve::pairing::optimal_ate_utils::{
-    PPrecompute, step_dbl_add_to_f, step_dbl_add, step_double_to_f, step_double,
+    PPrecompute, pair_precompute, step_dbl_add_to_f, step_dbl_add, step_double_to_f, step_double,
     correction_step_to_f
 };
 
@@ -28,11 +28,8 @@ type Pair = (PtG1, PtG2);
 impl SingleMillerPrecompute of MillerPrecompute<PtG1, PtG2, PreCompute> {
     fn precompute(self: (PtG1, PtG2), field_nz: NonZero<u256>) -> (PreCompute, PtG2) {
         let (p, q) = self;
-        let neg_q = PtG2 { x: q.x, y: -q.y, };
-        let y_inv = (p.y).inv(field_nz);
-        let precomp = PreCompute {
-            ppc: PPrecompute { neg_x_over_y: -p.x * y_inv, y_inv }, neg_q, field_nz, p, q,
-        };
+        let (ppc, neg_q) = pair_precompute(p, q, field_nz);
+        let precomp = PreCompute { ppc, neg_q, field_nz, p, q, };
         (precomp, q.clone(),)
     }
 }
