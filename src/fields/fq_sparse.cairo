@@ -187,6 +187,43 @@ impl FqSparse of FqSparseTrait {
             c0: zC0B0, c1: C3D3.to_fq(field_nz), c2: X34.to_fq(field_nz), c3: x03, c4: x04,
         }
     }
+    // Mul a sparse 034 Fq12 by another 034 Fq12 resulting in a sparse 01234
+    // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/fields_bn254/e12_pairing.go#L150
+    #[inline(always)]
+    fn sqr_034(self: Fq12Sparse034, field_nz: NonZero<u256>) -> Fq12Sparse01234 {
+        let Fq12Sparse034 { c3: c3, c4: c4 } = self;
+
+        // x3 = c3 * d3
+        let C3Sq = c3.u_sqr();
+        // x4 = c4 * d4
+        let C4Sq = c4.u_sqr();
+        // x04 = c4 + d4
+        let x04 = c4 + c4;
+        // x03 = c3 + d3
+        let x03 = c3 + c3;
+        // tmp = c3 + c4
+        // x34 = d3 + d4
+        // x34 = x34 * tmp
+        let X34 = c3.u_add(c4).u_sqr();
+        // x34 = x34 - x3
+        let (X34_0, X34_1) = X34 - C3Sq;
+        let (C4Sq_0, C4Sq_1) = C4Sq;
+        // x34 = x34 - x4
+        let X34 = (X34_0 - C4Sq_0, u512_sub(X34_1, C4Sq_1));
+
+        // zC0B0 = ξx4
+        // zC0B0 = zC0B0 + 1
+        // zC0B1 = x3
+        // zC0B2 = x34
+        // zC1B0 = x03
+        // zC1B1 = x04
+
+        let mut zC0B0: Fq2 = C4Sq.to_fq(field_nz).mul_by_nonresidue();
+        zC0B0.c0.c0 = zC0B0.c0.c0 + 1; // POTENTIAL OVERFLOW
+        Fq12Sparse01234 {
+            c0: zC0B0, c1: C3Sq.to_fq(field_nz), c2: X34.to_fq(field_nz), c3: x03, c4: x04,
+        }
+    }
 
     // Mul Fq12 with a sparse 034 Fq12
     // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/fields_bn254/e12_pairing.go#L116
