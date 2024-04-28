@@ -81,8 +81,8 @@ impl U512Fq6Ops of U512Fq6OpsTrait {
     }
 }
 
-// This fixes overflow breaking mod
-// Tell this guys what's safe to add or subtract
+// This fixes mod breaking u128 overflow
+// Tell this guy what's safe to add or subtract
 // And it will proceed optimally avoiding overflow
 #[inline(always)]
 fn fix_overflow(result: u256, sub: u256, add: u256) -> u256 {
@@ -94,8 +94,8 @@ fn fix_overflow(result: u256, sub: u256, add: u256) -> u256 {
     }
 }
 
-// This fixes overflow breaking mod
-// Tell this guys what's safe to add or subtract
+// This fixes mod breaking u128 overflow
+// Tell this guy what's safe to add or subtract
 // And it will proceed optimally avoiding overflow
 #[inline(always)]
 fn fix_overflow_u512(result: u512, sub: u256, add: u256) -> u512 {
