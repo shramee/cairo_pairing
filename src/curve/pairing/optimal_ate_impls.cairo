@@ -40,11 +40,12 @@ impl SingleMillerSteps of MillerSteps<PreCompute, PtG2> {
         // step 0, run step double
         let l0 = step_double(ref acc, self.ppc, *self.p, *self.field_nz);
         // sqr with mul 034 by 034
-        let Fq12Sparse01234 { c0, c1, c2, c3, c4 } = l0.sqr_034(*self.field_nz);
-        let mut f = Fq12 { c0: Fq6 { c0, c1, c2 }, c1: Fq6 { c0: c3, c1: c4, c2: fq2(0, 0) }, };
+        let f_01234 = l0.sqr_034(*self.field_nz);
         // step -1, the next negative one step
-        self.miller_bit_n(i2, ref acc, ref f);
-        f
+        let (l1, l2) = step_dbl_add(ref acc, self.ppc, *self.p, *self.neg_q, *self.field_nz);
+        // let f = f_01234.mul_01234_034(l1, *self.field_nz);
+        // f.mul_034(l2, *self.field_nz)
+        f_01234.mul_01234_01234(l1.mul_034_by_034(l2, *self.field_nz), *self.field_nz)
     }
 
     // 0 bit
