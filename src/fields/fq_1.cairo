@@ -29,8 +29,8 @@ impl FqShort of FieldShortcuts<Fq> {
         Fq { c0: add_u(self.c0, rhs.c0), }
     }
 
+    #[inline(always)]
     fn u_sub(self: Fq, rhs: Fq) -> Fq {
-        // Operation without modding can only be done like 4 times
         Fq { c0: sub_u(self.c0, rhs.c0), }
     }
 
