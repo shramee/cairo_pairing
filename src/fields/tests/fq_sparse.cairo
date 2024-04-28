@@ -100,7 +100,8 @@ fn fq6_mul_01() {
 #[available_gas(200000000)]
 fn s034_sqr() {
     let field_nz = get_field_nz();
-    assert(a().sqr_034(field_nz) == a().mul_034_by_034(a(), field_nz), '');
+    let (_, a) = set_a();
+    assert(a.sqr_034(field_nz) == a.mul_034_by_034(a, field_nz), '');
 }
 
 #[test]
@@ -131,12 +132,21 @@ fn fq12_mul_034() {
     let c_s = a.mul_034(b_s, field_nz);
     // for c0 to c4
     // println!("{}", c);
-    assert(c.c0.c0 == c_s.c0.c0, 'mul034034 c0.c0 failed');
-    assert(c.c0.c1 == c_s.c0.c1, 'mul034034 c0.c1 failed');
-    assert(c.c0.c2 == c_s.c0.c2, 'mul034034 c0.c2 failed');
-    assert(c.c1.c0 == c_s.c1.c0, 'mul034034 c1.c0 failed');
-    assert(c.c1.c1 == c_s.c1.c1, 'mul034034 c1.c1 failed');
-    assert(c.c1.c2 == c_s.c1.c2, 'mul034034 c1.c2 failed');
+    assert(c == c_s, 'mul034034 c0.c0 failed');
+}
+
+#[test]
+#[available_gas(200000000)]
+fn s01234_mul_034() {
+    let field_nz = get_field_nz();
+    let (a, a_s) = set_01234();
+    let (b, b_s) = set_b();
+
+    let c = a * b;
+    let c_s = a_s.mul_01234_034(b_s, field_nz);
+    // println!("a * b: {}", c);
+    // println!("a * b_s: {}", c_s);
+    assert(c == c_s, 'mul_01234_034 incorrect');
 }
 
 #[test]
@@ -150,4 +160,22 @@ fn fq12_mul_01234() {
     // println!("a * b: {}", c);
     // println!("a * b_s: {}", c_s);
     assert(c == c_s, 'mul01234 incorrect');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn miller_test_034_034_fq12() {
+    let field_nz = get_field_nz();
+    let (_a, a) = set_a();
+    let (_b, b) = set_b();
+    a_12().mul_01234(a.mul_034_by_034(b, field_nz), field_nz);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn miller_test_s034_fq12_x2() {
+    let field_nz = get_field_nz();
+    let (_a, a) = set_a();
+    let (_b, b) = set_b();
+    a_12().mul_034(a, field_nz).mul_034(b, field_nz);
 }
