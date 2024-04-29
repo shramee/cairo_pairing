@@ -150,7 +150,7 @@ impl FqSparse of FqSparseTrait {
     // Mul Fq6 with a sparse Fq6 01 derived from a sparse 034 Fq12
     // Same as Fq6 u_mul but with a2 and b2 as zero (and associated ops removed)
     #[inline(always)]
-    fn mul_01_by_01(self: Fq6Sparse01, rhs: Fq6Sparse01, field_nz: NonZero<u256>) -> SixU512 {
+    fn u_mul_01_by_01(self: Fq6Sparse01, rhs: Fq6Sparse01, field_nz: NonZero<u256>) -> SixU512 {
         // Input:a = (a0 + a1v) and b = (b0 + b1v) ∈ Fp6
         // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
         let Fq6Sparse01 { c0: a0, c1: a1, } = self;
@@ -174,6 +174,35 @@ impl FqSparse of FqSparseTrait {
         // c2 = v1, v2 is 0
 
         (V0, C1, V1)
+    }
+
+    // Mul Fq6 with a sparse Fq6 01 derived from a sparse 034 Fq12
+    // Same as Fq6 u_mul but with a2 and b2 as zero (and associated ops removed)
+    #[inline(always)]
+    fn mul_01_by_01(self: Fq6Sparse01, rhs: Fq6Sparse01, field_nz: NonZero<u256>) -> Fq6 {
+        // Input:a = (a0 + a1v) and b = (b0 + b1v) ∈ Fp6
+        // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
+        let Fq6Sparse01 { c0: a0, c1: a1, } = self;
+        let Fq6Sparse01 { c0: b0, c1: b1, } = rhs;
+
+        // a2 and b2 is zero so all ops associated ar removed
+
+        // v0 = a0b0, v1 = a1b1, v2 = a2b2
+        let (V0, V1,) = (a0.mul(b0), a1.mul(b1),);
+
+        // c0 = v0 + ξ((a1 + a2)(b1 + b2) - v1 - v2)
+        // c0 = v0 + ξ((a1b1) - v1 - v2)
+        // c0 = v0 + ξ(v1 - v1 - v2)
+        // c0 = v0, v2 is 0
+
+        // c1 =(a0 + a1)(b0 + b1) - v0 - v1 + ξv2
+        let C1 = a0.u_add(a1).mul(b0.u_add(b1)) - V0 - V1;
+        // c2 = (a0 + a2)(b0 + b2) - v0 + v1 - v2,
+        // c2 = a0b0 - v0 + v1 - v2,
+        // c2 = v0 - v0 + v1 - v2,
+        // c2 = v1, v2 is 0
+
+        Fq6 { c0: V0, c1: C1, c2: V1 }
     }
 
     //////////////////////////////////////////////////////////////
