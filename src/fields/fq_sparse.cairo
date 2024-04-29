@@ -86,6 +86,38 @@ impl FqSparse of FqSparseTrait {
     // Mul Fq6 with a sparse Fq6 01 derived from a sparse 034 Fq12
     // Same as Fq6 u_mul but with b2 as zero (and associated ops removed)
     #[inline(always)]
+    fn mul_01(self: Fq6, rhs: Fq6Sparse01, field_nz: NonZero<u256>) -> Fq6 {
+        core::internal::revoke_ap_tracking();
+        // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v) ∈ Fp6
+        // Output:c = a · b = (c0 + c1v + c2v2) ∈ Fp6
+        let Fq6 { c0: a0, c1: a1, c2: a2 } = self;
+        let Fq6Sparse01 { c0: b0, c1: b1, } = rhs;
+
+        // b2 is zero so all ops associated ar removed
+
+        // v0 = a0b0, v1 = a1b1, v2 = a2b2
+        let (V0, V1,) = (a0.u_mul(b0), a1.u_mul(b1),);
+
+        // c0 = v0 + ξ((a1 + a2)(b1 + b2) - v1 - v2)
+        let C0 = V0 + mul_by_xi_nz(a1.u_add(a2).u_mul(b1) - V1, field_nz);
+        // c1 =(a0 + a1)(b0 + b1) - v0 - v1 + ξv2
+        let C1 = a0.u_add(a1).u_mul(b0.u_add(b1)) - V0 - V1;
+
+        // https://eprint.iacr.org/2006/471.pdf Sec 4
+        // Karatsuba:
+        // c2 = (a0 + a2)(b0 + b2) - v0 + v1 - v2,
+        // c2 = (a0 + a2)(b0) - v0 + v1 - v2, b2 = 0
+        // Schoolbook will be faster than Karatsuba for this,
+        // c2 = a0b2 + a1b1 + a2b0,
+        // c2 = V1 + a2b0 ∵ b2 = 0, V1 = a1b1
+        let C2 = a2.u_mul(b0) + V1;
+
+        (C0, C1, C2).to_fq(field_nz)
+    }
+
+    // Mul Fq6 with a sparse Fq6 01 derived from a sparse 034 Fq12
+    // Same as Fq6 u_mul but with b2 as zero (and associated ops removed)
+    #[inline(always)]
     fn u_mul_01(self: Fq6, rhs: Fq6Sparse01, field_nz: NonZero<u256>) -> SixU512 {
         core::internal::revoke_ap_tracking();
         // Input:a = (a0 + a1v + a2v2) and b = (b0 + b1v) ∈ Fp6
