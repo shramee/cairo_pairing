@@ -61,8 +61,7 @@ fn line_evaluation_at_p(slope: Fq2, p_pre: @PPre, s: PtG2) -> F034 {
 
 fn step_dbl_add_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) {
     let (l1, l2) = step_dbl_add(ref acc, p_pre, p, q, field_nz);
-    f = f.mul_034(l1, field_nz);
-    f = f.mul_034(l2, field_nz);
+    f = f.mul_01234(l1.mul_034_by_034(l2, field_nz), field_nz);
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
@@ -125,8 +124,7 @@ fn correction_step_to_f(
     // Realm of pairings, Algorithm 1, lines 10 mul into f
     // f ← f·(d·e)
     let (l1, l2) = correction_step(ref acc, p_pre, p, q, field_nz);
-    f = f.mul_034(l1, field_nz);
-    f = f.mul_034(l2, field_nz);
+    f = f.mul_01234(l1.mul_034_by_034(l2, field_nz), field_nz);
 }
 
 // Realm of pairings, Algorithm 1, lines 8, 9, 10
