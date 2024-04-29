@@ -211,9 +211,9 @@ impl FqSparse of FqSparseTrait {
         let Fq12Sparse034 { c3: c3, c4: c4 } = self;
         let Fq12Sparse034 { c3: d3, c4: d4 } = rhs;
         // x3 = c3 * d3
-        let C3D3 = c3.u_mul(d3);
+        let c3d3 = c3.mul(d3);
         // x4 = c4 * d4
-        let C4D4 = c4.u_mul(d4);
+        let c4d4 = c4.mul(d4);
         // x04 = c4 + d4
         let x04 = c4 + d4;
         // x03 = c3 + d3
@@ -221,12 +221,11 @@ impl FqSparse of FqSparseTrait {
         // tmp = c3 + c4
         // x34 = d3 + d4
         // x34 = x34 * tmp
-        let X34 = d3.u_add(d4).u_mul(c3.u_add(c4));
+        let x34 = d3.u_add(d4).mul(c3.u_add(c4)); // d3c3 + d3c4 + d4c3 + d4c4
         // x34 = x34 - x3
-        let (X34_0, X34_1) = X34 - C3D3;
-        let (C4D4_0, C4D4_1) = C4D4;
+        let x34 = x34 - c3d3; // d3c4 + d4c3 + d4c4
         // x34 = x34 - x4
-        let X34 = (X34_0 - C4D4_0, u512_sub(X34_1, C4D4_1));
+        let x34 = x34 - c4d4; // d3c4 + d4c3
 
         // zC0B0 = ξx4
         // zC0B0 = zC0B0 + 1
@@ -235,7 +234,7 @@ impl FqSparse of FqSparseTrait {
         // zC1B0 = x03
         // zC1B1 = x04
 
-        let mut zC0B0: Fq2 = C4D4.to_fq(field_nz).mul_by_nonresidue();
+        let mut zC0B0: Fq2 = c4d4.mul_by_nonresidue();
         zC0B0.c0.c0 = zC0B0.c0.c0 + 1; // POTENTIAL OVERFLOW
         Fq12Sparse01234 {
             c0: Fq6 { c0: zC0B0, c1: c3d3, c2: x34 }, c1: Fq6Sparse01 { c0: x03, c1: x04 },
@@ -246,24 +245,22 @@ impl FqSparse of FqSparseTrait {
     #[inline(always)]
     fn sqr_034(self: Fq12Sparse034, field_nz: NonZero<u256>) -> Fq12Sparse01234 {
         let Fq12Sparse034 { c3: c3, c4: c4 } = self;
-
-        // x3 = c3 * d3
-        let C3Sq = c3.u_sqr();
+        // x3 = c3 * c3
+        let c3_sq = c3.sqr();
         // x4 = c4 * d4
-        let C4Sq = c4.u_sqr();
-        // x04 = c4 + d4
+        let c4_sq = c4.sqr();
+        // x04 = c4 + c4
         let x04 = c4 + c4;
-        // x03 = c3 + d3
+        // x03 = c3 + c3
         let x03 = c3 + c3;
         // tmp = c3 + c4
-        // x34 = d3 + d4
+        // x34 = c3 + c4
         // x34 = x34 * tmp
-        let X34 = c3.u_add(c4).u_sqr();
+        let x34 = c3.u_add(c4).sqr(); // c3_sq + c3c4 + c4c3 + c4_sq
         // x34 = x34 - x3
-        let (X34_0, X34_1) = X34 - C3Sq;
-        let (C4Sq_0, C4Sq_1) = C4Sq;
+        let x34 = x34 - c3_sq; // c3c4 + c4c3 + c4_sq
         // x34 = x34 - x4
-        let X34 = (X34_0 - C4Sq_0, u512_sub(X34_1, C4Sq_1));
+        let x34 = x34 - c4_sq; // c3c4 + c4c3
 
         // zC0B0 = ξx4
         // zC0B0 = zC0B0 + 1
@@ -272,7 +269,7 @@ impl FqSparse of FqSparseTrait {
         // zC1B0 = x03
         // zC1B1 = x04
 
-        let mut zC0B0: Fq2 = C4Sq.to_fq(field_nz).mul_by_nonresidue();
+        let mut zC0B0: Fq2 = c4_sq.mul_by_nonresidue();
         zC0B0.c0.c0 = zC0B0.c0.c0 + 1; // POTENTIAL OVERFLOW
         Fq12Sparse01234 {
             c0: Fq6 { c0: zC0B0, c1: c3_sq, c2: x34 }, c1: Fq6Sparse01 { c0: x03, c1: x04 },
@@ -333,7 +330,7 @@ impl FqSparse of FqSparseTrait {
         // a = e.Ext6.Mul(a, b)
         let A = b.u_mul_01(a, field_nz);
         // c := e.Ext6.Mul01By01(z3, z4, x[3], x[4])
-        let C = a1.mul_01_by_01(sparse_fq6(z3, z4), field_nz);
+        let C = a1.u_mul_01_by_01(sparse_fq6(z3, z4), field_nz);
         // z1 := e.Ext6.Sub(a, a0)
         // z1 = e.Ext6.Sub(z1, c)
         let Z1 = A - C.u512_add_fq(a0);
@@ -349,24 +346,46 @@ impl FqSparse of FqSparseTrait {
 
     // Mul Fq12 with a sparse 01234 Fq12
     // Same as Fq12 mul but with a sparse b1 i.e. b1.c2 as 0 and associated ops removed
+    #[inline(always)]
     fn mul_01234(self: Fq12, rhs: Fq12Sparse01234, field_nz: NonZero<u256>) -> Fq12 {
         let Fq12 { c0: a0, c1: a1 } = self;
         let Fq12Sparse01234 { c0: b0, c1: b1 } = rhs;
 
+        // Doing this part before U, V cost less for some reason
+        let b = Fq6 { c0: b0.c0 + b1.c0, c1: b0.c1 + b1.c1, c2: b0.c2 };
+        let c1 = (a0 + a1).mul(b);
+
+        let u = a0.mul(b0);
+        let v = a1.mul_01(b1, field_nz);
+
+        let c0 = v.mul_by_nonresidue() + u;
+        let c1 = c1 - (u + v);
+
+        Fq12 { c0, c1, }
+    }
+
+    // Mul Fq12 with a sparse 01234 Fq12
+    // Same as Fq12 mul but with a sparse b1 i.e. b1.c2 as 0 and associated ops removed
+    #[inline(always)]
+    fn mul_01234_01234(
+        self: Fq12Sparse01234, rhs: Fq12Sparse01234, field_nz: NonZero<u256>
+    ) -> Fq12 {
+        let Fq12Sparse01234 { c0: a0, c1: a1 } = self;
+        let Fq12Sparse01234 { c0: b0, c1: b1 } = rhs;
 
         // Doing this part before U, V cost less for some reason
         let b = Fq6 { c0: b0.c0 + b1.c0, c1: b0.c1 + b1.c1, c2: b0.c2 };
-        let C1 = (a0 + a1).u_mul(b);
+        let mut c1 = a0;
+        c1.c0 = c1.c0 + a1.c0;
+        c1.c1 = c1.c1 + a1.c1;
+        let c1 = c1.mul(b);
 
-        let U = a0.u_mul(b0);
-        let V = a1.u_mul_01(b1, field_nz);
+        let u = a0.mul(b0);
+        let v = a1.mul_01_by_01(b1, field_nz);
 
-        let C0 = mul_by_v_nz(V, field_nz) + U;
-        let C1 = C1 - (U + V);
+        let c0 = v.mul_by_nonresidue() + u;
+        let c1 = c1 - (u + v);
 
-        Fq12 { //
-         c0: C0.to_fq(field_nz), //
-         c1: C1.to_fq(field_nz), //
-         }
+        Fq12 { c0, c1, }
     }
 }
