@@ -63,7 +63,7 @@ fn set_b() -> (Fq12, Fq12Sparse034) {
 fn set_01234() -> (Fq12, Fq12Sparse01234) {
     let a = fq12(N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, 0, 0);
     let Fq12 { c0: Fq6 { c0, c1, c2 }, c1: Fq6 { c0: c3, c1: c4, c2: _ } } = a;
-    (a, Fq12Sparse01234 { c0, c1, c2, c3, c4 })
+    (a, Fq12Sparse01234 { c0: a.c0, c1: sparse_fq6(a.c1.c0, a.c1.c1) })
 }
 
 #[test]

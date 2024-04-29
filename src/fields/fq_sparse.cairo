@@ -47,21 +47,14 @@ fn sparse_fq6(c0: Fq2, c1: Fq2) -> Fq6Sparse01 {
 // Sparse Fp12 element containing c0, c1, c2, c3 and c4 Fq2s
 #[derive(Copy, Drop,)]
 struct Fq12Sparse01234 {
-    c0: Fq2,
-    c1: Fq2,
-    c2: Fq2,
-    c3: Fq2,
-    c4: Fq2,
+    c0: Fq6,
+    c1: Fq6Sparse01,
 }
 
 impl Fq12Sparse01234PartialEq of PartialEq<Fq12Sparse01234> {
     #[inline(always)]
     fn eq(lhs: @Fq12Sparse01234, rhs: @Fq12Sparse01234) -> bool {
-        lhs.c0 == rhs.c0
-            && lhs.c1 == rhs.c1
-            && lhs.c2 == rhs.c2
-            && lhs.c3 == rhs.c3
-            && lhs.c4 == rhs.c4
+        lhs.c0 == rhs.c0 && lhs.c1.c0 == rhs.c1.c0 && lhs.c1.c1 == rhs.c1.c1
     }
 
     #[inline(always)]
@@ -245,7 +238,7 @@ impl FqSparse of FqSparseTrait {
         let mut zC0B0: Fq2 = C4D4.to_fq(field_nz).mul_by_nonresidue();
         zC0B0.c0.c0 = zC0B0.c0.c0 + 1; // POTENTIAL OVERFLOW
         Fq12Sparse01234 {
-            c0: zC0B0, c1: C3D3.to_fq(field_nz), c2: X34.to_fq(field_nz), c3: x03, c4: x04,
+            c0: Fq6 { c0: zC0B0, c1: c3d3, c2: x34 }, c1: Fq6Sparse01 { c0: x03, c1: x04 },
         }
     }
     // Mul a sparse 034 Fq12 by another 034 Fq12 resulting in a sparse 01234
@@ -282,7 +275,7 @@ impl FqSparse of FqSparseTrait {
         let mut zC0B0: Fq2 = C4Sq.to_fq(field_nz).mul_by_nonresidue();
         zC0B0.c0.c0 = zC0B0.c0.c0 + 1; // POTENTIAL OVERFLOW
         Fq12Sparse01234 {
-            c0: zC0B0, c1: C3Sq.to_fq(field_nz), c2: X34.to_fq(field_nz), c3: x03, c4: x04,
+            c0: Fq6 { c0: zC0B0, c1: c3_sq, c2: x34 }, c1: Fq6Sparse01 { c0: x03, c1: x04 },
         }
     }
 
@@ -323,12 +316,10 @@ impl FqSparse of FqSparseTrait {
     // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/fields_bn254/e12_pairing.go#L208
     #[inline(always)]
     fn mul_01234_034(self: Fq12Sparse01234, rhs: Fq12Sparse034, field_nz: NonZero<u256>) -> Fq12 {
-        let Fq12Sparse01234 { c0, c1, c2, c3: a1_0, c4: a1_1 } = self;
+        let Fq12Sparse01234 { c0: a0, c1: a1 } = self;
 
         // a0 := &E6{B0: *x[0], B1: *x[1], B2: *x[2]}
         // a1 := &E6{B0: *x[3], B1: *x[4], B2: *e.Ext2.Zero()}
-        let a0 = Fq6 { c0, c1, c2 };
-        let a1 = sparse_fq6(a1_0, a1_1);
 
         let Fq12Sparse034 { c3: mut z3, c4: z4 } = rhs;
 
@@ -337,8 +328,8 @@ impl FqSparse of FqSparseTrait {
         a.c0.c0.c0 = a.c0.c0.c0 + 1; // POTENTIAL OVERFLOW
         // b := e.Ext6.Add(a0, a1)
         let mut b = a0;
-        b.c0 = b.c0 + a1_0;
-        b.c1 = b.c1 + a1_1;
+        b.c0 = b.c0 + a1.c0;
+        b.c1 = b.c1 + a1.c1;
         // a = e.Ext6.Mul(a, b)
         let A = b.u_mul_01(a, field_nz);
         // c := e.Ext6.Mul01By01(z3, z4, x[3], x[4])
@@ -360,10 +351,8 @@ impl FqSparse of FqSparseTrait {
     // Same as Fq12 mul but with a sparse b1 i.e. b1.c2 as 0 and associated ops removed
     fn mul_01234(self: Fq12, rhs: Fq12Sparse01234, field_nz: NonZero<u256>) -> Fq12 {
         let Fq12 { c0: a0, c1: a1 } = self;
-        let Fq12Sparse01234 { c0, c1, c2, c3, c4 } = rhs;
+        let Fq12Sparse01234 { c0: b0, c1: b1 } = rhs;
 
-        let b0 = Fq6 { c0, c1, c2 };
-        let b1 = sparse_fq6(c3, c4);
 
         // Doing this part before U, V cost less for some reason
         let b = Fq6 { c0: b0.c0 + b1.c0, c1: b0.c1 + b1.c1, c2: b0.c2 };
