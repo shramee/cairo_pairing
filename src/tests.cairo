@@ -1,10 +1,10 @@
 // test bn::tests::bench_exponentiation ... ok (gas usage est.: 473748170)
-// test bn::tests::bench_miller ... ok (gas usage est.: 402249030)
-// test bn::tests::bench_pairing ... ok (gas usage est.: 875997400)
-// test bn::tests::bilinear_g1 ... ok (gas usage est.: 2631502900)
-// test bn::tests::bilinear_g2 ... ok (gas usage est.: 2631502900)
-// test bn::tests::bilinearity ... ok (gas usage est.: 1752008900)
-// test bn::tests::quadratic_constraints ... ok (gas usage est.: 1752602920)
+// test bn::tests::bench_miller ... ok (gas usage est.: 402385430)
+// test bn::tests::bench_pairing ... ok (gas usage est.: 876133800)
+// test bn::tests::bilinear_g1 ... ok (gas usage est.: 1687917190)
+// test bn::tests::bilinear_g2 ... ok (gas usage est.: 1687919590)
+// test bn::tests::bilinearity ... ok (gas usage est.: 1282034660)
+// test bn::tests::quadratic_constraints ... ok (gas usage est.: 1282628680)
 
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
@@ -148,8 +148,8 @@ fn bilinear_g2() {
 fn quadratic_constraints() {
     internal::revoke_ap_tracking();
     let p_3_2 = ate_miller_loop(p(3).neg(), q(2));
-    let p_1_5 = ate_miller_loop(p(1), q(5));
-    let pairing_final = (p_3_2 * p_1_5).final_exponentiation();
-    assert(pairing_final == FieldUtils::one(), 'e([3]g1,[2]g2) failed')
+    let p_1_6 = ate_miller_loop(p(1), q(5).add(q(1)));
+    let pairing_final = (p_3_2 * p_1_6).final_exponentiation();
+    assert(pairing_final == FieldUtils::one(), 'e(3,2)==e(1,5) failed')
 }
 
