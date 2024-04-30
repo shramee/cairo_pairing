@@ -8,6 +8,27 @@ use bn::curve::{six_t_plus_2_naf_rev_trimmed, get_field_nz};
 use bn::fields::{print, FieldUtils, FieldOps, fq, Fq, Fq2, Fq6};
 use optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 
+fn ate_miller_loop<
+    TG1,
+    TG2,
+    TPreC,
+    +MillerPrecompute<TG1, TG2, TPreC>,
+    +MillerSteps<TPreC, TG2>,
+    +Drop<TG1>,
+    +Drop<TG2>,
+    +Drop<TPreC>,
+>(
+    p: TG1, q: TG2
+) -> Fq12 {
+    gas::withdraw_gas().unwrap();
+    core::internal::revoke_ap_tracking();
+
+    // Prepare precompute and q accumulator
+    let (precompute, mut q_acc) = (p, q).precompute(get_field_nz());
+
+    ate_miller_loop_steps(precompute, ref q_acc)
+}
+
 // Pairing Implementation Revisited - Michael Scott
 //
 // The implementation below is the algorithm described below in a single loop.
@@ -37,24 +58,9 @@ use optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 // 4:     Compute g[i] and mul with f based on the bit value
 // 5: return f
 // 
-fn ate_miller_loop<
-    TG1,
-    TG2,
-    TPreC,
-    +MillerPrecompute<TG1, TG2, TPreC>,
-    +MillerSteps<TPreC, TG2>,
-    +Drop<TG1>,
-    +Drop<TG2>,
-    +Drop<TPreC>,
->(
-    p: TG1, q: TG2
+fn ate_miller_loop_steps<TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop<TPreC>,>(
+    precompute: TPreC, ref q_acc: TG2
 ) -> Fq12 {
-    gas::withdraw_gas().unwrap();
-    core::internal::revoke_ap_tracking();
-
-    // Prepare precompute and q accumulator
-    let (precompute, mut q_acc) = (p, q).precompute(get_field_nz());
-
     // ate_loop[64] = O and ate_loop[63] = N
     let mut f = precompute.miller_first_second(64, 63, ref q_acc);
 
