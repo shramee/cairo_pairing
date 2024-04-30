@@ -5,9 +5,9 @@ use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, Fq2, print::{FqDisplay, Fq12Display}};
 use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
-use bn::curve::pairing;
+use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
-use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
+use pairing::optimal_ate::{ate_miller_loop_steps};
 use pairing::optimal_ate_utils::{pair_precompute, step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
 use bn::groth16::utils::{ICProcess, process_input_constraints};
@@ -33,26 +33,6 @@ struct Groth16PreCompute {
     ppc: (PPrecompute, PPrecompute, PPrecompute),
     neg_q: Groth16MillerG2,
     field_nz: NonZero<u256>,
-}
-
-impl Groth16MillerPrecompute of MillerPrecompute<
-    Groth16MillerG1, Groth16MillerG2, Groth16PreCompute
-> {
-    fn precompute(
-        self: (Groth16MillerG1, Groth16MillerG2), field_nz: NonZero<u256>
-    ) -> (Groth16PreCompute, Groth16MillerG2) {
-        let (p, q) = self;
-        let Groth16MillerG1 { pi_a, pi_c, k } = p;
-        let Groth16MillerG2 { pi_b, delta, gamma } = q;
-
-        let (ppc0, pi_b_neg) = pair_precompute(pi_a, pi_b, field_nz);
-        let (ppc1, delta_neg) = pair_precompute(pi_c, delta, field_nz);
-        let (ppc2, gamma_neg) = pair_precompute(k, gamma, field_nz);
-        let ppc = (ppc0, ppc1, ppc2);
-        let neg_q = Groth16MillerG2 { pi_b: pi_b_neg, delta: delta_neg, gamma: gamma_neg, };
-        let precomp = Groth16PreCompute { p, q, ppc, neg_q, field_nz, };
-        (precomp, q.clone(),)
-    }
 }
 
 impl Groth16MillerSteps of MillerSteps<Groth16PreCompute, Groth16MillerG2> {
@@ -147,17 +127,33 @@ fn verify<T, +ICProcess<T>, +Drop<T>>(
 ) -> bool { //
     // Compute k from ic and public_inputs
     let k = process_input_constraints(ic_0, inputs_and_ic);
+
     // Compute optimise triple miller loop for the points
-    let pi_a_neg = g1(pi_a.x.c0, pi_a.y.neg().c0);
-    let p = Groth16MillerG1 { pi_a: pi_a_neg, pi_c, k, };
-    let q = Groth16MillerG2 { pi_b, delta, gamma, };
-    let miller_loop_result = ate_miller_loop(p, q);
+    let pi_a = pi_a.neg();
+
+    // build precompute
+    let field_nz = get_field_nz();
+    let (ppc0, pi_b_neg) = pair_precompute(pi_a, pi_b, field_nz);
+    let (ppc1, delta_neg) = pair_precompute(pi_c, delta, field_nz);
+    let (ppc2, gamma_neg) = pair_precompute(k, gamma, field_nz);
+    let neg_q = Groth16MillerG2 { pi_b: pi_b_neg, delta: delta_neg, gamma: gamma_neg, };
+    let ppc = (ppc0, ppc1, ppc2);
+    let precomp = Groth16PreCompute {
+        p: Groth16MillerG1 { pi_a: pi_a, pi_c, k, }, q, ppc, neg_q, field_nz,
+    };
+
+    // q points accumulator
+    let mut acc = Groth16MillerG2 { pi_b, delta, gamma, };
+
+    // run miller steps
+    let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
 
     // multiply precomputed alphabeta_miller with the pairings
     let miller_loop_result = miller_loop_result * albe_miller;
 
     // final exponentiation
     let result = miller_loop_result.final_exponentiation();
+
     // return result == 1
     result == Fq12Utils::one()
 }
