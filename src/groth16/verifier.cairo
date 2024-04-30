@@ -10,7 +10,7 @@ use bn::traits::{MillerPrecompute, MillerSteps};
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_utils::{pair_precompute, step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
-use bn::groth16::utils::{process_input_constraints};
+use bn::groth16::utils::{ICProcess, process_input_constraints};
 
 #[derive(Copy, Drop)]
 struct Groth16MillerG1 { // Points in G1
@@ -135,10 +135,29 @@ impl Groth16MillerSteps of MillerSteps<Groth16PreCompute, Groth16MillerG2> {
 }
 
 // Does verification
-fn verify() { //
-// Compute k from ic and public_inputs
-// Compute optimise triple miller loop for the points
-// multiply precomputed alphabeta_miller with the pairings
-// final exponentiation
-// return result == 1
+fn verify<T, +ICProcess<T>, +Drop<T>>(
+    pi_a: AffineG1,
+    pi_b: AffineG2,
+    pi_c: AffineG1,
+    ic_0: AffineG1,
+    inputs_and_ic: T,
+    albe_miller: Fq12,
+    delta: AffineG2,
+    gamma: AffineG2,
+) -> bool { //
+    // Compute k from ic and public_inputs
+    let k = process_input_constraints(ic_0, inputs_and_ic);
+    // Compute optimise triple miller loop for the points
+    let pi_a_neg = g1(pi_a.x.c0, pi_a.y.neg().c0);
+    let p = Groth16MillerG1 { pi_a: pi_a_neg, pi_c, k, };
+    let q = Groth16MillerG2 { pi_b, delta, gamma, };
+    let miller_loop_result = ate_miller_loop(p, q);
+
+    // multiply precomputed alphabeta_miller with the pairings
+    let miller_loop_result = miller_loop_result * albe_miller;
+
+    // final exponentiation
+    let result = miller_loop_result.final_exponentiation();
+    // return result == 1
+    result == Fq12Utils::one()
 }
