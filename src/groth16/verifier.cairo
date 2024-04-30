@@ -8,7 +8,7 @@ use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
 use pairing::optimal_ate::{ate_miller_loop_steps};
-use pairing::optimal_ate_utils::{pair_precompute, step_double, step_dbl_add, correction_step};
+use pairing::optimal_ate_utils::{p_precompute, step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
 use bn::groth16::utils::{ICProcess, process_input_constraints};
 
@@ -133,18 +133,17 @@ fn verify<T, +ICProcess<T>, +Drop<T>>(
 
     // build precompute
     let field_nz = get_field_nz();
-    let (ppc0, pi_b_neg) = pair_precompute(pi_a, pi_b, field_nz);
-    let (ppc1, delta_neg) = pair_precompute(pi_c, delta, field_nz);
-    let (ppc2, gamma_neg) = pair_precompute(k, gamma, field_nz);
-    let neg_q = Groth16MillerG2 { pi_b: pi_b_neg, delta: delta_neg, gamma: gamma_neg, };
-    let ppc = (ppc0, ppc1, ppc2);
+    let q = Groth16MillerG2 { pi_b, delta, gamma, };
+    let neg_q = Groth16MillerG2 { pi_b: pi_b.neg(), delta: delta.neg(), gamma: gamma.neg(), };
+    let ppc = (
+        p_precompute(pi_a, field_nz), p_precompute(pi_c, field_nz), p_precompute(k, field_nz)
+    );
     let precomp = Groth16PreCompute {
         p: Groth16MillerG1 { pi_a: pi_a, pi_c, k, }, q, ppc, neg_q, field_nz,
     };
 
     // q points accumulator
-    let mut acc = Groth16MillerG2 { pi_b, delta, gamma, };
-
+    let mut acc = q;
     // run miller steps
     let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
 
