@@ -11,6 +11,7 @@ use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use bn::groth16::utils::{process_input_constraints};
+use bn::groth16::verifier::{verify};
 
 fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) {
     let mut alpha = g1(
@@ -89,21 +90,10 @@ fn groth16_verify() {
 
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input,) = proof();
-    let neg_pi_a = g1(pi_a.x.c0, pi_a.y.neg().c0);
 
-    let k = process_input_constraints(ic0, (ic1, pub_input));
+    let verified = verify(pi_a, pi_b, pi_c, ic0, (ic1, pub_input), albe_miller, delta, gamma,);
 
-    // Miller loop for all the pairs
-    // -A * B + alpha * beta + C * delta + K * gamma
-    let proof = ate_miller_loop(neg_pi_a, pi_b)
-        * albe_miller // precomputed alpha, beta miller loop
-        * ate_miller_loop(k, gamma)
-        * ate_miller_loop(pi_c, delta);
-
-    // Final exponentiation together
-    let proved = proof.final_exponentiation();
-
-    assert(proved == Fq12Utils::one(), 'verification failed');
+    assert(verified, 'verification failed');
 }
 
 #[test]
