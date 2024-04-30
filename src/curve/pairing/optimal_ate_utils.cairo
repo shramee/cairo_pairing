@@ -36,7 +36,7 @@ use bn::fields::frobenius::pi;
 // (1, 0, 0, -λ·xₚ/yₚ, (λxₛ − yₛ)/yₚ, 0)
 // 
 
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, Serde)]
 struct PPrecompute {
     neg_x_over_y: Fq,
     y_inv: Fq,

@@ -35,13 +35,13 @@ use bn::groth16::utils::{ICProcess, process_input_constraints};
 type Line = (Fq2, Fq2,);
 
 // The points to generate lines precompute for
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, Serde)]
 struct G16SetupG2 {
     delta: AffineG2,
     gamma: AffineG2,
 }
 
-#[derive(Drop)]
+#[derive(Drop, Serde)]
 struct G16SetupPreComp {
     delta_lines: Array<Line>,
     gamma_lines: Array<Line>,
@@ -67,4 +67,28 @@ impl G16SetupSteps of MillerSteps<G16SetupPreComp, G16SetupG2> {
 
     // last step
     fn miller_last(self: @G16SetupPreComp, ref acc: G16SetupG2, ref f: Fq12) {}
+}
+
+#[derive(Drop, Serde)]
+struct G16CircuitSetup {
+    alpha_beta: Fq12,
+// gamma: FixedG2Precompute,
+// delta: FixedG2Precompute,
+}
+
+#[derive(Drop, Serde)]
+struct FixedG2Precompute {
+    lines: Array<Line>,
+    point: AffineG2,
+    neg: AffineG2,
+}
+
+fn setup_precompute(
+    alpha: AffineG1, beta: AffineG2, gamma: AffineG2, delta: AffineG2,
+) -> G16CircuitSetup { //
+    // negate alpha, gamma and delta
+    // e(alpha, beta)
+    // line functions for gamma
+    // line functions for delta
+    G16CircuitSetup { alpha_beta: Fq12Utils::one(), }
 }
