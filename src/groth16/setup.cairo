@@ -25,7 +25,7 @@ use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, fq, Fq2, print::{FqDisplay, Fq12Display}};
 use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::pairing;
-use bn::traits::{MillerPrecompute, MillerSteps};
+use bn::traits::{MillerPrecompute, MillerSteps, FieldUtils};
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_utils::{p_precompute, step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
@@ -36,18 +36,35 @@ type Line = (Fq2, Fq2,);
 
 // The points to generate lines precompute for
 #[derive(Copy, Drop)]
-struct G16LinesG2 {
+struct G16SetupG2 {
     delta: AffineG2,
     gamma: AffineG2,
 }
 
 #[derive(Drop)]
-struct G16LinesLoopPreComp {
+struct G16SetupPreComp {
     delta_lines: Array<Line>,
     gamma_lines: Array<Line>,
-    q: G16LinesG2,
+    q: G16SetupG2,
     ppc: PPrecompute, // We use dummy p (1,1)
-    neg_q: G16LinesG2,
+    neg_q: G16SetupG2,
     field_nz: NonZero<u256>,
 }
 
+impl G16SetupSteps of MillerSteps<G16SetupPreComp, G16SetupG2> {
+    fn miller_first_second(self: @G16SetupPreComp, i1: u32, i2: u32, ref acc: G16SetupG2) -> Fq12 {
+        FieldUtils::one()
+    }
+
+    // 0 bit
+    fn miller_bit_o(self: @G16SetupPreComp, i: u32, ref acc: G16SetupG2, ref f: Fq12) {}
+
+    // 1 bit
+    fn miller_bit_p(self: @G16SetupPreComp, i: u32, ref acc: G16SetupG2, ref f: Fq12) {}
+
+    // -1 bit
+    fn miller_bit_n(self: @G16SetupPreComp, i: u32, ref acc: G16SetupG2, ref f: Fq12) {}
+
+    // last step
+    fn miller_last(self: @G16SetupPreComp, ref acc: G16SetupG2, ref f: Fq12) {}
+}
