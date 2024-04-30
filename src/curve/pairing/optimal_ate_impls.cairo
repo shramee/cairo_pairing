@@ -19,12 +19,11 @@ use bn::curve::pairing::optimal_ate_utils::{
 struct PreCompute {
     p: PtG1,
     q: PtG2,
-    ppc: PPrecompute,
     neg_q: PtG2,
+    ppc: PPrecompute,
     field_nz: NonZero<u256>,
 }
 
-type Pair = (PtG1, PtG2);
 impl SingleMillerPrecompute of MillerPrecompute<PtG1, PtG2, PreCompute> {
     fn precompute(self: (PtG1, PtG2), field_nz: NonZero<u256>) -> (PreCompute, PtG2) {
         let (p, q) = self;

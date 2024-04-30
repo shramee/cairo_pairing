@@ -114,7 +114,9 @@ impl Groth16MillerSteps of MillerSteps<Groth16PreCompute, Groth16MillerG2> {
     }
 }
 
-// Does verification
+// @TODO
+// Fix Groth16 verify function for negative G2 and not neg pi_a
+// Does the verification
 fn verify<T, +ICProcess<T>, +Drop<T>>(
     pi_a: AffineG1,
     pi_b: AffineG2,
