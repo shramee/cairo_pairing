@@ -1,3 +1,4 @@
+use bn::fields::fq_sparse::FqSparseTrait;
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
 use bn::curve::groups::ECOperations;
@@ -7,7 +8,7 @@ use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::pairing;
 use bn::traits::{MillerPrecompute, MillerSteps};
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
-use pairing::optimal_ate_utils::{pair_precompute,};
+use pairing::optimal_ate_utils::{pair_precompute, step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
 use bn::groth16::utils::{process_input_constraints};
 
@@ -58,6 +59,26 @@ impl Groth16MillerSteps of MillerSteps<Groth16PreCompute, Groth16MillerG2> {
     fn miller_first_second(
         self: @Groth16PreCompute, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //
+        let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
+        let field_nz = *self.field_nz;
+        // Handle O, N steps
+        // step 0, run step double
+        let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, field_nz);
+        let l2 = step_double(ref acc.delta, pi_c_ppc, *self.p.pi_c, field_nz);
+        let l3 = step_double(ref acc.gamma, k_ppc, *self.p.k, field_nz);
+        let f = l1.mul_034_by_034(l2, field_nz).mul_01234_034(l3, field_nz);
+        // sqr with mul 034 by 034
+        let f = f.sqr();
+        // step -1, the next negative one step
+        let Groth16MillerG2 { pi_b, delta, gamma } = self.neg_q;
+        let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
+        let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
+        let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
+        let (l2_1, l2_2) = step_dbl_add(ref acc.delta, pi_c_ppc, *self.p.pi_c, *delta, field_nz);
+        let l2 = l2_1.mul_034_by_034(l2_2, field_nz);
+        let (l3_1, l3_2) = step_dbl_add(ref acc.gamma, k_ppc, *self.p.k, *gamma, field_nz);
+        let l3 = l3_1.mul_034_by_034(l3_2, field_nz);
+        f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz))
     }
 
     // 0 bit
@@ -100,6 +121,16 @@ impl Groth16MillerSteps of MillerSteps<Groth16PreCompute, Groth16MillerG2> {
 
     // last step
     fn miller_last(self: @Groth16PreCompute, ref acc: Groth16MillerG2, ref f: Fq12) {
+        let Groth16PreCompute { p, q, ppc: _, neg_q: _, field_nz, } = self;
+        let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
+        let (l1_1, l1_2) = correction_step(ref acc.pi_b, pi_a_ppc, *p.pi_a, *q.pi_b, *field_nz);
+        let l1 = l1_1.mul_034_by_034(l1_2, *field_nz);
+        let (l2_1, l2_2) = correction_step(ref acc.delta, pi_c_ppc, *p.pi_c, *q.delta, *field_nz);
+        let l2 = l2_1.mul_034_by_034(l2_2, *field_nz);
+        let (l3_1, l3_2) = correction_step(ref acc.gamma, k_ppc, *p.k, *q.gamma, *field_nz);
+        let l3 = l3_1.mul_034_by_034(l3_2, *field_nz);
+
+        f = f.mul(l1.mul_01234_01234(l2, *field_nz).mul_01234(l3, *field_nz));
     }
 }
 
