@@ -54,6 +54,54 @@ impl Groth16MillerPrecompute of MillerPrecompute<
     }
 }
 
+impl Groth16MillerSteps of MillerSteps<Groth16PreCompute, Groth16MillerG2> {
+    fn miller_first_second(
+        self: @Groth16PreCompute, i1: u32, i2: u32, ref acc: Groth16MillerG2
+    ) -> Fq12 { //
+    }
+
+    // 0 bit
+    fn miller_bit_o(self: @Groth16PreCompute, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+        let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
+        let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.field_nz);
+        let l2 = step_double(ref acc.delta, pi_c_ppc, *self.p.pi_c, *self.field_nz);
+        let l3 = step_double(ref acc.gamma, k_ppc, *self.p.k, *self.field_nz);
+        f = f.mul(l1.mul_034_by_034(l2, *self.field_nz).mul_01234_034(l3, *self.field_nz));
+    }
+
+    // 1 bit
+    fn miller_bit_p(self: @Groth16PreCompute, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+        let Groth16MillerG2 { pi_b, delta, gamma } = self.q;
+        let field_nz = *self.field_nz;
+        let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
+        let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
+        let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
+        let (l2_1, l2_2) = step_dbl_add(ref acc.delta, pi_c_ppc, *self.p.pi_c, *delta, field_nz);
+        let l2 = l2_1.mul_034_by_034(l2_2, field_nz);
+        let (l3_1, l3_2) = step_dbl_add(ref acc.gamma, k_ppc, *self.p.k, *gamma, field_nz);
+        let l3 = l3_1.mul_034_by_034(l3_2, field_nz);
+        f = f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz));
+    }
+
+    // -1 bit
+    fn miller_bit_n(self: @Groth16PreCompute, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+        // use neg q
+        let Groth16MillerG2 { pi_b, delta, gamma } = self.neg_q;
+        let field_nz = *self.field_nz;
+        let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
+        let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
+        let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
+        let (l2_1, l2_2) = step_dbl_add(ref acc.delta, pi_c_ppc, *self.p.pi_c, *delta, field_nz);
+        let l2 = l2_1.mul_034_by_034(l2_2, field_nz);
+        let (l3_1, l3_2) = step_dbl_add(ref acc.gamma, k_ppc, *self.p.k, *gamma, field_nz);
+        let l3 = l3_1.mul_034_by_034(l3_2, field_nz);
+        f = f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz));
+    }
+
+    // last step
+    fn miller_last(self: @Groth16PreCompute, ref acc: Groth16MillerG2, ref f: Fq12) {
+    }
+}
 
 // Does verification
 fn verify() { //
