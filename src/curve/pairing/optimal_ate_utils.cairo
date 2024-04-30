@@ -59,6 +59,7 @@ fn line_evaluation_at_p(slope: Fq2, p_pre: @PPre, s: PtG2) -> F034 {
     F034 { c3: slope.scale(*p_pre.neg_x_over_y), c4: (slope * s.x - s.y).scale(*p_pre.y_inv), }
 }
 
+#[inline(always)]
 fn step_dbl_add_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) {
     let (l1, l2) = step_dbl_add(ref acc, p_pre, p, q, field_nz);
     f = f.mul_01234(l1.mul_034_by_034(l2, field_nz), field_nz);
@@ -67,7 +68,6 @@ fn step_dbl_add_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, q: PtG2,
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
 // computes acc = acc + q + acc and line evals for p
 // returns product of line evaluations to multiply with f
-#[inline(always)]
 fn step_dbl_add(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> (F034, F034) {
     let s = acc;
     // s + q
@@ -88,6 +88,7 @@ fn step_dbl_add(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) 
     (line1, line2)
 }
 
+#[inline(always)]
 fn step_double_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, field_nz: NZNum) {
     f = f.mul_034(step_double(ref acc, p_pre, p, field_nz), field_nz);
 }
@@ -95,7 +96,6 @@ fn step_double_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, field_nz:
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
 // computes acc = 2 * acc and line eval for p
 // returns line evaluation to multiply with f
-#[inline(always)]
 fn step_double(ref acc: PtG2, p_pre: @PPre, p: PtG1, field_nz: NZNum) -> F034 {
     let s = acc;
     // λ = 3x²/2y
@@ -106,7 +106,7 @@ fn step_double(ref acc: PtG2, p_pre: @PPre, p: PtG1, field_nz: NZNum) -> F034 {
 }
 
 // https://eprint.iacr.org/2022/1162 (Section 6.1)
-// computes acc = 2 * acc and line eval for p
+// computes acc = acc + q and line eval for p
 // returns line evaluation to multiply with f
 #[inline(always)]
 fn step_add(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> F034 {
@@ -118,6 +118,7 @@ fn step_add(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> F
     line_evaluation_at_p(slope, p_pre, s)
 }
 
+#[inline(always)]
 fn correction_step_to_f(
     ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum
 ) {
@@ -131,7 +132,6 @@ fn correction_step_to_f(
 // https://eprint.iacr.org/2013/722.pdf
 // Code inspired by gnark
 // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/sw_bn254/pairing.go#L529
-#[inline(always)]
 fn correction_step(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> (F034, F034) {
     // Line 9: Q1 ← πₚ(Q),Q2 ← πₚ²(Q)
     // πₚ(x,y) = (xp,yp)
