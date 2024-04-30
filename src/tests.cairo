@@ -13,6 +13,7 @@ use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use bn::fields::Fq12Exponentiation;
+use bn::traits::FieldUtils;
 use debug::PrintTrait;
 
 fn p(n: u8) -> Affine<Fq> {
@@ -108,9 +109,10 @@ fn bench_exponentiation() {
 #[available_gas(20000000000)]
 fn bilinearity() {
     internal::revoke_ap_tracking();
-    let p_5_3 = single_ate_pairing(p(5), q(3));
-    let p_3_5 = single_ate_pairing(p(3), q(5));
-    assert(p_5_3 == p_3_5, 'p_5_3 == p_3_5 failed')
+    let p_5_3 = ate_miller_loop(p(5), q(3));
+    let p_3_5 = ate_miller_loop(p(3).neg(), q(5));
+    let pairing_final = (p_5_3 * p_3_5).final_exponentiation();
+    assert(pairing_final == FieldUtils::one(), 'p_5_3 == p_3_5 failed')
 }
 
 // Tests bilinearity in G1,
@@ -119,10 +121,11 @@ fn bilinearity() {
 #[available_gas(20000000000)]
 fn bilinear_g1() {
     internal::revoke_ap_tracking();
-    let p_5_3 = single_ate_pairing(p(5), q(3));
-    let p_2_3 = single_ate_pairing(p(2), q(3));
-    let p_3_3 = single_ate_pairing(p(3), q(3));
-    assert(p_5_3 == p_2_3 * p_3_3, 'e([2+3]g1,[3]g2) failed')
+    let p_5_3 = ate_miller_loop(p(5).neg(), q(3));
+    let p_2_3 = ate_miller_loop(p(2), q(3));
+    let p_3_3 = ate_miller_loop(p(3), q(3));
+    let pairing_final = (p_5_3 * p_3_3 * p_2_3).final_exponentiation();
+    assert(pairing_final == FieldUtils::one(), 'e([2+3]g1,[3]g2) failed')
 }
 
 // Tests bilinearity in G2,
@@ -131,11 +134,11 @@ fn bilinear_g1() {
 #[available_gas(20000000000)]
 fn bilinear_g2() {
     internal::revoke_ap_tracking();
-    assert(
-        single_ate_pairing(p(2), q(5)) == single_ate_pairing(p(2), q(2))
-            * single_ate_pairing(p(2), q(3)),
-        'e([2]g1,[2+3]g2) failed'
-    )
+    let p_3_5 = ate_miller_loop(p(3).neg(), q(5));
+    let p_3_2 = ate_miller_loop(p(3), q(2));
+    let p_3_3 = ate_miller_loop(p(3), q(3));
+    let pairing_final = (p_3_5 * p_3_2 * p_3_3).final_exponentiation();
+    assert(pairing_final == FieldUtils::one(), 'e([2]g1,[2+3]g2) failed')
 }
 
 // Tests quadratic constraints,
@@ -144,9 +147,9 @@ fn bilinear_g2() {
 #[available_gas(20000000000)]
 fn quadratic_constraints() {
     internal::revoke_ap_tracking();
-    assert(
-        single_ate_pairing(p(3), q(2)) == single_ate_pairing(p(1), q(5).add(q(1))),
-        'e([3]g1,[2]g2) failed'
-    )
+    let p_3_2 = ate_miller_loop(p(3).neg(), q(2));
+    let p_1_5 = ate_miller_loop(p(1), q(5));
+    let pairing_final = (p_3_2 * p_1_5).final_exponentiation();
+    assert(pairing_final == FieldUtils::one(), 'e([3]g1,[2]g2) failed')
 }
 
