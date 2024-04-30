@@ -26,6 +26,7 @@ trait ECOperations<TCoord> {
     fn tangent(self: @Affine<TCoord>) -> TCoord;
     fn double(self: @Affine<TCoord>) -> Affine<TCoord>;
     fn multiply(self: @Affine<TCoord>, multiplier: u256) -> Affine<TCoord>;
+    fn neg(self: @Affine<TCoord>) -> Affine<TCoord>;
 }
 
 impl AffinePartialEq<T, +PartialEq<T>> of PartialEq<Affine<T>> {
@@ -117,6 +118,11 @@ impl AffineOps<
             multiplier = q;
         };
         result
+    }
+
+    #[inline(always)]
+    fn neg(self: @Affine<T>) -> Affine<T> {
+        Affine { x: *self.x, y: (*self.y).neg() }
     }
 }
 
