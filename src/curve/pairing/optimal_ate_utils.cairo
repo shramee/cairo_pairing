@@ -43,7 +43,7 @@ struct PPrecompute {
 }
 
 fn pair_precompute(p: PtG1, q: PtG2, field_nz: NonZero<u256>) -> (PPrecompute, PtG2) {
-    let neg_q = PtG2 { x: q.x, y: -q.y, };
+    let neg_q = q.neg();
     let y_inv = (p.y).inv(field_nz);
     (PPrecompute { neg_x_over_y: -p.x * y_inv, y_inv }, neg_q,)
 }
