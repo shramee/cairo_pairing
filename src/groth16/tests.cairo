@@ -10,9 +10,38 @@ use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
-use bn::groth16::utils::{process_input_constraints};
+use pairing::optimal_ate_utils::LineFn;
+use bn::groth16::utils::{process_input_constraints, FixedG2Precompute};
 use bn::groth16::verifier::{verify};
 use bn::groth16::setup::{setup_precompute, G16CircuitSetup};
+use core::fmt::{Display, Formatter, Error};
+
+impl AffineG2Display of Display<AffineG2> {
+    fn fmt(self: @AffineG2, ref f: Formatter) -> Result<(), Error> {
+        write!(f, "\ng2({},{},{},{})", *self.x.c0, *self.x.c1, *self.y.c0, *self.y.c1)
+    }
+}
+
+impl LineFnArrDisplay of Display<Array<LineFn>> {
+    fn fmt(self: @Array<LineFn>, ref f: core::fmt::Formatter) -> Result<(), Error> {
+        let mut i = 0;
+        loop {
+            let res = write!(
+                f,
+                "\nline_fn_from_u256({},{},{},{}),",
+                *self.at(i).slope.c0,
+                *self.at(i).slope.c1,
+                *self.at(i).c.c0,
+                *self.at(i).c.c1
+            );
+            i = i + 1;
+            if i == self.len() {
+                break res;
+            }
+        }
+    }
+}
+
 
 fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) {
     let mut alpha = g1(
@@ -107,10 +136,30 @@ fn test_alphabeta_precompute() {
     assert(alphabeta == computed_alpha_beta, 'incorrect miller precompute');
 }
 
+fn print_g2_precompute(precom: FixedG2Precompute) {
+    println!("\nFixedG2Precompute {{");
+    println!("\npoint: {},", precom.point);
+    println!("\nneg: {},", precom.neg);
+    println!("\nlines: array![{}]", precom.lines);
+    println!("}}");
+}
+
 #[test]
 #[available_gas(20000000000)]
 fn test_setup() {
     let (alpha, beta, gamma, delta, alphabeta, _) = vk();
-    let G16CircuitSetup { alpha_beta } = setup_precompute(alpha, beta, gamma, delta);
+    let G16CircuitSetup { alpha_beta, gamma, delta } = setup_precompute(alpha, beta, gamma, delta);
+
+    // // Print FixedG2Precompute for mocks
+    // ---------------------------------
+
+    // println!("\nfn gamma_precompute() -> FixedG2Precompute {{");
+    // print_g2_precompute(gamma);
+    // println!("\n}}");
+
+    // println!("\nfn delta_precompute() -> FixedG2Precompute {{");
+    // print_g2_precompute(delta);
+    // println!("\n}}");
+
     assert(alpha_beta == alphabeta, 'incorrect miller precompute');
 }
