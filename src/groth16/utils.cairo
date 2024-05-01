@@ -17,6 +17,7 @@ struct G16CircuitSetup {
     alpha_beta: Fq12,
     gamma: FixedG2Precompute,
     delta: FixedG2Precompute,
+    ic: Array<AffineG1>,
 }
 
 #[derive(Drop, Serde)]

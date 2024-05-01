@@ -1,5 +1,5 @@
 use bn::fields::{fq2, fq12};
-use bn::curve::groups::{g2};
+use bn::curve::groups::{g1, g2};
 use bn::groth16::utils::{G16CircuitSetup, FixedG2Precompute, LineFn};
 
 fn line_fn_from_u256(slope_c0: u256, slope_c1: u256, c_c0: u256, c_c1: u256) -> LineFn {
@@ -24,6 +24,16 @@ fn circuit_setup() -> G16CircuitSetup {
         ),
         gamma: gamma_precompute(),
         delta: delta_precompute(),
+        ic: array![
+            g1(
+                1655549413518972190198478012616802994254462093161203201613599472264958303841,
+                21742734017792296281216385119397138748114275727065024271646515586404591497876
+            ),
+            g1(
+                16497930821522159474595176304955625435616718625609462506360632944366974274906,
+                10404924572941018678793755094259635830045501866471999610240845041996101882275
+            )
+        ]
     }
 }
 

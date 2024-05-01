@@ -145,7 +145,7 @@ impl G16SetupSteps of MillerSteps<G16SetupPreComp, G16SetupAcc> {
 }
 
 fn setup_precompute(
-    alpha: AffineG1, beta: AffineG2, gamma: AffineG2, delta: AffineG2,
+    alpha: AffineG1, beta: AffineG2, gamma: AffineG2, delta: AffineG2, ic: Array<AffineG1>
 ) -> G16CircuitSetup { //
     // negate beta, gamma and delta
     // use the original as negative and negative as original
@@ -177,5 +177,5 @@ fn setup_precompute(
     let gamma = FixedG2Precompute { lines: gamma_lines, point: gamma, neg: gamma_neg, };
     // line functions for delta
     let delta = FixedG2Precompute { lines: delta_lines, point: delta, neg: delta_neg, };
-    G16CircuitSetup { alpha_beta, gamma, delta }
+    G16CircuitSetup { alpha_beta, gamma, delta, ic }
 }
