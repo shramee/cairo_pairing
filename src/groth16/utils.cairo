@@ -8,8 +8,23 @@ use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
+use pairing::optimal_ate_utils::{LineFn};
 
 type G1 = AffineG1;
+
+#[derive(Drop, Serde)]
+struct G16CircuitSetup {
+    alpha_beta: Fq12,
+    gamma: FixedG2Precompute,
+    delta: FixedG2Precompute,
+}
+
+#[derive(Drop, Serde)]
+struct FixedG2Precompute {
+    lines: Array<LineFn>,
+    point: AffineG2,
+    neg: AffineG2,
+}
 
 fn process_input_constraints<T, +ICProcess<T>, +Drop<T>>(start_pt: G1, ic: T) -> G1 {
     // println!("\nstart_pt = g1({},{})", start_pt.x, start_pt.y);
