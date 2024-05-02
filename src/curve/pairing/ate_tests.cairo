@@ -1,8 +1,8 @@
 use core::traits::TryInto;
 use super::optimal_ate_utils::{step_double, step_dbl_add, correction_step, PtG1, PtG2};
-use super::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
-use bn::curve::FIELD;
-use bn::curve::groups::{g1, g2};
+use super::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PreCompute};
+use bn::curve::{FIELD, get_field_nz};
+use bn::curve::groups::{g1, g2, AffineG2};
 use bn::fields::{fq2};
 
 fn points() -> (PtG1, PtG2) {
@@ -26,7 +26,7 @@ fn points() -> (PtG1, PtG2) {
 #[available_gas(2500000)]
 fn test_step_double() {
     let (p, mut q) = points();
-    let (pc, _) = (p, q).precompute(get_field_nz());
+    let (pc, _): (PreCompute, AffineG2) = (p, q).precompute(get_field_nz());
 
     let lines = step_double(ref q, @pc.ppc, p, pc.field_nz);
 
@@ -56,7 +56,7 @@ fn test_step_double() {
 #[available_gas(2500000)]
 fn test_step_dbl_add() {
     let (p, q) = points();
-    let (pc, _) = (p, q).precompute(get_field_nz());
+    let (pc, _): (PreCompute, AffineG2) = (p, q).precompute(get_field_nz());
 
     let mut acc = g2(
         0x20101834550a7d15aa7a685d3f0095b689822cb568dfc9690e0cc58e9826d8fb,
@@ -105,7 +105,7 @@ fn test_step_dbl_add() {
 #[available_gas(25000000)]
 fn test_step_correction() {
     let (p, q) = points();
-    let (pc, _) = (p, q).precompute(get_field_nz());
+    let (pc, _): (PreCompute, AffineG2) = (p, q).precompute(get_field_nz());
     let mut acc = g2(
         0x235817357e89826e377fd16a7f1a2ff53e0df7e86895b1958bd95fb6560fa941,
         0x22108c7158743b9927b624e1a61a4aa7ba9b2f717799e4e0c5424e8343de2884,
@@ -114,12 +114,13 @@ fn test_step_correction() {
     );
     let (l1, l2) = correction_step(ref acc, @pc.ppc, p, pc.q, pc.field_nz);
 
-    let expected = g2(
-        0x242898b9a67f64300e584ef995ba56d75a6a66b236ee16145e9b1308dc24e3ce,
-        0x290d75d7b30b60ea7a2809bb7fd095e5c4131719ff499b33ddc8c67d95a743c7,
-        0x275fc70fde9a73de316c4ba654097840197be9141f31d3567188a8de06525572,
-        0x1c79853dd0050acf0f1de573eed5b81d5e287994df2452eb560c6262746e07fc,
-    );
+    // We skip final point operation to save costs
+    // let expected = g2(
+    //     0x242898b9a67f64300e584ef995ba56d75a6a66b236ee16145e9b1308dc24e3ce,
+    //     0x290d75d7b30b60ea7a2809bb7fd095e5c4131719ff499b33ddc8c67d95a743c7,
+    //     0x275fc70fde9a73de316c4ba654097840197be9141f31d3567188a8de06525572,
+    //     0x1c79853dd0050acf0f1de573eed5b81d5e287994df2452eb560c6262746e07fc,
+    // );
 
     let expected_l1c3 = fq2(
         0xd238aea84f1c5f3cc252629ef407db0ad7b441dd6616b994e374fb8c0413383,
@@ -145,5 +146,6 @@ fn test_step_correction() {
     assert(l1.c4 == expected_l1c4, 'wrong correction l1c4');
     assert(l2.c3 == expected_l2c3, 'wrong correction l2c3');
     assert(l2.c4 == expected_l2c4, 'wrong correction l2c4');
-    assert(q == expected, 'wrong correction point');
+// We skip final point operation to save costs
+// assert(q == expected, 'wrong correction point');
 }
