@@ -1,3 +1,4 @@
+use core::array::ArrayTrait;
 //
 // This file is for circuit setup for Groth16
 //
@@ -32,7 +33,7 @@ use pairing::optimal_ate_utils::{
 };
 use pairing::optimal_ate_utils::{step_double_to_f, step_dbl_add_to_f, correction_step_to_f};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
-use bn::groth16::utils::{ICProcess, process_input_constraints, G16CircuitSetup, FixedG2Precompute};
+use bn::groth16::utils::{ICProcess, G16CircuitSetup, StepLinesGet, StepLinesSet};
 
 // The points to generate lines precompute for
 #[derive(Copy, Drop, Serde)]
@@ -44,10 +45,15 @@ struct G16SetupG2 {
 
 // The points to generate lines precompute for
 #[derive(Drop, Serde)]
-struct G16SetupAcc {
+struct G16SetupAcc<T> {
     beta: AffineG2,
     delta: AffineG2,
     gamma: AffineG2,
+    lines: T,
+}
+
+#[derive(Drop, Serde)]
+struct G16SetupAccLinesAr {
     delta_lines: Array<LineFn>,
     gamma_lines: Array<LineFn>,
 }
@@ -68,44 +74,50 @@ fn line_fn_tuple_append(ref ar: Array<LineFn>, line_fns: (LineFn, LineFn)) {
     ar.append(l2);
 }
 
-#[generate_trait]
-impl Private of PrivateTrait {
+trait StepLinesTrait<T> {
+    fn acc_step_double(ref self: G16SetupAcc<T>, step: u32, pre_comp: @G16SetupPreComp);
+    fn acc_step_dbl_add(
+        ref self: G16SetupAcc<T>, step: u32, q: @G16SetupG2, pre_comp: @G16SetupPreComp
+    );
+    fn acc_correction_step(ref self: G16SetupAcc<T>, step: u32, pre_comp: @G16SetupPreComp);
+}
+
+impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
     #[inline(always)]
-    fn acc_step_double(self: @G16SetupPreComp, ref acc: G16SetupAcc) {
-        acc.gamma_lines.append(line_fn::step_double(ref acc.gamma, *self.field_nz));
-        acc.delta_lines.append(line_fn::step_double(ref acc.delta, *self.field_nz));
+    fn acc_step_double(ref self: G16SetupAcc<T>, step: u32, pre_comp: @G16SetupPreComp) {
+        self.lines.gamma_line(step, line_fn::step_double(ref self.gamma, *pre_comp.field_nz));
+        self.lines.delta_line(step, line_fn::step_double(ref self.delta, *pre_comp.field_nz));
     }
 
     #[inline(always)]
-    fn acc_step_dbl_add(self: @G16SetupPreComp, q: @G16SetupG2, ref acc: G16SetupAcc) {
-        line_fn_tuple_append(
-            ref acc.gamma_lines, line_fn::step_dbl_add(ref acc.gamma, *q.gamma, *self.field_nz)
-        );
-        line_fn_tuple_append(
-            ref acc.delta_lines, line_fn::step_dbl_add(ref acc.delta, *q.delta, *self.field_nz)
-        );
+    fn acc_step_dbl_add(
+        ref self: G16SetupAcc<T>, step: u32, q: @G16SetupG2, pre_comp: @G16SetupPreComp
+    ) {
+        self
+            .lines
+            .gamma_lines(step, line_fn::step_dbl_add(ref self.gamma, *q.gamma, *pre_comp.field_nz));
+        self
+            .lines
+            .delta_lines(step, line_fn::step_dbl_add(ref self.delta, *q.delta, *pre_comp.field_nz));
     }
 
     #[inline(always)]
-    fn acc_correction_step(self: @G16SetupPreComp, ref acc: G16SetupAcc) {
-        line_fn_tuple_append(
-            ref acc.gamma_lines,
-            line_fn::correction_step(ref acc.gamma, *self.q.gamma, *self.field_nz)
-        );
-        line_fn_tuple_append(
-            ref acc.delta_lines,
-            line_fn::correction_step(ref acc.delta, *self.q.delta, *self.field_nz)
-        );
+    fn acc_correction_step(ref self: G16SetupAcc<T>, step: u32, pre_comp: @G16SetupPreComp) {
+        let G16SetupPreComp { ppc: _, neg_q: _, p: _, q, field_nz } = pre_comp;
+        self.lines.gamma_lines(step, line_fn::correction_step(ref self.gamma, *q.gamma, *field_nz));
+        self.lines.delta_lines(step, line_fn::correction_step(ref self.delta, *q.delta, *field_nz));
     }
 }
 
-impl G16SetupSteps of MillerSteps<G16SetupPreComp, G16SetupAcc> {
-    fn miller_first_second(self: @G16SetupPreComp, i1: u32, i2: u32, ref acc: G16SetupAcc) -> Fq12 {
+impl G16SetupSteps<T, +StepLinesSet<T>, +Drop<T>> of MillerSteps<G16SetupPreComp, G16SetupAcc<T>> {
+    fn miller_first_second(
+        self: @G16SetupPreComp, i1: u32, i2: u32, ref acc: G16SetupAcc<T>
+    ) -> Fq12 {
         // Handle O, N steps
 
         // step 0, run step double
         let l0 = step_double(ref acc.beta, self.ppc, *self.p, *self.field_nz);
-        self.acc_step_double(ref acc);
+        acc.acc_step_double(i1, self);
 
         // sqr with mul 034 by 034
         let f_01234 = l0.sqr_034(*self.field_nz);
@@ -114,39 +126,44 @@ impl G16SetupSteps of MillerSteps<G16SetupPreComp, G16SetupAcc> {
         let (l1, l2) = step_dbl_add(
             ref acc.beta, self.ppc, *self.p, *self.neg_q.beta, *self.field_nz
         );
-        self.acc_step_dbl_add(self.neg_q, ref acc);
+        acc.acc_step_dbl_add(i2, self.neg_q, self);
         f_01234.mul_01234_01234(l1.mul_034_by_034(l2, *self.field_nz), *self.field_nz)
     }
 
     // 0 bit
-    fn miller_bit_o(self: @G16SetupPreComp, i: u32, ref acc: G16SetupAcc, ref f: Fq12) {
+    fn miller_bit_o(self: @G16SetupPreComp, i: u32, ref acc: G16SetupAcc<T>, ref f: Fq12) {
         step_double_to_f(ref acc.beta, ref f, self.ppc, *self.p, *self.field_nz);
-        self.acc_step_double(ref acc);
+        acc.acc_step_double(i, self);
     }
 
     // 1 bit
-    fn miller_bit_p(self: @G16SetupPreComp, i: u32, ref acc: G16SetupAcc, ref f: Fq12) {
+    fn miller_bit_p(self: @G16SetupPreComp, i: u32, ref acc: G16SetupAcc<T>, ref f: Fq12) {
         step_dbl_add_to_f(ref acc.beta, ref f, self.ppc, *self.p, *self.q.beta, *self.field_nz);
-        self.acc_step_dbl_add(self.q, ref acc);
+        acc.acc_step_dbl_add(i, self.q, self);
     }
 
     // -1 bit
-    fn miller_bit_n(self: @G16SetupPreComp, i: u32, ref acc: G16SetupAcc, ref f: Fq12) {
+    fn miller_bit_n(self: @G16SetupPreComp, i: u32, ref acc: G16SetupAcc<T>, ref f: Fq12) {
         // use neg q
         step_dbl_add_to_f(ref acc.beta, ref f, self.ppc, *self.p, *self.neg_q.beta, *self.field_nz);
-        self.acc_step_dbl_add(self.neg_q, ref acc);
+        acc.acc_step_dbl_add(i, self.neg_q, self);
     }
 
     // last step
-    fn miller_last(self: @G16SetupPreComp, ref acc: G16SetupAcc, ref f: Fq12) {
+    fn miller_last(self: @G16SetupPreComp, ref acc: G16SetupAcc<T>, ref f: Fq12) {
         correction_step_to_f(ref acc.beta, ref f, self.ppc, *self.p, *self.q.beta, *self.field_nz);
-        self.acc_correction_step(ref acc);
+        acc.acc_correction_step('last', self);
     }
 }
 
-fn setup_precompute(
-    alpha: AffineG1, beta: AffineG2, gamma: AffineG2, delta: AffineG2, ic: Array<AffineG1>
-) -> G16CircuitSetup { //
+fn setup_precompute<T, +StepLinesGet<T>, +StepLinesSet<T>, +StepLinesTrait<T>, +Drop<T>>(
+    alpha: AffineG1,
+    beta: AffineG2,
+    gamma: AffineG2,
+    delta: AffineG2,
+    mut ic: Array<AffineG1>,
+    lines: T
+) -> G16CircuitSetup<T> { //
     // negate beta, gamma and delta
     // use the original as negative and negative as original
     let beta_neg = beta;
@@ -164,18 +181,15 @@ fn setup_precompute(
     let precomp = G16SetupPreComp { p: alpha, q, neg_q, ppc, field_nz, };
 
     // q points accumulator
-    let mut delta_lines = array![];
-    let mut gamma_lines = array![];
-    let mut acc = G16SetupAcc { beta, delta, gamma, delta_lines, gamma_lines };
+    let mut acc = G16SetupAcc { beta, delta, gamma, lines };
     // run miller steps
     // e(alpha, beta)
     let alpha_beta = ate_miller_loop_steps(precomp, ref acc);
 
     // extract line functions from accumulator
-    let G16SetupAcc { beta: _, delta: _, gamma: _, delta_lines, gamma_lines } = acc;
-    // line functions for gamma
-    let gamma = FixedG2Precompute { lines: gamma_lines, point: gamma, neg: gamma_neg, };
-    // line functions for delta
-    let delta = FixedG2Precompute { lines: delta_lines, point: delta, neg: delta_neg, };
-    G16CircuitSetup { alpha_beta, gamma, delta, ic }
+    let G16SetupAcc { beta: _, delta: _, gamma: _, lines } = acc;
+
+    // Separate the first input constraint
+    let ic0 = ic.pop_front().unwrap();
+    G16CircuitSetup { alpha_beta, lines, gamma, gamma_neg, delta, delta_neg, ic: (ic0, ic) }
 }
