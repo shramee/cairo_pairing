@@ -11,9 +11,9 @@ use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use pairing::optimal_ate_utils::LineFn;
-use bn::groth16::utils::{process_input_constraints, FixedG2Precompute};
+use bn::groth16::utils::{LinesArray, LinesArrayGet, LinesArraySet};
 use bn::groth16::verifier::{verify};
-use bn::groth16::setup::{setup_precompute, G16CircuitSetup};
+use bn::groth16::setup::{setup_precompute, StepLinesTrait, G16CircuitSetup};
 use core::fmt::{Display, Formatter, Error};
 
 impl AffineG2Display of Display<AffineG2> {
@@ -43,7 +43,7 @@ impl LineFnArrDisplay of Display<Array<LineFn>> {
 }
 
 
-fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) {
+fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, Array<AffineG1>) {
     let mut alpha = g1(
         20491192805390485299153009773594534940189261866228447918068658471970481763042,
         9383485363053290200918347156157836566562967994039712273449902621266178545958
@@ -66,7 +66,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) 
         20154620275540267962893477662314018482859018034691595131178696575286779357689,
         4547106032091524596969837323375385497187441697194445474662172759730343393129
     );
-    let ic = (
+    let ic = array![
         g1(
             1655549413518972190198478012616802994254462093161203201613599472264958303841,
             21742734017792296281216385119397138748114275727065024271646515586404591497876
@@ -75,7 +75,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, (AffineG1, AffineG1)) 
             16497930821522159474595176304955625435616718625609462506360632944366974274906,
             10404924572941018678793755094259635830045501866471999610240845041996101882275
         )
-    );
+    ];
     let alphabeta_miller = fq12(
         0x27c20318505e03cea84a04223b8679a6c84c1e55e83957a21e8986c1b8140510,
         0x104bb1b78f934618c94ba0290a964c58f1400e450e9e19680c39a8aca6fa15f4,
@@ -114,19 +114,19 @@ fn proof() -> (AffineG1, AffineG2, AffineG1, u256) {
 
 // @TODO
 // Fix Groth16 verify function for negative G2 and not neg pi_a
-// #[test]
-// #[available_gas(20000000000)]
-// fn groth16_verify() {
-//     // Verification key parameters
-//     let (_, _, gamma, delta, albe_miller, (ic0, ic1)) = vk();
+#[test]
+#[available_gas(20000000000)]
+fn groth16_verify() {
+    // Verification key parameters
+    let (_, _, gamma, delta, albe_miller, mut ic) = vk();
 
-//     // Proof parameters
-//     let (pi_a, pi_b, pi_c, pub_input,) = proof();
+    // Proof parameters
+    let (pi_a, pi_b, pi_c, pub_input,) = proof();
 
-//     let verified = verify(pi_a, pi_b, pi_c, ic0, (ic1, pub_input), albe_miller, delta, gamma,);
+    let verified = verify(pi_a, pi_b, pi_c, ic0, (ic1, pub_input), albe_miller, delta, gamma,);
 
-//     assert(verified, 'verification failed');
-// }
+    assert(verified, 'verification failed');
+}
 
 #[test]
 #[available_gas(20000000000)]
@@ -136,19 +136,23 @@ fn test_alphabeta_precompute() {
     assert(alphabeta == computed_alpha_beta, 'incorrect miller precompute');
 }
 
-fn print_g2_precompute(precom: FixedG2Precompute) {
+fn print_g2_precompute(point: AffineG2, neg: AffineG2, lines: Array<LineFn>) {
     println!("\nFixedG2Precompute {{");
-    println!("\npoint: {},", precom.point);
-    println!("\nneg: {},", precom.neg);
-    println!("\nlines: array![{}]", precom.lines);
+    println!("\npoint: {},", point);
+    println!("\nneg: {},", neg);
+    println!("\nlines: array![{}]", lines);
     println!("}}");
 }
+
 
 #[test]
 #[available_gas(20000000000)]
 fn test_setup() {
-    let (alpha, beta, gamma, delta, alphabeta, _) = vk();
-    let G16CircuitSetup { alpha_beta, gamma, delta } = setup_precompute(alpha, beta, gamma, delta);
+    let (alpha, beta, gamma, delta, alphabeta, ic) = vk();
+    let G16CircuitSetup { alpha_beta, gamma: _, gamma_neg: _, delta: _, delta_neg: _, lines, ic } =
+        setup_precompute(
+        alpha, beta, gamma, delta, ic, lines: LinesArray { gamma: array![], delta: array![] }
+    );
 
     // // Print FixedG2Precompute for mocks
     // ---------------------------------
