@@ -33,32 +33,57 @@ fn process_input_constraints<T, +ICProcess<T>, +Drop<T>>(start_pt: G1, ic: T) ->
 }
 
 trait ICProcess<T> {
-    fn process_inputs_and_ic(self: T) -> G1;
+    fn process_inputs_and_ic(self: T, start_pt: G1) -> G1;
+}
+
+impl ICArrayInput of ICProcess<(Array<G1>, Array<u256>)> {
+    fn process_inputs_and_ic(self: (Array<G1>, Array<u256>), mut start_pt: G1) -> G1 {
+        let (mut ic_arr, mut in_arr) = self;
+        assert(in_arr.len() == ic_arr.len(), 'incorrect input length');
+        if in_arr.len() == 0 {
+            return start_pt;
+        }
+        // let ic = ic0.multiply(in0);
+        loop {
+            match ic_arr.pop_front() {
+                Option::Some(point) => { //
+                    match in_arr.pop_front() {
+                        Option::Some(in) => { start_pt.add(point.multiply(in)); },
+                        Option::None => {} // This wouldn't happen
+                    }
+                },
+                Option::None => { break; }
+            }
+        };
+        start_pt // mutable start_pt has all the ICs added
+    }
 }
 
 impl IC1Input of ICProcess<(G1, u256)> {
     #[inline(always)]
-    fn process_inputs_and_ic(self: (G1, u256)) -> G1 {
+    fn process_inputs_and_ic(self: (G1, u256), start_pt: G1) -> G1 {
         let (ic, input) = self;
-        ic.multiply(input)
+        start_pt.add(ic.multiply(input))
     }
 }
 
 impl IC2Inputs of ICProcess<((G1, G1), (u256, u256))> {
     #[inline(always)]
-    fn process_inputs_and_ic(self: ((G1, G1), (u256, u256))) -> G1 {
+    fn process_inputs_and_ic(self: ((G1, G1), (u256, u256)), start_pt: G1) -> G1 {
         let ((ic0, ic1), (in0, in1)) = self;
-        ic0.multiply(in0) //
+        start_pt //
+        .add(ic0.multiply(in0)) //
         .add(ic1.multiply(in1))
     }
 }
 
 impl IC3Inputs of ICProcess<((G1, G1, G1), (u256, u256, u256))> {
     #[inline(always)]
-    fn process_inputs_and_ic(self: ((G1, G1, G1), (u256, u256, u256))) -> G1 {
+    fn process_inputs_and_ic(self: ((G1, G1, G1), (u256, u256, u256)), start_pt: G1) -> G1 {
         let ((ic0, ic1, ic2), (in0, in1, in2)) = self;
 
-        ic0.multiply(in0) //
+        start_pt //
+        .add(ic0.multiply(in0)) //
         .add(ic1.multiply(in1)) //
         .add(ic2.multiply(in2))
     }
@@ -66,33 +91,16 @@ impl IC3Inputs of ICProcess<((G1, G1, G1), (u256, u256, u256))> {
 
 impl IC4Inputs of ICProcess<((G1, G1, G1, G1), (u256, u256, u256, u256))> {
     #[inline(always)]
-    fn process_inputs_and_ic(self: ((G1, G1, G1, G1), (u256, u256, u256, u256))) -> G1 {
+    fn process_inputs_and_ic(
+        self: ((G1, G1, G1, G1), (u256, u256, u256, u256)), start_pt: G1
+    ) -> G1 {
         let ((ic0, ic1, ic2, ic3), (in0, in1, in2, in3)) = self;
 
-        ic0
-            .multiply(in0) //
+        start_pt //
+            .add(ic0.multiply(in0)) //
             .add(ic1.multiply(in1)) //
             .add(ic2.multiply(in2)) //
             .add(ic3.multiply(in3))
     }
 }
 
-impl ICArrayInputs of ICProcess<(Array<G1>, Array<u256>)> {
-    fn process_inputs_and_ic(self: (Array<G1>, Array<u256>)) -> G1 {
-        let (ic_arr, in_arr) = self;
-        let len = ic_arr.len();
-        assert(len == in_arr.len(), '');
-
-        let mut k = ic_arr[0].multiply(*in_arr[0]);
-        let mut i = 1;
-
-        // Computes and returns k
-        loop {
-            k = k.add(ic_arr[i].multiply(*in_arr[i]));
-            i += 1;
-            if i == len {
-                break k;
-            }
-        }
-    }
-}
