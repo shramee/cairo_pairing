@@ -131,6 +131,7 @@ fn g1(x: u256, y: u256) -> Affine<Fq> {
     Affine { x: fq(x), y: fq(y) }
 }
 
+#[inline(always)]
 fn g2(x1: u256, x2: u256, y1: u256, y2: u256) -> Affine<Fq2> {
     Affine { x: fq2(x1, x2), y: fq2(y1, y2) }
 }
