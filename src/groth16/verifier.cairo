@@ -10,7 +10,7 @@ use bn::traits::{MillerPrecompute, MillerSteps};
 use pairing::optimal_ate::{ate_miller_loop_steps};
 use pairing::optimal_ate_utils::{p_precompute, step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
-use bn::groth16::utils::{ICProcess, process_input_constraints};
+use bn::groth16::utils::{ICProcess};
 
 #[derive(Copy, Drop)]
 struct Groth16MillerG1 { // Points in G1
@@ -128,7 +128,7 @@ fn verify<T, +ICProcess<T>, +Drop<T>>(
     gamma: AffineG2,
 ) -> bool { //
     // Compute k from ic and public_inputs
-    let k = process_input_constraints(ic_0, inputs_and_ic);
+    let k = inputs_and_ic.process_inputs_and_ic(ic_0);
 
     // Compute optimise triple miller loop for the points
     let pi_a = pi_a.neg();
