@@ -35,7 +35,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, Array<AffineG1>) {
             10404924572941018678793755094259635830045501866471999610240845041996101882275
         )
     ];
-    let _negalpha_beta_miller = fq12(
+    let _neg_albe_miller = fq12(
         0x27c20318505e03cea84a04223b8679a6c84c1e55e83957a21e8986c1b8140510,
         0x104bb1b78f934618c94ba0290a964c58f1400e450e9e19680c39a8aca6fa15f4,
         0x2e56f81476f8d79f0caef927ac110b77cec88490d0860c746d82583440bb8919,
@@ -49,7 +49,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, Array<AffineG1>) {
         0xbd670107051399799978f2a70d7a08ed0bb130d1fa74638dce3d81536701c96,
         0x221446e74ef53a921abb7b8a0fa2afee56481780d136bc649916f1beeb52aaa
     );
-    let alphabeta_miller = fq12(
+    let _alphabeta_miller = fq12(
         0x27c20318505e03cea84a04223b8679a6c84c1e55e83957a21e8986c1b8140510,
         0x104bb1b78f934618c94ba0290a964c58f1400e450e9e19680c39a8aca6fa15f4,
         0x2e56f81476f8d79f0caef927ac110b77cec88490d0860c746d82583440bb8919,
@@ -63,7 +63,7 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, Array<AffineG1>) {
         0x248dde6270e066921eb8b68c10a9b7cec6c6578448ca84545f3cb401a20ce0b1,
         0x2e430a046c424c8096a48dfde0872d5eb21ce9195b5e5ec6f28f1cfae9c7d29d
     );
-    (alpha, beta, gamma, delta, alphabeta_miller, ic)
+    (alpha, beta, gamma, delta, _neg_albe_miller, ic)
 }
 
 fn line_fn_from_u256(slope_c0: u256, slope_c1: u256, c_c0: u256, c_c1: u256) -> LineFn {
@@ -80,27 +80,27 @@ fn circuit_setup() -> G16CircuitSetup<LinesArray> {
             0x1a814cb6d1fa262a5882e06c097fd68c05fdd1f27e2288f84726985dea9706e,
             0x19bdc2cd81965796abc4dd1ac13a5941ce94ead67c26445a67ca63f07def54fa,
             0xe328b63e1f95c3e6208878e9ca68fa49960e71588c6302c244b428b2cf5aa6,
-            0x1ac9750557221e57d8080e19cea275f681ff9f0c82e3e0c1494ba189c6d75ae5,
-            0x2100844da9e24497f9d2ee16198f72711cf0feacf476c89caa4f12d6fee34421,
-            0xd492bbe181d8e680996d36e481f2d9df9eed2c6900e2a5c17cdac778193761d,
-            0x3a0882da04bba7a719c8032da500dc898a60363c2973310d15982efb400898c,
-            0x248dde6270e066921eb8b68c10a9b7cec6c6578448ca84545f3cb401a20ce0b1,
-            0x2e430a046c424c8096a48dfde0872d5eb21ce9195b5e5ec6f28f1cfae9c7d29d
+            0x159ad96d8a0f81d1e048379cb2dee2671581cb84e58de9cbf2d4ea8d11a5a262,
+            0xf63ca25374f5b91be7d57a067f1e5ec7a906be473fb01f091d1793fd999b926,
+            0x231b22b4c91411c1aeb9724839622abf9d9297cad863a0312452df9f56e9872a,
+            0x2cc3c64540e5e5af46b3c583a7314a94fedb672da5da977c6ac70927247c73bb,
+            0xbd670107051399799978f2a70d7a08ed0bb130d1fa74638dce3d81536701c96,
+            0x221446e74ef53a921abb7b8a0fa2afee56481780d136bc649916f1beeb52aaa
         ),
-        gamma_neg: g2(
+        gamma: g2(
             0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed,
             0x198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2,
             0x1d9befcd05a5323e6da4d435f3b617cdb3af83285c2df711ef39c01571827f9d,
             0x275dc4a288d1afb3cbb1ac09187524c7db36395df7be3b99e673b13a075a65ec
         ),
-        gamma,
-        delta_neg: g2(
+        gamma_neg: gamma,
+        delta: g2(
             0x29a90e4d611e9d08120c9dc6d165625795d3f80ea2b9831b8e16693e4d7f11fc,
             0x2e4b801bb7360ff6d90a87d882ac82b4de3914e3aa2068ee755a669878e684a6,
             0x3d53213f8bcba0e4267b8fe667b9ba9fcf7365d12b83cf9717e8b2f3e48534e,
             0x2656bc524250d4ea3a0ae2858e13402ba1b1754e60617286821c31aba408c5de
         ),
-        delta,
+        delta_neg: delta,
         lines: LinesArray { gamma: gamma_lines(), delta: delta_lines(), },
         ic: (
             // Starter point
