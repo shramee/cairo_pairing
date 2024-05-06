@@ -84,6 +84,7 @@ trait ICProcess<T> {
 impl ICArrayInput of ICProcess<(Array<G1>, Array<u256>)> {
     fn process_inputs_and_ic(self: (Array<G1>, Array<u256>), mut start_pt: G1) -> G1 {
         let (mut ic_arr, mut in_arr) = self;
+
         assert(in_arr.len() == ic_arr.len(), 'incorrect input length');
         if in_arr.len() == 0 {
             return start_pt;
@@ -93,7 +94,7 @@ impl ICArrayInput of ICProcess<(Array<G1>, Array<u256>)> {
             match ic_arr.pop_front() {
                 Option::Some(point) => { //
                     match in_arr.pop_front() {
-                        Option::Some(in) => { start_pt.add(point.multiply(in)); },
+                        Option::Some(in) => { start_pt = start_pt.add(point.multiply(in)); },
                         Option::None => {} // This wouldn't happen
                     }
                 },
