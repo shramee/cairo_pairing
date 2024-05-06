@@ -170,8 +170,8 @@ fn setup_precompute<T, +StepLinesGet<T>, +StepLinesSet<T>, +StepLinesTrait<T>, +
     let beta = beta.neg();
     let gamma_neg = gamma;
     let gamma = gamma.neg();
-    let delta_neg = gamma;
-    let delta = gamma.neg();
+    let delta_neg = delta;
+    let delta = delta.neg();
 
     // prepare miller precompute
     let field_nz = get_field_nz();
