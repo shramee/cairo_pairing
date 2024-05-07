@@ -184,7 +184,7 @@ fn setup_precompute<T, +StepLinesGet<T>, +StepLinesSet<T>, +StepLinesTrait<T>, +
     // prepare miller precompute
     let field_nz = get_field_nz();
     let q = G16SetupG2 { beta, delta, gamma, };
-    let neg_q = G16SetupG2 { beta: beta_neg, delta: gamma_neg, gamma: delta_neg, };
+    let neg_q = G16SetupG2 { beta: beta_neg, delta: delta_neg, gamma: gamma_neg, };
     let ppc = p_precompute(alpha, field_nz);
     let precomp = G16SetupPreComp { p: alpha, q, neg_q, ppc, field_nz, };
 
