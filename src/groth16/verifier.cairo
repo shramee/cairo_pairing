@@ -88,7 +88,7 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
     fn miller_first_second(
         self: @Groth16PreCompute<T>, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //
-        let (pi_a_ppc, _, _) = self.ppc;
+        let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
         let field_nz = *self.field_nz;
 
         // step 0, run step double

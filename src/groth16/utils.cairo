@@ -37,20 +37,24 @@ trait StepLinesGet<T> {
 }
 
 trait StepLinesSet<T> {
-    fn gamma_line(ref self: T, step: u32, line: LineFn);
-    fn delta_line(ref self: T, step: u32, line: LineFn);
-    fn gamma_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
-    fn delta_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
+    fn set_gamma_line(ref self: T, step: u32, line: LineFn);
+    fn set_delta_line(ref self: T, step: u32, line: LineFn);
+    fn set_gamma_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
+    fn set_delta_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
 }
 
 impl LinesArrayGet of StepLinesGet<LinesArray> {
     fn get_gamma_line(self: @LinesArray, step: u32, line_index: u32) -> LineFn {
+        let l1: LineFn = *self.gamma[line_index];
+        println!("Get {}.{} {}", step, line_index, l1.slope.c0.c0.low);
         *self.gamma[line_index]
     }
     fn get_delta_line(self: @LinesArray, step: u32, line_index: u32) -> LineFn {
         *self.delta[line_index]
     }
     fn get_gamma_lines(self: @LinesArray, step: u32, line_index: u32) -> (LineFn, LineFn) {
+        let l1: LineFn = *self.gamma[line_index + 1];
+        println!("Get {}.{} {}", step, line_index, l1.slope.c0.c0.low);
         (*self.gamma[line_index], *self.gamma[line_index + 1])
     }
     fn get_delta_lines(self: @LinesArray, step: u32, line_index: u32) -> (LineFn, LineFn) {
@@ -59,18 +63,20 @@ impl LinesArrayGet of StepLinesGet<LinesArray> {
 }
 
 impl LinesArraySet of StepLinesSet<LinesArray> {
-    fn gamma_line(ref self: LinesArray, step: u32, line: LineFn) {
+    fn set_gamma_line(ref self: LinesArray, step: u32, line: LineFn) {
+        // println!("Set {}.{} {}", step, self.gamma.len(), line.slope.c0.c0.low);
         self.gamma.append(line);
     }
-    fn delta_line(ref self: LinesArray, step: u32, line: LineFn) {
+    fn set_delta_line(ref self: LinesArray, step: u32, line: LineFn) {
         self.delta.append(line);
     }
-    fn gamma_lines(ref self: LinesArray, step: u32, lines: (LineFn, LineFn)) {
+    fn set_gamma_lines(ref self: LinesArray, step: u32, lines: (LineFn, LineFn)) {
         let (l1, l2) = lines;
+        // println!("Set {}.{} {}", step, self.gamma.len(), l2.slope.c0.c0.low);
         self.gamma.append(l1);
         self.gamma.append(l2);
     }
-    fn delta_lines(ref self: LinesArray, step: u32, lines: (LineFn, LineFn)) {
+    fn set_delta_lines(ref self: LinesArray, step: u32, lines: (LineFn, LineFn)) {
         let (l1, l2) = lines;
         self.delta.append(l1);
         self.delta.append(l2);

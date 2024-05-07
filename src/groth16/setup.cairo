@@ -85,8 +85,8 @@ trait StepLinesTrait<T> {
 impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
     #[inline(always)]
     fn acc_step_double(ref self: G16SetupAcc<T>, step: u32, pre_comp: @G16SetupPreComp) {
-        self.lines.gamma_line(step, line_fn::step_double(ref self.gamma, *pre_comp.field_nz));
-        self.lines.delta_line(step, line_fn::step_double(ref self.delta, *pre_comp.field_nz));
+        self.lines.set_gamma_line(step, line_fn::step_double(ref self.gamma, *pre_comp.field_nz));
+        self.lines.set_delta_line(step, line_fn::step_double(ref self.delta, *pre_comp.field_nz));
     }
 
     #[inline(always)]
@@ -95,10 +95,14 @@ impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
     ) {
         self
             .lines
-            .gamma_lines(step, line_fn::step_dbl_add(ref self.gamma, *q.gamma, *pre_comp.field_nz));
+            .set_gamma_lines(
+                step, line_fn::step_dbl_add(ref self.gamma, *q.gamma, *pre_comp.field_nz)
+            );
         self
             .lines
-            .delta_lines(step, line_fn::step_dbl_add(ref self.delta, *q.delta, *pre_comp.field_nz));
+            .set_delta_lines(
+                step, line_fn::step_dbl_add(ref self.delta, *q.delta, *pre_comp.field_nz)
+            );
     }
 
     #[inline(always)]
@@ -106,10 +110,10 @@ impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
         let G16SetupPreComp { ppc: _, neg_q: _, p: _, q, field_nz } = pre_comp;
         self
             .lines
-            .gamma_lines('last', line_fn::correction_step(ref self.gamma, *q.gamma, *field_nz));
+            .set_gamma_lines('last', line_fn::correction_step(ref self.gamma, *q.gamma, *field_nz));
         self
             .lines
-            .delta_lines('last', line_fn::correction_step(ref self.delta, *q.delta, *field_nz));
+            .set_delta_lines('last', line_fn::correction_step(ref self.delta, *q.delta, *field_nz));
     }
 }
 
