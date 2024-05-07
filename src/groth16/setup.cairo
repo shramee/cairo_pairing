@@ -79,7 +79,7 @@ trait StepLinesTrait<T> {
     fn acc_step_dbl_add(
         ref self: G16SetupAcc<T>, step: u32, q: @G16SetupG2, pre_comp: @G16SetupPreComp
     );
-    fn acc_correction_step(ref self: G16SetupAcc<T>, step: u32, pre_comp: @G16SetupPreComp);
+    fn acc_correction_step(ref self: G16SetupAcc<T>, pre_comp: @G16SetupPreComp);
 }
 
 impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
@@ -102,10 +102,14 @@ impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
     }
 
     #[inline(always)]
-    fn acc_correction_step(ref self: G16SetupAcc<T>, step: u32, pre_comp: @G16SetupPreComp) {
+    fn acc_correction_step(ref self: G16SetupAcc<T>, pre_comp: @G16SetupPreComp) {
         let G16SetupPreComp { ppc: _, neg_q: _, p: _, q, field_nz } = pre_comp;
-        self.lines.gamma_lines(step, line_fn::correction_step(ref self.gamma, *q.gamma, *field_nz));
-        self.lines.delta_lines(step, line_fn::correction_step(ref self.delta, *q.delta, *field_nz));
+        self
+            .lines
+            .gamma_lines('last', line_fn::correction_step(ref self.gamma, *q.gamma, *field_nz));
+        self
+            .lines
+            .delta_lines('last', line_fn::correction_step(ref self.delta, *q.delta, *field_nz));
     }
 }
 
@@ -152,7 +156,7 @@ impl G16SetupSteps<T, +StepLinesSet<T>, +Drop<T>> of MillerSteps<G16SetupPreComp
     // last step
     fn miller_last(self: @G16SetupPreComp, ref acc: G16SetupAcc<T>, ref f: Fq12) {
         correction_step_to_f(ref acc.beta, ref f, self.ppc, *self.p, *self.q.beta, *self.field_nz);
-        acc.acc_correction_step('last', self);
+        acc.acc_correction_step(self);
     }
 }
 
