@@ -29,18 +29,32 @@ struct LinesArray {
     delta: Array<LineFn>,
 }
 
+trait StepLinesGet<T> {
+    fn get_gamma_line(self: @T, step: u32, line_index: u32) -> LineFn;
+    fn get_delta_line(self: @T, step: u32, line_index: u32) -> LineFn;
+    fn get_gamma_lines(self: @T, step: u32, line_index: u32) -> (LineFn, LineFn);
+    fn get_delta_lines(self: @T, step: u32, line_index: u32) -> (LineFn, LineFn);
+}
+
+trait StepLinesSet<T> {
+    fn gamma_line(ref self: T, step: u32, line: LineFn);
+    fn delta_line(ref self: T, step: u32, line: LineFn);
+    fn gamma_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
+    fn delta_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
+}
+
 impl LinesArrayGet of StepLinesGet<LinesArray> {
-    fn gamma_line(ref self: LinesArray, step: u32) -> LineFn {
-        self.gamma.pop_front().unwrap()
+    fn get_gamma_line(self: @LinesArray, step: u32, line_index: u32) -> LineFn {
+        *self.gamma[line_index]
     }
-    fn delta_line(ref self: LinesArray, step: u32) -> LineFn {
-        self.delta.pop_front().unwrap()
+    fn get_delta_line(self: @LinesArray, step: u32, line_index: u32) -> LineFn {
+        *self.delta[line_index]
     }
-    fn gamma_lines(ref self: LinesArray, step: u32) -> (LineFn, LineFn) {
-        (self.gamma.pop_front().unwrap(), self.gamma.pop_front().unwrap())
+    fn get_gamma_lines(self: @LinesArray, step: u32, line_index: u32) -> (LineFn, LineFn) {
+        (*self.gamma[line_index], *self.gamma[line_index + 1])
     }
-    fn delta_lines(ref self: LinesArray, step: u32) -> (LineFn, LineFn) {
-        (self.delta.pop_front().unwrap(), self.delta.pop_front().unwrap())
+    fn get_delta_lines(self: @LinesArray, step: u32, line_index: u32) -> (LineFn, LineFn) {
+        (*self.delta[line_index], *self.delta[line_index + 1])
     }
 }
 
@@ -61,20 +75,6 @@ impl LinesArraySet of StepLinesSet<LinesArray> {
         self.delta.append(l1);
         self.delta.append(l2);
     }
-}
-
-trait StepLinesGet<T> {
-    fn gamma_line(ref self: T, step: u32) -> LineFn;
-    fn delta_line(ref self: T, step: u32) -> LineFn;
-    fn gamma_lines(ref self: T, step: u32) -> (LineFn, LineFn);
-    fn delta_lines(ref self: T, step: u32) -> (LineFn, LineFn);
-}
-
-trait StepLinesSet<T> {
-    fn gamma_line(ref self: T, step: u32, line: LineFn);
-    fn delta_line(ref self: T, step: u32, line: LineFn);
-    fn gamma_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
-    fn delta_lines(ref self: T, step: u32, lines: (LineFn, LineFn));
 }
 
 trait ICProcess<T> {
