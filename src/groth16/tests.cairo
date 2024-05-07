@@ -86,14 +86,6 @@ fn test_alphabeta_precompute() {
     assert(setup.alpha_beta == computed_alpha_beta, 'incorrect miller precompute');
 }
 
-fn print_g2_precompute(point: AffineG2, neg: AffineG2, lines: Array<LineFn>) {
-    println!("\nFixedG2Precompute {{");
-    println!("\npoint: {},", point);
-    println!("\nneg: {},", neg);
-    // println!("\nlines: array![{}]", lines);
-    println!("}}");
-}
-
 #[test]
 #[available_gas(20000000000)]
 fn test_ic() {
@@ -108,7 +100,7 @@ fn test_ic() {
 
 #[test]
 #[available_gas(20000000000)]
-fn test_setup_verification() {
+fn test_verify_setup() {
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg: _, delta, delta_neg: _, lines: _, ic, } =
         mock::circuit_setup();
     let (pi_a, pi_b, pi_c, pub_input,) = proof();
@@ -125,6 +117,16 @@ fn test_setup_verification() {
     assert(pairing.final_exponentiation() == Fq12Utils::one(), 'incorrect pairing result');
 }
 
+fn print_g2_precompute(name: ByteArray, point: AffineG2, neg: AffineG2, lines: Array<LineFn>) {
+    println!("\nfn {name}_precompute() -> FixedG2Precompute {{");
+    println!("\nFixedG2Precompute {{");
+    println!("\npoint: {},", point);
+    println!("\nneg: {},", neg);
+    println!("\nlines: array![{}]", lines);
+    println!("}}");
+    println!("\n}}");
+}
+
 #[test]
 #[available_gas(20000000000)]
 fn test_setup() {
@@ -137,13 +139,8 @@ fn test_setup() {
 
     // // Print FixedG2Precompute for mocks
 
-    // println!("\nfn gamma_precompute() -> FixedG2Precompute {{");
-    // print_g2_precompute(gamma, gamma_neg, _lines.gamma);
-    // println!("\n}}");
-
-    // println!("\nfn delta_precompute() -> FixedG2Precompute {{");
-    // print_g2_precompute(delta, delta_neg, _lines.delta);
-    // println!("\n}}");
+    // print_g2_precompute("gamma", setup.gamma, setup.gamma_neg, setup.lines.gamma);
+    // print_g2_precompute("delta", setup.delta, setup.delta_neg, setup.lines.delta);
 
     assert(setup.gamma == gamma_vk.neg(), 'incorrect gamma');
     assert(setup.gamma_neg == gamma_vk, 'incorrect gamma_neg');
