@@ -14,7 +14,7 @@ use pairing::optimal_ate_utils::LineFn;
 use bn::groth16::utils::{LinesArray, LinesArrayGet, LinesArraySet, ICProcess, ICArrayInput};
 use bn::groth16::verifier::{verify};
 use bn::groth16::setup::{setup_precompute, StepLinesTrait, G16CircuitSetup};
-use bn::groth16::mock;
+use bn::groth16::fixture;
 use core::fmt::{Display, Formatter, Error};
 
 impl AffineG2Display of Display<AffineG2> {
@@ -48,10 +48,10 @@ impl LineFnArrDisplay of Display<Array<LineFn>> {
 fn groth16_verify() {
     // Verification key parameters
     // let (_, _, gamma, delta, albe_miller, mut ic) = vk();
-    let circuit_setup: G16CircuitSetup<LinesArray> = mock::circuit_setup();
+    let circuit_setup: G16CircuitSetup<LinesArray> = fixture::circuit_setup();
 
     // Proof parameters
-    let (pi_a, pi_b, pi_c, pub_input,) = mock::proof();
+    let (pi_a, pi_b, pi_c, pub_input,) = fixture::proof();
 
     let verified = verify(pi_a, pi_b, pi_c, array![pub_input], circuit_setup);
 
@@ -61,8 +61,8 @@ fn groth16_verify() {
 #[test]
 #[available_gas(20000000000)]
 fn test_alphabeta_precompute() {
-    let (alpha, beta, _gamma, _delta, _alphabeta_miller, _ic) = mock::vk();
-    let setup = mock::circuit_setup();
+    let (alpha, beta, _gamma, _delta, _alphabeta_miller, _ic) = fixture::vk();
+    let setup = fixture::circuit_setup();
     let computed_alpha_beta = ate_miller_loop(alpha.neg(), beta);
     assert(setup.alpha_beta == computed_alpha_beta, 'incorrect miller precompute');
 }
@@ -70,8 +70,8 @@ fn test_alphabeta_precompute() {
 #[test]
 #[available_gas(20000000000)]
 fn test_ic() {
-    let (ic_0, ic) = mock::circuit_setup().ic;
-    let (_, _, _, pub_input,) = mock::proof();
+    let (ic_0, ic) = fixture::circuit_setup().ic;
+    let (_, _, _, pub_input,) = fixture::proof();
     let ic_1 = *ic[0];
     let ic_arr = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
     let ic_tuple = (ic_1, pub_input).process_inputs_and_ic(ic_0);
@@ -83,8 +83,8 @@ fn test_ic() {
 #[available_gas(20000000000)]
 fn test_verify_setup() {
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg: _, delta, delta_neg: _, lines: _, ic, } =
-        mock::circuit_setup();
-    let (pi_a, pi_b, pi_c, pub_input,) = mock::proof();
+        fixture::circuit_setup();
+    let (pi_a, pi_b, pi_c, pub_input,) = fixture::proof();
 
     let (ic_0, ic) = ic;
     let ic = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
@@ -111,14 +111,14 @@ fn print_g2_precompute(name: ByteArray, point: AffineG2, neg: AffineG2, lines: A
 #[test]
 #[available_gas(20000000000)]
 fn test_setup() {
-    let (alpha_vk, beta_vk, gamma_vk, delta_vk, alphabeta, ic) = mock::vk();
+    let (alpha_vk, beta_vk, gamma_vk, delta_vk, alphabeta, ic) = fixture::vk();
 
     let lines = LinesArray { gamma: array![], delta: array![] };
     let setup = setup_precompute(alpha_vk, beta_vk, gamma_vk, delta_vk, ic, lines);
 
-    let setup_mock = mock::circuit_setup();
+    let setup_fix = fixture::circuit_setup();
 
-    // // Print FixedG2Precompute for mocks
+    // // Print FixedG2Precompute for fixtures
 
     // print_g2_precompute("gamma", setup.gamma, setup.gamma_neg, setup.lines.gamma);
     // print_g2_precompute("delta", setup.delta, setup.delta_neg, setup.lines.delta);
@@ -129,8 +129,8 @@ fn test_setup() {
     assert(setup.delta_neg == delta_vk, 'incorrect delta_neg');
     assert(setup.alpha_beta == alphabeta, 'incorrect miller precompute');
 
-    assert(setup_mock.gamma == setup.gamma, 'incorrect mock gamma');
-    assert(setup_mock.gamma_neg == setup.gamma_neg, 'incorrect mock gamma_neg');
-    assert(setup_mock.delta == setup.delta, 'incorrect mock delta');
-    assert(setup_mock.delta_neg == setup.delta_neg, 'incorrect mock delta_neg');
+    assert(setup_fix.gamma == setup.gamma, 'incorrect mock gamma');
+    assert(setup_fix.gamma_neg == setup.gamma_neg, 'incorrect mock gamma_neg');
+    assert(setup_fix.delta == setup.delta, 'incorrect mock delta');
+    assert(setup_fix.delta_neg == setup.delta_neg, 'incorrect mock delta_neg');
 }

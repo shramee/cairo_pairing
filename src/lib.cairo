@@ -53,8 +53,7 @@ mod groth16 {
     mod utils;
     mod verifier;
     mod setup;
-    #[cfg(test)]
-    mod mock;
+    mod fixture;
     #[cfg(test)]
     mod tests;
 }
