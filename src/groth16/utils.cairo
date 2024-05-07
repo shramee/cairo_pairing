@@ -45,16 +45,16 @@ trait StepLinesSet<T> {
 
 impl LinesArrayGet of StepLinesGet<LinesArray> {
     fn get_gamma_line(self: @LinesArray, step: u32, line_index: u32) -> LineFn {
-        let l1: LineFn = *self.gamma[line_index];
-        println!("Get {}.{} {}", step, line_index, l1.slope.c0.c0.low);
+        // let l1: LineFn = *self.gamma[line_index];
+        // println!("Get {}.{} {}", step, line_index, l1.slope.c0.c0.low);
         *self.gamma[line_index]
     }
     fn get_delta_line(self: @LinesArray, step: u32, line_index: u32) -> LineFn {
         *self.delta[line_index]
     }
     fn get_gamma_lines(self: @LinesArray, step: u32, line_index: u32) -> (LineFn, LineFn) {
-        let l1: LineFn = *self.gamma[line_index + 1];
-        println!("Get {}.{} {}", step, line_index, l1.slope.c0.c0.low);
+        // let l1: LineFn = *self.gamma[line_index + 1];
+        // println!("Get {}.{} {}", step, line_index, l1.slope.c0.c0.low);
         (*self.gamma[line_index], *self.gamma[line_index + 1])
     }
     fn get_delta_lines(self: @LinesArray, step: u32, line_index: u32) -> (LineFn, LineFn) {
