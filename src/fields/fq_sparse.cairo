@@ -51,6 +51,18 @@ struct Fq12Sparse01234 {
     c1: Fq6Sparse01,
 }
 
+impl Fq12Sparse034PartialEq of PartialEq<Fq12Sparse034> {
+    #[inline(always)]
+    fn eq(lhs: @Fq12Sparse034, rhs: @Fq12Sparse034) -> bool {
+        lhs.c3 == rhs.c3 && lhs.c4 == rhs.c4
+    }
+
+    #[inline(always)]
+    fn ne(lhs: @Fq12Sparse034, rhs: @Fq12Sparse034) -> bool {
+        !Fq12Sparse034PartialEq::eq(lhs, rhs)
+    }
+}
+
 impl Fq12Sparse01234PartialEq of PartialEq<Fq12Sparse01234> {
     #[inline(always)]
     fn eq(lhs: @Fq12Sparse01234, rhs: @Fq12Sparse01234) -> bool {
