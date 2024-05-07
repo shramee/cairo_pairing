@@ -24,6 +24,7 @@ struct Groth16MillerG2 { // Points in G2
     pi_b: AffineG2,
     delta: AffineG2,
     gamma: AffineG2,
+    line_count: u32, // Holds index of accessed line lambda and y intercept
 }
 
 #[derive(Copy, Drop)]
@@ -51,7 +52,7 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
         // sqr with mul 034 by 034
         let f = f.sqr();
         // step -1, the next negative one step
-        let Groth16MillerG2 { pi_b, delta, gamma } = self.neg_q;
+        let Groth16MillerG2 { pi_b, delta, gamma, line_count: _ } = self.neg_q;
         let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
         let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
         let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
@@ -73,7 +74,7 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
 
     // 1 bit
     fn miller_bit_p(self: @Groth16PreCompute<T>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
-        let Groth16MillerG2 { pi_b, delta, gamma } = self.q;
+        let Groth16MillerG2 { pi_b, delta, gamma, line_count: _ } = self.q;
         let field_nz = *self.field_nz;
         let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
         let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
@@ -88,7 +89,7 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
     // -1 bit
     fn miller_bit_n(self: @Groth16PreCompute<T>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
         // use neg q
-        let Groth16MillerG2 { pi_b, delta, gamma } = self.neg_q;
+        let Groth16MillerG2 { pi_b, delta, gamma, line_count: _ } = self.neg_q;
         let field_nz = *self.field_nz;
         let (pi_a_ppc, pi_c_ppc, k_ppc) = self.ppc;
         let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
@@ -135,8 +136,11 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
 
     // build precompute
     let field_nz = get_field_nz();
-    let q = Groth16MillerG2 { pi_b, gamma, delta, };
-    let neg_q = Groth16MillerG2 { pi_b: pi_b.neg(), gamma: gamma_neg, delta: delta_neg };
+    let line_count = 0;
+    let q = Groth16MillerG2 { pi_b, gamma, delta, line_count };
+    let neg_q = Groth16MillerG2 {
+        pi_b: pi_b.neg(), gamma: gamma_neg, delta: delta_neg, line_count
+    };
     let ppc = (
         p_precompute(pi_a, field_nz), p_precompute(pi_c, field_nz), p_precompute(k, field_nz)
     );
