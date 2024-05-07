@@ -43,25 +43,6 @@ impl LineFnArrDisplay of Display<Array<LineFn>> {
     }
 }
 
-fn proof() -> (AffineG1, AffineG2, AffineG1, u256) {
-    let pi_a = g1(
-        21869318927288279352976009554602485400194222893443965440964860860113038611333,
-        18311135712289946861315992474690361768373551919702286485795766144098633284656,
-    );
-    let pi_b = g2(
-        10022883437199133497429724894217743345007175536382603527810937928471784278544,
-        17847188618426698749899308504244999133998140738319907268599259829537979435105,
-        7206719342459067270750328127893044383768922785737900891173474267747233610797,
-        10190861912483383555079439540237798028694495449372197543107740729805978332256,
-    );
-    let pi_c = g1(
-        9705330802798333149196349399272648034569447771243096213977283095662805051802,
-        5611531129077709352565605843416215629032027923761887684873913606256162034924,
-    );
-    let pub_input = 16941831391195391826097405368824996545623792600381113317588874714920518273658;
-    (pi_a, pi_b, pi_c, pub_input,)
-}
-
 #[test]
 #[available_gas(20000000000)]
 fn groth16_verify() {
@@ -70,7 +51,7 @@ fn groth16_verify() {
     let circuit_setup: G16CircuitSetup<LinesArray> = mock::circuit_setup();
 
     // Proof parameters
-    let (pi_a, pi_b, pi_c, pub_input,) = proof();
+    let (pi_a, pi_b, pi_c, pub_input,) = mock::proof();
 
     let verified = verify(pi_a, pi_b, pi_c, array![pub_input], circuit_setup);
 
@@ -90,7 +71,7 @@ fn test_alphabeta_precompute() {
 #[available_gas(20000000000)]
 fn test_ic() {
     let (ic_0, ic) = mock::circuit_setup().ic;
-    let (_, _, _, pub_input,) = proof();
+    let (_, _, _, pub_input,) = mock::proof();
     let ic_1 = *ic[0];
     let ic_arr = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
     let ic_tuple = (ic_1, pub_input).process_inputs_and_ic(ic_0);
@@ -103,7 +84,7 @@ fn test_ic() {
 fn test_verify_setup() {
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg: _, delta, delta_neg: _, lines: _, ic, } =
         mock::circuit_setup();
-    let (pi_a, pi_b, pi_c, pub_input,) = proof();
+    let (pi_a, pi_b, pi_c, pub_input,) = mock::proof();
 
     let (ic_0, ic) = ic;
     let ic = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
