@@ -16,3 +16,14 @@ x = 4965661367192848881
 r = 21888242871839275222246405745257275088548364400416034343698204186575808495617
 # (q**12 - 1) is the exponent of the final exponentiation
 
+# Section 4.3.1 Parameters
+h = (q**12 - 1) // r # = 3^3 · l # where gcd(l, 3) = 1
+l = h // (3**3)
+λ = 6*x + 2 + q - q**2 + q**3
+m = λ // r
+d = 3 # = gcd(m, h)
+m_dash = m // d # m' = m/d
+
+# λ = 3rm′.
+assert( 3*r*m_dash == λ, "incorrect parameters")
+
