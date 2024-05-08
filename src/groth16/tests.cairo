@@ -60,6 +60,28 @@ fn groth16_verify() {
 
 #[test]
 #[available_gas(20000000000)]
+fn groth16_miller_loop() {
+    // Verification key parameters
+    // let (_, _, gamma, delta, albe_miller, mut ic) = vk();
+    let circuit_setup: G16CircuitSetup<LinesArray> = fixture::circuit_setup();
+
+    // Proof parameters
+    let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
+
+    let _result = verify_miller(pi_a, pi_b, pi_c, array![pub_input], circuit_setup);
+// println!("groth16_miller_result = {}", _result);
+}
+
+#[test]
+#[available_gas(20000000000)]
+fn groth16_final_exponentiation() {
+    let (_, _, _, _, miller_result) = fixture::proof();
+    let result = miller_result.final_exponentiation();
+    assert(result == Fq12Utils::one(), '');
+}
+
+#[test]
+#[available_gas(20000000000)]
 fn test_alphabeta_precompute() {
     let (alpha, beta, _gamma, _delta, _alphabeta_miller, _ic) = fixture::vk();
     let setup = fixture::circuit_setup();
