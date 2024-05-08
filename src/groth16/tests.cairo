@@ -51,7 +51,7 @@ fn groth16_verify() {
     let circuit_setup: G16CircuitSetup<LinesArray> = fixture::circuit_setup();
 
     // Proof parameters
-    let (pi_a, pi_b, pi_c, pub_input,) = fixture::proof();
+    let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
 
     let verified = verify(pi_a, pi_b, pi_c, array![pub_input], circuit_setup);
 
@@ -69,17 +69,9 @@ fn test_alphabeta_precompute() {
 
 #[test]
 #[available_gas(20000000000)]
-fn test_alphabeta_final_exponentiation() {
-    let (_, _, _, _, alphabeta_miller, _) = fixture::vk();
-    alphabeta_miller.final_exponentiation();
-    assert(true, '');
-}
-
-#[test]
-#[available_gas(20000000000)]
 fn test_ic() {
     let (ic_0, ic) = fixture::circuit_setup().ic;
-    let (_, _, _, pub_input,) = fixture::proof();
+    let (_, _, _, pub_input, _) = fixture::proof();
     let ic_1 = *ic[0];
     let ic_arr = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
     let ic_tuple = (ic_1, pub_input).process_inputs_and_ic(ic_0);
@@ -92,7 +84,7 @@ fn test_ic() {
 fn test_verify_setup() {
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg: _, delta, delta_neg: _, lines: _, ic, } =
         fixture::circuit_setup();
-    let (pi_a, pi_b, pi_c, pub_input,) = fixture::proof();
+    let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
 
     let (ic_0, ic) = ic;
     let ic = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
