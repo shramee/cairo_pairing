@@ -110,7 +110,7 @@ mod line_fn {
     // https://eprint.iacr.org/2022/1162 (Section 6.1)
     // computes acc = acc + q + acc and line evals for p
     // returns product of line evaluations to multiply with f
-    #[inline(always)]
+    // #[inline(always)]
     fn step_dbl_add(ref acc: PtG2, q: PtG2, field_nz: NZNum) -> (LineFn, LineFn) {
         let s = acc;
         // s + q
@@ -134,7 +134,7 @@ mod line_fn {
     // https://eprint.iacr.org/2022/1162 (Section 6.1)
     // computes acc = 2 * acc and line eval for p
     // returns line evaluation to multiply with f
-    #[inline(always)]
+    // #[inline(always)]
     fn step_double(ref acc: PtG2, field_nz: NZNum) -> LineFn {
         let s = acc;
         // λ = 3x²/2y
@@ -146,7 +146,7 @@ mod line_fn {
     // https://eprint.iacr.org/2022/1162 (Section 6.1)
     // computes acc = acc + q and line eval for p
     // returns line evaluation to multiply with f
-    #[inline(always)]
+    // #[inline(always)]
     fn step_add(ref acc: PtG2, q: PtG2, field_nz: NZNum) -> LineFn {
         let s = acc;
         // λ = 3x²/2y
@@ -160,7 +160,7 @@ mod line_fn {
     // https://eprint.iacr.org/2013/722.pdf
     // Code inspired by gnark
     // https://github.com/Consensys/gnark/blob/v0.9.1/std/algebra/emulated/sw_bn254/pairing.go#L529
-    #[inline(always)]
+    // #[inline(always)]
     fn correction_step(ref acc: PtG2, q: PtG2, field_nz: NZNum) -> (LineFn, LineFn) {
         // Line 9: Q1 ← πₚ(Q),Q2 ← πₚ²(Q)
         // πₚ(x,y) = (xp,yp)
@@ -217,6 +217,7 @@ fn step_double_to_f(ref acc: PtG2, ref f: Fq12, p_pre: @PPre, p: PtG1, field_nz:
     f = f.mul_034(step_double(ref acc, p_pre, p, field_nz), field_nz);
 }
 
+#[inline(always)]
 fn step_double(ref acc: PtG2, p_pre: @PPre, p: PtG1, field_nz: NZNum) -> F034 {
     let lf = line_fn::step_double(ref acc, field_nz);
     line_fn_at_p(lf, p_pre)
@@ -238,6 +239,7 @@ fn correction_step_to_f(
     f = f.mul_01234(l1.mul_034_by_034(l2, field_nz), field_nz);
 }
 
+#[inline(always)]
 fn correction_step(ref acc: PtG2, p_pre: @PPre, p: PtG1, q: PtG2, field_nz: NZNum) -> (F034, F034) {
     let (lf1, lf2) = line_fn::correction_step(ref acc, q, field_nz);
     (line_fn_at_p(lf1, p_pre,), line_fn_at_p(lf2, p_pre,))

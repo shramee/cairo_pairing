@@ -89,7 +89,7 @@ impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
         self.lines.set_delta_line(step, line_fn::step_double(ref self.delta, *pre_comp.field_nz));
     }
 
-    #[inline(always)]
+    // #[inline(always)]
     fn acc_step_dbl_add(
         ref self: G16SetupAcc<T>, step: u32, q: @G16SetupG2, pre_comp: @G16SetupPreComp
     ) {

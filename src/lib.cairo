@@ -54,6 +54,8 @@ mod groth16 {
     mod verifier;
     mod setup;
     mod fixture;
+    use verifier::verify;
+    use setup::setup_precompute;
     #[cfg(test)]
     mod tests;
 }

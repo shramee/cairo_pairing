@@ -53,7 +53,7 @@ impl AffineOps<
         slope * (*self.x - x) - *self.y
     }
 
-    #[inline(always)]
+    // #[inline(always)]
     fn pt_on_slope(self: @Affine<T>, slope: T, x2: T) -> Affine<T> {
         let x = self.x_on_slope(slope, x2);
         let y = self.y_on_slope(slope, x);
@@ -68,12 +68,12 @@ impl AffineOps<
         (y2 - y1) / (x2 - x1)
     }
 
-    #[inline(always)]
+    // #[inline(always)]
     fn add(self: @Affine<T>, rhs: Affine<T>) -> Affine<T> {
         self.pt_on_slope(self.chord(rhs), rhs.x)
     }
 
-    #[inline(always)]
+    // #[inline(always)]
     fn tangent(self: @Affine<T>) -> T {
         let Affine { x, y } = *self;
 
@@ -84,7 +84,7 @@ impl AffineOps<
         (x_2 + x_2 + x_2) / y.u_add(y)
     }
 
-    #[inline(always)]
+    // #[inline(always)]
     fn double(self: @Affine<T>) -> Affine<T> {
         self.pt_on_slope(self.tangent(), *self.x)
     }
