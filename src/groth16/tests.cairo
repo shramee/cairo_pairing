@@ -69,6 +69,14 @@ fn test_alphabeta_precompute() {
 
 #[test]
 #[available_gas(20000000000)]
+fn test_alphabeta_final_exponentiation() {
+    let (_, _, _, _, alphabeta_miller, _) = fixture::vk();
+    alphabeta_miller.final_exponentiation();
+    assert(true, '');
+}
+
+#[test]
+#[available_gas(20000000000)]
 fn test_ic() {
     let (ic_0, ic) = fixture::circuit_setup().ic;
     let (_, _, _, pub_input,) = fixture::proof();
