@@ -176,13 +176,13 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
 // @TODO
 // Fix Groth16 verify function for negative G2 and not neg pi_a
 // Does the verification
-fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
+fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     pi_a: AffineG1,
     pi_b: AffineG2,
     pi_c: AffineG1,
     inputs: Array<u256>,
     setup: G16CircuitSetup<TLines>,
-) -> bool { //
+) -> Fq12 { //
     // Compute k from ic and public_inputs
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
@@ -211,7 +211,21 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
 
     // multiply precomputed alphabeta_miller with the pairings
-    let miller_loop_result = miller_loop_result * alpha_beta;
+    miller_loop_result * alpha_beta
+}
+
+// @TODO
+// Fix Groth16 verify function for negative G2 and not neg pi_a
+// Does the verification
+fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
+    pi_a: AffineG1,
+    pi_b: AffineG2,
+    pi_c: AffineG1,
+    inputs: Array<u256>,
+    setup: G16CircuitSetup<TLines>,
+) -> bool {
+    // miller loop result
+    let miller_loop_result = verify_miller(pi_a, pi_b, pi_c, inputs, setup);
 
     // final exponentiation
     let result = miller_loop_result.final_exponentiation();

@@ -12,7 +12,7 @@ use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use pairing::optimal_ate_utils::LineFn;
 use bn::groth16::utils::{LinesArray, LinesArrayGet, LinesArraySet, ICProcess, ICArrayInput};
-use bn::groth16::verifier::{verify};
+use bn::groth16::verifier::{verify, verify_miller};
 use bn::groth16::setup::{setup_precompute, StepLinesTrait, G16CircuitSetup};
 use bn::groth16::fixture;
 use core::fmt::{Display, Formatter, Error};
