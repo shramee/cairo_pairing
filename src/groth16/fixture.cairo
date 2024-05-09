@@ -1,4 +1,4 @@
-use bn::fields::{fq2, fq12, Fq12};
+use bn::fields::{fq2, fq12, fq6, Fq12, Fq6};
 use bn::curve::groups::{g1, g2, AffineG1, AffineG2};
 use bn::groth16::utils::{G16CircuitSetup, LinesArray, LineFn};
 
@@ -150,6 +150,67 @@ fn proof() -> (AffineG1, AffineG2, AffineG1, u256, Fq12) {
         0x14354c051802f8704939c9948ef91d89db28fe9513ad7bbf58a4639af347ea86
     );
     (pi_a, pi_b, pi_c, pub_input, miller_result)
+}
+
+fn residue_witness() -> (Fq12, Fq12, Fq12, Fq6) {
+    let f = fq12(
+        0x1bf4e21820e6cc2b2dbc9453733a8d7c48f05e73f90ecc8bdd80505d2d3b1715,
+        0x264f54f6b719920c4ac00aafb3df29cc8a9ddc25e264bdee1ade5e36077d58d7,
+        0xdb269e3cd7ed27d825bcbaaefb01023cf9b17beed6092f7b96eab87b571f3fe,
+        0x25ce534442ee86a32c46b56d2bf289a0be5f8703fb05c260b2cb820f2b253cf,
+        0x33fc62c521f4ffdcb362b12220db6c57f487906c0daf4dc9ba736f882a420e1,
+        0xe8b074995703e92a7b9568c90ae160e4d5b81affe628dc1d790241de43d00d0,
+        0x84e35bd0eea3430b350041d235bb394e338e3a9ed2f0a9a1ba7fe786d391de1,
+        0x244d38253da236f714cb763abf68f7829ee631b4cc5ede89b382e518d676d992,
+        0x1ee0a098b62c76a9ebdf4d76c8dfc1586e3fcb6a01712cbda8d10d07b32c5af4,
+        0xd23aeb23acacf931f02eca9eceee31ee9607ec003ff934694119a9c6cffc4bd,
+        0x16558217bb9b1bcda995b123619808719cb8a282a190630e6d06d7d03e6333ca,
+        0x14354c051802f8704939c9948ef91d89db28fe9513ad7bbf58a4639af347ea86
+    );
+
+    // residue witness c,
+
+    let c = fq12(
+        0x1baf2a84eb47ce42094fd98972bc4bb0f2936ef400aea71eaff2c663e3a0fc4d,
+        0x1386ba1f43d9bfa49764547c97cce737f86a88b32d9129370bdd1c3aaceae690,
+        0x19ca8adfe0165968c479453ceac5d78d54beec199fd30af10476e46a7da56127,
+        0x8c68ad81fefa3678a4c488228f6ec2e68fab44f5fc386a71edf490d13165baf,
+        0xaa529ad6ed3d0a32aa2abd113ef97605f58eea5ace47a9a946899faefcb3895,
+        0x1eeed7320d8c8646893377a138b1a265f171e37e7f73a58c52d4ec94e6bc0529,
+        0x1e46a4ab1efe63cc304f321e79b74b5e52728df2fc3f3043dcdfcf9f816c568c,
+        0x2c12b2472cffc96ef1cd313aeae8462296f4ad7b8e6b06073c97b7f0ebf0ad31,
+        0x5303c5eded61bd49638d9b64b23971f19c50bc4651ec93df1ee04c676cf5b77,
+        0x130ba50aed6232a4885ad91ee99e4a7b2c0d65e4f2ced84de31f0449ad05ca0a,
+        0xa5aec882ca48f7ed31209c6ea95b0cd055cbd8c184715ce59c40ccf95c566cd,
+        0x40837988d67f97256bb7e5e121802b523f460b3713e079588a5ff10659cfe2d
+    );
+
+    let c_inverse = fq12(
+        0x5b9a079bc26832a0f6c91a8c3d52f0696e128c4dc02c2e7eccd6750879db37f,
+        0x2e555f161b4d72f939ffdc89ec00f1933d46dbba698eb47dd16427d357fc293d,
+        0x1b137f9bf629c0dbcdd8087034e1f3557ce533998e4e2566b9961515fe3e8874,
+        0x9d878a403981d9dc63f4987d88df92f797412464f26753411b8e7500d316487,
+        0x14e05eb80b6f7e23ecfa04a410cfa1cf8036f3161c7d586802b485fba82fa9e9,
+        0x35039dc8c011db7eb2c0e91709001ba13c91c6b2a06f5ed32005c4990ed64cb,
+        0xb67955a9eed460c7fe5f21790cb806e1a6faa832e5ed9751f4c769b94f233d4,
+        0x1a87d2b49b7fe718a8aaed495061c6c7ab0f83010aa102badce3b5f057717586,
+        0x1426dbe6a25c91a8d3ac59a34c4ea7d7e0075ef206a5dd08a33d1998b58651c1,
+        0x27acb2e47242c471014d129c1a37d0fb662480c13480796cdc381735384a6c5a,
+        0x7459382fd7b5f159e32ae6eb1f5a1ac9adde6e0e347011855cc9f8b5bc89021,
+        0x2884f79cd78dbef6b64fd2a8af7abbb9cb36d280c0c63074e74f0287d3b2eb2d
+    );
+
+    // witness scaling wi,
+
+    let wi = fq6(
+        0x0,
+        0x0,
+        0x25ba8e0531275a44594c4f53b44497bd8d7341fd41e5faf337fa74dbbff9fe1,
+        0x10bd041a04b5422922463bd8b6519b59af036109a228aa43fdb7f215226ece12,
+        0x0,
+        0x0,
+    );
+    (f, c, c_inverse, wi)
 }
 
 fn gamma_lines() -> Array<LineFn> {
