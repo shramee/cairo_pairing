@@ -39,6 +39,7 @@ def tower_to_direct(x: list):
 
 
 def direct_to_tower(x: list):
+    p = q
     res = 12 * [0]
     res[0] = (x[0] + 9 * x[6]) % p
     res[1] = x[6]
@@ -76,8 +77,8 @@ assert 3 * r * m_dash == λ, "incorrect parameters"  # sanity check
 
 # precompute r' and m''
 
-r_inv = FQ(1) / FQ(r)
-m_d_inv = FQ(1) / FQ(m_dash)
+r_inv = (FQ(1) / FQ(r)).__int__()
+m_d_inv = (FQ(1) / FQ(m_dash)).__int__()
 
 f = tower_to_direct(
     [
@@ -96,7 +97,6 @@ f = tower_to_direct(
     ]
 )
 f = FQ12(f)
-print("")
 
 # print("Should be one", f**h)
 
@@ -108,34 +108,28 @@ print("")
 # 3. Compute cubic root
 
 unity = FQ12([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-root_of_unity = FQ12([82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0])
-# assert f**h == unity, "f**h should be one"
-# root_27th = root_of_unity ** ((q**12 - 1) // 27)
-# print(
-#     "\n\nroot_27th = \n",
-#     root_27th,
-#     "\n\n27th_root_to_27 be one\n",
-#     root_27th**27,
-# )
 
 root_27th = FQ12(
-    [
-        13052312176267399275714825586459147631524001967092624059352249429330141404443,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-    ]
+    tower_to_direct(
+        [
+            0,
+            0,
+            0,
+            0,
+            8204864362109909869166472767738877274689483185363591877943943203703805152849,
+            17912368812864921115467448876996876278487602260484145953989158612875588124088,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]
+    )
 )
 
-assert root_27th**27 == unity, "27th root should be one"
+assert root_27th**27 == unity, "root_27th**27 should be one"
+assert root_27th**9 != unity, "root_27th**9 should not be one"
 
 
 def find_cube_root(f, w) -> FQ12:
