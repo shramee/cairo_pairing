@@ -173,7 +173,6 @@ def find_c(f: FQ12, w: FQ12):
     # 1 s = 0
     s = 0
     exp = (q**12 - 1) // 3
-    w = root_27th
     # 2 if f**(q**k-1)/3 = 1 then
     if f**exp == unity:
         # 3 continue
@@ -193,8 +192,6 @@ def find_c(f: FQ12, w: FQ12):
         # 11 f ← f · w**2
         c = f * w * w
     # 12 end
-
-    print("\n\nc = ", c, "\n c exp is ", c**exp)
     # 13 c ← f**r′
     c = c**r_inv
     # 14 c ← c**m′′
@@ -205,5 +202,6 @@ def find_c(f: FQ12, w: FQ12):
     return c, w**s
 
 
-print("\n\nAlgorithm 5: Algorithm for computing λ residues over BN curve")
-find_c(f)
+c, wi = find_c(f, root_27th)
+
+assert c**λ == f * wi, "pairing not 1"
