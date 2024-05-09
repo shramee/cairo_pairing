@@ -74,8 +74,6 @@ m_dash = m // d  # m' = m/d
 # equivalently, λ = 3rm′.
 assert 3 * r * m_dash == λ, "incorrect parameters"  # sanity check
 
-
-
 # precompute r' and m''
 
 r_inv = FQ(1) / FQ(r)
@@ -103,3 +101,30 @@ f = FQ12(f)
 print(f)
 print("")
 print("Should be one", f**h)
+
+# Section 4.3.2 Finding c
+# find some u a cubic non-residue and c such that f = c**λ * u.
+
+# 1. Compute r-th root
+# 2. Compute m′-th root
+# 3. Compute cubic root
+
+# Algorithm 5: Algorithm for computing λ residues over BN curve
+# Input: Output of a Miller loop f and fixed 27-th root of unity w
+# Output: (c, wi) such that c**λ = f · wi
+# 1 s = 0
+# 2 if f**(q**k−1)/3 = 1 then
+# 3 continue
+# 4 end
+# 5 else if (f · w)**(q**k−1)/3 = 1 then
+# 6 s = 1
+# 7 f ← f · w
+# 8 end
+# 9 else
+# 10 s = 2
+# 11 f ← f · w**2
+# 12 end
+# 13 c ← f**r′
+# 14 c ← c**m′′
+# 15 c ← c**1/3 (by using modified Tonelli-Shanks 4)
+# 16 return (c, ws)
