@@ -52,8 +52,18 @@ fn groth16_verify() {
 
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
+    let (_, residue_witness, residue_witness_inv, cubic_scl) = fixture::residue_witness();
 
-    let verified = verify(pi_a, pi_b, pi_c, array![pub_input], circuit_setup);
+    let verified = verify(
+        pi_a,
+        pi_b,
+        pi_c,
+        array![pub_input],
+        residue_witness,
+        residue_witness_inv,
+        cubic_scl,
+        circuit_setup
+    );
 
     assert(verified, 'verification failed');
 }
@@ -68,7 +78,9 @@ fn groth16_miller_loop() {
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
 
-    let _result = verify_miller(pi_a, pi_b, pi_c, array![pub_input], circuit_setup);
+    let _result = verify_miller(
+        pi_a, pi_b, pi_c, array![pub_input], Fq12Utils::one(), circuit_setup
+    );
 // println!("groth16_miller_result = {}", _result);
 }
 
