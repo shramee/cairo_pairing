@@ -132,25 +132,25 @@ assert root_27th**27 == unity, "root_27th**27 should be one"
 assert root_27th**9 != unity, "root_27th**9 should not be one"
 
 
-def find_cube_root(f, w) -> FQ12:
+def find_cube_root(f: FQ12, w: FQ12) -> FQ12:
     unity
 
 
-def find_c():
+def find_c(f: FQ12, w: FQ12):
     # Algorithm 5: Algorithm for computing λ residues over BN curve
     # Input: Output of a Miller loop f and fixed 27-th root of unity w
     # Output: (c, wi) such that c**λ = f · wi
     # 1 s = 0
-    exp = f ** (q**12 - 1) // 3
+    s = 0
+    exp = (q**12 - 1) // 3
     w = root_27th
     # 2 if f**(q**k-1)/3 = 1 then
-    if f ** (q**k - 1) / 3 == 1:
+    if f**exp == unity:
         # 3 continue
         # 4 end
         # 5 else if (f · w)**(q**k-1)/3 = 1 then
-        s = 0
         c = f
-    elif (f * w) ** exp == 1:
+    elif (f * w) ** exp == unity:
         # 6 s = 1
         s = 1
         # 7 f ← f · w
@@ -164,6 +164,7 @@ def find_c():
         c = f * w * w
     # 12 end
 
+    print("\n\nc = ", c, "\n c exp is ", c**exp)
     # 13 c ← f**r′
     c = c**r_inv
     # 14 c ← c**m′′
@@ -171,4 +172,8 @@ def find_c():
     # 15 c ← c**1/3 (by using modified Tonelli-Shanks 4)
     c = find_cube_root(c, w)
     # 16 return (c, ws)
-    return c, w
+    return c, w**s
+
+
+print("\n\nAlgorithm 5: Algorithm for computing λ residues over BN curve")
+find_c(f)
