@@ -100,6 +100,13 @@ print("")
 
 # print("Should be one", f**h)
 
+# Section 4.3.2 Finding c
+# find some u a cubic non-residue and c such that f = c**λ * u.
+
+# 1. Compute r-th root
+# 2. Compute m′-th root
+# 3. Compute cubic root
+
 unity = FQ12([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 root_of_unity = FQ12([82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0])
 # assert f**h == unity, "f**h should be one"
@@ -111,14 +118,22 @@ root_of_unity = FQ12([82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0])
 #     root_27th**27,
 # )
 
-
-
-# Section 4.3.2 Finding c
-# find some u a cubic non-residue and c such that f = c**λ * u.
-
-# 1. Compute r-th root
-# 2. Compute m′-th root
-# 3. Compute cubic root
+root_27th = FQ12(
+    [
+        13052312176267399275714825586459147631524001967092624059352249429330141404443,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ]
+)
 
 # Algorithm 5: Algorithm for computing λ residues over BN curve
 # Input: Output of a Miller loop f and fixed 27-th root of unity w
