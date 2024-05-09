@@ -16,11 +16,16 @@ from py_ecc.fields import (
 )
 
 
+def print_fq12(name: str, f: FQ12):
+    fq_hex = [hex(c) for c in direct_to_tower([c.__int__() for c in f.coeffs])]
+    print("\n\n{} fq12(\n{}\n)".format(name, ",\n ".join(fq_hex)))
+
+
 # The library we use here, py_ecc uses direct field extensions
 # But Cairo implementation uses tower field extensions
 # Utils for direct extension and tower extension conversions
 # https://gist.github.com/feltroidprime/bd31ab8e0cbc0bf8cd952c8b8ed55bf5
-def tower_to_direct(x: list):
+def tower_to_direct(x: list[int]):
     p = q
     res = 12 * [0]
     res[0] = (x[0] - 9 * x[1]) % p
@@ -38,7 +43,7 @@ def tower_to_direct(x: list):
     return res
 
 
-def direct_to_tower(x: list):
+def direct_to_tower(x: list[int]):
     p = q
     res = 12 * [0]
     res[0] = (x[0] + 9 * x[6]) % p
@@ -202,6 +207,13 @@ def find_c(f: FQ12, w: FQ12):
     return c, w**s
 
 
+# print(f)
+
+print_fq12("f", f)
+
 c, wi = find_c(f, root_27th)
+
+print_fq12("c", c)
+print_fq12("w", wi)
 
 assert c**λ == f * wi, "pairing not 1"
