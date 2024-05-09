@@ -18,7 +18,7 @@ from py_ecc.fields import (
 
 def print_fq12(name: str, f: FQ12):
     fq_hex = [hex(c) for c in direct_to_tower([c.__int__() for c in f.coeffs])]
-    print("\n\n{} fq12(\n{}\n)".format(name, ",\n ".join(fq_hex)))
+    print("\n{} fq12(\n\t{}\n)\n".format(name, ",\n\t".join(fq_hex)))
 
 
 # The library we use here, py_ecc uses direct field extensions
@@ -207,13 +207,16 @@ def find_c(f: FQ12, w: FQ12):
     return c, w**s
 
 
-# print(f)
+print("Computing residue witness for f,")
 
-print_fq12("f", f)
+print_fq12("f =", f)
 
 c, wi = find_c(f, root_27th)
 
-print_fq12("c", c)
-print_fq12("w", wi)
+print("residue witness c,")
+print_fq12("c =", c)
+print_fq12("c_inverse =", c.inv())
+print("witness scaling wi,")
+print_fq12("wi = ", wi)
 
 assert c**λ == f * wi, "pairing not 1"
