@@ -212,11 +212,13 @@ print("Computing residue witness for f,")
 print_fq12("f =", f)
 
 c, wi = find_c(f, root_27th)
+c_inv = c.inv()
 
 print("residue witness c,")
 print_fq12("c =", c)
-print_fq12("c_inverse =", c.inv())
+print_fq12("c_inverse =", c_inv)
 print("witness scaling wi,")
 print_fq12("wi = ", wi)
 
-assert c**λ == f * wi, "pairing not 1"
+assert c_inv**λ * f * wi == unity, "pairing not 1"
+print_fq12("c_inv ** λ * f * wi (pairing) result:", c_inv**λ * f * wi)
