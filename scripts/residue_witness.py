@@ -135,22 +135,46 @@ root_27th = FQ12(
     ]
 )
 
-# Algorithm 5: Algorithm for computing λ residues over BN curve
-# Input: Output of a Miller loop f and fixed 27-th root of unity w
-# Output: (c, wi) such that c**λ = f · wi
-# 1 s = 0
-# 2 if f**(q**k−1)/3 = 1 then
-# 3 continue
-# 4 end
-# 5 else if (f · w)**(q**k−1)/3 = 1 then
-# 6 s = 1
-# 7 f ← f · w
-# 8 end
-# 9 else
-# 10 s = 2
-# 11 f ← f · w**2
-# 12 end
-# 13 c ← f**r′
-# 14 c ← c**m′′
-# 15 c ← c**1/3 (by using modified Tonelli-Shanks 4)
-# 16 return (c, ws)
+assert root_27th**27 == unity, "27th root should be one"
+
+
+def find_cube_root(f, w) -> FQ12:
+    unity
+
+
+def find_c():
+    # Algorithm 5: Algorithm for computing λ residues over BN curve
+    # Input: Output of a Miller loop f and fixed 27-th root of unity w
+    # Output: (c, wi) such that c**λ = f · wi
+    # 1 s = 0
+    exp = f ** (q**12 - 1) // 3
+    w = root_27th
+    # 2 if f**(q**k-1)/3 = 1 then
+    if f ** (q**k - 1) / 3 == 1:
+        # 3 continue
+        # 4 end
+        # 5 else if (f · w)**(q**k-1)/3 = 1 then
+        s = 0
+        c = f
+    elif (f * w) ** exp == 1:
+        # 6 s = 1
+        s = 1
+        # 7 f ← f · w
+        c = f * w
+    # 8 end
+    # 9 else
+    else:
+        # 10 s = 2
+        s = 2
+        # 11 f ← f · w**2
+        c = f * w * w
+    # 12 end
+
+    # 13 c ← f**r′
+    c = c**r_inv
+    # 14 c ← c**m′′
+    c = c**m_d_inv
+    # 15 c ← c**1/3 (by using modified Tonelli-Shanks 4)
+    c = find_cube_root(c, w)
+    # 16 return (c, ws)
+    return c, w
