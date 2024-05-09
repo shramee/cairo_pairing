@@ -95,12 +95,15 @@ f = tower_to_direct(
         0x14354C051802F8704939C9948EF91D89DB28FE9513AD7BBF58A4639AF347EA86,
     ]
 )
-
 f = FQ12(f)
-
-print(f)
 print("")
-print("Should be one", f**h)
+
+# print("Should be one", f**h)
+
+unity = FQ12([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+root_of_unity = FQ12([82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0])
+# assert f**h == unity, "f**h should be one"
+
 
 # Section 4.3.2 Finding c
 # find some u a cubic non-residue and c such that f = c**λ * u.
