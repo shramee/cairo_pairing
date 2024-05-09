@@ -103,6 +103,14 @@ print("")
 unity = FQ12([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 root_of_unity = FQ12([82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0])
 # assert f**h == unity, "f**h should be one"
+# root_27th = root_of_unity ** ((q**12 - 1) // 27)
+# print(
+#     "\n\nroot_27th = \n",
+#     root_27th,
+#     "\n\n27th_root_to_27 be one\n",
+#     root_27th**27,
+# )
+
 
 
 # Section 4.3.2 Finding c
