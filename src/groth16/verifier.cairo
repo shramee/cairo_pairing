@@ -170,8 +170,6 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
     }
 }
 
-// @TODO
-// Fix Groth16 verify function for negative G2 and not neg pi_a
 // Does the verification
 fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     pi_a: AffineG1,

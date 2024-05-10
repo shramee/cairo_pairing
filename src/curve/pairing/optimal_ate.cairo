@@ -61,8 +61,18 @@ fn ate_miller_loop<
 fn ate_miller_loop_steps<TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop<TPreC>,>(
     precompute: TPreC, ref q_acc: TG2
 ) -> Fq12 {
-    // ate_loop[64] = O and ate_loop[63] = N
     let mut f = precompute.miller_first_second(64, 63, ref q_acc);
+    let precompute = ate_miller_loop_steps_first_half(precompute, ref q_acc, ref f);
+    ate_miller_loop_steps_second_half(precompute, ref q_acc, ref f);
+    f
+}
+
+fn ate_miller_loop_steps_first_half<
+    TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop<TPreC>,
+>(
+    precompute: TPreC, ref q_acc: TG2, ref f: Fq12
+) -> TPreC {
+    // ate_loop[64] = O and ate_loop[63] = N
 
     f = f.sqr();
     precompute.miller_bit_o(62, ref q_acc, ref f); // ate_loop[62] = O
@@ -129,6 +139,14 @@ fn ate_miller_loop_steps<TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop
     f = f.sqr();
     precompute.miller_bit_o(31, ref q_acc, ref f); // ate_loop[31] = O
     f = f.sqr();
+    precompute
+}
+
+fn ate_miller_loop_steps_second_half<
+    TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop<TPreC>,
+>(
+    precompute: TPreC, ref q_acc: TG2, ref f: Fq12
+) -> TPreC {
     precompute.miller_bit_n(30, ref q_acc, ref f); // ate_loop[30] = N
     f = f.sqr();
     precompute.miller_bit_o(29, ref q_acc, ref f); // ate_loop[29] = O
@@ -192,7 +210,7 @@ fn ate_miller_loop_steps<TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop
     precompute.miller_bit_o(0, ref q_acc, ref f); // ate_loop[ 0] = O
 
     precompute.miller_last(ref q_acc, ref f);
-    f
+    precompute
 }
 
 fn ate_pairing<

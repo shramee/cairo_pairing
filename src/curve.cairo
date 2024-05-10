@@ -9,6 +9,7 @@ use constants::{
 };
 use constants::{ATE_LOOP_COUNT, LOG_ATE_LOOP_COUNT, six_t_plus_2_naf_rev_trimmed};
 use bn::fields::print::u512Display;
+use groups::{AffineG1, AffineG2};
 // #[cfg(test)]
 // mod groups_tests;
 
