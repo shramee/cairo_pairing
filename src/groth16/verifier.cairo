@@ -238,19 +238,19 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     // residue_witness_inv as starter to incorporate  6 * x + 2 in the miller loop
 
     // miller loop result
-    let miller_loop_result = verify_miller(
+    let Fq12 { c0, c1 } = verify_miller(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup
     );
 
     // add cubic scale
-    let result = miller_loop_result * Fq12 { c0: cubic_scale, c1: FieldUtils::zero() };
+    let result = Fq12 { c0: c0 * cubic_scale, c1: c1 * cubic_scale };
 
     // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
     // result^(q + q**3) * (1/residue)^(q**2)
     let result = result
         * residue_witness_inv.frob1()
-        * residue_witness_inv.frob3()
-        * residue_witness.frob2();
+        * residue_witness.frob2()
+        * residue_witness_inv.frob3();
 
     // final exponentiation
     // let result = miller_loop_result.final_exponentiation();
