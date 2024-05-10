@@ -3,7 +3,7 @@ use core::traits::TryInto;
 use bn::traits::FieldMulShortcuts;
 use bn::traits::{FieldUtils, FieldOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::fields::{Fq6, fq6, Fq6Utils, fq2, Fq6Frobenius, Fq6MulShort, Fq6Short};
+use bn::fields::{Fq6, fq6, Fq6Utils, fq, fq2, Fq6Frobenius, Fq6MulShort, Fq6Short};
 use bn::fields::frobenius::fp12 as frob;
 use bn::fields::print::{Fq6Display};
 use bn::curve::{FIELD, get_field_nz};
@@ -41,7 +41,15 @@ impl Fq12Frobenius of Fq12FrobeniusTrait {
 
     fn frob2(self: Fq12) -> Fq12 {
         let Fq12 { c0, c1 } = self;
-        Fq12 { c0: c0.frob2(), c1: c1.frob2().scale(fq2(frob::Q_2_C0, frob::Q_2_C1)), }
+        let Fq6 { c0: c10, c1: c11, c2: c12 } = c1.frob2();
+        Fq12 {
+            c0: c0.frob2(),
+            c1: Fq6 {
+                c0: c10.scale(fq(frob::Q_2_C0)),
+                c1: c11.scale(fq(frob::Q_2_C0)),
+                c2: c12.scale(fq(frob::Q_2_C0))
+            },
+        }
     }
 
     fn frob3(self: Fq12) -> Fq12 {

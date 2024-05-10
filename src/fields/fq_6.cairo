@@ -5,7 +5,7 @@ use bn::curve::{
     u512_reduce, u512_add, u512_sub
 };
 use bn::fields::print::{FqPrintImpl, Fq2PrintImpl, Fq6PrintImpl, Fq12PrintImpl};
-use bn::fields::{Fq2, Fq2Ops, fq2, Fq2Frobenius};
+use bn::fields::{Fq2, Fq2Ops, fq, fq2, Fq2Frobenius};
 use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fields::frobenius::fp6 as frob;
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
@@ -29,12 +29,13 @@ fn fq6(c0: u256, c1: u256, c2: u256, c3: u256, c4: u256, c5: u256) -> Fq6 {
 impl Fq6Frobenius of Fq6FrobeniusTrait {
     #[inline(always)]
     fn frob0(self: Fq6) -> Fq6 {
-        let Fq6 { c0, c1, c2 } = self;
-        Fq6 {
-            c0: c0.frob0(),
-            c1: c1.frob0() * fq2(frob::Q_0_C0, frob::Q_0_C1),
-            c2: c2.frob0() * fq2(frob::Q2_0_C0, frob::Q2_0_C1),
-        }
+        // let Fq6 { c0, c1, c2 } = self;
+        // Fq6 {
+        //     c0: c0.frob0(),
+        //     c1: c1.frob0() * fq2(frob::Q_0_C0, frob::Q_0_C1),
+        //     c2: c2.frob0() * fq2(frob::Q2_0_C0, frob::Q2_0_C1),
+        // }
+        self
     }
 
     #[inline(always)]
@@ -50,11 +51,7 @@ impl Fq6Frobenius of Fq6FrobeniusTrait {
     #[inline(always)]
     fn frob2(self: Fq6) -> Fq6 {
         let Fq6 { c0, c1, c2 } = self;
-        Fq6 {
-            c0: c0.frob0(),
-            c1: c1.frob0() * fq2(frob::Q_2_C0, frob::Q_2_C1),
-            c2: c2.frob0() * fq2(frob::Q2_2_C0, frob::Q2_2_C1),
-        }
+        Fq6 { c0: c0, c1: c1.scale(fq(frob::Q_2_C0)), c2: c2.scale(fq(frob::Q2_2_C0)), }
     }
 
     #[inline(always)]
