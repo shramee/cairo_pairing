@@ -4,7 +4,7 @@ use bn::traits::{FieldOps, FieldShortcuts};
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, Fq2, print::{FqDisplay, Fq12Display}};
-use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
+use bn::fields::{fq12, fq2, Fq12, Fq12Utils, Fq12Exponentiation};
 use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
@@ -27,6 +27,11 @@ struct G16CircuitSetup<T> {
 struct LinesArray {
     gamma: Array<LineFn>,
     delta: Array<LineFn>,
+}
+
+#[inline(always)]
+fn line_fn_from_u256(slope_c0: u256, slope_c1: u256, c_c0: u256, c_c1: u256) -> LineFn {
+    LineFn { slope: fq2(slope_c0, slope_c1), c: fq2(c_c0, c_c1), }
 }
 
 trait StepLinesGet<T> {

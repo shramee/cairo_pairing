@@ -1,6 +1,6 @@
 use bn::fields::{fq2, fq12, fq6, Fq12, Fq6};
 use bn::curve::groups::{g1, g2, AffineG1, AffineG2};
-use bn::groth16::utils::{G16CircuitSetup, LinesArray, LineFn};
+use bn::groth16::utils::{G16CircuitSetup, LinesArray, LineFn, line_fn_from_u256};
 
 fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, Array<AffineG1>) {
     let mut alpha = g1(
@@ -64,10 +64,6 @@ fn vk() -> (AffineG1, AffineG2, AffineG2, AffineG2, Fq12, Array<AffineG1>) {
         0x2e430a046c424c8096a48dfde0872d5eb21ce9195b5e5ec6f28f1cfae9c7d29d
     );
     (alpha, beta, gamma, delta, _neg_albe_miller, ic)
-}
-
-fn line_fn_from_u256(slope_c0: u256, slope_c1: u256, c_c0: u256, c_c1: u256) -> LineFn {
-    LineFn { slope: fq2(slope_c0, slope_c1), c: fq2(c_c0, c_c1), }
 }
 
 fn circuit_setup() -> G16CircuitSetup<LinesArray> {
