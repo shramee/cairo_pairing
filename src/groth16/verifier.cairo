@@ -103,24 +103,15 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
     fn miller_first_second(
         self: @Groth16PreCompute<T>, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //
-        let (pi_a_ppc, _pi_c_ppc, _k_ppc) = self.ppc;
-        let field_nz = *self.field_nz;
-
+        let mut f = Fq12Utils::one();
         // step 0, run step double
-        let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, field_nz);
-        let (l2, l3) = Groth16PrecomputedStep::<T>::with_fxd_pt_line(self, ref acc, i1);
-        let f = l1.mul_034_by_034(l2, field_nz).mul_01234_034(l3, field_nz);
+        self.miller_bit_o(i1, ref acc, ref f);
 
-        // sqr with mul 034 by 034
-        let f = f.sqr();
+        f = f.sqr();
 
         // step -1, the next negative one step
-        let Groth16MillerG2 { pi_b, delta: _, gamma: _, line_count: _ } = self.neg_q;
-        let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
-        let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
-        let (l2, l3) = self.with_fxd_pt_lines(ref acc, i2, field_nz);
-
-        f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz))
+        self.miller_bit_n(i1, ref acc, ref f);
+        f
     }
 
     // 0 bit
