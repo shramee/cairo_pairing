@@ -31,8 +31,7 @@ fn fq12(
 #[generate_trait]
 impl Fq12Frobenius of Fq12FrobeniusTrait {
     fn frob0(self: Fq12) -> Fq12 {
-        let Fq12 { c0, c1 } = self;
-        Fq12 { c0: c0.frob0(), c1: c1.frob0().scale(fq2(frob::Q_0_C0, frob::Q_0_C1)), }
+        self
     }
 
     fn frob1(self: Fq12) -> Fq12 {
