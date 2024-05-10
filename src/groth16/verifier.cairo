@@ -107,14 +107,14 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
     fn miller_first_second(
         self: @Groth16PreCompute<T>, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //
-        let mut f = Fq12Utils::one();
+        let mut f = *self.residue_witness_inv;
         // step 0, run step double
         self.miller_bit_o(i1, ref acc, ref f);
 
         f = f.sqr();
 
         // step -1, the next negative one step
-        self.miller_bit_n(i1, ref acc, ref f);
+        self.miller_bit_n(i2, ref acc, ref f);
         f
     }
 
@@ -135,6 +135,7 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
         let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
         let (l2, l3) = self.with_fxd_pt_lines(ref acc, i, field_nz);
         f = f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz));
+        f = f.mul(*self.residue_witness_inv);
     }
 
     // -1 bit
@@ -147,6 +148,7 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
         let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
         let (l2, l3) = self.with_fxd_pt_lines(ref acc, i, field_nz);
         f = f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz));
+        f = f.mul(*self.residue_witness);
     }
 
     // last step
@@ -240,10 +242,25 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup
     );
 
+    println!("\nmiller_loop_result = {}", miller_loop_result);
+
+    // add cubic scale
+    let result = miller_loop_result * Fq12 { c0: cubic_scale, c1: FieldUtils::zero() };
+
+    println!("\nmiller_cubic = {}", result);
+    // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
+
+    // result^(q + q**3) * (1/residue)^(q**2)
+    let result = result
+        * residue_witness_inv.frob1()
+        * residue_witness_inv.frob3()
+        * residue_witness.frob2();
+
+    println!("\nresult_ccc = {}", result);
+
     // final exponentiation
-    let result = miller_loop_result.final_exponentiation();
+    // let result = miller_loop_result.final_exponentiation();
 
     // return result == 1
-    result == Fq12Utils::one()
     result == one
 }
