@@ -107,7 +107,7 @@ impl Groth16MillerSteps<T, +StepLinesGet<T>> of MillerSteps<Groth16PreCompute<T>
     fn miller_first_second(
         self: @Groth16PreCompute<T>, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //
-        let mut f = *self.residue_witness_inv;
+        let mut f = (*self.residue_witness_inv).sqr();
         // step 0, run step double
         self.miller_bit_o(i1, ref acc, ref f);
 
@@ -242,21 +242,15 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup
     );
 
-    println!("\nmiller_loop_result = {}", miller_loop_result);
-
     // add cubic scale
     let result = miller_loop_result * Fq12 { c0: cubic_scale, c1: FieldUtils::zero() };
 
-    println!("\nmiller_cubic = {}", result);
     // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
-
     // result^(q + q**3) * (1/residue)^(q**2)
     let result = result
         * residue_witness_inv.frob1()
         * residue_witness_inv.frob3()
         * residue_witness.frob2();
-
-    println!("\nresult_ccc = {}", result);
 
     // final exponentiation
     // let result = miller_loop_result.final_exponentiation();

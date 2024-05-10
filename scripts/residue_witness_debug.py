@@ -109,6 +109,7 @@ result = fq12(
     0x2073ABC9675A45B4917509F8E563AF33DDA11B130B81538D2BBB59A7A7CA2085,
 )
 
+λ1 = 6 * x + 2
 assert c_inv**λ1 * f == result, "incorrect λ1"
 
 miller_cubic = fq12(
