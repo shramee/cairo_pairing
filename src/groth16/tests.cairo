@@ -79,7 +79,7 @@ fn groth16_miller_loop() {
     let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
 
     let _result = verify_miller(
-        pi_a, pi_b, pi_c, array![pub_input], Fq12Utils::one(), circuit_setup
+        pi_a, pi_b, pi_c, array![pub_input], Fq12Utils::one(), Fq12Utils::one(), circuit_setup
     );
 // println!("groth16_miller_result = {}", _result);
 }

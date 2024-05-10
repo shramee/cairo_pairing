@@ -1,9 +1,11 @@
+use bn::fields::fq_12::Fq12FrobeniusTrait;
+use bn::traits::FieldUtils;
 use bn::fields::fq_sparse::FqSparseTrait;
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
-use bn::fields::{Fq, Fq2, print::{FqDisplay, Fq12Display}};
+use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display}};
 use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
@@ -38,6 +40,8 @@ struct Groth16PreCompute<T> {
     ppc: (PPrecompute, PPrecompute, PPrecompute),
     neg_q: Groth16MillerG2,
     lines: T,
+    residue_witness: Fq12,
+    residue_witness_inv: Fq12,
     field_nz: NonZero<u256>,
 }
 
@@ -172,6 +176,8 @@ fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     pi_b: AffineG2,
     pi_c: AffineG1,
     inputs: Array<u256>,
+    residue_witness: Fq12,
+    residue_witness_inv: Fq12,
     setup: G16CircuitSetup<TLines>,
 ) -> Fq12 { //
     // Compute k from ic and public_inputs
@@ -193,7 +199,14 @@ fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
         p_precompute(pi_a, field_nz), p_precompute(pi_c, field_nz), p_precompute(k, field_nz)
     );
     let precomp = Groth16PreCompute {
-        p: Groth16MillerG1 { pi_a: pi_a, pi_c, k, }, q, ppc, neg_q, lines, field_nz,
+        p: Groth16MillerG1 { pi_a: pi_a, pi_c, k, },
+        q,
+        ppc,
+        neg_q,
+        lines,
+        residue_witness,
+        residue_witness_inv,
+        field_nz,
     };
 
     // q points accumulator
@@ -213,14 +226,24 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     pi_b: AffineG2,
     pi_c: AffineG1,
     inputs: Array<u256>,
+    residue_witness: Fq12,
+    residue_witness_inv: Fq12,
+    cubic_scale: Fq6,
     setup: G16CircuitSetup<TLines>,
 ) -> bool {
+    let one = Fq12Utils::one();
+    assert(residue_witness_inv * residue_witness == one, 'incorrect residue witness');
+    // residue_witness_inv as starter to incorporate  6 * x + 2 in the miller loop
+
     // miller loop result
-    let miller_loop_result = verify_miller(pi_a, pi_b, pi_c, inputs, setup);
+    let miller_loop_result = verify_miller(
+        pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup
+    );
 
     // final exponentiation
     let result = miller_loop_result.final_exponentiation();
 
     // return result == 1
     result == Fq12Utils::one()
+    result == one
 }
