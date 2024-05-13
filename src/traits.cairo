@@ -39,6 +39,9 @@ trait MillerPrecompute<TG1, TG2, TPreComp> {
 }
 
 trait MillerSteps<TPreComp, TG2, TFq> {
+    // square target group element
+    fn sqr_target(self: @TPreComp, i: u32, ref acc: TG2, ref f: TFq);
+
     // first and second step
     fn miller_first_second(self: @TPreComp, i1: u32, i2: u32, ref acc: TG2) -> TFq;
 

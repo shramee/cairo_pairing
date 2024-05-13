@@ -106,6 +106,11 @@ impl Groth16PrecomputedStep<T, +StepLinesGet<T>> of StepLinesTrait<T> {
 impl Groth16MillerSteps<
     T, +StepLinesGet<T>
 > of MillerSteps<Groth16PreCompute<T>, Groth16MillerG2, Fq12> {
+    #[inline(always)]
+    fn sqr_target(self: @Groth16PreCompute<T>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+        f = f.sqr();
+    }
+
     fn miller_first_second(
         self: @Groth16PreCompute<T>, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //

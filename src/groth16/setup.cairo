@@ -120,6 +120,11 @@ impl StepLines<T, +StepLinesSet<T>, +Drop<T>> of StepLinesTrait<T> {
 impl G16SetupSteps<
     T, +StepLinesSet<T>, +Drop<T>
 > of MillerSteps<G16SetupPreComp, G16SetupAcc<T>, Fq12> {
+    #[inline(always)]
+    fn sqr_target(self: @G16SetupPreComp, i: u32, ref acc: G16SetupAcc<T>, ref f: Fq12) {
+        f = f.sqr();
+    }
+
     fn miller_first_second(
         self: @G16SetupPreComp, i1: u32, i2: u32, ref acc: G16SetupAcc<T>
     ) -> Fq12 {
