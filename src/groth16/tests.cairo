@@ -16,7 +16,8 @@ use bn::groth16::verifier::{verify, verify_miller};
 use bn::groth16::setup::{setup_precompute, StepLinesTrait, G16CircuitSetup};
 use bn::groth16::fixture;
 use core::fmt::{Display, Formatter, Error};
-
+use core::hash::HashStateTrait;
+use core::poseidon::{PoseidonImpl, HashStateImpl};
 impl AffineG2Display of Display<AffineG2> {
     fn fmt(self: @AffineG2, ref f: Formatter) -> Result<(), Error> {
         write!(f, "\ng2({},{},{},{})", *self.x.c0, *self.x.c1, *self.y.c0, *self.y.c1)
@@ -66,6 +67,98 @@ fn groth16_verify() {
     );
 
     assert(verified, 'verification failed');
+}
+
+#[test]
+#[available_gas(20000000000)]
+fn hash() {
+    // Proof parameters
+    let (pi_a, pi_b, pi_c, _, _) = fixture::proof();
+    let mut hasher = core::poseidon::PoseidonImpl::new();
+    hasher = hasher.update(pi_a.x.c0.low.into());
+    hasher = hasher.update(pi_a.x.c0.high.into());
+    hasher = hasher.update(pi_a.y.c0.low.into());
+    hasher = hasher.update(pi_a.y.c0.high.into());
+
+    hasher = hasher.update(pi_b.x.c0.c0.low.into());
+    hasher = hasher.update(pi_b.x.c0.c0.high.into());
+    hasher = hasher.update(pi_b.x.c1.c0.low.into());
+    hasher = hasher.update(pi_b.x.c1.c0.high.into());
+    hasher = hasher.update(pi_b.y.c0.c0.low.into());
+    hasher = hasher.update(pi_b.y.c0.c0.high.into());
+    hasher = hasher.update(pi_b.y.c1.c0.low.into());
+    hasher = hasher.update(pi_b.y.c1.c0.high.into());
+
+    hasher = hasher.update(pi_c.x.c0.low.into());
+    hasher = hasher.update(pi_c.x.c0.high.into());
+    hasher = hasher.update(pi_c.y.c0.low.into());
+    hasher = hasher.update(pi_c.y.c0.high.into());
+
+    let hash = hasher.finalize();
+
+    println!("hash: {hash}");
+
+    assert(true, 'verification failed');
+}
+
+#[test]
+#[available_gas(20000000000)]
+fn hash_big() {
+    // Proof parameters
+    let (pi_a, pi_b, pi_c, _, _) = fixture::proof();
+    let mut hasher = core::poseidon::PoseidonImpl::new();
+    hasher = hasher.update(pi_a.x.c0.low.into());
+    hasher = hasher.update(pi_a.x.c0.high.into());
+
+    hasher = hasher.update(pi_b.x.c0.c0.low.into());
+    hasher = hasher.update(pi_b.x.c0.c0.high.into());
+    hasher = hasher.update(pi_b.x.c1.c0.low.into());
+    hasher = hasher.update(pi_b.x.c1.c0.high.into());
+    hasher = hasher.update(pi_a.x.c0.low.into());
+    hasher = hasher.update(pi_a.x.c0.high.into());
+    hasher = hasher.update(pi_a.y.c0.low.into());
+    hasher = hasher.update(pi_a.y.c0.high.into());
+
+    hasher = hasher.update(pi_b.x.c0.c0.low.into());
+    hasher = hasher.update(pi_b.x.c0.c0.high.into());
+    hasher = hasher.update(pi_b.x.c1.c0.low.into());
+    hasher = hasher.update(pi_b.x.c1.c0.high.into());
+    hasher = hasher.update(pi_b.y.c0.c0.low.into());
+    hasher = hasher.update(pi_b.y.c0.c0.high.into());
+    hasher = hasher.update(pi_b.y.c1.c0.low.into());
+    hasher = hasher.update(pi_b.y.c1.c0.high.into());
+
+    hasher = hasher.update(pi_c.x.c0.low.into());
+    hasher = hasher.update(pi_c.x.c0.high.into());
+    hasher = hasher.update(pi_c.y.c0.low.into());
+    hasher = hasher.update(pi_c.y.c0.high.into());
+    hasher = hasher.update(pi_a.x.c0.low.into());
+    hasher = hasher.update(pi_a.x.c0.high.into());
+    hasher = hasher.update(pi_a.y.c0.low.into());
+    hasher = hasher.update(pi_a.y.c0.high.into());
+
+    hasher = hasher.update(pi_b.x.c0.c0.low.into());
+    hasher = hasher.update(pi_b.x.c0.c0.high.into());
+    hasher = hasher.update(pi_b.x.c1.c0.low.into());
+    hasher = hasher.update(pi_b.x.c1.c0.high.into());
+    hasher = hasher.update(pi_b.y.c0.c0.low.into());
+    hasher = hasher.update(pi_b.y.c0.c0.high.into());
+    hasher = hasher.update(pi_b.y.c1.c0.low.into());
+    hasher = hasher.update(pi_b.y.c1.c0.high.into());
+
+    hasher = hasher.update(pi_c.x.c0.low.into());
+    hasher = hasher.update(pi_c.x.c0.high.into());
+    hasher = hasher.update(pi_c.y.c0.low.into());
+    hasher = hasher.update(pi_c.y.c0.high.into());
+
+    hasher = hasher.update(pi_c.x.c0.low.into());
+    hasher = hasher.update(pi_c.x.c0.high.into());
+
+    let hash = hasher.finalize();
+
+    println!("hash: {hash}");
+
+    assert(true, 'verification failed');
 }
 
 #[test]
