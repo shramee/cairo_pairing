@@ -13,7 +13,7 @@ fn ate_miller_loop<
     TG2,
     TPreC,
     +MillerPrecompute<TG1, TG2, TPreC>,
-    +MillerSteps<TPreC, TG2>,
+    +MillerSteps<TPreC, TG2, Fq12>,
     +Drop<TG1>,
     +Drop<TG2>,
     +Drop<TPreC>,
@@ -58,22 +58,21 @@ fn ate_miller_loop<
 // 4:     Compute g[i] and mul with f based on the bit value
 // 5: return f
 // 
-fn ate_miller_loop_steps<TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop<TPreC>,>(
+fn ate_miller_loop_steps<TG2, TPreC, +MillerSteps<TPreC, TG2, Fq12>, +Drop<TG2>, +Drop<TPreC>,>(
     precompute: TPreC, ref q_acc: TG2
 ) -> Fq12 {
-    let mut f = precompute.miller_first_second(64, 63, ref q_acc);
-    let precompute = ate_miller_loop_steps_first_half(precompute, ref q_acc, ref f);
+    let (precompute, mut f) = ate_miller_loop_steps_first_half(precompute, ref q_acc);
     ate_miller_loop_steps_second_half(precompute, ref q_acc, ref f);
     f
 }
 
 fn ate_miller_loop_steps_first_half<
-    TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop<TPreC>,
+    TG2, TPreC, +MillerSteps<TPreC, TG2, Fq12>, +Drop<TG2>, +Drop<TPreC>,
 >(
-    precompute: TPreC, ref q_acc: TG2, ref f: Fq12
-) -> TPreC {
+    precompute: TPreC, ref q_acc: TG2
+) -> (TPreC, Fq12) {
     // ate_loop[64] = O and ate_loop[63] = N
-
+    let mut f = precompute.miller_first_second(64, 63, ref q_acc);
     f = f.sqr();
     precompute.miller_bit_o(62, ref q_acc, ref f); // ate_loop[62] = O
     f = f.sqr();
@@ -139,11 +138,11 @@ fn ate_miller_loop_steps_first_half<
     f = f.sqr();
     precompute.miller_bit_o(31, ref q_acc, ref f); // ate_loop[31] = O
     f = f.sqr();
-    precompute
+    (precompute, f)
 }
 
 fn ate_miller_loop_steps_second_half<
-    TG2, TPreC, +MillerSteps<TPreC, TG2>, +Drop<TG2>, +Drop<TPreC>,
+    TG2, TPreC, +MillerSteps<TPreC, TG2, Fq12>, +Drop<TG2>, +Drop<TPreC>,
 >(
     precompute: TPreC, ref q_acc: TG2, ref f: Fq12
 ) -> TPreC {
@@ -218,7 +217,7 @@ fn ate_pairing<
     TG2,
     TPreC,
     +MillerPrecompute<TG1, TG2, TPreC>,
-    +MillerSteps<TPreC, TG2>,
+    +MillerSteps<TPreC, TG2, Fq12>,
     +Drop<TG1>,
     +Drop<TG2>,
     +Drop<TPreC>,

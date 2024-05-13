@@ -38,19 +38,19 @@ trait MillerPrecompute<TG1, TG2, TPreComp> {
     fn precompute(self: (TG1, TG2), field_nz: NonZero<u256>) -> (TPreComp, TG2);
 }
 
-trait MillerSteps<TPreComp, TG2> {
+trait MillerSteps<TPreComp, TG2, TFq> {
     // first and second step
-    fn miller_first_second(self: @TPreComp, i1: u32, i2: u32, ref acc: TG2) -> Fq12;
+    fn miller_first_second(self: @TPreComp, i1: u32, i2: u32, ref acc: TG2) -> TFq;
 
     // 0 bit
-    fn miller_bit_o(self: @TPreComp, i: u32, ref acc: TG2, ref f: Fq12);
+    fn miller_bit_o(self: @TPreComp, i: u32, ref acc: TG2, ref f: TFq);
 
     // 1 bit
-    fn miller_bit_p(self: @TPreComp, i: u32, ref acc: TG2, ref f: Fq12);
+    fn miller_bit_p(self: @TPreComp, i: u32, ref acc: TG2, ref f: TFq);
 
     // -1 bit
-    fn miller_bit_n(self: @TPreComp, i: u32, ref acc: TG2, ref f: Fq12);
+    fn miller_bit_n(self: @TPreComp, i: u32, ref acc: TG2, ref f: TFq);
 
     // last step
-    fn miller_last(self: @TPreComp, ref acc: TG2, ref f: Fq12);
+    fn miller_last(self: @TPreComp, ref acc: TG2, ref f: TFq);
 }
