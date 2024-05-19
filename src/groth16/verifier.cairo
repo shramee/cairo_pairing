@@ -17,6 +17,7 @@ use bn::groth16::utils::{ICProcess, G16CircuitSetup, StepLinesGet};
 
 type F034 = Fq12Sparse034;
 type F01234 = Fq12Sparse01234;
+type LineResult = (F034, F034);
 
 #[derive(Copy, Drop)]
 struct Groth16MillerG1 { // Points in G1
@@ -48,16 +49,16 @@ struct Groth16PreCompute<T> {
 trait StepLinesTrait<T> {
     fn with_fxd_pt_line(
         self: @Groth16PreCompute<T>, ref acc: Groth16MillerG2, step: u32
-    ) -> (F034, F034);
+    ) -> LineResult;
     fn with_fxd_pt_lines(
         self: @Groth16PreCompute<T>, ref acc: Groth16MillerG2, step: u32, field_nz: NonZero<u256>
-    ) -> (F01234, F01234);
+    ) -> (LineResult, LineResult);
     fn lines_helper(
         self: @Groth16PreCompute<T>,
         lines: (LineFn, LineFn),
         p_prec: @PPrecompute,
         field_nz: NonZero<u256>
-    ) -> F01234;
+    ) -> LineResult;
 }
 
 impl Groth16PrecomputedStep<T, +StepLinesGet<T>> of StepLinesTrait<T> {
@@ -65,7 +66,7 @@ impl Groth16PrecomputedStep<T, +StepLinesGet<T>> of StepLinesTrait<T> {
     // but instead of G2 point doublings, uses precomputed slope and const
     fn with_fxd_pt_line(
         self: @Groth16PreCompute<T>, ref acc: Groth16MillerG2, step: u32
-    ) -> (F034, F034) { //
+    ) -> LineResult { //
         let line_index = acc.line_count;
         let (_, c_ppc, k_ppc) = self.ppc;
         acc.line_count = acc.line_count + 1;
@@ -80,7 +81,7 @@ impl Groth16PrecomputedStep<T, +StepLinesGet<T>> of StepLinesTrait<T> {
     // but instead of G2 point doublings, uses precomputed slope and const
     fn with_fxd_pt_lines(
         self: @Groth16PreCompute<T>, ref acc: Groth16MillerG2, step: u32, field_nz: NonZero<u256>
-    ) -> (F01234, F01234) { //
+    ) -> (LineResult, LineResult) { //
         let line_index = acc.line_count;
         let (_, c_p, k_p) = self.ppc;
         acc.line_count = acc.line_count + 2;
@@ -97,10 +98,16 @@ impl Groth16PrecomputedStep<T, +StepLinesGet<T>> of StepLinesTrait<T> {
         lines: (LineFn, LineFn),
         p_prec: @PPrecompute,
         field_nz: NonZero<u256>
-    ) -> F01234 {
+    ) -> LineResult {
         let (lf1, lf2) = lines;
-        line_fn_at_p(lf1, p_prec).mul_034_by_034(line_fn_at_p(lf2, p_prec), field_nz)
+        // line_fn_at_p(lf1, p_prec).mul_034_by_034(line_fn_at_p(lf2, p_prec), field_nz)
+        (line_fn_at_p(lf1, p_prec), line_fn_at_p(lf2, p_prec))
     }
+}
+
+#[inline(always)]
+fn fq12_034_034_034(ref f: Fq12, l1: F034, l2: F034, l3: F034, field_nz: NonZero<u256>) {
+    f = f.mul(l1.mul_034_by_034(l2, field_nz).mul_01234_034(l3, field_nz));
 }
 
 impl Groth16MillerSteps<
@@ -130,7 +137,7 @@ impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.field_nz);
         let (l2, l3) = Groth16PrecomputedStep::<T>::with_fxd_pt_line(self, ref acc, i);
-        f = f.mul(l1.mul_034_by_034(l2, *self.field_nz).mul_01234_034(l3, *self.field_nz));
+        fq12_034_034_034(ref f, l1, l2, l3, *self.field_nz);
     }
 
     // 1 bit
@@ -139,10 +146,10 @@ impl Groth16MillerSteps<
         let field_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
         let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
-        let (l2, l3) = self.with_fxd_pt_lines(ref acc, i, field_nz);
+        let ((l2_1, l2_2), (l3_1, l3_2)) = self.with_fxd_pt_lines(ref acc, i, field_nz);
         // 2x fq12 * s012345 * s034 ir cheaper than fq12 * (s012345 * s012345) * (s034 * s034)
-        f = f.mul(l2.mul_01234_034(l1_1, field_nz));
-        f = f.mul(l3.mul_01234_034(l1_2, field_nz));
+        fq12_034_034_034(ref f, l1_1, l2_1, l3_1, *self.field_nz);
+        fq12_034_034_034(ref f, l1_2, l2_2, l3_2, *self.field_nz);
         f = f.mul(*self.residue_witness_inv);
     }
 
@@ -153,9 +160,9 @@ impl Groth16MillerSteps<
         let field_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
         let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
-        let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
-        let (l2, l3) = self.with_fxd_pt_lines(ref acc, i, field_nz);
-        f = f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz));
+        let ((l2_1, l2_2), (l3_1, l3_2)) = self.with_fxd_pt_lines(ref acc, i, field_nz);
+        fq12_034_034_034(ref f, l1_1, l2_1, l3_1, *self.field_nz);
+        fq12_034_034_034(ref f, l1_2, l2_2, l3_2, *self.field_nz);
         f = f.mul(*self.residue_witness);
     }
 
@@ -167,14 +174,9 @@ impl Groth16MillerSteps<
         let (l1_1, l1_2) = correction_step(
             ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, field_nz
         );
-        let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
-        let (l2, l3) = self.with_fxd_pt_lines(ref acc, 'last', field_nz);
-        // let (l2_1, l2_2) = correction_step(ref acc.delta, pi_c_ppc, *p.pi_c, *q.delta, *field_nz);
-        // let l2 = l2_1.mul_034_by_034(l2_2, *field_nz);
-        // let (l3_1, l3_2) = correction_step(ref acc.gamma, k_ppc, *p.k, *q.gamma, *field_nz);
-        // let l3 = l3_1.mul_034_by_034(l3_2, *field_nz);
-
-        f = f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz));
+        let ((l2_1, l2_2), (l3_1, l3_2)) = self.with_fxd_pt_lines(ref acc, 'last', field_nz);
+        fq12_034_034_034(ref f, l1_1, l2_1, l3_1, *self.field_nz);
+        fq12_034_034_034(ref f, l1_2, l2_2, l3_2, *self.field_nz);
     }
 }
 

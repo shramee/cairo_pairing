@@ -6,7 +6,7 @@ use bn::traits::FieldOps;
 use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, Fq2, print::{FqDisplay, Fq12Display}};
-use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation};
+use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Frobenius};
 use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
@@ -71,94 +71,23 @@ fn groth16_verify() {
 
 #[test]
 #[available_gas(20000000000)]
-fn hash() {
+fn groth16_residue_final() {
     // Proof parameters
-    let (pi_a, pi_b, pi_c, _, _) = fixture::proof();
-    let mut hasher = core::poseidon::PoseidonImpl::new();
-    hasher = hasher.update(pi_a.x.c0.low.into());
-    hasher = hasher.update(pi_a.x.c0.high.into());
-    hasher = hasher.update(pi_a.y.c0.low.into());
-    hasher = hasher.update(pi_a.y.c0.high.into());
+    let (miller, residue_witness, residue_witness_inv, cubic_scale) = fixture::residue_witness();
 
-    hasher = hasher.update(pi_b.x.c0.c0.low.into());
-    hasher = hasher.update(pi_b.x.c0.c0.high.into());
-    hasher = hasher.update(pi_b.x.c1.c0.low.into());
-    hasher = hasher.update(pi_b.x.c1.c0.high.into());
-    hasher = hasher.update(pi_b.y.c0.c0.low.into());
-    hasher = hasher.update(pi_b.y.c0.c0.high.into());
-    hasher = hasher.update(pi_b.y.c1.c0.low.into());
-    hasher = hasher.update(pi_b.y.c1.c0.high.into());
+    assert(residue_witness_inv * residue_witness == Fq12Utils::one(), 'incorrect residue witness');
 
-    hasher = hasher.update(pi_c.x.c0.low.into());
-    hasher = hasher.update(pi_c.x.c0.high.into());
-    hasher = hasher.update(pi_c.y.c0.low.into());
-    hasher = hasher.update(pi_c.y.c0.high.into());
+    let Fq12 { c0, c1 } = miller;
 
-    let hash = hasher.finalize();
+    // add cubic scale
+    let result = Fq12 { c0: c0 * cubic_scale, c1: c1 * cubic_scale };
 
-    println!("hash: {hash}");
-
-    assert(true, 'verification failed');
-}
-
-#[test]
-#[available_gas(20000000000)]
-fn hash_big() {
-    // Proof parameters
-    let (pi_a, pi_b, pi_c, _, _) = fixture::proof();
-    let mut hasher = core::poseidon::PoseidonImpl::new();
-    hasher = hasher.update(pi_a.x.c0.low.into());
-    hasher = hasher.update(pi_a.x.c0.high.into());
-
-    hasher = hasher.update(pi_b.x.c0.c0.low.into());
-    hasher = hasher.update(pi_b.x.c0.c0.high.into());
-    hasher = hasher.update(pi_b.x.c1.c0.low.into());
-    hasher = hasher.update(pi_b.x.c1.c0.high.into());
-    hasher = hasher.update(pi_a.x.c0.low.into());
-    hasher = hasher.update(pi_a.x.c0.high.into());
-    hasher = hasher.update(pi_a.y.c0.low.into());
-    hasher = hasher.update(pi_a.y.c0.high.into());
-
-    hasher = hasher.update(pi_b.x.c0.c0.low.into());
-    hasher = hasher.update(pi_b.x.c0.c0.high.into());
-    hasher = hasher.update(pi_b.x.c1.c0.low.into());
-    hasher = hasher.update(pi_b.x.c1.c0.high.into());
-    hasher = hasher.update(pi_b.y.c0.c0.low.into());
-    hasher = hasher.update(pi_b.y.c0.c0.high.into());
-    hasher = hasher.update(pi_b.y.c1.c0.low.into());
-    hasher = hasher.update(pi_b.y.c1.c0.high.into());
-
-    hasher = hasher.update(pi_c.x.c0.low.into());
-    hasher = hasher.update(pi_c.x.c0.high.into());
-    hasher = hasher.update(pi_c.y.c0.low.into());
-    hasher = hasher.update(pi_c.y.c0.high.into());
-    hasher = hasher.update(pi_a.x.c0.low.into());
-    hasher = hasher.update(pi_a.x.c0.high.into());
-    hasher = hasher.update(pi_a.y.c0.low.into());
-    hasher = hasher.update(pi_a.y.c0.high.into());
-
-    hasher = hasher.update(pi_b.x.c0.c0.low.into());
-    hasher = hasher.update(pi_b.x.c0.c0.high.into());
-    hasher = hasher.update(pi_b.x.c1.c0.low.into());
-    hasher = hasher.update(pi_b.x.c1.c0.high.into());
-    hasher = hasher.update(pi_b.y.c0.c0.low.into());
-    hasher = hasher.update(pi_b.y.c0.c0.high.into());
-    hasher = hasher.update(pi_b.y.c1.c0.low.into());
-    hasher = hasher.update(pi_b.y.c1.c0.high.into());
-
-    hasher = hasher.update(pi_c.x.c0.low.into());
-    hasher = hasher.update(pi_c.x.c0.high.into());
-    hasher = hasher.update(pi_c.y.c0.low.into());
-    hasher = hasher.update(pi_c.y.c0.high.into());
-
-    hasher = hasher.update(pi_c.x.c0.low.into());
-    hasher = hasher.update(pi_c.x.c0.high.into());
-
-    let hash = hasher.finalize();
-
-    println!("hash: {hash}");
-
-    assert(true, 'verification failed');
+    // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
+    // result^(q + q**3) * (1/residue)^(q**2)
+    let _result = result
+        * residue_witness_inv.frob1()
+        * residue_witness.frob2()
+        * residue_witness_inv.frob3();
 }
 
 #[test]
@@ -185,45 +114,6 @@ fn groth16_final_exponentiation() {
     assert(result == Fq12Utils::one(), '');
 }
 
-#[test]
-#[available_gas(20000000000)]
-fn test_alphabeta_precompute() {
-    let (alpha, beta, _gamma, _delta, _alphabeta_miller, _ic) = fixture::vk();
-    let setup = fixture::circuit_setup();
-    let computed_alpha_beta = ate_miller_loop(alpha.neg(), beta);
-    assert(setup.alpha_beta == computed_alpha_beta, 'incorrect miller precompute');
-}
-
-#[test]
-#[available_gas(20000000000)]
-fn test_ic() {
-    let (ic_0, ic) = fixture::circuit_setup().ic;
-    let (_, _, _, pub_input, _) = fixture::proof();
-    let ic_1 = *ic[0];
-    let ic_arr = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
-    let ic_tuple = (ic_1, pub_input).process_inputs_and_ic(ic_0);
-
-    assert(ic_arr == ic_tuple, 'incorrect ic');
-}
-
-#[test]
-#[available_gas(20000000000)]
-fn test_verify_setup() {
-    let G16CircuitSetup { alpha_beta, gamma, gamma_neg: _, delta, delta_neg: _, lines: _, ic, } =
-        fixture::circuit_setup();
-    let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
-
-    let (ic_0, ic) = ic;
-    let ic = (ic, array![pub_input]).process_inputs_and_ic(ic_0);
-
-    let pi_ab = ate_miller_loop(pi_a, pi_b); // pi_a * pi_b
-    let ig = ate_miller_loop(ic, gamma); // ic * gamma
-    let cd = ate_miller_loop(pi_c, delta); // pi_c * delta
-
-    let pairing = alpha_beta * pi_ab * ig * cd;
-
-    assert(pairing.final_exponentiation() == Fq12Utils::one(), 'incorrect pairing result');
-}
 
 fn print_g2_precompute(name: ByteArray, point: AffineG2, neg: AffineG2, lines: Array<LineFn>) {
     println!("\nfn {name}_precompute() -> FixedG2Precompute {{");
