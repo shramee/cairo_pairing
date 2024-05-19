@@ -139,9 +139,10 @@ impl Groth16MillerSteps<
         let field_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
         let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
-        let l1 = l1_1.mul_034_by_034(l1_2, field_nz);
         let (l2, l3) = self.with_fxd_pt_lines(ref acc, i, field_nz);
-        f = f.mul(l1.mul_01234_01234(l2, field_nz).mul_01234(l3, field_nz));
+        // 2x fq12 * s012345 * s034 ir cheaper than fq12 * (s012345 * s012345) * (s034 * s034)
+        f = f.mul(l2.mul_01234_034(l1_1, field_nz));
+        f = f.mul(l3.mul_01234_034(l1_2, field_nz));
         f = f.mul(*self.residue_witness_inv);
     }
 
