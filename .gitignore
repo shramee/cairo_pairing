@@ -6,3 +6,4 @@ src/fields/fq_6_torus.cairo
 .snfoundry_trace
 profile.pb.gz
 /bn_contracts
+scripts/__pycache__

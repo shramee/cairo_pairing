@@ -40,6 +40,7 @@ struct Fq6Sparse01 {
     c1: Fq2,
 }
 
+#[inline(always)]
 fn sparse_fq6(c0: Fq2, c1: Fq2) -> Fq6Sparse01 {
     Fq6Sparse01 { c0, c1 }
 }

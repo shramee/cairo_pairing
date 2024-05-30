@@ -44,13 +44,16 @@ mod fields {
     use fq_6::{Fq6, Fq6Ops, Fq6Short, Fq6MulShort, Fq6Utils, fq6, Fq6Frobenius, SixU512};
     use fq_12::{Fq12, Fq12Ops, Fq12Utils, fq12, Fq12Frobenius};
     use fq_12_exponentiation::Fq12Exponentiation;
-    use fq_sparse::{FqSparse, Fq12Sparse034, Fq12Sparse01234, Fq6Sparse01, sparse_fq6};
+    use fq_sparse::{
+        FqSparse, FqSparseTrait, Fq12Sparse034, Fq12Sparse01234, Fq6Sparse01, sparse_fq6
+    };
     use fq_12_squaring::{Fq12Squaring, Krbn2345};
     use bn::traits::{FieldOps, FieldUtils};
 }
 
 mod groth16 {
     mod utils;
+    mod utils_line;
     mod verifier;
     mod setup;
     mod fixture;
