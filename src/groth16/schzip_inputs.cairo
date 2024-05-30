@@ -33,13 +33,11 @@ struct Groth16PreCompute<TLines, TSchZip> {
     field_nz: NonZero<u256>,
 }
 
-type TPC = @Groth16PreCompute<TLines, TSchzip>;
-
 trait SchZipProcess<TLines, TSchzip> {
-    fn sqr(self: TSchzip, ref f: Fq12, i: u32);
-    fn bit_zero(self: TSchzip, ref f: Fq12, i: u32);
-    fn bit_non_zero(self: TSchzip, ref f: Fq12, i: u32);
-    fn miller_last(self: TSchzip, ref f: Fq12, i: u32);
+    fn sz_sqr(self: TSchzip, ref f: Fq12, i: u32);
+    fn sz_zero(self: TSchzip, ref f: Fq12, i: u32);
+    fn sz_non_zero(self: TSchzip, ref f: Fq12, i: u32);
+    fn sz_last(self: TSchzip, ref f: Fq12, i: u32);
 }
 
 impl Groth16MillerSteps<
