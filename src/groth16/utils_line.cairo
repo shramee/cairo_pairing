@@ -1,7 +1,17 @@
+use bn::fields::fq_sparse::FqSparseTrait;
 use bn::fields::{fq12, fq2};
 use bn::groth16::utils::{ICProcess, G16CircuitSetup, PPrecompute};
 use bn::groth16::utils::{Groth16MillerG1, Groth16MillerG2, PPrecomputeX3, F034, F01234, LineResult};
 use bn::pairing::optimal_ate_utils::{p_precompute, line_fn_at_p, LineFn};
+
+#[generate_trait]
+impl LineResult01234 of LineResult01234Trait {
+    #[inline(always)]
+    fn as_01234(self: LineResult, field_nz: NonZero<u256>) -> F01234 {
+        let (l1, l2) = self;
+        l1.mul_034_by_034(l2, field_nz)
+    }
+}
 
 #[derive(Drop, Serde)]
 struct LinesArray {
@@ -45,7 +55,7 @@ impl Groth16PrecomputedStep<T, +StepLinesGet<T>> of StepLinesTrait<T> {
     // but instead of G2 point doublings, uses precomputed slope and const
     fn with_fxd_pt_line(
         self: @T, ppc: @PPrecomputeX3, ref acc: Groth16MillerG2, step: u32, field_nz: NonZero<u256>
-    ) -> LineResult { //
+    ) -> LineResult {
         let line_index = acc.line_count;
         let (_, c_ppc, k_ppc) = ppc;
         acc.line_count = acc.line_count + 1;
