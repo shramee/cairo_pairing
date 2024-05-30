@@ -1,3 +1,4 @@
+use bn::groth16::utils_line::LineResult01234Trait;
 use bn::fields::fq_12::Fq12FrobeniusTrait;
 use bn::traits::FieldUtils;
 use bn::fields::fq_sparse::FqSparseTrait;
@@ -20,33 +21,48 @@ use bn::groth16::utils::{
 };
 
 #[derive(Copy, Drop)]
-struct Groth16PreCompute<T> {
+struct Groth16PreCompute<TLines, TSchZip> {
     p: Groth16MillerG1,
     q: Groth16MillerG2,
     ppc: PPrecomputeX3,
     neg_q: Groth16MillerG2,
-    lines: T,
+    lines: TLines,
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
+    schzip: TSchZip,
     field_nz: NonZero<u256>,
 }
 
+type TPC = @Groth16PreCompute<TLines, TSchzip>;
+
+trait SchZipProcess<TLines, TSchzip> {
+    fn sqr(self: TSchzip, ref f: Fq12, i: u32);
+    fn bit_zero(self: TSchzip, ref f: Fq12, i: u32);
+    fn bit_non_zero(self: TSchzip, ref f: Fq12, i: u32);
+    fn miller_last(self: TSchzip, ref f: Fq12, i: u32);
+}
+
 impl Groth16MillerSteps<
-    T, +StepLinesGet<T>
-> of MillerSteps<Groth16PreCompute<T>, Groth16MillerG2, Fq12> {
+    TLines, TSchZip, +StepLinesGet<TLines>
+> of MillerSteps<Groth16PreCompute<TLines, TSchZip>, Groth16MillerG2, Fq12> {
     #[inline(always)]
-    fn sqr_target(self: @Groth16PreCompute<T>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+    fn sqr_target(
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+    ) {
         f = f.sqr();
     }
 
     fn miller_first_second(
-        self: @Groth16PreCompute<T>, i1: u32, i2: u32, ref acc: Groth16MillerG2
+        self: @Groth16PreCompute<TLines, TSchZip>, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //
-        let mut f = (*self.residue_witness_inv).sqr();
+        let mut f = *self.residue_witness_inv;
+
+        self.sqr_target(i1, ref acc, ref f);
+
         // step 0, run step double
         self.miller_bit_o(i1, ref acc, ref f);
 
-        f = f.sqr();
+        self.sqr_target(i2, ref acc, ref f);
 
         // step -1, the next negative one step
         self.miller_bit_n(i2, ref acc, ref f);
@@ -54,64 +70,64 @@ impl Groth16MillerSteps<
     }
 
     // 0 bit
-    fn miller_bit_o(self: @Groth16PreCompute<T>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+    fn miller_bit_o(
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+    ) {
         let (pi_a_ppc, _, _) = self.ppc;
-        let field_nz = *self.field_nz;
-        let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, field_nz);
-        let (l2, l3) = self.lines.with_fxd_pt_line(self.ppc, ref acc, i, field_nz);
-        fq12_034_034_034(ref f, l1, l2, l3, *self.field_nz);
+        let f_nz = *self.field_nz;
+        let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
+        let l2_l3 = self.lines.with_fxd_pt_line(self.ppc, ref acc, i, f_nz);
+        f = f.mul(l2_l3.as_01234(f_nz).mul_01234_034(l1, f_nz));
     }
 
     // 1 bit
-    fn miller_bit_p(self: @Groth16PreCompute<T>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+    fn miller_bit_p(
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+    ) {
         let Groth16MillerG2 { pi_b, delta: _, gamma: _, line_count: _ } = self.q;
-        let field_nz = *self.field_nz;
+        let f_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
-        let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
-        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, field_nz);
-        let (l2_1, l2_2) = l2;
-        let (l3_1, l3_2) = l3;
-
-        // 2x fq12 * s012345 * s034 ir cheaper than fq12 * (s012345 * s012345) * (s034 * s034)
-        fq12_034_034_034(ref f, l1_1, l2_1, l3_1, *self.field_nz);
-        fq12_034_034_034(ref f, l1_2, l2_2, l3_2, *self.field_nz);
+        let l1 = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
+        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, f_nz);
+        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
         f = f.mul(*self.residue_witness_inv);
     }
 
     // -1 bit
-    fn miller_bit_n(self: @Groth16PreCompute<T>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12) {
+    fn miller_bit_n(
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+    ) {
         // use neg q
         let Groth16MillerG2 { pi_b, delta: _, gamma: _, line_count: _ } = self.neg_q;
-        let field_nz = *self.field_nz;
+        let f_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
-        let (l1_1, l1_2) = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, field_nz);
-        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, field_nz);
-        let (l2_1, l2_2) = l2;
-        let (l3_1, l3_2) = l3;
-        fq12_034_034_034(ref f, l1_1, l2_1, l3_1, *self.field_nz);
-        fq12_034_034_034(ref f, l1_2, l2_2, l3_2, *self.field_nz);
+        let l1 = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
+        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, f_nz);
+        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
         f = f.mul(*self.residue_witness);
     }
 
     // last step
-    fn miller_last(self: @Groth16PreCompute<T>, ref acc: Groth16MillerG2, ref f: Fq12) {
+    fn miller_last(
+        self: @Groth16PreCompute<TLines, TSchZip>, ref acc: Groth16MillerG2, ref f: Fq12
+    ) {
         // let Groth16PreCompute { p, q, ppc: _, neg_q: _, lines: _, field_nz, } = self;
-        let field_nz = *self.field_nz;
+        let f_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
-        let (l1_1, l1_2) = correction_step(
-            ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, field_nz
-        );
-        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, 'last', field_nz);
-        let (l2_1, l2_2) = l2;
-        let (l3_1, l3_2) = l3;
-
-        fq12_034_034_034(ref f, l1_1, l2_1, l3_1, *self.field_nz);
-        fq12_034_034_034(ref f, l1_2, l2_2, l3_2, *self.field_nz);
+        let l1 = correction_step(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
+        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, 'last', f_nz);
+        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
     }
 }
 
 // Does the verification
-fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
+fn verify_miller<TLines, TSchZip, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>>(
     pi_a: AffineG1,
     pi_b: AffineG2,
     pi_c: AffineG1,
@@ -119,6 +135,7 @@ fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
     setup: G16CircuitSetup<TLines>,
+    schzip: TSchZip,
 ) -> Fq12 { //
     // Compute k from ic and public_inputs
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
@@ -144,6 +161,7 @@ fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
         ppc,
         neg_q,
         lines,
+        schzip,
         residue_witness,
         residue_witness_inv,
         field_nz,
@@ -161,7 +179,7 @@ fn verify_miller<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
 // @TODO
 // Fix Groth16 verify function for negative G2 and not neg pi_a
 // Does the verification
-fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
+fn verify<TLines, TSchZip, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>>(
     pi_a: AffineG1,
     pi_b: AffineG2,
     pi_c: AffineG1,
@@ -170,6 +188,7 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     residue_witness_inv: Fq12,
     cubic_scale: Fq6,
     setup: G16CircuitSetup<TLines>,
+    schzip: TSchZip,
 ) -> bool {
     let one = Fq12Utils::one();
     assert(residue_witness_inv * residue_witness == one, 'incorrect residue witness');
@@ -177,7 +196,7 @@ fn verify<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
 
     // miller loop result
     let Fq12 { c0, c1 } = verify_miller(
-        pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup
+        pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, schzip
     );
 
     // add cubic scale
