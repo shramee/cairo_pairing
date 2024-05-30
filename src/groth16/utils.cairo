@@ -9,7 +9,9 @@ use bn::curve::pairing;
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
 use pairing::optimal_ate_utils::{LineFn};
-use bn::groth16::utils_line::{StepLinesTrait, Groth16PrecomputedStep, line_fn_from_u256};
+use bn::groth16::utils_line::{
+    StepLinesTrait, Groth16PrecomputedStep, line_fn_from_u256, fq12_034_034_034
+};
 use bn::groth16::utils_line::{LinesArray, StepLinesGet, StepLinesSet, LinesArrayGet, LinesArraySet};
 
 type G1 = AffineG1;

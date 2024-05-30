@@ -1,5 +1,5 @@
 use bn::fields::fq_sparse::FqSparseTrait;
-use bn::fields::{fq12, fq2};
+use bn::fields::{fq12, fq2, Fq12, FqOps};
 use bn::groth16::utils::{ICProcess, G16CircuitSetup, PPrecompute};
 use bn::groth16::utils::{Groth16MillerG1, Groth16MillerG2, PPrecomputeX3, F034, F01234, LineResult};
 use bn::pairing::optimal_ate_utils::{p_precompute, line_fn_at_p, LineFn};
@@ -22,6 +22,12 @@ struct LinesArray {
 #[inline(always)]
 fn line_fn_from_u256(slope_c0: u256, slope_c1: u256, c_c0: u256, c_c1: u256) -> LineFn {
     LineFn { slope: fq2(slope_c0, slope_c1), c: fq2(c_c0, c_c1), }
+}
+
+#[inline(always)]
+fn fq12_034_034_034(ref f: Fq12, l1: F034, l2: F034, l3: F034, field_nz: NonZero<u256>) {
+    let tmp = l1.mul_034_by_034(l2, field_nz).mul_01234_034(l3, field_nz);
+    f = f.mul(tmp);
 }
 
 trait StepLinesTrait<T> {

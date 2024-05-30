@@ -55,6 +55,7 @@ mod groth16 {
     mod utils;
     mod utils_line;
     mod verifier;
+    mod schzip_inputs;
     mod setup;
     mod fixture;
     #[cfg(test)]

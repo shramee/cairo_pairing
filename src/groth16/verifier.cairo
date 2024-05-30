@@ -14,7 +14,7 @@ use pairing::optimal_ate_utils::{p_precompute, line_fn_at_p, LineFn};
 use pairing::optimal_ate_utils::{step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
 use bn::groth16::utils::{ICProcess, G16CircuitSetup, Groth16PrecomputedStep};
-use bn::groth16::utils::{StepLinesGet, StepLinesTrait,};
+use bn::groth16::utils::{StepLinesGet, StepLinesTrait, fq12_034_034_034};
 use bn::groth16::utils::{
     Groth16MillerG1, Groth16MillerG2, PPrecomputeX3, F034, F01234, LineResult,
 };
@@ -29,12 +29,6 @@ struct Groth16PreCompute<T> {
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
     field_nz: NonZero<u256>,
-}
-
-#[inline(always)]
-fn fq12_034_034_034(ref f: Fq12, l1: F034, l2: F034, l3: F034, field_nz: NonZero<u256>) {
-    let tmp = l1.mul_034_by_034(l2, field_nz).mul_01234_034(l3, field_nz);
-    f = f.mul(tmp);
 }
 
 impl Groth16MillerSteps<
