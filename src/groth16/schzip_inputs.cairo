@@ -20,6 +20,11 @@ use bn::groth16::utils::{
     Groth16MillerG1, Groth16MillerG2, PPrecomputeX3, F034, F01234, LineResult,
 };
 
+type F034X2 = (F034, F034);
+type Lines = (F034, F034, F034);
+type LinesDbl = (F034X2, F034X2, F034X2);
+type NZ256 = NonZero<u256>;
+
 #[derive(Copy, Drop)]
 struct Groth16PreCompute<TLines, TSchZip> {
     p: Groth16MillerG1,
@@ -30,30 +35,65 @@ struct Groth16PreCompute<TLines, TSchZip> {
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
     schzip: TSchZip,
-    field_nz: NonZero<u256>,
+    field_nz: NZ256,
 }
 
-trait SchZipProcess<TLines, TSchzip> {
-    fn sz_sqr(self: TSchzip, ref f: Fq12, i: u32);
-    fn sz_zero(self: TSchzip, ref f: Fq12, i: u32);
-    fn sz_non_zero(self: TSchzip, ref f: Fq12, i: u32);
-    fn sz_last(self: TSchzip, ref f: Fq12, i: u32);
+// All changes to f: Fq12 are made via the SchZipProcess implementation
+trait SchZipProcess<T> {
+    fn sz_init(self: @T, ref f: Fq12, f_nz: NZ256);
+    fn sz_sqr(self: @T, ref f: Fq12, i: u32, f_nz: NZ256);
+    fn sz_zero_bit(self: @T, ref f: Fq12, i: u32, lines: Lines, f_nz: NZ256);
+    fn sz_non_zero_bit(self: @T, ref f: Fq12, i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256);
+    fn sz_last(self: @T, ref f: Fq12, i: u32, lines: LinesDbl, f_nz: NZ256);
 }
 
+struct SchZipInput {}
+
+impl SchZipSource of SchZipProcess<SchZipInput> {
+    fn sz_init(self: @SchZipInput, ref f: Fq12, f_nz: NZ256) { //
+    // Intentionally left blank
+    }
+    fn sz_sqr(self: @SchZipInput, ref f: Fq12, i: u32, f_nz: NZ256) {
+        f = f.sqr();
+    }
+    fn sz_zero_bit(self: @SchZipInput, ref f: Fq12, i: u32, lines: Lines, f_nz: NZ256) {
+        let (l1, l2, l3) = lines;
+        f = f.mul(l1.mul_034_by_034(l2, f_nz).mul_01234_034(l3, f_nz));
+    }
+    fn sz_non_zero_bit(
+        self: @SchZipInput, ref f: Fq12, i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
+    ) {
+        let (l1, l2, l3) = lines;
+        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
+        f = f.mul(witness);
+    }
+    fn sz_last(self: @SchZipInput, ref f: Fq12, i: u32, lines: LinesDbl, f_nz: NZ256) {
+        let (l1, l2, l3) = lines;
+        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
+        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
+    }
+}
+
+// This loop doesn't make any updates to f: Fq12
+// All updates are made via the SchZipProcess implementation
 impl Groth16MillerSteps<
-    TLines, TSchZip, +StepLinesGet<TLines>
+    TLines, TSchZip, +StepLinesGet<TLines>, +SchZipProcess<TSchZip>
 > of MillerSteps<Groth16PreCompute<TLines, TSchZip>, Groth16MillerG2, Fq12> {
     #[inline(always)]
     fn sqr_target(
         self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
     ) {
-        f = f.sqr();
+        self.schzip.sz_sqr(ref f, i, *self.field_nz);
     }
 
     fn miller_first_second(
         self: @Groth16PreCompute<TLines, TSchZip>, i1: u32, i2: u32, ref acc: Groth16MillerG2
     ) -> Fq12 { //
         let mut f = *self.residue_witness_inv;
+        self.schzip.sz_init(ref f, *self.field_nz);
 
         self.sqr_target(i1, ref acc, ref f);
 
@@ -74,8 +114,8 @@ impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let f_nz = *self.field_nz;
         let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
-        let l2_l3 = self.lines.with_fxd_pt_line(self.ppc, ref acc, i, f_nz);
-        f = f.mul(l2_l3.as_01234(f_nz).mul_01234_034(l1, f_nz));
+        let (l2, l3) = self.lines.with_fxd_pt_line(self.ppc, ref acc, i, f_nz);
+        self.schzip.sz_zero_bit(ref f, i, (l1, l2, l3), f_nz);
     }
 
     // 1 bit
@@ -87,10 +127,7 @@ impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, f_nz);
-        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
-        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
-        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
-        f = f.mul(*self.residue_witness_inv);
+        self.schzip.sz_non_zero_bit(ref f, i, (l1, l2, l3), *self.residue_witness_inv, f_nz);
     }
 
     // -1 bit
@@ -103,10 +140,7 @@ impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, f_nz);
-        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
-        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
-        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
-        f = f.mul(*self.residue_witness);
+        self.schzip.sz_non_zero_bit(ref f, i, (l1, l2, l3), *self.residue_witness, f_nz);
     }
 
     // last step
@@ -118,14 +152,14 @@ impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = correction_step(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, 'last', f_nz);
-        f = f.mul_01234(l1.as_01234(f_nz), f_nz);
-        f = f.mul_01234(l2.as_01234(f_nz), f_nz);
-        f = f.mul_01234(l3.as_01234(f_nz), f_nz);
+        self.schzip.sz_last(ref f, i, (l1, l2, l3), f_nz);
     }
 }
 
 // Does the verification
-fn verify_miller<TLines, TSchZip, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>>(
+fn verify_miller<
+    TLines, TSchZip, +SchZipProcess<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
+>(
     pi_a: AffineG1,
     pi_b: AffineG2,
     pi_c: AffineG1,
@@ -177,7 +211,9 @@ fn verify_miller<TLines, TSchZip, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TS
 // @TODO
 // Fix Groth16 verify function for negative G2 and not neg pi_a
 // Does the verification
-fn verify<TLines, TSchZip, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>>(
+fn verify<
+    TLines, TSchZip, +SchZipProcess<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
+>(
     pi_a: AffineG1,
     pi_b: AffineG2,
     pi_c: AffineG1,
