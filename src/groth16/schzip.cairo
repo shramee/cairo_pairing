@@ -26,7 +26,7 @@ type LinesDbl = (F034X2, F034X2, F034X2);
 type NZ256 = NonZero<u256>;
 
 #[derive(Copy, Drop)]
-struct Groth16PreCompute<TLines, TSchZip> {
+pub struct Groth16PreCompute<TLines, TSchZip> {
     p: Groth16MillerG1,
     q: Groth16MillerG2,
     ppc: PPrecomputeX3,
@@ -39,7 +39,7 @@ struct Groth16PreCompute<TLines, TSchZip> {
 }
 
 // All changes to f: Fq12 are made via the SchZipProcess implementation
-trait SchZipProcess<T> {
+pub trait SchZipProcess<T> {
     fn sz_init(self: @T, ref f: Fq12, f_nz: NZ256);
     fn sz_sqr(self: @T, ref f: Fq12, i: u32, f_nz: NZ256);
     fn sz_zero_bit(self: @T, ref f: Fq12, i: u32, lines: Lines, f_nz: NZ256);
@@ -47,19 +47,24 @@ trait SchZipProcess<T> {
     fn sz_last(self: @T, ref f: Fq12, i: u32, lines: LinesDbl, f_nz: NZ256);
 }
 
-struct SchZipInput {}
+#[derive(Drop)]
+pub struct SchZipInput {}
 
-impl SchZipSource of SchZipProcess<SchZipInput> {
+pub impl SchZipSource of SchZipProcess<SchZipInput> {
+    #[inline(always)]
     fn sz_init(self: @SchZipInput, ref f: Fq12, f_nz: NZ256) { //
     // Intentionally left blank
     }
+    #[inline(always)]
     fn sz_sqr(self: @SchZipInput, ref f: Fq12, i: u32, f_nz: NZ256) {
         f = f.sqr();
     }
+    #[inline(always)]
     fn sz_zero_bit(self: @SchZipInput, ref f: Fq12, i: u32, lines: Lines, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         f = f.mul(l1.mul_034_by_034(l2, f_nz).mul_01234_034(l3, f_nz));
     }
+    #[inline(always)]
     fn sz_non_zero_bit(
         self: @SchZipInput, ref f: Fq12, i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
     ) {
@@ -69,6 +74,7 @@ impl SchZipSource of SchZipProcess<SchZipInput> {
         f = f.mul_01234(l3.as_01234(f_nz), f_nz);
         f = f.mul(witness);
     }
+    #[inline(always)]
     fn sz_last(self: @SchZipInput, ref f: Fq12, i: u32, lines: LinesDbl, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         f = f.mul_01234(l1.as_01234(f_nz), f_nz);
@@ -79,7 +85,7 @@ impl SchZipSource of SchZipProcess<SchZipInput> {
 
 // This loop doesn't make any updates to f: Fq12
 // All updates are made via the SchZipProcess implementation
-impl Groth16MillerSteps<
+pub impl Groth16MillerSteps<
     TLines, TSchZip, +StepLinesGet<TLines>, +SchZipProcess<TSchZip>
 > of MillerSteps<Groth16PreCompute<TLines, TSchZip>, Groth16MillerG2, Fq12> {
     #[inline(always)]
@@ -152,7 +158,7 @@ impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = correction_step(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, 'last', f_nz);
-        self.schzip.sz_last(ref f, i, (l1, l2, l3), f_nz);
+        self.schzip.sz_last(ref f, 'last', (l1, l2, l3), f_nz);
     }
 }
 
@@ -208,10 +214,8 @@ fn verify_miller<
     miller_loop_result * alpha_beta
 }
 
-// @TODO
-// Fix Groth16 verify function for negative G2 and not neg pi_a
 // Does the verification
-fn verify<
+pub fn schzip_verify<
     TLines, TSchZip, +SchZipProcess<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
 >(
     pi_a: AffineG1,
