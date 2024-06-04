@@ -24,6 +24,12 @@ type LinesDbl = (F034X2, F034X2, F034X2);
 type NZ256 = NonZero<u256>;
 
 #[derive(Copy, Drop)]
+pub struct SchZipAccumulator {
+    g2: Groth16MillerG2,
+    coeff_i: u32,
+}
+
+#[derive(Copy, Drop)]
 pub struct Groth16PreCompute<TLines, TSchZip> {
     p: Groth16MillerG1,
     q: Groth16MillerG2,
@@ -97,16 +103,16 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
 // All updates are made via the SchZipProcess implementation
 pub impl Groth16MillerSteps<
     TLines, TSchZip, +StepLinesGet<TLines>, +SchZipProcess<TSchZip>
-> of MillerSteps<Groth16PreCompute<TLines, TSchZip>, Groth16MillerG2, Fq12> {
+> of MillerSteps<Groth16PreCompute<TLines, TSchZip>, SchZipAccumulator, Fq12> {
     #[inline(always)]
     fn sqr_target(
-        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
         self.schzip.sz_sqr(ref f, i, *self.field_nz);
     }
 
     fn miller_first_second(
-        self: @Groth16PreCompute<TLines, TSchZip>, i1: u32, i2: u32, ref acc: Groth16MillerG2
+        self: @Groth16PreCompute<TLines, TSchZip>, i1: u32, i2: u32, ref acc: SchZipAccumulator
     ) -> Fq12 { //
         let mut f = *self.residue_witness_inv;
         self.schzip.sz_init(ref f, *self.field_nz);
@@ -125,49 +131,49 @@ pub impl Groth16MillerSteps<
 
     // 0 bit
     fn miller_bit_o(
-        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
         let (pi_a_ppc, _, _) = self.ppc;
         let f_nz = *self.field_nz;
-        let l1 = step_double(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
-        let (l2, l3) = self.lines.with_fxd_pt_line(self.ppc, ref acc, i, f_nz);
+        let l1 = step_double(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
+        let (l2, l3) = self.lines.with_fxd_pt_line(self.ppc, ref acc.g2, i, f_nz);
         self.schzip.sz_zero_bit(ref f, i, (l1, l2, l3), f_nz);
     }
 
     // 1 bit
     fn miller_bit_p(
-        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
         let Groth16MillerG2 { pi_b, delta: _, gamma: _, line_count: _ } = self.q;
         let f_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
-        let l1 = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
-        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, f_nz);
+        let l1 = step_dbl_add(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
+        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, i, f_nz);
         self.schzip.sz_non_zero_bit(ref f, i, (l1, l2, l3), *self.residue_witness_inv, f_nz);
     }
 
     // -1 bit
     fn miller_bit_n(
-        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: Groth16MillerG2, ref f: Fq12
+        self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
         // use neg q
         let Groth16MillerG2 { pi_b, delta: _, gamma: _, line_count: _ } = self.neg_q;
         let f_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
-        let l1 = step_dbl_add(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
-        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, i, f_nz);
+        let l1 = step_dbl_add(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
+        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, i, f_nz);
         self.schzip.sz_non_zero_bit(ref f, i, (l1, l2, l3), *self.residue_witness, f_nz);
     }
 
     // last step
     fn miller_last(
-        self: @Groth16PreCompute<TLines, TSchZip>, ref acc: Groth16MillerG2, ref f: Fq12
+        self: @Groth16PreCompute<TLines, TSchZip>, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
         // let Groth16PreCompute { p, q, ppc: _, neg_q: _, lines: _, field_nz, } = self;
         let f_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
-        let l1 = correction_step(ref acc.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
-        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc, 'last', f_nz);
+        let l1 = correction_step(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
+        let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, 'last', f_nz);
         self.schzip.sz_last_step(ref f, 'last', (l1, l2, l3), f_nz);
     }
 }
@@ -216,7 +222,7 @@ fn verify_miller<
     };
 
     // q points accumulator
-    let mut acc = q;
+    let mut acc = SchZipAccumulator { g2: q, coeff_i: 0 };
     // run miller steps
     let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
 
