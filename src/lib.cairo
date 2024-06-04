@@ -47,6 +47,9 @@ mod fields {
     use fq_sparse::{
         FqSparse, FqSparseTrait, Fq12Sparse034, Fq12Sparse01234, Fq6Sparse01, sparse_fq6
     };
+    pub type FS034 = Fq12Sparse034;
+    pub type FS01234 = Fq12Sparse01234;
+    pub type FS01 = Fq6Sparse01;
     use fq_12_squaring::{Fq12Squaring, Krbn2345};
     use bn::traits::{FieldOps, FieldUtils};
 }
