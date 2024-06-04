@@ -65,9 +65,9 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
     }
     #[inline(always)]
     fn sz_zero_bit(self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
-        f = f.sqr();
         let (l1, l2, l3) = lines;
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
+        f = f.sqr();
         f = f.mul(l1_l2.mul_01234_034(l3, f_nz));
     // println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
     }
@@ -75,11 +75,11 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
     fn sz_nz_bit(
         self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
     ) {
-        f = f.sqr();
         let (l1, l2, l3) = lines;
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
+        f = f.sqr();
         f = f.mul_01234(l1, f_nz);
         f = f.mul_01234(l2, f_nz);
         f = f.mul_01234(l3, f_nz);
