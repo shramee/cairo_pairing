@@ -1,6 +1,6 @@
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::traits::TryInto;
-use bn::fields::{Fq, Fq2, Fq6, Fq12, fq12};
+use bn::fields::{Fq, Fq2, Fq6, Fq12, fq12, FS034, FS01234};
 use integer::u512;
 use debug::PrintTrait;
 use core::fmt::{Display, Formatter, Error};
@@ -22,11 +22,37 @@ impl Fq2Display of Display<Fq2> {
     }
 }
 
+impl F034Display of Display<FS034> {
+    fn fmt(self: @FS034, ref f: Formatter) -> Result<(), Error> {
+        write!(f, "f034({},{},{},{}\n),", self.c3.c0, self.c3.c1, self.c4.c0, self.c4.c1,)
+    }
+}
+
+impl F01234Display of Display<FS01234> {
+    fn fmt(self: @FS01234, ref f: Formatter) -> Result<(), Error> {
+        let FS01234 { c0, c1, } = *self;
+        write!(
+            f,
+            "f01234({},{},{},{},{},{},{},{},{},{}\n),",
+            c0.c0.c0,
+            c0.c0.c1,
+            c0.c1.c0,
+            c0.c1.c1,
+            c0.c2.c0,
+            c0.c2.c1,
+            c1.c0.c0,
+            c1.c0.c1,
+            c1.c1.c0,
+            c1.c1.c1,
+        )
+    }
+}
+
 impl Fq6Display of Display<Fq6> {
     fn fmt(self: @Fq6, ref f: Formatter) -> Result<(), Error> {
         write!(
             f,
-            "fq6({},{},{},{},{},{}\n),",
+            "fq6({},{},{},{},{},{}\n)",
             self.c0.c0,
             self.c0.c1,
             self.c1.c0,
