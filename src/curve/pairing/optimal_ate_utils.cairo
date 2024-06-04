@@ -149,7 +149,7 @@ mod line_fn {
     // #[inline(always)]
     fn step_add(ref acc: PtG2, q: PtG2, field_nz: NZNum) -> LineFn {
         let s = acc;
-        // λ = 3x²/2y
+        // λ = (yS−yQ)/(xS−xQ)
         let slope = s.chord(q);
         // p = (λ²-2x, λ(x-xr)-y)
         acc = s.pt_on_slope(slope, q.x);
