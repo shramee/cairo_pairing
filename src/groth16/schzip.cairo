@@ -52,19 +52,19 @@ pub trait SchZipProcess<T> {
 }
 
 #[derive(Drop)]
-pub struct SchZipInputPoly {}
+pub struct SchZipMock {}
 
-pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
+pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
     #[inline(always)]
-    fn sz_init(self: @SchZipInputPoly, ref f: Fq12, f_nz: NZ256) { //
+    fn sz_init(self: @SchZipMock, ref f: Fq12, f_nz: NZ256) { //
     }
     #[inline(always)]
-    fn sz_sqr(self: @SchZipInputPoly, ref f: Fq12, ref i: u32, f_nz: NZ256) { //
+    fn sz_sqr(self: @SchZipMock, ref f: Fq12, ref i: u32, f_nz: NZ256) { //
     // Handled in individual bit operation functions
     // f = f.sqr();
     }
     #[inline(always)]
-    fn sz_zero_bit(self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
+    fn sz_zero_bit(self: @SchZipMock, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
         f = f.sqr();
@@ -73,7 +73,7 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
     }
     #[inline(always)]
     fn sz_nz_bit(
-        self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
+        self: @SchZipMock, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
     ) {
         let (l1, l2, l3) = lines;
         let l1 = l1.as_01234(f_nz);
@@ -87,7 +87,7 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
     // println!("sz_nz_bit(\n{}\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3, witness);
     }
     #[inline(always)]
-    fn sz_last_step(self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256) {
+    fn sz_last_step(self: @SchZipMock, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
@@ -100,16 +100,16 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
 }
 
 #[derive(Drop)]
-pub struct SchZipArrayU256 {
+pub struct SchZipCommitments {
     coefficients: Array<u256>,
     i: u32,
 }
 
 #[generate_trait]
 impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
-    fn zero_bit(self: @SchZipArrayU256, ref f: Fq12, l1_l2: FS01234, l3: FS034, f_nz: NZ256) {}
+    fn zero_bit(self: @SchZipCommitments, ref f: Fq12, l1_l2: FS01234, l3: FS034, f_nz: NZ256) {}
     fn nz_bit(
-        self: @SchZipArrayU256,
+        self: @SchZipCommitments,
         ref f: Fq12,
         l1: FS01234,
         l2: FS01234,
@@ -118,22 +118,22 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         f_nz: NZ256
     ) {}
     fn last_step(
-        self: @SchZipArrayU256, ref f: Fq12, l1: FS01234, l2: FS01234, l3: FS01234, f_nz: NZ256
+        self: @SchZipCommitments, ref f: Fq12, l1: FS01234, l2: FS01234, l3: FS01234, f_nz: NZ256
     ) {}
 }
 
-pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipArrayU256> {
+pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipCommitments> {
     #[inline(always)]
-    fn sz_init(self: @SchZipArrayU256, ref f: Fq12, f_nz: NZ256) { //
+    fn sz_init(self: @SchZipCommitments, ref f: Fq12, f_nz: NZ256) { //
         assert(self.coefficients.len() == 3234, 'wrong number of coefficients');
     }
     #[inline(always)]
-    fn sz_sqr(self: @SchZipArrayU256, ref f: Fq12, ref i: u32, f_nz: NZ256) { //
+    fn sz_sqr(self: @SchZipCommitments, ref f: Fq12, ref i: u32, f_nz: NZ256) { //
     // Handled in individual bit operation functions
     // f = f.sqr();
     }
     #[inline(always)]
-    fn sz_zero_bit(self: @SchZipArrayU256, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
+    fn sz_zero_bit(self: @SchZipCommitments, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
         // Uses 42 coefficients
         f = f.sqr();
         let (l1, l2, l3) = lines;
@@ -142,7 +142,12 @@ pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipArrayU256> {
     }
     #[inline(always)]
     fn sz_nz_bit(
-        self: @SchZipArrayU256, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
+        self: @SchZipCommitments,
+        ref f: Fq12,
+        ref i: u32,
+        lines: LinesDbl,
+        witness: Fq12,
+        f_nz: NZ256
     ) {
         // Uses 64 coefficients
         let (l1, l2, l3) = lines;
@@ -152,7 +157,9 @@ pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipArrayU256> {
         self.nz_bit(ref f, l1, l2, l3, witness, f_nz);
     }
     #[inline(always)]
-    fn sz_last_step(self: @SchZipArrayU256, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256) {
+    fn sz_last_step(
+        self: @SchZipCommitments, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256
+    ) {
         // Uses 42 coefficients
         let (l1, l2, l3) = lines;
         let l1 = l1.as_01234(f_nz);
