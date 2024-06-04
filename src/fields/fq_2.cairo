@@ -3,7 +3,7 @@ use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 use bn::fast_mod::{u512_high_add};
 use bn::curve::{u512, U512BnAdd, U512BnSub, u512_reduce, u512_add, u512_sub};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-use bn::curve::{FIELD, get_field_nz};
+use bn::curve::{FIELD, get_field_nz, scale_9};
 use bn::fields::{Fq, fq,};
 use debug::PrintTrait;
 use bn::fields::print::u512Display;
@@ -44,14 +44,6 @@ impl Fq2Frobenius of Fq2FrobeniusTrait {
     fn frob1(self: Fq2) -> Fq2 {
         self.conjugate()
     }
-}
-
-#[inline(always)]
-fn scale_9(a: Fq) -> Fq {
-    // addchain for a to 9a
-    let a2 = a + a;
-    let a4 = a2 + a2;
-    a4 + a4 + a
 }
 
 impl Fq2Utils of FieldUtils<Fq2, Fq> {

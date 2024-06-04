@@ -35,6 +35,14 @@ use m::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub};
 use f::{SixU512};
 
 #[inline(always)]
+fn scale_9(a: f::Fq) -> f::Fq {
+    // addchain for a to 9a
+    let a2 = a + a;
+    let a4 = a2 + a2;
+    a4 + a4 + a
+}
+
+#[inline(always)]
 fn u512_high_add(lhs: u512, rhs: u256) -> u512 {
     m::u512_high_add(lhs, rhs).expect('u512_high_add overflow')
 }
