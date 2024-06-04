@@ -1,3 +1,12 @@
+// [PASS] bn::fields::fq_12_direct::direct_tower_tests::tower_to_direct_to_tower_test (gas: ~12)
+//         steps: 2422
+// [PASS] bn::fields::fq_12_direct::direct_tower_tests::tower_to_direct_test (gas: ~6)
+//         steps: 1246
+// [PASS] bn::fields::fq_12_direct::direct_tower_tests::direct_to_tower_test (gas: ~7)
+//         steps: 1307
+// [PASS] bn::fields::fq_12_direct::direct_tower_tests::direct_to_tower_to_direct_test (gas: ~12)
+//         steps: 2392
+
 use bn::curve::{scale_9, FIELD};
 use bn::fields::{
     FieldUtils, FieldOps, Fq2Short, fq, Fq, Fq2, ufq2_inv, Fq6, Fq12, fq12, Fq12Frobenius
