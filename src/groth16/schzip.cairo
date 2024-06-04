@@ -45,10 +45,10 @@ pub struct Groth16PreCompute<TLines, TSchZip> {
 // All changes to f: Fq12 are made via the SchZipProcess implementation
 pub trait SchZipProcess<T> {
     fn sz_init(self: @T, ref f: Fq12, f_nz: NZ256);
-    fn sz_sqr(self: @T, ref f: Fq12, i: u32, f_nz: NZ256);
-    fn sz_zero_bit(self: @T, ref f: Fq12, i: u32, lines: Lines, f_nz: NZ256);
-    fn sz_non_zero_bit(self: @T, ref f: Fq12, i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256);
-    fn sz_last_step(self: @T, ref f: Fq12, i: u32, lines: LinesDbl, f_nz: NZ256);
+    fn sz_sqr(self: @T, ref f: Fq12, ref i: u32, f_nz: NZ256);
+    fn sz_zero_bit(self: @T, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256);
+    fn sz_nz_bit(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256);
+    fn sz_last_step(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256);
 }
 
 #[derive(Drop)]
@@ -59,12 +59,12 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
     fn sz_init(self: @SchZipInputPoly, ref f: Fq12, f_nz: NZ256) { //
     }
     #[inline(always)]
-    fn sz_sqr(self: @SchZipInputPoly, ref f: Fq12, i: u32, f_nz: NZ256) { //
+    fn sz_sqr(self: @SchZipInputPoly, ref f: Fq12, ref i: u32, f_nz: NZ256) { //
     // Handled in individual bit operation functions
     // f = f.sqr();
     }
     #[inline(always)]
-    fn sz_zero_bit(self: @SchZipInputPoly, ref f: Fq12, i: u32, lines: Lines, f_nz: NZ256) {
+    fn sz_zero_bit(self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
         f = f.sqr();
         let (l1, l2, l3) = lines;
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
@@ -72,8 +72,8 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
     // println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
     }
     #[inline(always)]
-    fn sz_non_zero_bit(
-        self: @SchZipInputPoly, ref f: Fq12, i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
+    fn sz_nz_bit(
+        self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
     ) {
         f = f.sqr();
         let (l1, l2, l3) = lines;
@@ -84,10 +84,10 @@ pub impl SchZipInputPolyImpl of SchZipProcess<SchZipInputPoly> {
         f = f.mul_01234(l2, f_nz);
         f = f.mul_01234(l3, f_nz);
         f = f.mul(witness);
-    // println!("sz_non_zero_bit(\n{}\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3, witness);
+    // println!("sz_nz_bit(\n{}\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3, witness);
     }
     #[inline(always)]
-    fn sz_last_step(self: @SchZipInputPoly, ref f: Fq12, i: u32, lines: LinesDbl, f_nz: NZ256) {
+    fn sz_last_step(self: @SchZipInputPoly, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
@@ -108,7 +108,7 @@ pub impl Groth16MillerSteps<
     fn sqr_target(
         self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
-        self.schzip.sz_sqr(ref f, i, *self.field_nz);
+        self.schzip.sz_sqr(ref f, ref acc.coeff_i, *self.field_nz);
     }
 
     fn miller_first_second(
@@ -137,7 +137,7 @@ pub impl Groth16MillerSteps<
         let f_nz = *self.field_nz;
         let l1 = step_double(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_line(self.ppc, ref acc.g2, i, f_nz);
-        self.schzip.sz_zero_bit(ref f, i, (l1, l2, l3), f_nz);
+        self.schzip.sz_zero_bit(ref f, ref acc.coeff_i, (l1, l2, l3), f_nz);
     }
 
     // 1 bit
@@ -149,7 +149,9 @@ pub impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = step_dbl_add(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, i, f_nz);
-        self.schzip.sz_non_zero_bit(ref f, i, (l1, l2, l3), *self.residue_witness_inv, f_nz);
+        self
+            .schzip
+            .sz_nz_bit(ref f, ref acc.coeff_i, (l1, l2, l3), *self.residue_witness_inv, f_nz);
     }
 
     // -1 bit
@@ -162,7 +164,7 @@ pub impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = step_dbl_add(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, i, f_nz);
-        self.schzip.sz_non_zero_bit(ref f, i, (l1, l2, l3), *self.residue_witness, f_nz);
+        self.schzip.sz_nz_bit(ref f, ref acc.coeff_i, (l1, l2, l3), *self.residue_witness, f_nz);
     }
 
     // last step
@@ -174,7 +176,7 @@ pub impl Groth16MillerSteps<
         let (pi_a_ppc, _, _) = self.ppc;
         let l1 = correction_step(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, 'last', f_nz);
-        self.schzip.sz_last_step(ref f, 'last', (l1, l2, l3), f_nz);
+        self.schzip.sz_last_step(ref f, ref acc.coeff_i, (l1, l2, l3), f_nz);
     }
 }
 
