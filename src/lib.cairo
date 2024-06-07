@@ -19,6 +19,7 @@ mod fields {
     mod fq_2;
     mod fq_6;
     mod fq_12;
+    mod fq_12_direct;
     mod fq_12_squaring;
     mod fq_12_exponentiation;
     mod frobenius;
@@ -51,7 +52,7 @@ mod fields {
     pub type FS01234 = Fq12Sparse01234;
     pub type FS01 = Fq6Sparse01;
     use fq_12_squaring::{Fq12Squaring, Krbn2345};
-    use bn::traits::{FieldOps, FieldUtils};
+    use bn::traits::{FieldUtils, FieldOps, FieldShortcuts, FieldMulShortcuts};
 }
 
 mod groth16 {
