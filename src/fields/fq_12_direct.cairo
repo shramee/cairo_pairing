@@ -9,9 +9,8 @@
 
 use bn::curve::{scale_9, FIELD};
 use bn::fields::{
-    FieldUtils, FieldOps, Fq2Short, fq, Fq, Fq2, ufq2_inv, Fq6, Fq12, fq12, Fq12Frobenius
+    FieldUtils, FieldOps, FieldShortcuts, fq, Fq, Fq2, Fq6, Fq12, fq12, FS01234, FS034, FS01
 };
-use bn::fields::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::print::{FqDisplay, Fq12Display};
 
 #[inline(always)]
@@ -79,6 +78,51 @@ fn tower_to_direct(x: Fq12) -> Fq12 {
         a9,
         a5,
         a11,
+    )
+}
+
+fn tower01234_to_direct(x: FS01234) -> Fq12 {
+    let FS01234 { c0, c1 } = x;
+    let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
+    let FS01 { c0: b3, c1: b4 } = c1; // This should be c1 instead of c0
+    let Fq2 { c0: a0, c1: a1 } = b0;
+    let Fq2 { c0: a2, c1: a3 } = b1;
+    let Fq2 { c0: a4, c1: a5 } = b2;
+    let Fq2 { c0: a6, c1: a7 } = b3;
+    let Fq2 { c0: a8, c1: a9 } = b4;
+
+    fq12_from_fq(
+        a0 - scale_9(a1),
+        a6 - scale_9(a7),
+        a2 - scale_9(a3),
+        a8 - scale_9(a9),
+        a4 - scale_9(a5),
+        fq(0),
+        a1,
+        a7,
+        a3,
+        a9,
+        a5,
+        fq(0),
+    )
+}
+
+fn tower034_to_direct(x: FS034) -> Fq12 {
+    let FS034 { c3: Fq2 { c0: a6, c1: a7 }, c4: Fq2 { c0: a8, c1: a9 } } = x;
+
+    fq12_from_fq(
+        fq(1),
+        a6 - scale_9(a7),
+        fq(0),
+        a8 - scale_9(a9),
+        fq(0),
+        fq(0),
+        fq(0),
+        a7,
+        fq(0),
+        a9,
+        fq(0),
+        fq(0),
     )
 }
 
