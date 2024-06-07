@@ -1,5 +1,6 @@
 use bn::groth16::utils_line::LineResult01234Trait;
 use bn::fields::fq_12::Fq12FrobeniusTrait;
+use bn::fields::fq_12_direct::{tower_to_direct, direct_to_tower};
 use bn::traits::FieldUtils;
 use bn::fields::{FS034, FS01234, fq_sparse::FqSparseTrait};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
@@ -56,21 +57,26 @@ pub struct SchZipMock {}
 
 pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
     #[inline(always)]
-    fn sz_init(self: @SchZipMock, ref f: Fq12, f_nz: NZ256) { //
+    fn sz_init(self: @SchZipMock, ref f: Fq12, f_nz: NZ256) {
+        println!(
+            "from schzip_runner import fq12, f01234, f034, sz_zero_bit, sz_nz_bit, sz_last_step"
+        );
     }
+
     #[inline(always)]
-    fn sz_sqr(self: @SchZipMock, ref f: Fq12, ref i: u32, f_nz: NZ256) { //
     // Handled in individual bit operation functions
-    // f = f.sqr();
-    }
+    fn sz_sqr(self: @SchZipMock, ref f: Fq12, ref i: u32, f_nz: NZ256) {}
+
     #[inline(always)]
     fn sz_zero_bit(self: @SchZipMock, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
+        println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
         f = f.sqr();
         f = f.mul(l1_l2.mul_01234_034(l3, f_nz));
-    // println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
+        println!("sz_zero_bit: {}", tower_to_direct(f));
     }
+
     #[inline(always)]
     fn sz_nz_bit(
         self: @SchZipMock, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256
@@ -95,7 +101,6 @@ pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
         f = f.mul_01234(l1, f_nz);
         f = f.mul_01234(l2, f_nz);
         f = f.mul_01234(l3, f_nz);
-    // println!("sz_last_step(\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3);
     }
 }
 
