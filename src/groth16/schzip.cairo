@@ -2,7 +2,7 @@ use bn::groth16::utils_line::LineResult01234Trait;
 use bn::fields::fq_12::Fq12FrobeniusTrait;
 use bn::fields::fq_12_direct::{tower_to_direct, direct_to_tower};
 use bn::traits::FieldUtils;
-use bn::fields::{FS034, FS01234, fq_sparse::FqSparseTrait};
+use bn::fields::{FS034, FS01234, FS01, fq_sparse::FqSparseTrait};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
 use bn::curve::groups::ECOperations;
@@ -53,14 +53,18 @@ pub trait SchZipProcess<T> {
 }
 
 #[derive(Drop)]
-pub struct SchZipMock {}
+pub struct SchZipMock {
+    print: bool,
+}
 
 pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
     #[inline(always)]
     fn sz_init(self: @SchZipMock, ref f: Fq12, f_nz: NZ256) {
-        println!(
-            "from schzip_runner import fq12, f01234, f034, sz_zero_bit, sz_nz_bit, sz_last_step"
-        );
+        if *self.print {
+            println!(
+                "from schzip_runner import fq12, f01234, f034, sz_zero_bit, sz_nz_bit, sz_last_step"
+            );
+        }
     }
 
     #[inline(always)]
@@ -71,10 +75,11 @@ pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
     fn sz_zero_bit(self: @SchZipMock, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
-        println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
+        if *self.print {
+            println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
+        }
         f = f.sqr();
         f = f.mul(l1_l2.mul_01234_034(l3, f_nz));
-        println!("sz_zero_bit: {}", tower_to_direct(f));
     }
 
     #[inline(always)]
@@ -85,19 +90,25 @@ pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
+        if *self.print {
+            println!("sz_nz_bit(\n{}\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3, witness);
+        }
         f = f.sqr();
         f = f.mul_01234(l1, f_nz);
         f = f.mul_01234(l2, f_nz);
         f = f.mul_01234(l3, f_nz);
         f = f.mul(witness);
-    // println!("sz_nz_bit(\n{}\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3, witness);
     }
+
     #[inline(always)]
     fn sz_last_step(self: @SchZipMock, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256) {
         let (l1, l2, l3) = lines;
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
+        if *self.print {
+            println!("sz_last_step(\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3);
+        }
         f = f.mul_01234(l1, f_nz);
         f = f.mul_01234(l2, f_nz);
         f = f.mul_01234(l3, f_nz);
@@ -145,6 +156,7 @@ pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipCommitments> {
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
         self.zero_bit(ref f, l1_l2, l3, f_nz);
     }
+
     #[inline(always)]
     fn sz_nz_bit(
         self: @SchZipCommitments,
@@ -159,8 +171,10 @@ pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipCommitments> {
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
-        self.nz_bit(ref f, l1, l2, l3, witness, f_nz);
+        self.nz_bit(ref f, i, l1, l2, l3, witness, f_nz);
+        i += 64;
     }
+
     #[inline(always)]
     fn sz_last_step(
         self: @SchZipCommitments, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256
@@ -170,7 +184,10 @@ pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipCommitments> {
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
-        self.last_step(ref f, l1, l2, l3, f_nz);
+        self.last_step(ref f, i, l1, l2, l3, f_nz);
+        i += 42;
+    // Convert Fq12 direct polynomial representation back to tower
+    // f = direct_to_tower(f);
     }
 }
 
@@ -201,6 +218,7 @@ pub impl Groth16MillerSteps<
 
         // step -1, the next negative one step
         self.miller_bit_n(i2, ref acc, ref f);
+
         f
     }
 
@@ -208,6 +226,7 @@ pub impl Groth16MillerSteps<
     fn miller_bit_o(
         self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
+        core::internal::revoke_ap_tracking();
         let (pi_a_ppc, _, _) = self.ppc;
         let f_nz = *self.field_nz;
         let l1 = step_double(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
@@ -219,6 +238,7 @@ pub impl Groth16MillerSteps<
     fn miller_bit_p(
         self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
+        core::internal::revoke_ap_tracking();
         let Groth16MillerG2 { pi_b, delta: _, gamma: _, line_count: _ } = self.q;
         let f_nz = *self.field_nz;
         let (pi_a_ppc, _, _) = self.ppc;
@@ -233,6 +253,7 @@ pub impl Groth16MillerSteps<
     fn miller_bit_n(
         self: @Groth16PreCompute<TLines, TSchZip>, i: u32, ref acc: SchZipAccumulator, ref f: Fq12
     ) {
+        core::internal::revoke_ap_tracking();
         // use neg q
         let Groth16MillerG2 { pi_b, delta: _, gamma: _, line_count: _ } = self.neg_q;
         let f_nz = *self.field_nz;
@@ -252,6 +273,8 @@ pub impl Groth16MillerSteps<
         let l1 = correction_step(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, 'last', f_nz);
         self.schzip.sz_last_step(ref f, ref acc.coeff_i, (l1, l2, l3), f_nz);
+    // println!("last step: {}", f);
+    // println!("last step t2d: {}", tower_to_direct(f));
     }
 }
 
@@ -300,7 +323,8 @@ fn verify_miller<
 
     // q points accumulator
     let mut acc = SchZipAccumulator { g2: q, coeff_i: 0 };
-    // run miller steps
+
+    // let miller_loop_result = precomp.miller_first_second(64, 65, ref acc);
     let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
 
     // multiply precomputed alphabeta_miller with the pairings
@@ -339,9 +363,6 @@ pub fn schzip_verify<
         * residue_witness_inv.frob1()
         * residue_witness.frob2()
         * residue_witness_inv.frob3();
-
-    // final exponentiation
-    // let result = miller_loop_result.final_exponentiation();
 
     // return result == 1
     result == one
