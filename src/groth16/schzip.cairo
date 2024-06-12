@@ -34,8 +34,34 @@ const COEFFICIENTS_COUNT: usize = 3234;
 pub struct SchZipCommitments {
     coefficients: Array<u256>,
     i: u32,
+    fiat_shamir: u256,
 }
 
+// ## Schwartz Zippel lemma for FQ12 operation commitment verification
+// Taking an FQ12 as a polynomial of degree 11, product of polynomials can be used to verify the
+// committed coefficients with Schwartz Zippel lemma.
+// From https://hackmd.io/@feltroidprime/B1eyHHXNT,
+// For A and B element of Fq12 represented as direct extensions,
+// ```A(x) * B(x) = R(x) + Q(x) * P12(x)```
+// where `R(x)` is a polynomial of degree 11 or less.
+// ### Expanding this to include the whole bit operation inside the miller loop,
+// 1. For non-zero `P`/`N` bits,
+//   * Commitment contains 42 coefficients
+//   * F ∈ Fq12, miller loop aggregation
+//   * L1, L2, L3 ∈ Sparse01234, Loop step lines
+//   * Witness ∈ Fq12, Residue witness (or it's inverse based on the bit value)
+//   * ```F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x) = R(x) + Q(x) * P12(x)```
+// 2. For zero `O` bits,
+//   * Commitment contains 64 coefficients
+//   * F ∈ Fq12, miller loop aggregation
+//   * L1_L2 ∈ Sparse01234, Loop step lines L1 and L2 multiplied for lower degree
+//   * L3 ∈ Sparse034, // Last L3 line
+//   * ```F(x) * F(x) * L1_L2(x) * L3(x) = R(x) + Q(x) * P12(x)```
+// 3. Final step,
+//   * Commitment contains 42 coefficients
+//   * F ∈ Fq12, miller loop aggregation
+//   * L1, L2, L3 ∈ Sparse01234, Correction step lines
+//   * ```F(x) * L1(x) * L2(x) * L3(x) = R(x) + Q(x) * P12(x)```
 #[generate_trait]
 impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
     fn zero_bit(
