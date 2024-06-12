@@ -59,6 +59,7 @@ mod groth16 {
     mod utils;
     mod utils_line;
     mod verifier;
+    mod schzip_base;
     mod schzip;
     mod setup;
     mod fixture;
