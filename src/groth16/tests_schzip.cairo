@@ -37,6 +37,7 @@ fn verify_print() {
 
     assert(verified, 'verification failed');
 }
+
 #[test]
 #[available_gas(20000000000)]
 fn verify_with_commitment() {
@@ -60,6 +61,6 @@ fn verify_with_commitment() {
         SchZipCommitments { coefficients: fixture::schzip(), i: 0 }
     );
 
-    assert(true, 'verification failed');
+    assert(_verified, 'verification failed');
 }
 
