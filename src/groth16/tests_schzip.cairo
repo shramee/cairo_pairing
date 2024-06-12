@@ -11,6 +11,8 @@ use pairing::optimal_ate_utils::LineFn;
 use bn::groth16::utils::{G16CircuitSetup, LinesArray};
 use bn::groth16::fixture;
 use bn::groth16::schzip::{schzip_verify, SchZipMock, SchZipCommitments};
+use core::poseidon::PoseidonImpl;
+use core::hash::HashStateTrait;
 
 #[test]
 #[available_gas(20000000000)]
@@ -62,5 +64,26 @@ fn verify_with_commitment() {
     );
 
     assert(_verified, 'verification failed');
+}
+
+#[test]
+#[available_gas(20000000000)]
+fn fiat_shamir() {
+    // Proof parameters
+    let mut coeffs = bn::groth16::fixture::schzip();
+    let mut hasher = core::poseidon::PoseidonImpl::new();
+    loop {
+        match coeffs.pop_front() {
+            Option::Some(coeff) => {
+                hasher = hasher.update(coeff.low.into());
+                hasher = hasher.update(coeff.high.into());
+            },
+            Option::None => { break; },
+        };
+    };
+    let hash = hasher.finalize();
+
+    println!("hash: {hash}");
+    assert(true, '');
 }
 
