@@ -27,6 +27,8 @@ type Lines = (FS034, FS034, FS034);
 type LinesDbl = (F034X2, F034X2, F034X2);
 type NZ256 = NonZero<u256>;
 
+const COEFFICIENTS_COUNT: usize = 3234;
+
 #[derive(Drop)]
 pub struct SchZipCommitments {
     coefficients: Array<u256>,
@@ -118,7 +120,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
     #[inline(always)]
     fn sz_init(self: @SchZipCommitments, ref f: Fq12, f_nz: NZ256) { //
         // Convert Fq12 tower to direct polynomial representation
-        assert(self.coefficients.len() == 3234, 'wrong number of coefficients');
+        assert(self.coefficients.len() == COEFFICIENTS_COUNT, 'wrong number of coefficients');
         f = tower_to_direct(f);
     }
 
@@ -168,4 +170,21 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
     // Convert Fq12 direct polynomial representation back to tower
     // f = direct_to_tower(f);
     }
+}
+
+pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
+    pi_a: AffineG1,
+    pi_b: AffineG2,
+    pi_c: AffineG1,
+    inputs: Array<u256>,
+    residue_witness: Fq12,
+    residue_witness_inv: Fq12,
+    cubic_scale: Fq6,
+    setup: G16CircuitSetup<TLines>,
+    coefficients: Array<u256>,
+) -> bool {
+    let schzip = SchZipCommitments { coefficients, i: 0 };
+    schzip_verify(
+        pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, cubic_scale, setup, schzip
+    )
 }

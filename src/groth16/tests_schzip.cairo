@@ -10,7 +10,9 @@ use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use pairing::optimal_ate_utils::LineFn;
 use bn::groth16::utils::{G16CircuitSetup, LinesArray};
 use bn::groth16::fixture;
-use bn::groth16::schzip::{schzip_verify, SchZipMock, SchZipCommitments};
+use bn::groth16::schzip::{
+    schzip_verify, schzip_verify_with_commitments, SchZipMock, SchZipCommitments
+};
 use core::poseidon::PoseidonImpl;
 use core::hash::HashStateTrait;
 
@@ -51,7 +53,7 @@ fn verify_with_commitment() {
     let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
     let (_, residue_witness, residue_witness_inv, cubic_scl) = fixture::residue_witness();
 
-    let _verified = schzip_verify(
+    let _verified = schzip_verify_with_commitments(
         pi_a,
         pi_b,
         pi_c,
@@ -60,7 +62,7 @@ fn verify_with_commitment() {
         residue_witness_inv,
         cubic_scl,
         circuit_setup,
-        SchZipCommitments { coefficients: fixture::schzip(), i: 0 }
+        fixture::schzip()
     );
 
     assert(_verified, 'verification failed');
