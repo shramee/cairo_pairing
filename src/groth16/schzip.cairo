@@ -43,8 +43,8 @@ pub struct Groth16PreCompute<TLines, TSchZip> {
     field_nz: NZ256,
 }
 
-// All changes to f: Fq12 are made via the SchZipProcess implementation
-pub trait SchZipProcess<T> {
+// All changes to f: Fq12 are made via the SchZipSteps implementation
+pub trait SchZipSteps<T> {
     fn sz_init(self: @T, ref f: Fq12, f_nz: NZ256);
     fn sz_sqr(self: @T, ref f: Fq12, ref i: u32, f_nz: NZ256);
     fn sz_zero_bit(self: @T, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256);
@@ -57,7 +57,7 @@ pub struct SchZipMock {
     print: bool,
 }
 
-pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
+pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
     #[inline(always)]
     fn sz_init(self: @SchZipMock, ref f: Fq12, f_nz: NZ256) {
         if *self.print {
@@ -106,6 +106,7 @@ pub impl SchZipMockImpl of SchZipProcess<SchZipMock> {
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
+
         if *self.print {
             println!("sz_last_step(\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3);
         }
@@ -123,38 +124,104 @@ pub struct SchZipCommitments {
 
 #[generate_trait]
 impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
-    fn zero_bit(self: @SchZipCommitments, ref f: Fq12, l1_l2: FS01234, l3: FS034, f_nz: NZ256) {}
+    fn zero_bit(
+        self: @SchZipCommitments, ref f: Fq12, i: u32, l1_l2: FS01234, l3: FS034, f_nz: NZ256
+    ) {
+        let c = self.coefficients;
+        // let FS01234 { c0: Fq6 { c0: a0, c1: a1, c2: a2 }, c1: FS01 { c0: a3, c1: a4 } } = l1_l2;
+        // let FS034 { c3: b3, c4: b4 } = l3;
+
+        f =
+            fq12(
+                *c[i],
+                *c[i + 1],
+                *c[i + 2],
+                *c[i + 3],
+                *c[i + 4],
+                *c[i + 5],
+                *c[i + 6],
+                *c[i + 7],
+                *c[i + 8],
+                *c[i + 9],
+                *c[i + 10],
+                *c[i + 11],
+            );
+    }
     fn nz_bit(
         self: @SchZipCommitments,
         ref f: Fq12,
+        i: u32,
         l1: FS01234,
         l2: FS01234,
         l3: FS01234,
         witness: Fq12,
         f_nz: NZ256
-    ) {}
+    ) {
+        let c = self.coefficients;
+        f =
+            fq12(
+                *c[i],
+                *c[i + 1],
+                *c[i + 2],
+                *c[i + 3],
+                *c[i + 4],
+                *c[i + 5],
+                *c[i + 6],
+                *c[i + 7],
+                *c[i + 8],
+                *c[i + 9],
+                *c[i + 10],
+                *c[i + 11],
+            );
+    }
     fn last_step(
-        self: @SchZipCommitments, ref f: Fq12, l1: FS01234, l2: FS01234, l3: FS01234, f_nz: NZ256
-    ) {}
+        self: @SchZipCommitments,
+        ref f: Fq12,
+        i: u32,
+        l1: FS01234,
+        l2: FS01234,
+        l3: FS01234,
+        f_nz: NZ256
+    ) {
+        let c = self.coefficients;
+        f =
+            fq12(
+                *c[i],
+                *c[i + 1],
+                *c[i + 2],
+                *c[i + 3],
+                *c[i + 4],
+                *c[i + 5],
+                *c[i + 6],
+                *c[i + 7],
+                *c[i + 8],
+                *c[i + 9],
+                *c[i + 10],
+                *c[i + 11],
+            );
+        f = direct_to_tower(f);
+    }
 }
 
-pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipCommitments> {
+pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
     #[inline(always)]
     fn sz_init(self: @SchZipCommitments, ref f: Fq12, f_nz: NZ256) { //
+        // Convert Fq12 tower to direct polynomial representation
         assert(self.coefficients.len() == 3234, 'wrong number of coefficients');
+        f = tower_to_direct(f);
     }
+
     #[inline(always)]
-    fn sz_sqr(self: @SchZipCommitments, ref f: Fq12, ref i: u32, f_nz: NZ256) { //
     // Handled in individual bit operation functions
-    // f = f.sqr();
-    }
+    fn sz_sqr(self: @SchZipCommitments, ref f: Fq12, ref i: u32, f_nz: NZ256) {}
+
     #[inline(always)]
     fn sz_zero_bit(self: @SchZipCommitments, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256) {
         // Uses 42 coefficients
-        f = f.sqr();
         let (l1, l2, l3) = lines;
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
-        self.zero_bit(ref f, l1_l2, l3, f_nz);
+        self.zero_bit(ref f, i, l1_l2, l3, f_nz);
+        i += 42;
     }
 
     #[inline(always)]
@@ -184,6 +251,7 @@ pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipCommitments> {
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
+
         self.last_step(ref f, i, l1, l2, l3, f_nz);
         i += 42;
     // Convert Fq12 direct polynomial representation back to tower
@@ -192,9 +260,9 @@ pub impl SchZipPolyCommitImpl of SchZipProcess<SchZipCommitments> {
 }
 
 // This loop doesn't make any updates to f: Fq12
-// All updates are made via the SchZipProcess implementation
+// All updates are made via the SchZipSteps implementation
 pub impl Groth16MillerSteps<
-    TLines, TSchZip, +StepLinesGet<TLines>, +SchZipProcess<TSchZip>
+    TLines, TSchZip, +StepLinesGet<TLines>, +SchZipSteps<TSchZip>
 > of MillerSteps<Groth16PreCompute<TLines, TSchZip>, SchZipAccumulator, Fq12> {
     #[inline(always)]
     fn sqr_target(
@@ -232,6 +300,8 @@ pub impl Groth16MillerSteps<
         let l1 = step_double(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_line(self.ppc, ref acc.g2, i, f_nz);
         self.schzip.sz_zero_bit(ref f, ref acc.coeff_i, (l1, l2, l3), f_nz);
+    // println!("o_bit {i}: {}", f);
+    // println!("o_bit direct {i}: {}", tower_to_direct(f));
     }
 
     // 1 bit
@@ -261,6 +331,8 @@ pub impl Groth16MillerSteps<
         let l1 = step_dbl_add(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, i, f_nz);
         self.schzip.sz_nz_bit(ref f, ref acc.coeff_i, (l1, l2, l3), *self.residue_witness, f_nz);
+    // println!("n_bit {i}: {}", f);
+    // println!("n_bit direct {i}: {}", tower_to_direct(f));
     }
 
     // last step
@@ -273,14 +345,12 @@ pub impl Groth16MillerSteps<
         let l1 = correction_step(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, 'last', f_nz);
         self.schzip.sz_last_step(ref f, ref acc.coeff_i, (l1, l2, l3), f_nz);
-    // println!("last step: {}", f);
-    // println!("last step t2d: {}", tower_to_direct(f));
     }
 }
 
 // Does the verification
 fn verify_miller<
-    TLines, TSchZip, +SchZipProcess<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
+    TLines, TSchZip, +SchZipSteps<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
 >(
     pi_a: AffineG1,
     pi_b: AffineG2,
@@ -333,7 +403,7 @@ fn verify_miller<
 
 // Does the verification
 pub fn schzip_verify<
-    TLines, TSchZip, +SchZipProcess<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
+    TLines, TSchZip, +SchZipSteps<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
 >(
     pi_a: AffineG1,
     pi_b: AffineG2,

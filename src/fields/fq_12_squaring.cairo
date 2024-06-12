@@ -1,6 +1,4 @@
 use bn::curve::U512Fq2OpsTrait;
-use core::starknet::secp256_trait::Secp256PointTrait;
-use core::traits::TryInto;
 use bn::traits::FieldShortcuts;
 use bn::traits::FieldMulShortcuts;
 use core::array::ArrayTrait;
