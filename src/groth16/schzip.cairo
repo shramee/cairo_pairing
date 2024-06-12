@@ -37,10 +37,11 @@ pub struct SchZipCommitments {
     fiat_shamir: u256,
 }
 
-// ## Schwartz Zippel lemma for FQ12 operation commitment verification
+// Schwartz Zippel lemma for FQ12 operation commitment verification
+// ----------------------------------------------------------------
 // Taking an FQ12 as a polynomial of degree 11, product of polynomials can be used to verify the
 // committed coefficients with Schwartz Zippel lemma.
-// From https://hackmd.io/@feltroidprime/B1eyHHXNT,
+// As described in https://hackmd.io/@feltroidprime/B1eyHHXNT,
 // For A and B element of Fq12 represented as direct extensions,
 // ```A(x) * B(x) = R(x) + Q(x) * P12(x)```
 // where `R(x)` is a polynomial of degree 11 or less.
@@ -51,15 +52,12 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
     // * Commitment contains 64 coefficients
     // * F ∈ Fq12, miller loop aggregation
     // * L1_L2 ∈ Sparse01234, Loop step lines L1 and L2 multiplied for lower degree
-    // * L3 ∈ Sparse034, // Last L3 line
+    // * L3 ∈ Sparse034, Last L3 line
     // * ```F(x) * F(x) * L1_L2(x) * L3(x) = R(x) + Q(x) * P12(x)```
     fn zero_bit(
         self: @SchZipCommitments, ref f: Fq12, i: u32, l1_l2: FS01234, l3: FS034, f_nz: NZ256
     ) {
         let c = self.coefficients;
-        // let FS01234 { c0: Fq6 { c0: a0, c1: a1, c2: a2 }, c1: FS01 { c0: a3, c1: a4 } } = l1_l2;
-        // let FS034 { c3: b3, c4: b4 } = l3;
-
         f =
             fq12(
                 *c[i],
