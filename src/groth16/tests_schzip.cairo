@@ -85,7 +85,7 @@ fn fiat_shamir() {
     };
     let hash = hasher.finalize();
 
-    println!("hash: {hash}");
+    // println!("hash: {hash}");
     assert(true, '');
 }
 

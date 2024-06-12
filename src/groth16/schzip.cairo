@@ -11,6 +11,7 @@ use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display, F034Display, F012
 use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
+use core::hash::HashStateTrait;
 use pairing::optimal_ate::{ate_miller_loop_steps};
 use pairing::optimal_ate_utils::{p_precompute, line_fn_at_p, LineFn};
 use pairing::optimal_ate_utils::{step_double, step_dbl_add, correction_step};
@@ -183,7 +184,19 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
     setup: G16CircuitSetup<TLines>,
     coefficients: Array<u256>,
 ) -> bool {
-    let schzip = SchZipCommitments { coefficients, i: 0 };
+    let mut coeff_i = 0;
+    let mut hasher = core::poseidon::PoseidonImpl::new();
+    let coeffs = @coefficients;
+    let coeffs_count = coeffs.len();
+    while coeff_i != coeffs_count {
+        let c = *(coeffs[coeff_i]);
+        hasher = hasher.update(c.low.into());
+        hasher = hasher.update(c.high.into());
+        coeff_i += 1;
+    };
+    let fiat_shamir: u256 = hasher.finalize().into();
+
+    let schzip = SchZipCommitments { coefficients, i: 0, fiat_shamir };
     schzip_verify(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, cubic_scale, setup, schzip
     )
