@@ -5,7 +5,7 @@ use bn::traits::FieldUtils;
 use bn::fields::{FS034, FS01234, FS01, fq_sparse::FqSparseTrait};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
-use bn::curve::groups::ECOperations;
+use bn::curve::{m::{sqr_nz, mul_nz}, groups::ECOperations};
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display, F034Display, F01234Display}};
 use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
@@ -20,7 +20,7 @@ use bn::groth16::utils::{ICProcess, G16CircuitSetup, Groth16PrecomputedStep};
 use bn::groth16::utils::{StepLinesGet, StepLinesTrait, fq12_034_034_034};
 use bn::groth16::utils::{Groth16MillerG1, Groth16MillerG2, PPrecomputeX3, LineResult,};
 use bn::groth16::schzip_base::{SchZipAccumulator, Groth16PreCompute, SchZipSteps};
-use bn::groth16::schzip_base::{Groth16MillerSteps, verify_miller, schzip_verify};
+use bn::groth16::schzip_base::{Groth16MillerSteps, schzip_miller, schzip_verify};
 use bn::groth16::schzip_base::{SchZipMock, SchZipMockSteps};
 
 type F034X2 = (FS034, FS034);
@@ -33,8 +33,7 @@ const COEFFICIENTS_COUNT: usize = 3234;
 #[derive(Drop)]
 pub struct SchZipCommitments {
     coefficients: Array<u256>,
-    i: u32,
-    fiat_shamir: u256,
+    fiat_shamir_powers: Array<u256>,
 }
 
 // Schwartz Zippel lemma for FQ12 operation commitment verification
@@ -199,6 +198,113 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
     }
 }
 
+// Calculate 51 powers of x modulo field
+pub fn powers_51(x: u256, field_nz: NZ256) -> Array<u256> {
+    let x2 = sqr_nz(x, field_nz);
+    let x3 = mul_nz(x2, x, field_nz);
+    let x4 = sqr_nz(x2, field_nz);
+    let x5 = mul_nz(x4, x, field_nz);
+    let x6 = sqr_nz(x3, field_nz);
+    let x7 = mul_nz(x6, x, field_nz);
+    let x8 = sqr_nz(x4, field_nz);
+    let x9 = mul_nz(x8, x, field_nz);
+    let x10 = sqr_nz(x5, field_nz);
+    let x11 = mul_nz(x10, x, field_nz);
+    let x12 = sqr_nz(x6, field_nz);
+    let x13 = mul_nz(x12, x, field_nz);
+    let x14 = sqr_nz(x7, field_nz);
+    let x15 = mul_nz(x14, x, field_nz);
+    let x16 = sqr_nz(x8, field_nz);
+    let x17 = mul_nz(x16, x, field_nz);
+    let x18 = sqr_nz(x9, field_nz);
+    let x19 = mul_nz(x18, x, field_nz);
+    let x20 = sqr_nz(x10, field_nz);
+    let x21 = mul_nz(x20, x, field_nz);
+    let x22 = sqr_nz(x11, field_nz);
+    let x23 = mul_nz(x22, x, field_nz);
+    let x24 = sqr_nz(x12, field_nz);
+    let x25 = mul_nz(x24, x, field_nz);
+    let x26 = sqr_nz(x13, field_nz);
+    let x27 = mul_nz(x26, x, field_nz);
+    let x28 = sqr_nz(x14, field_nz);
+    let x29 = mul_nz(x28, x, field_nz);
+    let x30 = sqr_nz(x15, field_nz);
+    let x31 = mul_nz(x30, x, field_nz);
+    let x32 = sqr_nz(x16, field_nz);
+    let x33 = mul_nz(x32, x, field_nz);
+    let x34 = sqr_nz(x17, field_nz);
+    let x35 = mul_nz(x34, x, field_nz);
+    let x36 = sqr_nz(x18, field_nz);
+    let x37 = mul_nz(x36, x, field_nz);
+    let x38 = sqr_nz(x19, field_nz);
+    let x39 = mul_nz(x38, x, field_nz);
+    let x40 = sqr_nz(x20, field_nz);
+    let x41 = mul_nz(x40, x, field_nz);
+    let x42 = sqr_nz(x21, field_nz);
+    let x43 = mul_nz(x42, x, field_nz);
+    let x44 = sqr_nz(x22, field_nz);
+    let x45 = mul_nz(x44, x, field_nz);
+    let x46 = sqr_nz(x23, field_nz);
+    let x47 = mul_nz(x46, x, field_nz);
+    let x48 = sqr_nz(x24, field_nz);
+    let x49 = mul_nz(x48, x, field_nz);
+    let x50 = sqr_nz(x25, field_nz);
+    let x51 = mul_nz(x50, x, field_nz);
+    array![
+        x,
+        x2,
+        x3,
+        x4,
+        x5,
+        x6,
+        x7,
+        x8,
+        x9,
+        x10,
+        x11,
+        x12,
+        x13,
+        x14,
+        x15,
+        x16,
+        x17,
+        x18,
+        x19,
+        x20,
+        x21,
+        x22,
+        x23,
+        x24,
+        x25,
+        x26,
+        x27,
+        x28,
+        x29,
+        x30,
+        x31,
+        x32,
+        x33,
+        x34,
+        x35,
+        x36,
+        x37,
+        x38,
+        x39,
+        x40,
+        x41,
+        x42,
+        x43,
+        x44,
+        x45,
+        x46,
+        x47,
+        x48,
+        x49,
+        x50,
+        x51,
+    ]
+}
+
 pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLines>>(
     pi_a: AffineG1,
     pi_b: AffineG2,
@@ -222,7 +328,9 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
     };
     let fiat_shamir: u256 = hasher.finalize().into();
 
-    let schzip = SchZipCommitments { coefficients, i: 0, fiat_shamir };
+    let mut fiat_shamir_powers = powers_51(fiat_shamir, get_field_nz());
+
+    let schzip = SchZipCommitments { coefficients, fiat_shamir_powers };
     schzip_verify(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, cubic_scale, setup, schzip
     )
