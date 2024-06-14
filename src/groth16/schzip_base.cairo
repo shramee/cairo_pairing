@@ -207,7 +207,7 @@ pub impl Groth16MillerSteps<
 }
 
 // Does the verification
-fn verify_miller<
+fn schzip_miller<
     TLines, TSchZip, +SchZipSteps<TSchZip>, +StepLinesGet<TLines>, +Drop<TLines>, +Drop<TSchZip>
 >(
     pi_a: AffineG1,
@@ -278,7 +278,7 @@ pub fn schzip_verify<
     // residue_witness_inv as starter to incorporate  6 * x + 2 in the miller loop
 
     // miller loop result
-    let Fq12 { c0, c1 } = verify_miller(
+    let Fq12 { c0, c1 } = schzip_miller(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, schzip
     );
 

@@ -25,7 +25,7 @@ Base implementation follows from these papers,
 	- Craig Costello and Douglas Stebila
 4. Pairing implementation
     - Realms of pairing
-    - https://eprint.iacr.org/2013/722.pdf
+    - https://ia.cr/2013/722.pdf
     - Diego F. Aranha, Paulo S. L. M. Barreto, Patrick Longa, and Jefferson E. Ricardini
 5. Final exponentiation squarings
     - SQUARING IN CYCLOTOMIC SUBGROUPS
@@ -71,6 +71,7 @@ Exponentiation by `λ` can be broken like this, `6x + 2` + `q` − `q^2` + `q^3`
 And `q` − `q^2` + `q^3` can use Frobenius mappings.
 
 ## Extension field operations
+
 * Faster Extension Field multiplications for Emulated Pairing Circuits
   - https://hackmd.io/@feltroidprime/B1eyHHXNT
   - Feltroid Prime (Garaga)
@@ -84,6 +85,7 @@ where `R(x)` is a polynomial of degree 11 or less.
 ### Expanding this to include the whole bit operation inside the miller loop,
 
 #### Schwartz Zippel verification for zero `O` bits,
+
 * Commitment contains 64 coefficients
 * F ∈ Fq12, miller loop aggregation
 * L1_L2 ∈ Sparse01234, Loop step lines L1 and L2 multiplied for lower degree
@@ -91,6 +93,7 @@ where `R(x)` is a polynomial of degree 11 or less.
 * ```F(x) * F(x) * L1_L2(x) * L3(x) = R(x) + Q(x) * P12(x)```
 
 #### Schwartz Zippel verification for non-zero `P`/`N` bits,
+
 * Commitment contains 42 coefficients
 * F ∈ Fq12, miller loop aggregation
 * L1, L2, L3 ∈ Sparse01234, Loop step lines
@@ -98,6 +101,7 @@ where `R(x)` is a polynomial of degree 11 or less.
 * ```F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x) = R(x) + Q(x) * P12(x)```
 
 #### Schwartz Zippel verification for miller loop correction step,
+
 * Commitment contains 42 coefficients
 * F ∈ Fq12, miller loop aggregation
 * L1, L2, L3 ∈ Sparse01234, Correction step lines

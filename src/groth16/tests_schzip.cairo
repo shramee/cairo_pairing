@@ -83,7 +83,7 @@ fn fiat_shamir() {
             Option::None => { break; },
         };
     };
-    let hash = hasher.finalize();
+    let _hash = hasher.finalize();
 
     // println!("hash: {hash}");
     assert(true, '');
