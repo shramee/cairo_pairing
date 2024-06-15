@@ -52,8 +52,24 @@ fn u512_high_sub(lhs: u512, rhs: u256) -> u512 {
     m::u512_high_sub(lhs, rhs).expect('u512_high_sub overflow')
 }
 
-#[generate_trait]
-impl U512Fq2Ops of U512Fq2OpsTrait {
+trait UAddSubTrait<T> {
+    fn u_add(self: T, rhs: T) -> T;
+    fn u_sub(self: T, rhs: T) -> T;
+}
+
+impl U512Ops of UAddSubTrait<u512> {
+    #[inline(always)]
+    fn u_add(self: u512, rhs: u512) -> u512 {
+        u512_add(self, rhs)
+    }
+
+    #[inline(always)]
+    fn u_sub(self: u512, rhs: u512) -> u512 {
+        u512_sub(self, rhs)
+    }
+}
+
+impl U512Fq2Ops of UAddSubTrait<(u512, u512)> {
     #[inline(always)]
     fn u_add(self: (u512, u512), rhs: (u512, u512)) -> (u512, u512) {
         let (L0, L1) = self;
@@ -71,8 +87,7 @@ impl U512Fq2Ops of U512Fq2OpsTrait {
     }
 }
 
-#[generate_trait]
-impl U512Fq6Ops of U512Fq6OpsTrait {
+impl U512Fq6Ops of UAddSubTrait<SixU512> {
     #[inline(always)]
     fn u_add(self: SixU512, rhs: SixU512) -> SixU512 {
         let (L0, L1, L2) = self;

@@ -1,4 +1,3 @@
-use bn::curve::U512Fq2OpsTrait;
 use bn::traits::FieldShortcuts;
 use bn::traits::FieldMulShortcuts;
 use core::array::ArrayTrait;
