@@ -210,6 +210,34 @@ pub impl Groth16MillerSteps<
 
 #[generate_trait]
 impl SchZipEval of SchZipEvalTrait {
+    fn eval_01234(a: FS01234, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
+        // a tower_to_direct
+        let ((c0, c1, c2, c3, c4), (c6, c7, c8, c9, c10)) = tower01234_to_direct(a);
+
+        // evaluate FS01234 polynomial at fiat_shamir with precomputed powers
+        let term_1 = mul_u((*fiat_shamir_pow[1]), c1.c0);
+        let term_2 = mul_u((*fiat_shamir_pow[2]), c2.c0);
+        let term_3 = mul_u((*fiat_shamir_pow[3]), c3.c0);
+        let term_4 = mul_u((*fiat_shamir_pow[4]), c4.c0);
+        let term_6 = mul_u((*fiat_shamir_pow[6]), c6.c0);
+        let term_7 = mul_u((*fiat_shamir_pow[7]), c7.c0);
+        let term_8 = mul_u((*fiat_shamir_pow[8]), c8.c0);
+        let term_9 = mul_u((*fiat_shamir_pow[9]), c9.c0);
+        let term_10 = mul_u((*fiat_shamir_pow[10]), c10.c0);
+
+        // return the reduced sum of the terms
+        let eval = u512_add_u256(term_1, c0.c0) // term x^1 + x^0
+            .u_add(term_2) // term x^2
+            .u_add(term_3) // term x^3
+            .u_add(term_4) // term x^4
+            .u_add(term_6) // term x^6
+            .u_add(term_7) // term x^7
+            .u_add(term_8) // term x^8
+            .u_add(term_9) // term x^9
+            .u_add(term_10); // term x^10
+        u512_reduce(eval, f_nz)
+    }
+
     fn eval_fq12_direct(a: Fq12Direct, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
         let (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) = a;
         // evaluate FS01234 polynomial at fiat_shamir with precomputed powers
@@ -244,6 +272,23 @@ impl SchZipEval of SchZipEvalTrait {
     fn eval_fq12(a: Fq12, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
         SchZipEval::eval_fq12_direct(tower_to_direct(a), fiat_shamir_pow, f_nz)
     }
+
+    fn eval_034(a: FS034, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
+        // a tower_to_direct
+        let FS034Direct { c1, c3, c7, c9 } = tower034_to_direct(a);
+        // evaluate FS01234 polynomial at fiat_shamir with precomputed powers
+        let term_1 = mul_u(*fiat_shamir_pow[1], c1.c0);
+        let term_3 = mul_u(*fiat_shamir_pow[3], c3.c0);
+        let term_7 = mul_u(*fiat_shamir_pow[7], c7.c0);
+        let term_9 = mul_u(*fiat_shamir_pow[9], c9.c0);
+        // return the reduced sum of the terms
+        let eval = u512_add_u256(term_1, 1) // term x^1 + x^0
+            .u_add(term_3) // term x^3
+            .u_add(term_7) // term x^7
+            .u_add(term_9); // term x^9
+        u512_reduce(eval, f_nz)
+    }
+}
 
 // Does the verification
 fn schzip_miller<
