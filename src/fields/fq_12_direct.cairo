@@ -53,8 +53,17 @@ fn direct_to_tower(x: Fq12) -> Fq12 {
         a11,
     )
 }
+type Fq12Direct = (Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq);
 
-fn tower_to_direct(x: Fq12) -> Fq12 {
+impl Fq12DirectIntoFq12 of Into<Fq12Direct, Fq12> {
+    #[inline(always)]
+    fn into(self: Fq12Direct) -> Fq12 {
+        let (a0, a1, a2, a3, a4, a5, b0, b1, b2, b3, b4, b5) = self;
+        fq12_from_fq(a0, a1, a2, a3, a4, a5, b0, b1, b2, b3, b4, b5)
+    }
+}
+
+fn tower_to_direct(x: Fq12) -> Fq12Direct {
     let Fq12 { c0, c1 } = x;
     let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
     let Fq6 { c0: b3, c1: b4, c2: b5 } = c1; // This should be c1 instead of c0
@@ -65,7 +74,7 @@ fn tower_to_direct(x: Fq12) -> Fq12 {
     let Fq2 { c0: a8, c1: a9 } = b4;
     let Fq2 { c0: a10, c1: a11 } = b5;
 
-    fq12_from_fq(
+    (
         a0 - scale_9(a1),
         a6 - scale_9(a7),
         a2 - scale_9(a3),
@@ -81,7 +90,7 @@ fn tower_to_direct(x: Fq12) -> Fq12 {
     )
 }
 
-fn tower01234_to_direct(x: FS01234) -> Fq12 {
+fn tower01234_to_direct(x: FS01234) -> ((Fq, Fq, Fq, Fq, Fq), (Fq, Fq, Fq, Fq, Fq),) {
     let FS01234 { c0, c1 } = x;
     let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
     let FS01 { c0: b3, c1: b4 } = c1; // This should be c1 instead of c0
@@ -91,45 +100,31 @@ fn tower01234_to_direct(x: FS01234) -> Fq12 {
     let Fq2 { c0: a6, c1: a7 } = b3;
     let Fq2 { c0: a8, c1: a9 } = b4;
 
-    fq12_from_fq(
-        a0 - scale_9(a1),
-        a6 - scale_9(a7),
-        a2 - scale_9(a3),
-        a8 - scale_9(a9),
-        a4 - scale_9(a5),
-        fq(0),
-        a1,
-        a7,
-        a3,
-        a9,
-        a5,
-        fq(0),
-    )
+    let a1x9 = scale_9(a1);
+    let a7x9 = scale_9(a7);
+    let a3x9 = scale_9(a3);
+    let a9x9 = scale_9(a9);
+    let a5x9 = scale_9(a5);
+    ((a0 - a1x9, a6 - a7x9, a2 - a3x9, a8 - a9x9, a4 - a5x9,), (a1, a7, a3, a9, a5,),)
 }
 
-fn tower034_to_direct(x: FS034) -> Fq12 {
+struct FS034Direct {
+    c1: Fq,
+    c3: Fq,
+    c7: Fq,
+    c9: Fq,
+}
+
+fn tower034_to_direct(x: FS034) -> FS034Direct {
     let FS034 { c3: Fq2 { c0: a6, c1: a7 }, c4: Fq2 { c0: a8, c1: a9 } } = x;
 
-    fq12_from_fq(
-        fq(1),
-        a6 - scale_9(a7),
-        fq(0),
-        a8 - scale_9(a9),
-        fq(0),
-        fq(0),
-        fq(0),
-        a7,
-        fq(0),
-        a9,
-        fq(0),
-        fq(0),
-    )
+    FS034Direct { c1: a6 - scale_9(a7), c3: a8 - scale_9(a9), c7: a7, c9: a9, }
 }
 
 #[cfg(test)]
 mod direct_tower_tests {
     use bn::fields::print::{FqDisplay, Fq12Display};
-    use super::{Fq12, fq12, direct_to_tower, tower_to_direct};
+    use super::{Fq12, fq12, direct_to_tower, tower_to_direct, Fq12DirectIntoFq12};
     #[inline(always)]
     fn f() -> Fq12 {
         fq12(
@@ -168,12 +163,12 @@ mod direct_tower_tests {
 
     #[test]
     fn direct_to_tower_to_direct_test() {
-        assert(direct_to_tower(tower_to_direct(f())) == f(), 'dir 2 tow 2 dir failed');
+        assert(direct_to_tower(tower_to_direct(f()).into()) == f(), 'dir 2 tow 2 dir failed');
     }
 
     #[test]
     fn tower_to_direct_to_tower_test() {
-        assert(tower_to_direct(direct_to_tower(f())) == f(), 'dir 2 tow 2 dir failed');
+        assert(tower_to_direct(direct_to_tower(f())).into() == f(), 'dir 2 tow 2 dir failed');
     }
 
     #[test]
@@ -183,6 +178,6 @@ mod direct_tower_tests {
 
     #[test]
     fn tower_to_direct_test() {
-        assert(tower_to_direct(f()) == f_direct(), '');
+        assert(tower_to_direct(f()).into() == f_direct(), '');
     }
 }
