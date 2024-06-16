@@ -55,6 +55,22 @@ fn direct_to_tower(x: Fq12) -> Fq12 {
 }
 type Fq12Direct = (Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq);
 
+impl Fq12IntoFq12Direct of Into<Fq12, Fq12Direct> {
+    #[inline(always)]
+    fn into(self: Fq12) -> Fq12Direct {
+        let Fq12 { c0, c1 } = self;
+        let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
+        let Fq6 { c0: b3, c1: b4, c2: b5 } = c1; // This should be c1 instead of c0
+        let Fq2 { c0: a0, c1: a1 } = b0;
+        let Fq2 { c0: a2, c1: a3 } = b1;
+        let Fq2 { c0: a4, c1: a5 } = b2;
+        let Fq2 { c0: a6, c1: a7 } = b3;
+        let Fq2 { c0: a8, c1: a9 } = b4;
+        let Fq2 { c0: a10, c1: a11 } = b5;
+        (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
+    }
+}
+
 impl Fq12DirectIntoFq12 of Into<Fq12Direct, Fq12> {
     #[inline(always)]
     fn into(self: Fq12Direct) -> Fq12 {
