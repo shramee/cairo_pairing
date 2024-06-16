@@ -2,7 +2,7 @@ use core::array::SpanTrait;
 use bn::groth16::utils_line::LineResult01234Trait;
 use bn::fields::fq_12::Fq12FrobeniusTrait;
 use bn::traits::FieldUtils;
-use bn::curve::{u512, U512Ops, scale_9 as x9, groups::ECOperations};
+use bn::curve::{u512, U512BnAdd, U512Ops, scale_9 as x9, groups::ECOperations};
 use bn::math::fast_mod::{sqr_nz, mul_nz, mul_u, u512_add, u512_add_u256, u512_reduce};
 use bn::fields::fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12Direct};
 use bn::fields::fq_12_direct::{
@@ -295,10 +295,48 @@ impl SchZipEval of SchZipEvalTrait {
         fq(u512_reduce(eval, f_nz))
     }
 
-    fn eval_poly_30_u(
-        polynomial: @Array<u256>, start_i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
-    ) -> u512 { //
-        u512 { limb0: 0, limb1: 0, limb2: 0, limb3: 0 }
+    fn eval_poly_30(
+        polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
+    ) -> u256 { //
+        // We can do 16 additions without overflow
+        let mut acc1 = u512_add_u256(
+            mul_u(*fiat_shamir_pow[1], *polynomial[i + 1]), *polynomial[i]
+        );
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[2], *polynomial[i + 2]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[3], *polynomial[i + 3]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[4], *polynomial[i + 4]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[5], *polynomial[i + 5]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[6], *polynomial[i + 6]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[7], *polynomial[i + 7]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[8], *polynomial[i + 8]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[9], *polynomial[i + 9]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[10], *polynomial[i + 10]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[11], *polynomial[i + 11]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[12], *polynomial[i + 12]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[13], *polynomial[i + 13]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[14], *polynomial[i + 14]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[15], *polynomial[i + 15]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[16], *polynomial[i + 16]));
+
+        // After next 16 additions we do U512BnAdd to reduce if needed
+
+        let mut acc2 = u512_add(
+            mul_u(*fiat_shamir_pow[17], *polynomial[i + 17]),
+            mul_u(*fiat_shamir_pow[18], *polynomial[i + 18])
+        );
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[19], *polynomial[i + 19]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[20], *polynomial[i + 20]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[21], *polynomial[i + 21]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[22], *polynomial[i + 22]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[23], *polynomial[i + 23]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[24], *polynomial[i + 24]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[25], *polynomial[i + 25]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[26], *polynomial[i + 26]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[27], *polynomial[i + 27]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[28], *polynomial[i + 28]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[29], *polynomial[i + 29]));
+
+        u512_reduce(acc1 + acc2, f_nz)
     }
 
     fn eval_polynomial_u(
