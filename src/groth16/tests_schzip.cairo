@@ -4,7 +4,7 @@ use bn::curve::groups::ECOperations;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, Fq2, print::{FqDisplay, Fq12Display}};
 use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Frobenius};
-use bn::curve::pairing;
+use bn::curve::{pairing, get_field_nz};
 use pairing::optimal_ate::{single_ate_pairing, ate_miller_loop};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use pairing::optimal_ate_utils::LineFn;
@@ -36,7 +36,8 @@ fn verify_print() {
         residue_witness_inv,
         cubic_scl,
         circuit_setup,
-        SchZipMock { print: false }
+        SchZipMock { print: false },
+        get_field_nz()
     );
 
     assert(verified, 'verification failed');
