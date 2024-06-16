@@ -34,6 +34,7 @@ const COEFFICIENTS_COUNT: usize = 3234;
 pub struct SchZipCommitments {
     coefficients: Array<u256>,
     fiat_shamir_powers: Array<u256>,
+    p12_x: u256,
 }
 
 // Schwartz Zippel lemma for FQ12 operation commitment verification
@@ -251,6 +252,7 @@ pub fn powers_51(x: u256, field_nz: NZ256) -> Array<u256> {
     let x50 = sqr_nz(x25, field_nz);
     let x51 = mul_nz(x50, x, field_nz);
     array![
+        1,
         x,
         x2,
         x3,
@@ -326,12 +328,31 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
         hasher = hasher.update(c.high.into());
         coeff_i += 1;
     };
+    let f_nz = get_field_nz();
     let fiat_shamir: u256 = hasher.finalize().into();
 
-    let mut fiat_shamir_powers = powers_51(fiat_shamir, get_field_nz());
+    let mut fiat_shamir_powers = powers_51(fiat_shamir, f_nz);
 
-    let schzip = SchZipCommitments { coefficients, fiat_shamir_powers };
+    // x^12 + 21888242871839275222246405745257275088696311157297823662689037894645226208565x^6 + 82
+    let minus18_x_6 = mul_u(
+        21888242871839275222246405745257275088696311157297823662689037894645226208565,
+        *fiat_shamir_powers[6]
+    );
+    let p12_x = u512_add_u256(minus18_x_6, add_u(*fiat_shamir_powers[12], 82));
+    let p12_x = u512_reduce(p12_x, f_nz);
+
+    let schzip = SchZipCommitments { coefficients, fiat_shamir_powers, p12_x };
+
     schzip_verify(
-        pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, cubic_scale, setup, schzip
+        pi_a,
+        pi_b,
+        pi_c,
+        inputs,
+        residue_witness,
+        residue_witness_inv,
+        cubic_scale,
+        setup,
+        schzip,
+        f_nz
     )
 }
