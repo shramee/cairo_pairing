@@ -295,9 +295,16 @@ impl SchZipEval of SchZipEvalTrait {
         fq(u512_reduce(eval, f_nz))
     }
 
+    #[inline(always)]
     fn eval_poly_30(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
-    ) -> u256 { //
+    ) -> u256 {
+        u512_reduce(SchZipEval::eval_poly_30_u(polynomial, i, fiat_shamir_pow, f_nz), f_nz)
+    }
+
+    fn eval_poly_30_u(
+        polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
+    ) -> u512 {
         // We can do 16 additions without overflow
         let mut acc1 = u512_add_u256(
             mul_u(*fiat_shamir_pow[1], *polynomial[i + 1]), *polynomial[i]
@@ -336,7 +343,8 @@ impl SchZipEval of SchZipEvalTrait {
         acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[28], *polynomial[i + 28]));
         acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[29], *polynomial[i + 29]));
 
-        u512_reduce(acc1 + acc2, f_nz)
+        acc1 + acc2
+    }
     }
 
     fn eval_polynomial_u(
