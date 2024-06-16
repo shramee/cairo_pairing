@@ -346,9 +346,10 @@ impl SchZipEval of SchZipEvalTrait {
         acc1 + acc2
     }
 
-    fn eval_poly_52_u(
+    fn eval_poly_52(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
-    ) -> u512 { //
+    ) -> u256 { //
+        core::internal::revoke_ap_tracking();
         // Process first 30 terms
         let acc1 = SchZipEval::eval_poly_30_u(polynomial, i, fiat_shamir_pow, f_nz);
 
@@ -381,7 +382,7 @@ impl SchZipEval of SchZipEvalTrait {
         acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[50], *polynomial[i + 50]));
         acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[51], *polynomial[i + 51]));
 
-        acc1 + acc2 + acc3
+        u512_reduce(acc1 + acc2 + acc3, f_nz)
     }
 
     fn eval_polynomial_u(
@@ -449,8 +450,8 @@ fn schzip_miller<
     // q points accumulator
     let mut acc = SchZipAccumulator { g2: q, coeff_i: 0 };
 
-    let miller_loop_result = precomp.miller_first_second(64, 65, ref acc);
-    // let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
+    // let miller_loop_result = precomp.miller_first_second(64, 65, ref acc);
+    let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
 
     // multiply precomputed alphabeta_miller with the pairings
     miller_loop_result * alpha_beta
