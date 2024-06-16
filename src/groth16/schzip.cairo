@@ -1,14 +1,17 @@
+use bn::curve::UAddSubTrait;
 use bn::groth16::utils_line::LineResult01234Trait;
-use bn::fields::fq_12::Fq12FrobeniusTrait;
-use bn::fields::fq_12_direct::{tower_to_direct, direct_to_tower};
-use bn::traits::FieldUtils;
+use bn::fields::{fq_12, fq_12_direct};
+use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display, F034Display, F01234Display}};
+use bn::fields::{fq, fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::fields::{FS034, FS01234, FS01, fq_sparse::FqSparseTrait};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
+use fq_12::Fq12FrobeniusTrait;
+use fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12IntoFq12Direct, Fq12Direct};
+use fq_12_direct::{direct_to_tower, tower_to_direct, tower01234_to_direct, tower034_to_direct,};
 use bn::traits::FieldOps;
-use bn::curve::{m::{sqr_nz, mul_nz}, groups::ECOperations};
+use bn::curve::{m, U512BnAdd, U512BnSub, u512, U512Ops, scale_9 as x9, groups::ECOperations};
+use m::{sqr_nz, mul_nz, mul_u, u512_add, u512_add_u256, u512_reduce, add_u};
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
-use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display, F034Display, F01234Display}};
-use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
 use core::hash::HashStateTrait;
@@ -21,7 +24,8 @@ use bn::groth16::utils::{StepLinesGet, StepLinesTrait, fq12_034_034_034};
 use bn::groth16::utils::{Groth16MillerG1, Groth16MillerG2, PPrecomputeX3, LineResult,};
 use bn::groth16::schzip_base::{SchZipAccumulator, Groth16PreCompute, SchZipSteps};
 use bn::groth16::schzip_base::{Groth16MillerSteps, schzip_miller, schzip_verify};
-use bn::groth16::schzip_base::{SchZipMock, SchZipMockSteps};
+use bn::groth16::schzip_base::{SchZipMock, SchZipMockSteps, SchZipEval};
+use bn::traits::{FieldUtils, FieldMulShortcuts};
 
 type F034X2 = (FS034, FS034);
 type Lines = (FS034, FS034, FS034);
@@ -58,21 +62,39 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         self: @SchZipCommitments, ref f: Fq12, i: u32, l1_l2: FS01234, l3: FS034, f_nz: NZ256
     ) {
         let c = self.coefficients;
-        f =
-            fq12(
-                *c[i],
-                *c[i + 1],
-                *c[i + 2],
-                *c[i + 3],
-                *c[i + 4],
-                *c[i + 5],
-                *c[i + 6],
-                *c[i + 7],
-                *c[i + 8],
-                *c[i + 9],
-                *c[i + 10],
-                *c[i + 11],
-            );
+
+        // F(x) * F(x) * L1_L2(x) * L3(x) = R(x) + Q(x) * P12(x)
+        let f_x = SchZipEval::eval_fq12_direct(f.into(), self.fiat_shamir_powers, f_nz);
+        let l1_l2_x = SchZipEval::eval_01234(l1_l2, self.fiat_shamir_powers, f_nz);
+        let l3_x = SchZipEval::eval_034(l3, self.fiat_shamir_powers, f_nz);
+
+        // RHS = F(x) * F(x) * L1_L2(x) * L3(x)
+        let rhs: u512 = f_x.sqr().u_mul(l1_l2_x * l3_x);
+
+        let r = fq12(
+            *c[i],
+            *c[i + 1],
+            *c[i + 2],
+            *c[i + 3],
+            *c[i + 4],
+            *c[i + 5],
+            *c[i + 6],
+            *c[i + 7],
+            *c[i + 8],
+            *c[i + 9],
+            *c[i + 10],
+            *c[i + 11],
+        );
+
+        let r_x = SchZipEval::eval_fq12_direct_u(r.into(), self.fiat_shamir_powers, f_nz);
+        let q_x = SchZipEval::eval_poly_30(c, i + 12, self.fiat_shamir_powers, f_nz);
+        // LHS = R(x) + Q(x) * P12(x)
+        let lhs = r_x + mul_u(q_x, *self.p12_x);
+
+        // assert rhs == lhs mod field, or rhs - lhs == 0
+        assert(u512_reduce(rhs - lhs, f_nz) == 0, 'Sch Zip verification failed');
+
+        f = r;
     }
 
     // Handles Schwartz Zippel verification for non-zero `P`/`N` bits,
@@ -148,7 +170,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
     fn sz_init(self: @SchZipCommitments, ref f: Fq12, f_nz: NZ256) { //
         // Convert Fq12 tower to direct polynomial representation
         assert(self.coefficients.len() == COEFFICIENTS_COUNT, 'wrong number of coefficients');
-        f = tower_to_direct(f);
+        f = tower_to_direct(f).into();
     }
 
     #[inline(always)]
