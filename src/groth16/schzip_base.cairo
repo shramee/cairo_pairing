@@ -1,16 +1,19 @@
+use core::array::SpanTrait;
 use bn::groth16::utils_line::LineResult01234Trait;
 use bn::fields::fq_12::Fq12FrobeniusTrait;
 use bn::traits::FieldUtils;
-use bn::curve::{U512Ops, scale_9 as x9, groups::ECOperations};
+use bn::curve::{u512, U512Ops, scale_9 as x9, groups::ECOperations};
 use bn::math::fast_mod::{sqr_nz, mul_nz, mul_u, u512_add, u512_add_u256, u512_reduce};
-use bn::fields::fq_12_direct::{direct_to_tower, FS034Direct, Fq12DirectIntoFq12, Fq12Direct};
-use bn::fields::fq_12_direct::{tower_to_direct, tower01234_to_direct, tower034_to_direct,};
+use bn::fields::fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12Direct};
+use bn::fields::fq_12_direct::{
+    tower_to_direct, tower01234_to_direct, tower034_to_direct, direct_to_tower,
+};
 use bn::fields::{FS034, FS01234, FS01, fq_sparse::FqSparseTrait};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display, F034Display, F01234Display}};
-use bn::fields::{fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
+use bn::fields::{fq, fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
 use pairing::optimal_ate::{ate_miller_loop_steps};
@@ -210,7 +213,7 @@ pub impl Groth16MillerSteps<
 
 #[generate_trait]
 impl SchZipEval of SchZipEvalTrait {
-    fn eval_01234(a: FS01234, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
+    fn eval_01234(a: FS01234, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq { //
         // a tower_to_direct
         let ((c0, c1, c2, c3, c4), (c6, c7, c8, c9, c10)) = tower01234_to_direct(a);
 
@@ -235,13 +238,13 @@ impl SchZipEval of SchZipEvalTrait {
             .u_add(term_8) // term x^8
             .u_add(term_9) // term x^9
             .u_add(term_10); // term x^10
-        u512_reduce(eval, f_nz)
+        fq(u512_reduce(eval, f_nz))
     }
 
-    fn eval_fq12_direct(a: Fq12Direct, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
+    fn eval_fq12_direct_u(a: Fq12Direct, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u512 { //
         let (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) = a;
         // evaluate FS01234 polynomial at fiat_shamir with precomputed powers
-        let term_0 = (a0 + x9(a6)).c0;
+        let term_0 = a0.c0;
         let term_1 = mul_u((*fiat_shamir_pow[1]), a1.c0);
         let term_2 = mul_u((*fiat_shamir_pow[2]), a2.c0);
         let term_3 = mul_u((*fiat_shamir_pow[3]), a3.c0);
@@ -255,7 +258,7 @@ impl SchZipEval of SchZipEvalTrait {
         let term_11 = mul_u((*fiat_shamir_pow[11]), a11.c0);
 
         // return the reduced sum of the terms
-        let eval = u512_add_u256(term_1, term_0) // term x^1 + x^0
+        u512_add_u256(term_1, term_0) // term x^1 + x^0
             .u_add(term_2) // term x^2
             .u_add(term_3) // term x^3
             .u_add(term_4) // term x^4
@@ -265,15 +268,18 @@ impl SchZipEval of SchZipEvalTrait {
             .u_add(term_8) // term x^8
             .u_add(term_9) // term x^9
             .u_add(term_10) // term x^10
-            .u_add(term_11); // term x^11
-        u512_reduce(eval, f_nz)
+            .u_add(term_11) // term x^11
     }
 
-    fn eval_fq12(a: Fq12, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
+    fn eval_fq12_direct(a: Fq12Direct, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq { //
+        fq(u512_reduce(SchZipEval::eval_fq12_direct_u(a, fiat_shamir_pow, f_nz), f_nz))
+    }
+
+    fn eval_fq12(a: Fq12, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq { //
         SchZipEval::eval_fq12_direct(tower_to_direct(a), fiat_shamir_pow, f_nz)
     }
 
-    fn eval_034(a: FS034, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> u256 { //
+    fn eval_034(a: FS034, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq { //
         // a tower_to_direct
         let FS034Direct { c1, c3, c7, c9 } = tower034_to_direct(a);
         // evaluate FS01234 polynomial at fiat_shamir with precomputed powers
@@ -286,7 +292,31 @@ impl SchZipEval of SchZipEvalTrait {
             .u_add(term_3) // term x^3
             .u_add(term_7) // term x^7
             .u_add(term_9); // term x^9
-        u512_reduce(eval, f_nz)
+        fq(u512_reduce(eval, f_nz))
+    }
+
+    fn eval_poly_30_u(
+        polynomial: @Array<u256>, start_i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
+    ) -> u512 { //
+        u512 { limb0: 0, limb1: 0, limb2: 0, limb3: 0 }
+    }
+
+    fn eval_polynomial_u(
+        mut polynomial: Span<u256>, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
+    ) -> u512 { //
+        let c0 = polynomial.pop_front().unwrap();
+        let mut acc = u512 { limb0: *c0.low, limb1: *c0.high, limb2: 0, limb3: 0 };
+        let mut term_i = 0;
+        let poly_len = polynomial.len();
+        loop {
+            term_i += 1;
+            if poly_len == term_i {
+                break;
+            }
+            acc = u512_add(acc, mul_u(*fiat_shamir_pow[term_i], *polynomial[term_i]));
+        };
+
+        acc
     }
 }
 
@@ -302,6 +332,7 @@ fn schzip_miller<
     residue_witness_inv: Fq12,
     setup: G16CircuitSetup<TLines>,
     schzip: TSchZip,
+    field_nz: NonZero<u256>,
 ) -> Fq12 { //
     // Compute k from ic and public_inputs
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
@@ -312,7 +343,6 @@ fn schzip_miller<
     // let pi_a = pi_a.neg();
 
     // build precompute
-    let field_nz = get_field_nz();
     let line_count = 0;
     let q = Groth16MillerG2 { pi_b, gamma, delta, line_count };
     let neg_q = Groth16MillerG2 {
@@ -356,6 +386,7 @@ pub fn schzip_verify<
     cubic_scale: Fq6,
     setup: G16CircuitSetup<TLines>,
     schzip: TSchZip,
+    field_nz: NonZero<u256>,
 ) -> bool {
     let one = Fq12Utils::one();
     assert(residue_witness_inv * residue_witness == one, 'incorrect residue witness');
@@ -363,7 +394,7 @@ pub fn schzip_verify<
 
     // miller loop result
     let Fq12 { c0, c1 } = schzip_miller(
-        pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, schzip
+        pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, schzip, field_nz
     );
 
     // add cubic scale
