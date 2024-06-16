@@ -345,6 +345,43 @@ impl SchZipEval of SchZipEvalTrait {
 
         acc1 + acc2
     }
+
+    fn eval_poly_52_u(
+        polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
+    ) -> u512 { //
+        // Process first 30 terms
+        let acc1 = SchZipEval::eval_poly_30_u(polynomial, i, fiat_shamir_pow, f_nz);
+
+        // Process next 16 terms, i 30 - 45
+        let mut acc2 = u512_add(
+            mul_u(*fiat_shamir_pow[30], *polynomial[i + 30]),
+            mul_u(*fiat_shamir_pow[31], *polynomial[i + 31])
+        );
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[32], *polynomial[i + 32]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[33], *polynomial[i + 33]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[34], *polynomial[i + 34]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[35], *polynomial[i + 35]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[36], *polynomial[i + 36]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[37], *polynomial[i + 37]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[38], *polynomial[i + 38]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[39], *polynomial[i + 39]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[40], *polynomial[i + 40]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[41], *polynomial[i + 41]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[42], *polynomial[i + 42]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[43], *polynomial[i + 43]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[44], *polynomial[i + 44]));
+        acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[45], *polynomial[i + 45]));
+
+        let mut acc3 = u512_add(
+            mul_u(*fiat_shamir_pow[46], *polynomial[i + 46]),
+            mul_u(*fiat_shamir_pow[47], *polynomial[i + 47])
+        );
+        acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[48], *polynomial[i + 48]));
+        acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[49], *polynomial[i + 49]));
+        acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[50], *polynomial[i + 50]));
+        acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[51], *polynomial[i + 51]));
+
+        acc1 + acc2 + acc3
     }
 
     fn eval_polynomial_u(
