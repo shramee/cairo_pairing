@@ -120,7 +120,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         let l1_x = SchZipEval::eval_01234(l1, self.fiat_shamir_powers, f_nz);
         let l2_x = SchZipEval::eval_01234(l2, self.fiat_shamir_powers, f_nz);
         let l3_x = SchZipEval::eval_01234(l3, self.fiat_shamir_powers, f_nz);
-        let w_x = SchZipEval::eval_fq12_direct(witness.into(), self.fiat_shamir_powers, f_nz);
+        let w_x = SchZipEval::eval_fq12(witness.into(), self.fiat_shamir_powers, f_nz);
 
         println!(
             "#zero_bit\nx = {}\nf = {f}\nl1 = {l1}\nl2 = {l2}\nl3 = {l3}\nw = {witness}",
