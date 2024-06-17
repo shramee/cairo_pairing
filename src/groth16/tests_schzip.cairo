@@ -18,7 +18,7 @@ use core::hash::HashStateTrait;
 
 #[test]
 #[available_gas(20000000000)]
-fn verify_print() {
+fn verify() {
     // Verification key parameters
     // let (_, _, gamma, delta, albe_miller, mut ic) = vk();
     let circuit_setup: G16CircuitSetup<LinesArray> = fixture::circuit_setup();

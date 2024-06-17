@@ -305,6 +305,7 @@ impl SchZipEval of SchZipEvalTrait {
     fn eval_poly_30_u(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> u512 {
+        core::internal::revoke_ap_tracking();
         // We can do 16 additions without overflow
         // term 1 * x ^ 1 + term 0
         let mut acc1 = u512_add_u256(

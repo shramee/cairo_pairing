@@ -165,6 +165,8 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         l3: FS01234,
         f_nz: NZ256
     ) {
+        core::internal::revoke_ap_tracking();
+
         let c = self.coefficients;
 
         // F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x) = R(x) + Q(x) * P12(x)
