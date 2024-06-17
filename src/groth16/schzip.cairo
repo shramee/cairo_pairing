@@ -174,7 +174,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         let l3_x = SchZipEval::eval_01234(l3, self.fiat_shamir_powers, f_nz);
 
         // RHS = F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x)
-        let rhs: u512 = f_x.sqr().u_mul(l1_x * l2_x * l3_x);
+        let rhs: u512 = f_x.u_mul(l1_x * l2_x * l3_x);
 
         let r = fq12(
             *c[i],
@@ -192,12 +192,12 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         );
 
         let r_x = SchZipEval::eval_fq12_direct_u(r.into(), self.fiat_shamir_powers, f_nz);
-        let q_x = SchZipEval::eval_poly_52(c, i + 12, self.fiat_shamir_powers, f_nz);
+        let q_x = SchZipEval::eval_poly_30(c, i + 12, self.fiat_shamir_powers, f_nz);
         // LHS = R(x) + Q(x) * P12(x)
         let lhs = r_x + mul_u(q_x, *self.p12_x);
 
         // assert rhs == lhs mod field, or rhs - lhs == 0
-        assert(u512_reduce(rhs - lhs, f_nz) == 0, 'SchZip 1/-1 bit verif failed');
+        assert(u512_reduce(rhs - lhs, f_nz) == 0, 'SchZip last step verif failed');
 
         f = direct_to_tower(r);
     }
