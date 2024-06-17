@@ -306,6 +306,7 @@ impl SchZipEval of SchZipEvalTrait {
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> u512 {
         // We can do 16 additions without overflow
+        // term 1 * x ^ 1 + term 0
         let mut acc1 = u512_add_u256(
             mul_u(*fiat_shamir_pow[1], *polynomial[i + 1]), *polynomial[i]
         );
@@ -348,8 +349,18 @@ impl SchZipEval of SchZipEvalTrait {
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> u256 { //
         core::internal::revoke_ap_tracking();
+
         // Process first 30 terms
         let acc1 = SchZipEval::eval_poly_30_u(polynomial, i, fiat_shamir_pow, f_nz);
+
+        // let mut ci = 0;
+        // println!("q_0_29 = poly(");
+        // while ci != 30 {
+        //     println!("#term{}({}){},", ci, i + ci, fq(*polynomial[i + ci]));
+        //     ci += 1;
+        // };
+        // println!(")");
+        // println!("q_x_0_29 = {}", fq(u512_reduce(acc1, f_nz)));
 
         // Process next 16 terms, i 30 - 45
         let mut acc2 = mul_u(*fiat_shamir_pow[30], *polynomial[i + 30]);
@@ -369,6 +380,7 @@ impl SchZipEval of SchZipEvalTrait {
         acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[44], *polynomial[i + 44]));
         acc2 = u512_add(acc2, mul_u(*fiat_shamir_pow[45], *polynomial[i + 45]));
 
+        // Process las batch of terms, i 46 - 51
         let mut acc3 = mul_u(*fiat_shamir_pow[46], *polynomial[i + 46]);
         acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[47], *polynomial[i + 47]));
         acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[48], *polynomial[i + 48]));

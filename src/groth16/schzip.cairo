@@ -122,12 +122,6 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         let l3_x = SchZipEval::eval_01234(l3, self.fiat_shamir_powers, f_nz);
         let w_x = SchZipEval::eval_fq12(witness.into(), self.fiat_shamir_powers, f_nz);
 
-        println!(
-            "#zero_bit\nx = {}\nf = {f}\nl1 = {l1}\nl2 = {l2}\nl3 = {l3}\nw = {witness}",
-            *self.fiat_shamir_powers[1]
-        );
-        println!("f_x = {f_x}\nl1_x = {l1_x}\nl2_x = {l2_x}\nl3_x = {l3_x}\nw_x = {w_x}");
-
         // RHS = F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x)
         let rhs: u512 = f_x.sqr().u_mul(l1_x * l2_x * l3_x * w_x);
 
@@ -151,13 +145,6 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         // LHS = R(x) + Q(x) * P12(x)
         let lhs = r_x + mul_u(q_x, *self.p12_x);
 
-        println!("r: {}", r);
-        println!("r_x: {}", fq(u512_reduce(r_x, f_nz)));
-        println!("q_x: {}", fq(q_x));
-
-        println!("rhs: {}", fq(u512_reduce(rhs, f_nz)));
-        println!("lhs: {}", fq(u512_reduce(lhs, f_nz)));
-
         // assert rhs == lhs mod field, or rhs - lhs == 0
         assert(u512_reduce(rhs - lhs, f_nz) == 0, 'SchZip 1/-1 bit verif failed');
 
@@ -179,22 +166,40 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         f_nz: NZ256
     ) {
         let c = self.coefficients;
-        f =
-            fq12(
-                *c[i],
-                *c[i + 1],
-                *c[i + 2],
-                *c[i + 3],
-                *c[i + 4],
-                *c[i + 5],
-                *c[i + 6],
-                *c[i + 7],
-                *c[i + 8],
-                *c[i + 9],
-                *c[i + 10],
-                *c[i + 11],
-            );
-        f = direct_to_tower(f);
+
+        // F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x) = R(x) + Q(x) * P12(x)
+        let f_x = SchZipEval::eval_fq12_direct(f.into(), self.fiat_shamir_powers, f_nz);
+        let l1_x = SchZipEval::eval_01234(l1, self.fiat_shamir_powers, f_nz);
+        let l2_x = SchZipEval::eval_01234(l2, self.fiat_shamir_powers, f_nz);
+        let l3_x = SchZipEval::eval_01234(l3, self.fiat_shamir_powers, f_nz);
+
+        // RHS = F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x)
+        let rhs: u512 = f_x.sqr().u_mul(l1_x * l2_x * l3_x);
+
+        let r = fq12(
+            *c[i],
+            *c[i + 1],
+            *c[i + 2],
+            *c[i + 3],
+            *c[i + 4],
+            *c[i + 5],
+            *c[i + 6],
+            *c[i + 7],
+            *c[i + 8],
+            *c[i + 9],
+            *c[i + 10],
+            *c[i + 11],
+        );
+
+        let r_x = SchZipEval::eval_fq12_direct_u(r.into(), self.fiat_shamir_powers, f_nz);
+        let q_x = SchZipEval::eval_poly_52(c, i + 12, self.fiat_shamir_powers, f_nz);
+        // LHS = R(x) + Q(x) * P12(x)
+        let lhs = r_x + mul_u(q_x, *self.p12_x);
+
+        // assert rhs == lhs mod field, or rhs - lhs == 0
+        assert(u512_reduce(rhs - lhs, f_nz) == 0, 'SchZip 1/-1 bit verif failed');
+
+        f = direct_to_tower(r);
     }
 }
 
