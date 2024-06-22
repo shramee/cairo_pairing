@@ -62,7 +62,13 @@ pub trait SchZipSteps<T> {
     fn sz_nz_bit(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256);
     fn sz_last_step(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256);
     fn sz_post_miller(
-        self: @T, f: Fq12, residue: Fq12, residue_inv: Fq12, cubic_scale: CubicScale, f_nz: NZ256
+        self: @T,
+        f: Fq12,
+        ref i: u32,
+        residue: Fq12,
+        residue_inv: Fq12,
+        cubic_scale: CubicScale,
+        f_nz: NZ256
     ) -> bool;
 }
 
@@ -132,6 +138,7 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
     fn sz_post_miller(
         self: @SchZipMock,
         f: Fq12,
+        ref i: u32,
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,
@@ -415,6 +422,7 @@ impl SchZipEval of SchZipEvalTrait {
         acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[10], *polynomial[i + 10]));
         u512_reduce(acc1, f_nz)
     }
+
     fn eval_poly_52(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> u256 { //
@@ -558,5 +566,7 @@ pub fn schzip_verify<
 
     precomp
         .schzip
-        .sz_post_miller(f, residue_witness, residue_witness_inv, cubic_scale, field_nz)
+        .sz_post_miller(
+            f, ref acc.coeff_i, residue_witness, residue_witness_inv, cubic_scale, field_nz
+        )
 }

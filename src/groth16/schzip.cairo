@@ -244,6 +244,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
     fn sz_post_miller(
         self: @SchZipCommitments,
         f: Fq12,
+        ref i: u32,
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,
