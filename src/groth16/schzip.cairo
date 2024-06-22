@@ -73,6 +73,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
             *c[i + 11],
         )
     }
+
     // Handles Schwartz Zippel verification for zero `O` bits,
     // * Commitment contains 64 coefficients
     // * F ∈ Fq12, miller loop aggregation
@@ -185,6 +186,26 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
 
         f = direct_to_tower(r);
     }
+
+    // Handles Schwartz Zippel verification for inversion operation,
+    // * Commitment contains 12 coefficients
+    // * F, I ∈ Fq12, miller loop aggregation
+    // * ```F(x) * I(x) = R(x) + Q(x) * P12(x)```
+    // * Or, ```F(x) * I(x) = x + Q(x) * P12(x)```
+    fn verify_inv_direct(self: @SchZipCommitments, i: u32, f: Fq12, inv: Fq12, f_nz: NZ256) {
+        core::internal::revoke_ap_tracking();
+
+        let c = self.coefficients;
+        let f_x = SchZipEval::eval_fq12_direct(f.into(), self.fiat_shamir_powers, f_nz);
+        let inv_x = SchZipEval::eval_fq12_direct(inv.into(), self.fiat_shamir_powers, f_nz);
+
+        let rhs: u512 = f_x.u_mul(inv_x);
+
+        let q_x = SchZipEval::eval_poly_11(c, i + 1, self.fiat_shamir_powers, f_nz);
+        let lhs = mul_u(q_x, *self.p12_x);
+
+        assert(u512_reduce(rhs - lhs, f_nz) == 1, 'SchZip inv verif failed');
+    }
 }
 
 pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
@@ -237,8 +258,6 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
 
         self.last_step(ref f, i, l1, l2, l3, f_nz);
         i += 42;
-    // Convert Fq12 direct polynomial representation back to tower
-    // f = direct_to_tower(f);
     }
 
     fn sz_post_miller(
@@ -250,11 +269,11 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
         cubic_scale: CubicScale,
         f_nz: NZ256
     ) -> bool {
+        self.verify_inv_direct(i, residue, residue_inv, f_nz);
         let one = Fq12Utils::one();
-        let residue_inv = direct_to_tower(residue_inv);
-        let residue = direct_to_tower(residue);
 
-        assert(residue_inv * residue == one, 'incorrect residue witness');
+        let residue_inv_tow = direct_to_tower(residue_inv);
+        let residue_tow = direct_to_tower(residue);
 
         // add cubic scale
         let result = match cubic_scale {
