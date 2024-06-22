@@ -493,7 +493,7 @@ fn schzip_miller<
     setup: G16CircuitSetup<TLines>,
     schzip: TSchZip,
     field_nz: NonZero<u256>,
-) -> (Fq12, Groth16PreCompute<TLines, TSchZip>) { //
+) -> (Fq12, Groth16PreCompute<TLines, TSchZip>, SchZipAccumulator) { //
     // Compute k from ic and public_inputs
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
@@ -531,7 +531,7 @@ fn schzip_miller<
     let precomp = ate_miller_loop_steps_second_half(precomp, ref q_acc, ref miller_loop_result);
 
     // multiply precomputed alphabeta_miller with the pairings
-    (miller_loop_result * alpha_beta, precomp)
+    (miller_loop_result * alpha_beta, precomp, q_acc)
 }
 
 // Does the verification
@@ -552,7 +552,7 @@ pub fn schzip_verify<
     // residue_witness_inv as starter to incorporate  6 * x + 2 in the miller loop
 
     // miller loop result
-    let (f, precomp) = schzip_miller(
+    let (f, precomp, mut acc) = schzip_miller(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, schzip, field_nz
     );
 
