@@ -56,6 +56,23 @@ pub struct SchZipCommitments {
 // Expanding this to include the whole bit operation inside the miller loop,
 #[generate_trait]
 impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
+    fn fq12_at_coeffs_index(self: @SchZipCommitments, i: u32) -> Fq12 {
+        let c = self.coefficients;
+        fq12(
+            *c[i],
+            *c[i + 1],
+            *c[i + 2],
+            *c[i + 3],
+            *c[i + 4],
+            *c[i + 5],
+            *c[i + 6],
+            *c[i + 7],
+            *c[i + 8],
+            *c[i + 9],
+            *c[i + 10],
+            *c[i + 11],
+        )
+    }
     // Handles Schwartz Zippel verification for zero `O` bits,
     // * Commitment contains 64 coefficients
     // * F ∈ Fq12, miller loop aggregation
@@ -75,20 +92,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         // RHS = F(x) * F(x) * L1_L2(x) * L3(x)
         let rhs: u512 = f_x.sqr().u_mul(l1_l2_x * l3_x);
 
-        let r = fq12(
-            *c[i],
-            *c[i + 1],
-            *c[i + 2],
-            *c[i + 3],
-            *c[i + 4],
-            *c[i + 5],
-            *c[i + 6],
-            *c[i + 7],
-            *c[i + 8],
-            *c[i + 9],
-            *c[i + 10],
-            *c[i + 11],
-        );
+        let r = self.fq12_at_coeffs_index(i);
 
         let r_x = SchZipEval::eval_fq12_direct_u(r.into(), self.fiat_shamir_powers, f_nz);
         let q_x = SchZipEval::eval_poly_30(c, i + 12, self.fiat_shamir_powers, f_nz);
@@ -129,20 +133,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         // RHS = F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x)
         let rhs: u512 = f_x.sqr().u_mul(l1_x * l2_x * l3_x * w_x);
 
-        let r = fq12(
-            *c[i],
-            *c[i + 1],
-            *c[i + 2],
-            *c[i + 3],
-            *c[i + 4],
-            *c[i + 5],
-            *c[i + 6],
-            *c[i + 7],
-            *c[i + 8],
-            *c[i + 9],
-            *c[i + 10],
-            *c[i + 11],
-        );
+        let r = self.fq12_at_coeffs_index(i);
 
         let r_x = SchZipEval::eval_fq12_direct_u(r.into(), self.fiat_shamir_powers, f_nz);
         let q_x = SchZipEval::eval_poly_52(c, i + 12, self.fiat_shamir_powers, f_nz);
@@ -182,20 +173,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         // RHS = F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x)
         let rhs: u512 = f_x.u_mul(l1_x * l2_x * l3_x);
 
-        let r = fq12(
-            *c[i],
-            *c[i + 1],
-            *c[i + 2],
-            *c[i + 3],
-            *c[i + 4],
-            *c[i + 5],
-            *c[i + 6],
-            *c[i + 7],
-            *c[i + 8],
-            *c[i + 9],
-            *c[i + 10],
-            *c[i + 11],
-        );
+        let r = self.fq12_at_coeffs_index(i);
 
         let r_x = SchZipEval::eval_fq12_direct_u(r.into(), self.fiat_shamir_powers, f_nz);
         let q_x = SchZipEval::eval_poly_30(c, i + 12, self.fiat_shamir_powers, f_nz);
