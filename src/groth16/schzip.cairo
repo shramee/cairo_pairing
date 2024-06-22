@@ -120,7 +120,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         let l1_x = SchZipEval::eval_01234(l1, self.fiat_shamir_powers, f_nz);
         let l2_x = SchZipEval::eval_01234(l2, self.fiat_shamir_powers, f_nz);
         let l3_x = SchZipEval::eval_01234(l3, self.fiat_shamir_powers, f_nz);
-        let w_x = SchZipEval::eval_fq12(witness.into(), self.fiat_shamir_powers, f_nz);
+        let w_x = SchZipEval::eval_fq12_direct(witness.into(), self.fiat_shamir_powers, f_nz);
 
         // RHS = F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x)
         let rhs: u512 = f_x.sqr().u_mul(l1_x * l2_x * l3_x * w_x);
@@ -210,7 +210,6 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
     fn sz_init(self: @SchZipCommitments, ref f: Fq12, f_nz: NZ256) { //
         // Convert Fq12 tower to direct polynomial representation
         assert(self.coefficients.len() == COEFFICIENTS_COUNT, 'wrong number of coefficients');
-        f = tower_to_direct(f).into();
     }
 
     #[inline(always)]
@@ -258,6 +257,33 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
         i += 42;
     // Convert Fq12 direct polynomial representation back to tower
     // f = direct_to_tower(f);
+    }
+
+    fn sz_post_miller(
+        self: @SchZipCommitments,
+        f: Fq12,
+        residue: Fq12,
+        residue_inv: Fq12,
+        cubic_scale: Fq6,
+        f_nz: NZ256
+    ) -> bool {
+        let one = Fq12Utils::one();
+        let residue_inv = direct_to_tower(residue_inv);
+        let residue = direct_to_tower(residue);
+
+        assert(residue_inv * residue == one, 'incorrect residue witness');
+
+        let Fq12 { c0, c1 } = f;
+
+        // add cubic scale
+        let result = Fq12 { c0: c0 * cubic_scale, c1: c1 * cubic_scale };
+
+        // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
+        // result * residue^q * (1/residue)^(q**2) * residue^q**3
+        let result = result * residue_inv.frob1() * residue.frob2() * residue_inv.frob3();
+
+        // return result == 1
+        result == one
     }
 }
 
@@ -410,8 +436,8 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
         pi_b,
         pi_c,
         inputs,
-        residue_witness,
-        residue_witness_inv,
+        tower_to_direct(residue_witness).into(),
+        tower_to_direct(residue_witness_inv).into(),
         cubic_scale,
         setup,
         schzip,

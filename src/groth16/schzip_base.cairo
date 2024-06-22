@@ -12,11 +12,13 @@ use bn::fields::{FS034, FS01234, FS01, fq_sparse::FqSparseTrait};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::traits::FieldOps;
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
-use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display, F034Display, F01234Display}};
+use bn::fields::{
+    Fq, Fq2, Fq6, print::{FqDisplay, Fq6Display, Fq12Display, F034Display, F01234Display}
+};
 use bn::fields::{fq, fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
-use pairing::optimal_ate::{ate_miller_loop_steps};
+use pairing::optimal_ate::{ate_miller_loop_steps_first_half, ate_miller_loop_steps_second_half};
 use pairing::optimal_ate_utils::{p_precompute, line_fn_at_p, LineFn};
 use pairing::optimal_ate_utils::{step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
@@ -56,6 +58,9 @@ pub trait SchZipSteps<T> {
     fn sz_zero_bit(self: @T, ref f: Fq12, ref i: u32, lines: Lines, f_nz: NZ256);
     fn sz_nz_bit(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256);
     fn sz_last_step(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256);
+    fn sz_post_miller(
+        self: @T, f: Fq12, residue: Fq12, residue_inv: Fq12, cubic_scale: Fq6, f_nz: NZ256
+    ) -> bool;
 }
 
 #[derive(Drop)]
@@ -119,6 +124,37 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         f = f.mul_01234(l1, f_nz);
         f = f.mul_01234(l2, f_nz);
         f = f.mul_01234(l3, f_nz);
+    }
+
+    fn sz_post_miller(
+        self: @SchZipMock, f: Fq12, residue: Fq12, residue_inv: Fq12, cubic_scale: Fq6, f_nz: NZ256
+    ) -> bool {
+        let one = Fq12Utils::one();
+        assert(residue_inv * residue == one, 'incorrect residue witness');
+
+        let Fq12 { c0, c1 } = f;
+
+        if *self.print {
+            println!(
+                "sz_post_miller(\n{}\n{}\n{}\n{}\n{}\n)",
+                f,
+                cubic_scale,
+                residue_inv.frob1(),
+                residue.frob2(),
+                residue_inv.frob3()
+            );
+            println!("sz_residue_inv_verify(\n{}\n{}\n)", residue_inv, residue,);
+        }
+
+        // add cubic scale
+        let result = Fq12 { c0: c0 * cubic_scale, c1: c1 * cubic_scale };
+
+        // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
+        // result * residue^q * (1/residue)^(q**2) * residue^q**3
+        let result = result * residue_inv.frob1() * residue.frob2() * residue_inv.frob3();
+
+        // return result == 1
+        result == one
     }
 }
 
@@ -424,7 +460,7 @@ fn schzip_miller<
     setup: G16CircuitSetup<TLines>,
     schzip: TSchZip,
     field_nz: NonZero<u256>,
-) -> Fq12 { //
+) -> (Fq12, Groth16PreCompute<TLines, TSchZip>) { //
     // Compute k from ic and public_inputs
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
@@ -455,13 +491,14 @@ fn schzip_miller<
     };
 
     // q points accumulator
-    let mut acc = SchZipAccumulator { g2: q, coeff_i: 0 };
+    let mut q_acc = SchZipAccumulator { g2: q, coeff_i: 0 };
 
     // let miller_loop_result = precomp.miller_first_second(64, 65, ref acc);
-    let miller_loop_result = ate_miller_loop_steps(precomp, ref acc);
+    let (precomp, mut miller_loop_result) = ate_miller_loop_steps_first_half(precomp, ref q_acc);
+    let precomp = ate_miller_loop_steps_second_half(precomp, ref q_acc, ref miller_loop_result);
 
     // multiply precomputed alphabeta_miller with the pairings
-    miller_loop_result * alpha_beta
+    (miller_loop_result * alpha_beta, precomp)
 }
 
 // Does the verification
@@ -479,25 +516,12 @@ pub fn schzip_verify<
     schzip: TSchZip,
     field_nz: NonZero<u256>,
 ) -> bool {
-    let one = Fq12Utils::one();
-    assert(residue_witness_inv * residue_witness == one, 'incorrect residue witness');
     // residue_witness_inv as starter to incorporate  6 * x + 2 in the miller loop
 
     // miller loop result
-    let Fq12 { c0, c1 } = schzip_miller(
+    let (f, precomp) = schzip_miller(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, schzip, field_nz
     );
 
-    // add cubic scale
-    let result = Fq12 { c0: c0 * cubic_scale, c1: c1 * cubic_scale };
-
-    // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
-    // result^(q + q**3) * (1/residue)^(q**2)
-    let result = result
-        * residue_witness_inv.frob1()
-        * residue_witness.frob2()
-        * residue_witness_inv.frob3();
-
-    // return result == 1
-    result == one
+    precomp.schzip.sz_post_miller(f, residue_witness, residue_witness_inv, cubic_scale, field_nz)
 }
