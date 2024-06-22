@@ -279,8 +279,8 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
         // add cubic scale
         let result = match cubic_scale {
             CubicScale::Zero => f,
-            CubicScale::One => mul_by_root_27th(f),
-            CubicScale::Two => mul_by_root_27th_sq(f),
+            CubicScale::One => mul_by_root_27th(f, f_nz),
+            CubicScale::Two => mul_by_root_27th_sq(f, f_nz),
         };
 
         // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`

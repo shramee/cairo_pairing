@@ -143,8 +143,8 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         // add cubic scale
         let (result, cubic_scale) = match cubic_scale {
             CubicScale::Zero => (f, FieldUtils::one()),
-            CubicScale::One => (mul_by_root_27th(f), ROOT_27TH),
-            CubicScale::Two => (mul_by_root_27th_sq(f), ROOT_27TH_SQ),
+            CubicScale::One => (mul_by_root_27th(f, f_nz), ROOT_27TH),
+            CubicScale::Two => (mul_by_root_27th_sq(f, f_nz), ROOT_27TH_SQ),
         };
 
         if *self.print {
