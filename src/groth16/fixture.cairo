@@ -1,3 +1,4 @@
+use bn::curve::residue_witness::CubicScale;
 use bn::fields::{fq2, fq12, fq6, Fq12, Fq6};
 use bn::curve::groups::{g1, g2, AffineG1, AffineG2};
 use bn::groth16::utils::{G16CircuitSetup, LinesArray, LineFn, line_fn_from_u256};
@@ -148,7 +149,7 @@ fn proof() -> (AffineG1, AffineG2, AffineG1, u256, Fq12) {
     (pi_a, pi_b, pi_c, pub_input, miller_result)
 }
 
-fn residue_witness() -> (Fq12, Fq12, Fq12, Fq6, u32) {
+fn residue_witness() -> (Fq12, Fq12, Fq12, Fq6, CubicScale) {
     let f = fq12(
         0x1bf4e21820e6cc2b2dbc9453733a8d7c48f05e73f90ecc8bdd80505d2d3b1715,
         0x264f54f6b719920c4ac00aafb3df29cc8a9ddc25e264bdee1ade5e36077d58d7,
@@ -207,7 +208,7 @@ fn residue_witness() -> (Fq12, Fq12, Fq12, Fq6, u32) {
         0x0,
     );
 
-    let w_pow = 2;
+    let w_pow = CubicScale::Two;
     (f, c, c_inverse, wi, w_pow)
 }
 

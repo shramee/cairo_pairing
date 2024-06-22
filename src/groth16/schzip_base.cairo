@@ -3,7 +3,9 @@ use bn::groth16::utils_line::LineResult01234Trait;
 use bn::fields::fq_12::Fq12FrobeniusTrait;
 use bn::traits::FieldUtils;
 use bn::curve::{u512, U512BnAdd, U512Ops, scale_9 as x9, groups::ECOperations};
-use bn::curve::residue_witness::{ROOT_27TH, ROOT_27TH_SQ, mul_by_root_27th, mul_by_root_27th_sq};
+use bn::curve::residue_witness::{
+    ROOT_27TH, ROOT_27TH_SQ, CubicScale, mul_by_root_27th, mul_by_root_27th_sq
+};
 use bn::math::fast_mod::{sqr_nz, mul_nz, mul_u, u512_add, u512_add_u256, u512_reduce};
 use bn::fields::fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12Direct};
 use bn::fields::fq_12_direct::{
@@ -60,7 +62,7 @@ pub trait SchZipSteps<T> {
     fn sz_nz_bit(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, witness: Fq12, f_nz: NZ256);
     fn sz_last_step(self: @T, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NZ256);
     fn sz_post_miller(
-        self: @T, f: Fq12, residue: Fq12, residue_inv: Fq12, cubic_scale_pow: u32, f_nz: NZ256
+        self: @T, f: Fq12, residue: Fq12, residue_inv: Fq12, cubic_scale: CubicScale, f_nz: NZ256
     ) -> bool;
 }
 
@@ -132,19 +134,17 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         f: Fq12,
         residue: Fq12,
         residue_inv: Fq12,
-        cubic_scale_pow: u32,
+        cubic_scale: CubicScale,
         f_nz: NZ256
     ) -> bool {
         let one = Fq12Utils::one();
         assert(residue_inv * residue == one, 'incorrect residue witness');
 
         // add cubic scale
-        let (result, cubic_scale) = if cubic_scale_pow == 0 {
-            (f, FieldUtils::one())
-        } else if cubic_scale_pow == 1 {
-            (mul_by_root_27th(f), ROOT_27TH)
-        } else {
-            (mul_by_root_27th_sq(f), ROOT_27TH_SQ)
+        let (result, cubic_scale) = match cubic_scale {
+            CubicScale::Zero => (f, FieldUtils::one()),
+            CubicScale::One => (mul_by_root_27th(f), ROOT_27TH),
+            CubicScale::Two => (mul_by_root_27th_sq(f), ROOT_27TH_SQ),
         };
 
         if *self.print {
@@ -521,7 +521,7 @@ pub fn schzip_verify<
     inputs: Array<u256>,
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
-    cubic_scale_pow: usize,
+    cubic_scale: CubicScale,
     setup: G16CircuitSetup<TLines>,
     schzip: TSchZip,
     field_nz: NonZero<u256>,
@@ -535,5 +535,5 @@ pub fn schzip_verify<
 
     precomp
         .schzip
-        .sz_post_miller(f, residue_witness, residue_witness_inv, cubic_scale_pow, field_nz)
+        .sz_post_miller(f, residue_witness, residue_witness_inv, cubic_scale, field_nz)
 }
