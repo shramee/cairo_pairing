@@ -53,7 +53,8 @@ fn groth16_verify() {
 
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
-    let (_, residue_witness, residue_witness_inv, cubic_scl) = fixture::residue_witness();
+    let (_, residue_witness, residue_witness_inv, cubic_scl, _cubic_scale_pow) =
+        fixture::residue_witness();
 
     let verified = verify(
         pi_a,
@@ -73,7 +74,8 @@ fn groth16_verify() {
 #[available_gas(20000000000)]
 fn groth16_residue_final() {
     // Proof parameters
-    let (miller, residue_witness, residue_witness_inv, cubic_scale) = fixture::residue_witness();
+    let (miller, residue_witness, residue_witness_inv, cubic_scale, _cubic_scale_pow) =
+        fixture::residue_witness();
 
     assert(residue_witness_inv * residue_witness == Fq12Utils::one(), 'incorrect residue witness');
 
@@ -83,7 +85,7 @@ fn groth16_residue_final() {
     let result = Fq12 { c0: c0 * cubic_scale, c1: c1 * cubic_scale };
 
     // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
-    // result^(q + q**3) * (1/residue)^(q**2)
+    // result * residue^q * (1/residue)^(q**2) * residue^q**3
     let _result = result
         * residue_witness_inv.frob1()
         * residue_witness.frob2()

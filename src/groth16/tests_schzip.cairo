@@ -10,9 +10,8 @@ use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps};
 use pairing::optimal_ate_utils::LineFn;
 use bn::groth16::utils::{G16CircuitSetup, LinesArray};
 use bn::groth16::fixture;
-use bn::groth16::schzip::{
-    schzip_verify, schzip_verify_with_commitments, SchZipMock, SchZipCommitments
-};
+use bn::groth16::schzip::schzip_verify_with_commitments;
+use bn::groth16::schzip_base::{schzip_verify, SchZipMock};
 use core::poseidon::PoseidonImpl;
 use core::hash::HashStateTrait;
 
@@ -25,7 +24,8 @@ fn verify() {
 
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
-    let (_, residue_witness, residue_witness_inv, cubic_scl) = fixture::residue_witness();
+    let (_, residue_witness, residue_witness_inv, _cubic_scl, cubic_pow) =
+        fixture::residue_witness();
 
     let verified = schzip_verify(
         pi_a,
@@ -34,7 +34,7 @@ fn verify() {
         array![pub_input],
         residue_witness,
         residue_witness_inv,
-        cubic_scl,
+        cubic_pow,
         circuit_setup,
         SchZipMock { print: false },
         get_field_nz()
@@ -52,7 +52,8 @@ fn verify_with_commitment() {
 
     // Proof parameters
     let (pi_a, pi_b, pi_c, pub_input, _) = fixture::proof();
-    let (_, residue_witness, residue_witness_inv, cubic_scl) = fixture::residue_witness();
+    let (_, residue_witness, residue_witness_inv, _cubic_scl, cubic_pow) =
+        fixture::residue_witness();
 
     let _verified = schzip_verify_with_commitments(
         pi_a,
@@ -61,7 +62,7 @@ fn verify_with_commitment() {
         array![pub_input],
         residue_witness,
         residue_witness_inv,
-        cubic_scl,
+        cubic_pow,
         circuit_setup,
         fixture::schzip()
     );
