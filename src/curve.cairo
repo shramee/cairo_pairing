@@ -2,6 +2,7 @@ use core::option::OptionTrait;
 use core::traits::TryInto;
 mod constants;
 mod groups;
+mod residue_witness;
 
 use constants::{
     T, ORDER, FIELD, FIELD_NZ, get_field_nz, FIELD_X2, FIELDSQLOW, FIELDSQHIGH, U256_MOD_FIELD,
