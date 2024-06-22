@@ -9,6 +9,7 @@ use fq_12::Fq12FrobeniusTrait;
 use fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12IntoFq12Direct, Fq12Direct};
 use fq_12_direct::{direct_to_tower, tower_to_direct, tower01234_to_direct, tower034_to_direct,};
 use bn::traits::FieldOps;
+use bn::curve::residue_witness::{ROOT_27TH, ROOT_27TH_SQ, mul_by_root_27th, mul_by_root_27th_sq};
 use bn::curve::{m, U512BnAdd, U512BnSub, u512, U512Ops, scale_9 as x9, groups::ECOperations};
 use m::{sqr_nz, mul_nz, mul_u, u512_add, u512_add_u256, u512_reduce, add_u};
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
@@ -264,7 +265,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
         f: Fq12,
         residue: Fq12,
         residue_inv: Fq12,
-        cubic_scale: Fq6,
+        cubic_scale_pow: u32,
         f_nz: NZ256
     ) -> bool {
         let one = Fq12Utils::one();
@@ -273,10 +274,14 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
 
         assert(residue_inv * residue == one, 'incorrect residue witness');
 
-        let Fq12 { c0, c1 } = f;
-
         // add cubic scale
-        let result = Fq12 { c0: c0 * cubic_scale, c1: c1 * cubic_scale };
+        let (result, _cubic_scale) = if cubic_scale_pow == 0 {
+            (f, FieldUtils::one())
+        } else if cubic_scale_pow == 1 {
+            (mul_by_root_27th(f), ROOT_27TH)
+        } else {
+            (mul_by_root_27th_sq(f), ROOT_27TH_SQ)
+        };
 
         // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
         // result * residue^q * (1/residue)^(q**2) * residue^q**3
@@ -402,7 +407,7 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
     inputs: Array<u256>,
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
-    cubic_scale: Fq6,
+    cubic_scale_pow: u32,
     setup: G16CircuitSetup<TLines>,
     coefficients: Array<u256>,
 ) -> bool {
@@ -438,7 +443,7 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
         inputs,
         tower_to_direct(residue_witness).into(),
         tower_to_direct(residue_witness_inv).into(),
-        cubic_scale,
+        cubic_scale_pow,
         setup,
         schzip,
         f_nz
