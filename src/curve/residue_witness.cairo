@@ -7,28 +7,30 @@ use bn::fields::fq_12_direct::{
 use bn::fields::{FS034, FS01234, FS01, fq_sparse::FqSparseTrait};
 
 #[derive(Copy, Drop, Serde)]
-enum ResidueWitness {
+enum CubicScale {
     Zero,
     One,
     Two,
 }
 
-impl ResidueWitnessIntoFq12 of Into<ResidueWitness, Fq12> {
-    fn into(self: ResidueWitness) -> Fq12 {
+impl ResidueWitnessIntoFq6 of Into<CubicScale, Fq6> {
+    fn into(self: CubicScale) -> Fq6 {
         match self {
-            ResidueWitness::Zero => FieldUtils::one(),
-            ResidueWitness::One => ROOT_27TH,
-            ResidueWitness::Two => ROOT_27TH_SQ,
+            CubicScale::Zero => FieldUtils::one(),
+            CubicScale::One => ROOT_27TH,
+            CubicScale::Two => ROOT_27TH_SQ,
         }
     }
 }
 
-impl ResidueWitnessIntoFq12Direct of Into<ResidueWitness, Fq12Direct> {
-    fn into(self: ResidueWitness) -> Fq12Direct {
+impl ResidueWitnessIntoFq12Direct of Into<CubicScale, Fq12Direct> {
+    fn into(self: CubicScale) -> Fq12Direct {
         match self {
-            ResidueWitness::Zero => FieldUtils::one(),
-            ResidueWitness::One => ROOT_27TH_DIRECT,
-            ResidueWitness::Two => ROOT_27TH_SQ_DIRECT,
+            CubicScale::Zero => (
+                FieldUtils::one(), FQ_0, FQ_0, FQ_0, FQ_0, FQ_0, FQ_0, FQ_0, FQ_0, FQ_0, FQ_0, FQ_0,
+            ),
+            CubicScale::One => ROOT_27TH_DIRECT,
+            CubicScale::Two => ROOT_27TH_SQ_DIRECT,
         }
     }
 }
