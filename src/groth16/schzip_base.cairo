@@ -7,7 +7,7 @@ use bn::curve::residue_witness::{
     ROOT_27TH, ROOT_27TH_SQ, CubicScale, mul_by_root_27th, mul_by_root_27th_sq
 };
 use bn::math::fast_mod::{sqr_nz, mul_nz, mul_u, u512_add, u512_add_u256, u512_reduce};
-use bn::fields::fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12Direct};
+use bn::fields::fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12Direct, FS01234Direct};
 use bn::fields::fq_12_direct::{
     tower_to_direct, tower01234_to_direct, tower034_to_direct, direct_to_tower,
 };
@@ -259,6 +259,7 @@ pub impl Groth16MillerSteps<
 
 #[generate_trait]
 impl SchZipEval of SchZipEvalTrait {
+    #[inline(always)]
     fn eval_01234(a: FS01234, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq {
         SchZipEval::eval_01234_direct(tower01234_to_direct(a), fiat_shamir_pow, f_nz,)
     }
@@ -396,6 +397,24 @@ impl SchZipEval of SchZipEvalTrait {
         acc1 + acc2
     }
 
+    fn eval_poly_11(
+        polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
+    ) -> u256 {
+        let mut acc1 = u512_add_u256(
+            mul_u(*fiat_shamir_pow[1], *polynomial[i + 1]), // term x^1
+             *polynomial[i] // term x^0
+        );
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[2], *polynomial[i + 2]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[3], *polynomial[i + 3]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[4], *polynomial[i + 4]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[5], *polynomial[i + 5]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[6], *polynomial[i + 6]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[7], *polynomial[i + 7]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[8], *polynomial[i + 8]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[9], *polynomial[i + 9]));
+        acc1 = u512_add(acc1, mul_u(*fiat_shamir_pow[10], *polynomial[i + 10]));
+        u512_reduce(acc1, f_nz)
+    }
     fn eval_poly_52(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> u256 { //
