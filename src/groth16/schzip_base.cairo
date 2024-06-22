@@ -259,9 +259,13 @@ pub impl Groth16MillerSteps<
 
 #[generate_trait]
 impl SchZipEval of SchZipEvalTrait {
-    fn eval_01234(a: FS01234, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq { //
+    fn eval_01234(a: FS01234, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq {
+        SchZipEval::eval_01234_direct(tower01234_to_direct(a), fiat_shamir_pow, f_nz,)
+    }
+
+    fn eval_01234_direct(a: FS01234Direct, fiat_shamir_pow: @Array<u256>, f_nz: NZ256) -> Fq { //
         // a tower_to_direct
-        let ((c0, c1, c2, c3, c4), (c6, c7, c8, c9, c10)) = tower01234_to_direct(a);
+        let ((c0, c1, c2, c3, c4), (c6, c7, c8, c9, c10)) = a;
 
         // evaluate FS01234 polynomial at fiat_shamir with precomputed powers
         let term_1 = mul_u((*fiat_shamir_pow[1]), c1.c0);
