@@ -112,8 +112,7 @@ impl Fq12Utils of FieldUtils<Fq12, Fq6> {
 
     #[inline(always)]
     fn scale(self: Fq12, by: Fq6) -> Fq12 {
-        assert(false, 'no_impl: fq12 scale');
-        Fq12Utils::one()
+        Fq12 { c0: self.c0 * by, c1: self.c1 * by, }
     }
 
     fn conjugate(self: Fq12) -> Fq12 {
