@@ -293,7 +293,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
 }
 
 // Calculate 51 powers of x modulo field
-pub fn powers_51(x: u256, field_nz: NZ256) -> Array<u256> {
+pub fn powers_53(x: u256, field_nz: NZ256) -> Array<u256> {
     let x2 = sqr_nz(x, field_nz);
     let x3 = mul_nz(x2, x, field_nz);
     let x4 = sqr_nz(x2, field_nz);
@@ -344,6 +344,8 @@ pub fn powers_51(x: u256, field_nz: NZ256) -> Array<u256> {
     let x49 = mul_nz(x48, x, field_nz);
     let x50 = sqr_nz(x25, field_nz);
     let x51 = mul_nz(x50, x, field_nz);
+    let x52 = sqr_nz(x26, field_nz);
+    let x53 = mul_nz(x52, x, field_nz);
     array![
         1,
         x,
@@ -397,6 +399,8 @@ pub fn powers_51(x: u256, field_nz: NZ256) -> Array<u256> {
         x49,
         x50,
         x51,
+        x52,
+        x53,
     ]
 }
 
@@ -424,7 +428,7 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
     let f_nz = get_field_nz();
     let fiat_shamir: u256 = hasher.finalize().into();
 
-    let mut fiat_shamir_powers = powers_51(fiat_shamir, f_nz);
+    let mut fiat_shamir_powers = powers_53(fiat_shamir, f_nz);
 
     // x^12 + 21888242871839275222246405745257275088696311157297823662689037894645226208565x^6 + 82
     let minus18_x_6 = mul_u(
