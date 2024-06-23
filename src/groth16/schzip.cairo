@@ -264,6 +264,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
         self: @SchZipCommitments,
         f: Fq12,
         ref i: u32,
+        alpha_beta: Fq12,
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,

@@ -65,6 +65,7 @@ pub trait SchZipSteps<T> {
         self: @T,
         f: Fq12,
         ref i: u32,
+        alpha_beta: Fq12,
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,
@@ -139,6 +140,7 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         self: @SchZipMock,
         f: Fq12,
         ref i: u32,
+        alpha_beta: Fq12,
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,
@@ -156,8 +158,9 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
 
         if *self.print {
             println!(
-                "sz_post_miller(\n{}\n{}\n{}\n{}\n{}\n)",
+                "sz_post_miller(\n{}\n{}\n{}\n{}\n{}\n{}\n)",
                 f,
+                alpha_beta,
                 cubic_scale,
                 residue_inv.frob1(),
                 residue.frob2(),
@@ -168,7 +171,11 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
 
         // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
         // result * residue^q * (1/residue)^(q**2) * residue^q**3
-        let result = result * residue_inv.frob1() * residue.frob2() * residue_inv.frob3();
+        let result = result
+            * alpha_beta
+            * residue_inv.frob1()
+            * residue.frob2()
+            * residue_inv.frob3();
 
         // return result == 1
         result == one
@@ -501,7 +508,7 @@ fn schzip_miller<
     setup: G16CircuitSetup<TLines>,
     schzip: TSchZip,
     field_nz: NonZero<u256>,
-) -> (Fq12, Groth16PreCompute<TLines, TSchZip>, SchZipAccumulator) { //
+) -> (Fq12, Fq12, Groth16PreCompute<TLines, TSchZip>, SchZipAccumulator) { //
     // Compute k from ic and public_inputs
     let G16CircuitSetup { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
@@ -538,8 +545,8 @@ fn schzip_miller<
     let (precomp, mut miller_loop_result) = ate_miller_loop_steps_first_half(precomp, ref q_acc);
     let precomp = ate_miller_loop_steps_second_half(precomp, ref q_acc, ref miller_loop_result);
 
-    // multiply precomputed alphabeta_miller with the pairings
-    (miller_loop_result * alpha_beta, precomp, q_acc)
+    // returnpairing and precomputed alphabeta_miller with the pairings
+    (miller_loop_result, alpha_beta, precomp, q_acc)
 }
 
 // Does the verification
@@ -560,13 +567,19 @@ pub fn schzip_verify<
     // residue_witness_inv as starter to incorporate  6 * x + 2 in the miller loop
 
     // miller loop result
-    let (f, precomp, mut acc) = schzip_miller(
+    let (f, alpha_beta, precomp, mut acc) = schzip_miller(
         pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, schzip, field_nz
     );
 
     precomp
         .schzip
         .sz_post_miller(
-            f, ref acc.coeff_i, residue_witness, residue_witness_inv, cubic_scale, field_nz
+            f,
+            ref acc.coeff_i,
+            alpha_beta,
+            residue_witness,
+            residue_witness_inv,
+            cubic_scale,
+            field_nz
         )
 }
