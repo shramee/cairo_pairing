@@ -36,7 +36,7 @@ type LinesDbl = (F034X2, F034X2, F034X2);
 type NZ256 = NonZero<u256>;
 
 // const COEFFICIENTS_COUNT: usize = 3234;
-const COEFFICIENTS_COUNT: usize = 3288;
+const COEFFICIENTS_COUNT: usize = 3299;
 
 #[derive(Drop)]
 pub struct SchZipCommitments {
