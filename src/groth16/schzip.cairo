@@ -1,34 +1,43 @@
-use bn::curve::UAddSubTrait;
-use bn::groth16::utils_line::LineResult01234Trait;
-use bn::fields::{fq_12, fq_12_direct};
-use bn::fields::{Fq, Fq2, Fq6, print::{FqDisplay, Fq12Display, F034Display, F01234Display}};
-use bn::fields::{fq, fq12, Fq12, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
-use bn::fields::{FS034, FS01234, FS01, fq_sparse::FqSparseTrait};
+use bn::traits::{FieldOps, FieldUtils, FieldMulShortcuts};
+
+// Field tower
+use bn::fields::{fq_12::Fq12FrobeniusTrait, fq_12_direct};
+use bn::fields::{Fq, Fq2, Fq6, fq, fq12, Fq12, FS034, FS01234, FS01,};
+use bn::fields::{FqSparseTrait, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
-use fq_12::Fq12FrobeniusTrait;
+use bn::fields::print::{FqDisplay, Fq12Display, Fq6Display, F034Display, F01234Display};
+
+// Field direct
 use fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12IntoFq12Direct, Fq12Direct};
-use fq_12_direct::{direct_to_tower, tower_to_direct, tower01234_to_direct, tower034_to_direct,};
-use bn::traits::FieldOps;
-use bn::curve::residue_witness::{
-    ROOT_27TH, ROOT_27TH_SQ, mul_by_root_27th, mul_by_root_27th_sq, CubicScale
+use fq_12_direct::{
+    direct_to_tower, direct_tuple_to_tower, tower_to_direct, tower01234_to_direct,
+    tower034_to_direct,
 };
+use bn::curve::residue_witness::{ROOT_27TH_DIRECT, ROOT_27TH_SQ_DIRECT, CubicScale};
+
+// Math
 use bn::curve::{m, U512BnAdd, U512BnSub, u512, U512Ops, scale_9 as x9, groups::ECOperations};
 use m::{sqr_nz, mul_nz, mul_u, u512_add, u512_add_u256, u512_reduce, add_u};
+use bn::curve::UAddSubTrait;
+
 use bn::g::{Affine, AffineG1Impl, AffineG2Impl, g1, g2, AffineG1, AffineG2,};
 use bn::curve::{pairing, get_field_nz};
 use bn::traits::{MillerPrecompute, MillerSteps};
 use core::hash::HashStateTrait;
+
 use pairing::optimal_ate::{ate_miller_loop_steps};
 use pairing::optimal_ate_utils::{p_precompute, line_fn_at_p, LineFn};
 use pairing::optimal_ate_utils::{step_double, step_dbl_add, correction_step};
 use pairing::optimal_ate_impls::{SingleMillerPrecompute, SingleMillerSteps, PPrecompute};
+
+// Groth16 utils
 use bn::groth16::utils::{ICProcess, G16CircuitSetup, Groth16PrecomputedStep};
 use bn::groth16::utils::{StepLinesGet, StepLinesTrait, fq12_034_034_034};
 use bn::groth16::utils::{Groth16MillerG1, Groth16MillerG2, PPrecomputeX3, LineResult,};
+use bn::groth16::utils_line::LineResult01234Trait;
 use bn::groth16::schzip_base::{SchZipAccumulator, Groth16PreCompute, SchZipSteps};
 use bn::groth16::schzip_base::{Groth16MillerSteps, schzip_miller, schzip_verify};
 use bn::groth16::schzip_base::{SchZipMock, SchZipMockSteps, SchZipEval};
-use bn::traits::{FieldUtils, FieldMulShortcuts};
 
 type F034X2 = (FS034, FS034);
 type Lines = (FS034, FS034, FS034);
@@ -180,7 +189,6 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         let q_x = SchZipEval::eval_poly_30(c, i + 12, self.fiat_shamir_powers, f_nz);
         // LHS = R(x) + Q(x) * P12(x)
         let lhs = r_x + mul_u(q_x, *self.p12_x);
-
         // assert rhs == lhs mod field, or rhs - lhs == 0
         assert(u512_reduce(rhs - lhs, f_nz) == 0, 'SchZip last step verif failed');
 
@@ -295,7 +303,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
 }
 
 // Calculate 51 powers of x modulo field
-pub fn powers_53(x: u256, field_nz: NZ256) -> Array<u256> {
+pub fn powers_51(x: u256, field_nz: NZ256) -> Array<u256> {
     let x2 = sqr_nz(x, field_nz);
     let x3 = mul_nz(x2, x, field_nz);
     let x4 = sqr_nz(x2, field_nz);
@@ -346,8 +354,6 @@ pub fn powers_53(x: u256, field_nz: NZ256) -> Array<u256> {
     let x49 = mul_nz(x48, x, field_nz);
     let x50 = sqr_nz(x25, field_nz);
     let x51 = mul_nz(x50, x, field_nz);
-    let x52 = sqr_nz(x26, field_nz);
-    let x53 = mul_nz(x52, x, field_nz);
     array![
         1,
         x,
@@ -401,8 +407,6 @@ pub fn powers_53(x: u256, field_nz: NZ256) -> Array<u256> {
         x49,
         x50,
         x51,
-        x52,
-        x53,
     ]
 }
 
@@ -430,7 +434,7 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
     let f_nz = get_field_nz();
     let fiat_shamir: u256 = hasher.finalize().into();
 
-    let mut fiat_shamir_powers = powers_53(fiat_shamir, f_nz);
+    let mut fiat_shamir_powers = powers_51(fiat_shamir, f_nz);
 
     // x^12 + 21888242871839275222246405745257275088696311157297823662689037894645226208565x^6 + 82
     let minus18_x_6 = mul_u(
