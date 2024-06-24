@@ -192,7 +192,7 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         // assert rhs == lhs mod field, or rhs - lhs == 0
         assert(u512_reduce(rhs - lhs, f_nz) == 0, 'SchZip last step verif failed');
 
-        f = direct_to_tower(r);
+        f = r;
     }
 
     // Handles Schwartz Zippel verification for inversion operation,
@@ -215,6 +215,76 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
         let lhs = mul_u(q_x, *self.p12_x);
 
         assert(u512_reduce(rhs - lhs, f_nz) == 1, 'SchZip inv verif failed');
+    }
+
+    // Handles Schwartz Zippel verification for post miller operation,
+    // * Commitment contains 42 coefficients
+    // * R is just 1 so we have 11 less coefficients
+    // * F ∈ Fq12, miller loop aggregation
+    // * RQ, RIQ2, RQ3 ∈ Fq12, residue witness frobenius maps
+    // * CubicScale ∈ Sparse Fq12, cubic scale factor
+    // * ```F(x) * RQ(x) * RIQ2(x) * RQ3(x) * CubicScale(x) = R(x) + Q(x) * P12(x)```
+    // * For r = 1, ```F(x) * RQ(x) * RIQ2(x) * RQ3(x) * CubicScale(x) = 1 + Q(x) * P12(x)```
+    // * Or, ```F(x) * RQ(x) * RIQ2(x) * RQ3(x) * CubicScale(x) - Q(x) * P12(x) = 1```
+    fn post_miller(
+        self: @SchZipCommitments,
+        f: Fq12,
+        i: u32,
+        alpha_beta: Fq12,
+        r_pow_q: Fq12,
+        r_inv_q2: Fq12,
+        r_pow_q3: Fq12,
+        cubic_scale: CubicScale,
+        f_nz: NZ256
+    ) -> bool {
+        core::internal::revoke_ap_tracking();
+        let c = self.coefficients;
+        let fs_pow = self.fiat_shamir_powers;
+
+        // F(x) * RQ(x) * RIQ2(x) * RQ3(x) = R(x) + Q(x) * P12(x)
+        let f_x = SchZipEval::eval_fq12_direct(f.into(), fs_pow, f_nz);
+        let alpha_beta_x = SchZipEval::eval_fq12(alpha_beta, fs_pow, f_nz);
+        let r_pow_q_x = SchZipEval::eval_fq12(r_pow_q, fs_pow, f_nz);
+        let r_inv_q2_x = SchZipEval::eval_fq12(r_inv_q2, fs_pow, f_nz);
+        let r_pow_q3_x = SchZipEval::eval_fq12(r_pow_q3, fs_pow, f_nz);
+
+        // println!("x: {}", fq(*fs_pow[1]));
+        // println!("f_x: {}", f_x);
+        // println!("alpha_beta_x: {}", alpha_beta_x);
+        // println!("r_pow_q_x: {}", r_pow_q_x);
+        // println!("r_inv_q2_x: {}", r_inv_q2_x);
+        // println!("r_pow_q3_x: {}", r_pow_q3_x);
+
+        // RHS = F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x)
+        let rhs = mul_u(
+            u512_reduce(f_x.u_mul(alpha_beta_x), f_nz),
+            u512_reduce((r_pow_q_x * r_inv_q2_x).u_mul(r_pow_q3_x), f_nz)
+        );
+
+        let rhs: u512 = match cubic_scale {
+            CubicScale::Zero => rhs,
+            CubicScale::One => {
+                let (_, _, _, _, c4, _, _, _, _, _, c10, _,) = ROOT_27TH_DIRECT;
+                let cubic_scale_x = mul_u(*fs_pow[4], c4.c0) + mul_u(*fs_pow[10], c10.c0);
+                // println!("cubic_scale_x: {}", fq(u512_reduce(rcubic_scale_x, f_nz)));
+                mul_u(u512_reduce(rhs, f_nz), u512_reduce(cubic_scale_x, f_nz))
+            },
+            CubicScale::Two => {
+                let (_, _, c2, _, _, _, _, _, c8, _, _, _,) = ROOT_27TH_SQ_DIRECT;
+                let cubic_scale_x = mul_u(*fs_pow[2], c2.c0) + mul_u(*fs_pow[8], c8.c0);
+                // println!("cubic_scale_x: {}", fq(u512_reduce(rcubic_scale_x, f_nz)));
+                mul_u(u512_reduce(rhs, f_nz), u512_reduce(cubic_scale_x, f_nz))
+            },
+        };
+
+        let q_x = SchZipEval::eval_poly_52(c, i + 1, fs_pow, f_nz);
+        // LHS = Q(x) * P12(x)
+        let lhs = mul_u(q_x, *self.p12_x);
+
+        // assert rhs == lhs mod field, or rhs - lhs == 1
+        let pairing_result = u512_reduce(rhs - lhs, f_nz) == 1;
+        assert(pairing_result, 'SchZip post miller verif failed');
+        pairing_result
     }
 }
 
@@ -280,25 +350,24 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
         cubic_scale: CubicScale,
         f_nz: NZ256
     ) -> bool {
+        // Verify residue witness and it's inverse
         self.verify_inv_direct(i, residue, residue_inv, f_nz);
-        let one = Fq12Utils::one();
 
-        let residue_inv_tow = direct_to_tower(residue_inv);
-        let residue_tow = direct_to_tower(residue);
+        // Convert residue witness to tower
+        let residue_inv = direct_to_tower(residue_inv);
+        let residue = direct_to_tower(residue);
 
-        // add cubic scale
-        let result = match cubic_scale {
-            CubicScale::Zero => f,
-            CubicScale::One => mul_by_root_27th(f, f_nz),
-            CubicScale::Two => mul_by_root_27th_sq(f, f_nz),
-        };
-
-        // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
-        // result * residue^q * (1/residue)^(q**2) * residue^q**3
-        let result = result * residue_inv.frob1() * residue.frob2() * residue_inv.frob3();
-
-        // return result == 1
-        result == one
+        self
+            .post_miller(
+                f,
+                i + 12,
+                alpha_beta,
+                residue_inv.frob1(),
+                residue.frob2(),
+                residue_inv.frob3(),
+                cubic_scale,
+                f_nz
+            )
     }
 }
 
