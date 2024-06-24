@@ -431,28 +431,22 @@ impl SchZipEval of SchZipEvalTrait {
         u512_reduce(acc1, f_nz)
     }
 
-    fn eval_poly_53(
+    fn eval_poly_51(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> u256 { //
-        core::internal::revoke_ap_tracking();
-
-        let (acc1, acc2, mut acc3) = SchZipEval::eval_poly_52_u(
-            polynomial, i, fiat_shamir_pow, f_nz
-        );
-        // Add 52nd coefficient
-        acc3 = u512_add(acc3, mul_u(*fiat_shamir_pow[52], *polynomial[i + 52]));
-
+        let (acc1, acc2, acc3) = SchZipEval::eval_poly_51_u(polynomial, i, fiat_shamir_pow, f_nz);
         u512_reduce(acc1 + acc2 + acc3, f_nz)
     }
 
     fn eval_poly_52(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> u256 { //
-        let (acc1, acc2, acc3) = SchZipEval::eval_poly_52_u(polynomial, i, fiat_shamir_pow, f_nz);
+        let (acc1, acc2, acc3) = SchZipEval::eval_poly_51_u(polynomial, i, fiat_shamir_pow, f_nz);
+
         u512_reduce(acc1 + acc2 + acc3, f_nz)
     }
 
-    fn eval_poly_52_u(
+    fn eval_poly_51_u(
         polynomial: @Array<u256>, i: u32, fiat_shamir_pow: @Array<u256>, f_nz: NZ256
     ) -> (u512, u512, u512) { //
         core::internal::revoke_ap_tracking();
