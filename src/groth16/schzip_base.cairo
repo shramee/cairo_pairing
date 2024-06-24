@@ -157,6 +157,7 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         };
 
         if *self.print {
+            println!("sz_residue_inv_verify(\n{}\n{}\n)", residue_inv, residue,);
             println!(
                 "sz_post_miller(\n{}\n{}\n{}\n{}\n{}\n{}\n)",
                 f,
@@ -166,7 +167,7 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
                 residue.frob2(),
                 residue_inv.frob3()
             );
-            println!("sz_residue_inv_verify(\n{}\n{}\n)", residue_inv, residue,);
+            println!("sz_print_coeffs()");
         }
 
         // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`

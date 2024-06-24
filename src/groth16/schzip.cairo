@@ -189,9 +189,11 @@ impl SchZipPolyCommitHandler of SchZipPolyCommitHandlerTrait {
 
     // Handles Schwartz Zippel verification for inversion operation,
     // * Commitment contains 12 coefficients
+    // * R is just 1 so we have 11 less coefficients
     // * F, I ∈ Fq12, miller loop aggregation
     // * ```F(x) * I(x) = R(x) + Q(x) * P12(x)```
-    // * Or, ```F(x) * I(x) = x + Q(x) * P12(x)```
+    // * For r = 1, ```F(x) * I(x) = 1 + Q(x) * P12(x)```
+    // * Or, ```F(x) * I(x) - Q(x) * P12(x) = 1```
     fn verify_inv_direct(self: @SchZipCommitments, i: u32, f: Fq12, inv: Fq12, f_nz: NZ256) {
         core::internal::revoke_ap_tracking();
 

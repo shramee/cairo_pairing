@@ -52,7 +52,7 @@ impl Fq6Display of Display<Fq6> {
     fn fmt(self: @Fq6, ref f: Formatter) -> Result<(), Error> {
         write!(
             f,
-            "fq6({},{},{},{},{},{}\n)",
+            "fq6({},{},{},{},{},{}\n),",
             self.c0.c0,
             self.c0.c1,
             self.c1.c0,
