@@ -14,7 +14,7 @@ use bn::fields::{
 use bn::fields::print::{FqDisplay, Fq12Display};
 
 #[inline(always)]
-fn fq12_from_fq(
+pub fn fq12_from_fq(
     a0: Fq, a1: Fq, a2: Fq, a3: Fq, a4: Fq, a5: Fq, b0: Fq, b1: Fq, b2: Fq, b3: Fq, b4: Fq, b5: Fq
 ) -> Fq12 {
     Fq12 {
@@ -27,7 +27,7 @@ fn fq12_from_fq(
     }
 }
 
-fn direct_to_tower(x: Fq12) -> Fq12 {
+pub fn direct_to_tower(x: Fq12) -> Fq12 {
     let Fq12 { c0, c1 } = x;
     let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
     let Fq6 { c0: b3, c1: b4, c2: b5 } = c1; // This should be c1 instead of c0
@@ -52,6 +52,10 @@ fn direct_to_tower(x: Fq12) -> Fq12 {
         a5 + scale_9(a11),
         a11,
     )
+}
+
+pub fn direct_tuple_to_tower(x: Fq12Direct) -> Fq12 {
+    direct_to_tower(x.into())
 }
 
 type Fq12Direct = (Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq, Fq);
@@ -81,7 +85,7 @@ impl Fq12DirectIntoFq12 of Into<Fq12Direct, Fq12> {
     }
 }
 
-fn tower_to_direct(x: Fq12) -> Fq12Direct {
+pub fn tower_to_direct(x: Fq12) -> Fq12Direct {
     let Fq12 { c0, c1 } = x;
     let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
     let Fq6 { c0: b3, c1: b4, c2: b5 } = c1; // This should be c1 instead of c0
@@ -108,7 +112,7 @@ fn tower_to_direct(x: Fq12) -> Fq12Direct {
     )
 }
 
-fn tower01234_to_direct(x: FS01234) -> FS01234Direct {
+pub fn tower01234_to_direct(x: FS01234) -> FS01234Direct {
     let FS01234 { c0, c1 } = x;
     let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
     let FS01 { c0: b3, c1: b4 } = c1; // This should be c1 instead of c0
@@ -133,7 +137,7 @@ struct FS034Direct {
     c9: Fq,
 }
 
-fn tower034_to_direct(x: FS034) -> FS034Direct {
+pub fn tower034_to_direct(x: FS034) -> FS034Direct {
     let FS034 { c3: Fq2 { c0: a6, c1: a7 }, c4: Fq2 { c0: a8, c1: a9 } } = x;
 
     FS034Direct { c1: a6 - scale_9(a7), c3: a8 - scale_9(a9), c7: a7, c9: a9, }
