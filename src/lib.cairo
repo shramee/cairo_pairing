@@ -63,8 +63,6 @@ mod groth16 {
     mod schzip;
     mod setup;
     mod fixture;
-    #[cfg(test)]
-    mod fixture_tests;
     use verifier::verify;
     use setup::setup_precompute;
     #[cfg(test)]
