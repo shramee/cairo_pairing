@@ -59,7 +59,6 @@ mod groth16 {
     mod utils;
     mod utils_line;
     mod verifier;
-    mod schzip_base;
     mod schzip;
     mod setup;
     mod fixture;
@@ -67,8 +66,6 @@ mod groth16 {
     use setup::setup_precompute;
     #[cfg(test)]
     mod tests;
-    #[cfg(test)]
-    mod tests_schzip;
 }
 // #[cfg(test)]
 // mod playground;

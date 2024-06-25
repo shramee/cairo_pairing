@@ -11,7 +11,7 @@ use pairing::optimal_ate_utils::LineFn;
 use bn::groth16::utils::{G16CircuitSetup, LinesArray};
 use bn::groth16::fixture;
 use bn::groth16::schzip::schzip_verify_with_commitments;
-use bn::groth16::schzip_base::{schzip_verify, SchZipMock};
+use bn::groth16::schzip::{schzip_base_verify, SchZipMock};
 use core::poseidon::PoseidonImpl;
 use core::hash::HashStateTrait;
 
@@ -27,7 +27,7 @@ fn verify() {
     let (_, residue_witness, residue_witness_inv, _cubic_scl, cubic_pow) =
         fixture::residue_witness();
 
-    let verified = schzip_verify(
+    let verified = schzip_base_verify(
         pi_a,
         pi_b,
         pi_c,
