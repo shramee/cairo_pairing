@@ -6,6 +6,10 @@ name = "bn"
 version = "0.1.0"
 
 [[package]]
+name = "bn_ate_loop"
+version = "0.1.0"
+
+[[package]]
 name = "bn_contracts"
 version = "0.1.0"
 dependencies = [

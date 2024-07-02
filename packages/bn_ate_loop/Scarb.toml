@@ -1,5 +1,5 @@
 [package]
-name = "bn_ate"
+name = "bn_ate_loop"
 version = "0.1.0"
 edition = "2023_11"
 
