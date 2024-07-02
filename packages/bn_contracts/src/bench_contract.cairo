@@ -90,9 +90,10 @@ mod BN_Pairing {
             inputs: Array<u256>,
         ) {
             let lines = LinesArray { gamma: array![], delta: array![] };
-            let circuit_setup = setup_precompute(alpha, beta, gamma, delta, ic, lines);
+            let _circuit_setup = setup_precompute(alpha, beta, gamma, delta, ic, lines);
 
-            let verified = verify(pi_a, pi_b, pi_c, inputs, circuit_setup);
+            // let verified = verify(pi_a, pi_b, pi_c, inputs, circuit_setup);
+            let verified = false;
 
             assert(verified, 'verification failed');
         }

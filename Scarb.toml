@@ -1,11 +1,9 @@
 [workspace]
-
 members = [
-	"bn_contracts",
+	"packages/*",
 ]
 
-[package]
-name = "bn"
+[workspace.package]
 version = "0.1.0"
 cairo-version = "2.6.2"
 

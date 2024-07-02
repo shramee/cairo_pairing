@@ -336,7 +336,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
                 residue_inv.frob3(),
                 cubic_scale,
                 f_nz
-            );
+            )
     }
 }
 
