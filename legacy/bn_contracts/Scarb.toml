@@ -1,6 +1,6 @@
 [package]
 name = "bn_contracts"
-version = "0.1.0"
+version.workspace = true
 
 [dependencies]
 bn = { path = "../bn_legacy" }
