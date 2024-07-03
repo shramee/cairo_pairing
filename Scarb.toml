@@ -8,9 +8,14 @@ members = [
 version = "0.1.0"
 cairo-version = "2.6.2"
 
+[package]
+name = "pairing"
+version.workspace = true
+
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 
 [scripts]
+new = "scarb new --no-vcs packages/$1"
 addchain_gen_t = "addchain gen -tmpl addchain/tpl addchain/t"
 contracts = "scarb build -p bn_contracts"
 # Declares class for the contract

@@ -17,5 +17,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "fast_mod"
+version = "0.1.0"
+
+[[package]]
 name = "fq_types"
+version = "0.1.0"
+
+[[package]]
+name = "pairing"
 version = "0.1.0"
