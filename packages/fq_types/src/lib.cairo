@@ -43,12 +43,15 @@ pub trait FieldCommonOps<TFq> {
     fn eq(self: @TFq, rhs: @TFq) -> bool;
 }
 
-pub trait FieldOps<TFq, TFqChildren, TFqU512> {
-    fn scl(self: TFq, rhs: TFqChildren) -> TFq;
+pub trait FieldOps<TFq> {
     fn mul(self: TFq, rhs: TFq) -> TFq;
     fn div(self: TFq, rhs: TFq) -> TFq;
     fn sqr(self: TFq) -> TFq;
     fn inv(self: TFq, field_nz: NonZero<u256>) -> TFq;
+}
+
+pub trait FieldOpsExtended<TFq, TFqChildren, TFqU512> {
+    fn scl(self: TFq, rhs: TFqChildren) -> TFq;
     fn u_mul(self: TFq, rhs: TFq) -> TFqU512;
     fn u_sqr(self: TFq) -> TFqU512;
     fn u512_add_fq(self: TFqU512, rhs: TFq) -> TFqU512;
