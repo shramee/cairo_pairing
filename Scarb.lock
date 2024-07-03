@@ -15,3 +15,7 @@ version = "0.1.0"
 dependencies = [
  "bn",
 ]
+
+[[package]]
+name = "fq_types"
+version = "0.1.0"

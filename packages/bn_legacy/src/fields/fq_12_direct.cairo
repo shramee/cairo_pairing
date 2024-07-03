@@ -30,7 +30,7 @@ pub fn fq12_from_fq(
 pub fn direct_to_tower(x: Fq12) -> Fq12 {
     let Fq12 { c0, c1 } = x;
     let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
-    let Fq6 { c0: b3, c1: b4, c2: b5 } = c1; // This should be c1 instead of c0
+    let Fq6 { c0: b3, c1: b4, c2: b5 } = c1;
     let Fq2 { c0: a0, c1: a1 } = b0;
     let Fq2 { c0: a2, c1: a3 } = b1;
     let Fq2 { c0: a4, c1: a5 } = b2;
@@ -66,7 +66,7 @@ impl Fq12IntoFq12Direct of Into<Fq12, Fq12Direct> {
     fn into(self: Fq12) -> Fq12Direct {
         let Fq12 { c0, c1 } = self;
         let Fq6 { c0: b0, c1: b1, c2: b2 } = c0;
-        let Fq6 { c0: b3, c1: b4, c2: b5 } = c1; // This should be c1 instead of c0
+        let Fq6 { c0: b3, c1: b4, c2: b5 } = c1;
         let Fq2 { c0: a0, c1: a1 } = b0;
         let Fq2 { c0: a2, c1: a3 } = b1;
         let Fq2 { c0: a4, c1: a5 } = b2;
