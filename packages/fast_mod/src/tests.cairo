@@ -32,14 +32,14 @@ use core::traits::TryInto;
 use super as f;
 use f::{u512, u512Display};
 
-const FIELD: u256 = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
-const FIELD_NZ: NonZero<u256> = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
+const PRIME: u256 = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
+const PRIME_NZ: NonZero<u256> = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
 
 const a: u256 = 9099547013904003590785796930435194473319680151794113978918064868415326638035;
 const b: u256 = 8021715850804026033197027745655159931503181100513576347155970296011118125764;
 
 #[inline(always)]
-pub fn mu512(limb0: u128, limb1: u128, limb2: u128, limb3: u128) -> u512 {
+fn mu512(limb0: u128, limb1: u128, limb2: u128, limb3: u128) -> u512 {
     u512 { limb0, limb1, limb2, limb3 }
 }
 
@@ -48,204 +48,230 @@ mod bench {
     use core::traits::TryInto;
     use super::{mu512, f};
     use f::{u512};
-    use super::{a, b, FIELD, FIELD_NZ};
+    use super::{a, b, PRIME, PRIME_NZ};
     #[test]
     #[available_gas(1000000)]
-    pub fn add() {
-        f::add(a, b, FIELD);
+    fn add() {
+        f::add(a, b, PRIME);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn sub() {
-        f::sub(a, b, FIELD);
+    fn sub() {
+        f::sub(a, b, PRIME);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn mul() {
-        f::mul(a, b, FIELD);
+    fn mul() {
+        f::mul(a, b, PRIME);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn scl() {
-        f::scl(a, b.low, FIELD_NZ);
+    fn scl() {
+        f::scl(a, b.low, PRIME_NZ);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn sqr() {
-        f::sqr_nz(a, FIELD_NZ);
+    fn sqr() {
+        f::sqr_nz(a, PRIME_NZ);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn div() {
-        f::div(a, b, FIELD);
+    fn div() {
+        f::div(a, b, PRIME);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn inv() {
-        f::inv(a, FIELD_NZ);
+    fn inv() {
+        f::inv(a, PRIME_NZ);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn rdc() {
+    fn rdc() {
         f::reduce(a, b.try_into().unwrap());
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn add_u() {
+    fn add_u() {
         f::add_u(a, b);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn sub_u() {
+    fn sub_u() {
         f::sub_u(a, b);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn mul_u() {
+    fn mul_u() {
         f::mul_u(a, b);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn scl_u() {
+    fn scl_u() {
         f::scl_u(a, b.low);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn sqr_u() {
+    fn sqr_u() {
         f::sqr_u(a);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn div_u() {
-        f::div_u(a, b, FIELD_NZ);
+    fn div_u() {
+        f::div_u(a, b, PRIME_NZ);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_add() {
+    fn u512_add() {
         f::u512_add(mu512(a.low, a.high, b.low, b.high), mu512(b.low, b.high, a.low, a.high));
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_add_high() {
+    fn u512_add_high() {
         f::u512_high_add(mu512(a.low, a.high, b.low, b.high), 5).unwrap();
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_add_u256() {
+    fn u512_add_u256() {
         f::u512_add_u256(mu512(a.low, a.high, b.low, b.high), 5);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_sub() {
+    fn u512_sub() {
         f::u512_sub(mu512(b.low, b.high, a.low, a.high), mu512(a.low, a.high, b.low, b.high));
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_sub_high() {
+    fn u512_sub_high() {
         f::u512_high_sub(mu512(a.low, a.high, b.low, b.high), 5).unwrap();
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_sub_u256() {
+    fn u512_sub_u256() {
         f::u512_sub_u256(mu512(a.low, a.high, b.low, b.high), 5);
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_rdc() {
+    fn u512_rdc() {
         f::u512_reduce(mu512(a.low, a.high, b.low, b.high), b.try_into().unwrap());
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn u512_scl() {
+    fn u512_scl() {
         f::u512_scl(mu512(a.low, a.high, b.low, b.high), b.low);
+        assert(true, 'for snforge tests');
     }
 }
 
 mod bench_plain {
     use core::traits::TryInto;
-    use super::{a, b, FIELD};
+    use super::{a, b, PRIME};
     #[test]
     #[available_gas(1000000)]
-    pub fn add() {
+    fn add() {
         a + b;
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn sub() {
+    fn sub() {
         a - b;
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(1000000)]
-    pub fn mul() {
+    fn mul() {
         7_u256 * 909954701390400359078579693043519447331968015179411397891806486841532663803;
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn div() {
+    fn div() {
         a / b;
+        assert(true, 'for snforge tests');
     }
 
     #[test]
     #[available_gas(100000000)]
-    pub fn rem() {
+    fn rem() {
         a % b;
+        assert(true, 'for snforge tests');
     }
 }
-
 #[test]
 #[available_gas(100000000)]
-pub fn test_all_mod_ops() {
+fn test_all_mod_ops() {
     let max_u128: u128 = 0xffffffffffffffffffffffffffffffff;
-    let add = f::add(a, b, FIELD);
+    let add = f::add(a, b, PRIME);
     assert(
         add == 17121262864708029623982824676090354404822861252307690326074035164426444763799,
         'incorrect add'
     );
-    let sub = f::sub(a, b, FIELD);
+    let sub = f::sub(a, b, PRIME);
     assert(
         sub == 1077831163099977557588769184780034541816499051280537631762094572404208512271,
         'incorrect sub'
     );
-    let mul = f::mul(a, b, FIELD);
+    let mul = f::mul(a, b, PRIME);
     assert(
         mul == 6561477752769399547014183440960600095569924911855714080305417693732453755033,
         'incorrect mul'
     );
-    let div = f::div(a, b, FIELD);
+    let div = f::div(a, b, PRIME);
     assert(
         div == 12819640619688655488085323601008678463608009668414428319642291645922931558321,
         'incorrect div'
     );
-    let sqr_mul = f::mul(a, a, FIELD);
-    let sqr = f::sqr_nz(a, FIELD_NZ);
+    let sqr_mul = f::mul(a, a, PRIME);
+    let sqr = f::sqr_nz(a, PRIME_NZ);
     assert(sqr == sqr_mul, 'incorrect square');
 
-    let scl_mul = f::mul(a, u256 { high: 0, low: b.low }, FIELD);
-    let scl = f::scl(a, b.low, FIELD_NZ);
+    let scl_mul = f::mul(a, u256 { high: 0, low: b.low }, PRIME);
+    let scl = f::scl(a, b.low, PRIME_NZ);
     assert(scl == scl_mul, 'incorrect square');
 
     assert(
