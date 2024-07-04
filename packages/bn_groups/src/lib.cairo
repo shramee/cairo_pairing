@@ -1,5 +1,4 @@
 use fq_types::{FieldOps};
-use bn::fields::print::{FqPrintImpl, Fq2PrintImpl};
 use core::num::traits::One;
 
 #[derive(Copy, Drop, Serde)]
@@ -8,16 +7,16 @@ struct Affine<T> {
     y: T
 }
 
-trait ECOperations<TCurve, TCoord> {
-    fn x_on_slope(ref self: TCurve, pt: @Affine<TCoord>, slope: TCoord, x2: TCoord) -> TCoord;
-    fn y_on_slope(ref self: TCurve, pt: @Affine<TCoord>, slope: TCoord, x: TCoord) -> TCoord;
-    fn pt_on_slope(ref self: TCurve, pt: @Affine<TCoord>, slope: TCoord, x2: TCoord) -> Affine<TCoord>;
-    fn chord(ref self: TCurve, pt: @Affine<TCoord>, rhs: Affine<TCoord>) -> TCoord;
-    fn add(ref self: TCurve, pt: @Affine<TCoord>, rhs: Affine<TCoord>) -> Affine<TCoord>;
-    fn tangent(ref self: TCurve, pt: @Affine<TCoord>) -> TCoord;
-    fn double(ref self: TCurve, pt: @Affine<TCoord>) -> Affine<TCoord>;
-    fn multiply(ref self: TCurve, pt: @Affine<TCoord>, multiplier: u256) -> Affine<TCoord>;
-    fn neg(ref self: TCurve, pt: @Affine<TCoord>) -> Affine<TCoord>;
+trait ECOperations<TCurve, TFq> {
+    fn x_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> TFq;
+    fn y_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x: TFq) -> TFq;
+    fn pt_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> Affine<TFq>;
+    fn chord(ref self: TCurve, pt: @Affine<TFq>, rhs: Affine<TFq>) -> TFq;
+    fn tangent(ref self: TCurve, pt: @Affine<TFq>) -> TFq;
+    fn pt_add(ref self: TCurve, pt: @Affine<TFq>, rhs: Affine<TFq>) -> Affine<TFq>;
+    fn pt_dbl(ref self: TCurve, pt: @Affine<TFq>) -> Affine<TFq>;
+    fn pt_mul(ref self: TCurve, pt: @Affine<TFq>, multiplier: u256) -> Affine<TFq>;
+    fn pt_neg(ref self: TCurve, pt: @Affine<TFq>) -> Affine<TFq>;
 }
 
 impl AffinePartialEq<T, +PartialEq<T>> of PartialEq<Affine<T>> {
@@ -30,56 +29,56 @@ impl AffinePartialEq<T, +PartialEq<T>> of PartialEq<Affine<T>> {
 }
 
 impl AffineOps<
-    T, TCurve, +FieldOps<TCurve, T>, +Copy<T>, +Drop<T>, +One<Affine<T>>
+    T, TCurve, +FieldOps<TCurve, T>, +Copy<T>, +Drop<TCurve>, +Drop<T>, +One<Affine<T>>
 > of ECOperations<TCurve, T> {
     #[inline(always)]
     fn x_on_slope(ref self: TCurve, pt: @Affine<T>, slope: T, x2: T) -> T {
         // x = λ^2 - x1 - x2
-        slope.sqr().sub(*self.x).sub(x2)
-        self.sub(self.sub(self.sqr(slope), pt.x), x2)
+        self.sub(self.sub(self.sqr(slope), *pt.x), x2)
     }
 
     #[inline(always)]
     fn y_on_slope(ref self: TCurve, pt: @Affine<T>, slope: T, x: T) -> T {
         // y = λ(x1 - x) - y1
-        slope.mul((*self.x).sub(x)).sub(*self.y)
+        self.sub(self.mul(slope, self.sub(*pt.x, x)), *pt.y)
     }
 
-        let x = self.x_on_slope(slope, x2);
-        let y = self.y_on_slope(slope, x);
     fn pt_on_slope(ref self: TCurve, pt: @Affine<T>, slope: T, x2: T) -> Affine<T> {
+        let x = self.x_on_slope(pt, slope, x2);
+        let y = self.y_on_slope(pt, slope, x);
         Affine { x, y }
     }
 
     #[inline(always)]
-        let Affine { x: x1, y: y1 } = *self;
     fn chord(ref self: TCurve, pt: @Affine<T>, rhs: Affine<T>) -> T {
+        let Affine { x: x1, y: y1 } = pt;
         let Affine { x: x2, y: y2 } = rhs;
         // λ = (y2-y1) / (x2-x1)
-        y2.sub(y1).div(x2.sub(x1))
+        self.div(self.sub(y2, *y1), self.sub(x2, *x1))
     }
-
-        self.pt_on_slope(self.chord(rhs), rhs.x)
-    fn add(ref self: TCurve, pt: @Affine<T>, rhs: Affine<T>) -> Affine<T> {
-    }
-
-        let Affine { x, y } = *self;
     fn tangent(ref self: TCurve, pt: @Affine<T>) -> T {
+        let Affine { x, y } = pt;
 
         // λ = (3x^2 + a) / 2y
         // But BN curve has a == 0 so that's one less addition
         // λ = 3x^2 / 2y
-        let x_2 = x.sqr();
-        (x_2.add(x_2).add(x_2)).div(y.add(y))
+        let x_2 = self.sqr(*x);
+        self.div(self.add(self.add(x_2, x_2), x_2), self.add(*y, *y))
     }
 
-        self.pt_on_slope(self.tangent(), *self.x)
-    fn double(ref self: TCurve, pt: @Affine<T>) -> Affine<T> {
+    #[inline(always)]
+    fn pt_add(ref self: TCurve, pt: @Affine<T>, rhs: Affine<T>) -> Affine<T> {
+        self.pt_on_slope(pt, self.chord(pt, rhs), rhs.x)
     }
 
-    fn multiply(ref self: TCurve, pt: @Affine<T>, mut multiplier: u256) -> Affine<T> {
+
+    fn pt_dbl(ref self: TCurve, pt: @Affine<T>) -> Affine<T> {
+        self.pt_on_slope(pt, self.tangent(pt), *pt.x)
+    }
+
+    fn pt_mul(ref self: TCurve, pt: @Affine<T>, mut multiplier: u256) -> Affine<T> {
         let nz2: NonZero<u256> = 2_u256.try_into().unwrap();
-        let mut dbl_step = *self;
+        let mut dbl_step = *pt;
         let mut result = One::<Affine<T>>::one();
         let mut first_add_done = false;
 
@@ -95,21 +94,21 @@ impl AffineOps<
                         // self is zero, return rhs
                         dbl_step
                     } else {
-                        result.add(dbl_step)
+                        self.pt_add(@result, dbl_step)
                     }
             }
 
             if q == 0 {
                 break;
             }
-            dbl_step = dbl_step.double();
+            dbl_step = self.pt_dbl(@dbl_step);
             multiplier = q;
         };
         result
     }
 
     #[inline(always)]
-        Affine { x: *self.x, y: (*self.y).neg() }
-    fn neg(ref self: TCurve, pt: @Affine<T>) -> Affine<T> {
+    fn pt_neg(ref self: TCurve, pt: @Affine<T>) -> Affine<T> {
+        Affine { x: *pt.x, y: self.neg(*pt.y) }
     }
 }

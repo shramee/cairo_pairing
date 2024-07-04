@@ -125,6 +125,7 @@ pub impl Fq3Ops<
             && FqOps::eq(self, lhs.c1, rhs.c1)
             && FqOps::eq(self, lhs.c2, rhs.c2)
     }
+
     fn mul(ref self: TCurve, lhs: Fq3<TFq>, rhs: Fq3<TFq>) -> Fq3<TFq> { //
         let Fq3 { c0: a0, c1: a1, c2: a2 } = lhs;
         let Fq3 { c0: b0, c1: b1, c2: b2 } = rhs;
@@ -162,6 +163,7 @@ pub impl Fq3Ops<
     fn div(ref self: TCurve, lhs: Fq3<TFq>, rhs: Fq3<TFq>) -> Fq3<TFq> { //
         self.mul(lhs, self.inv(rhs))
     }
+
     fn sqr(ref self: TCurve, lhs: Fq3<TFq>) -> Fq3<TFq> { //
         let Fq3 { c0, c1, c2 } = lhs;
 
