@@ -1,7 +1,9 @@
 pub mod bn;
+pub mod lines;
 use fq_types::{FieldOps};
 use core::num::traits::One;
 pub use bn::AffineOpsBn;
+pub use lines::{LineFn, StepLinesGet, LinesArray, LinesArrayGet};
 
 #[derive(Copy, Drop, Serde)]
 pub struct Affine<T> {
@@ -22,6 +24,7 @@ pub struct Groth16MillerG2<TG2> { // Points in <TG2>
     delta: Affine<TG2>,
     gamma: Affine<TG2>,
 }
+
 
 pub trait ECOperations<TCurve, TFq> {
     fn x_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> TFq;
