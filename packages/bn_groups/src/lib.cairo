@@ -1,13 +1,29 @@
+pub mod bn;
 use fq_types::{FieldOps};
 use core::num::traits::One;
+pub use bn::AffineOpsBn;
 
 #[derive(Copy, Drop, Serde)]
-struct Affine<T> {
-    x: T,
-    y: T
+pub struct Affine<T> {
+    pub x: T,
+    pub y: T
 }
 
-trait ECOperations<TCurve, TFq> {
+#[derive(Copy, Drop)]
+pub struct Groth16MillerG1<TG1> { // Points in G1
+    pi_a: Affine<TG1>,
+    pi_c: Affine<TG1>,
+    k: Affine<TG1>,
+}
+
+#[derive(Copy, Drop)]
+pub struct Groth16MillerG2<TG2> { // Points in <TG2>
+    pi_b: Affine<TG2>,
+    delta: Affine<TG2>,
+    gamma: Affine<TG2>,
+}
+
+pub trait ECOperations<TCurve, TFq> {
     fn x_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> TFq;
     fn y_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x: TFq) -> TFq;
     fn pt_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> Affine<TFq>;
@@ -19,96 +35,11 @@ trait ECOperations<TCurve, TFq> {
     fn pt_neg(ref self: TCurve, pt: @Affine<TFq>) -> Affine<TFq>;
 }
 
-impl AffinePartialEq<T, +PartialEq<T>> of PartialEq<Affine<T>> {
+pub impl AffinePartialEq<T, +PartialEq<T>> of PartialEq<Affine<T>> {
     fn eq(lhs: @Affine<T>, rhs: @Affine<T>) -> bool {
         lhs.x == rhs.x && lhs.y == rhs.y
     }
     fn ne(lhs: @Affine<T>, rhs: @Affine<T>) -> bool {
         lhs.x == rhs.x && lhs.y == rhs.y
-    }
-}
-
-impl AffineOps<
-    T, TCurve, +FieldOps<TCurve, T>, +Copy<T>, +Drop<TCurve>, +Drop<T>, +One<Affine<T>>
-> of ECOperations<TCurve, T> {
-    #[inline(always)]
-    fn x_on_slope(ref self: TCurve, pt: @Affine<T>, slope: T, x2: T) -> T {
-        // x = λ^2 - x1 - x2
-        self.sub(self.sub(self.sqr(slope), *pt.x), x2)
-    }
-
-    #[inline(always)]
-    fn y_on_slope(ref self: TCurve, pt: @Affine<T>, slope: T, x: T) -> T {
-        // y = λ(x1 - x) - y1
-        self.sub(self.mul(slope, self.sub(*pt.x, x)), *pt.y)
-    }
-
-    fn pt_on_slope(ref self: TCurve, pt: @Affine<T>, slope: T, x2: T) -> Affine<T> {
-        let x = self.x_on_slope(pt, slope, x2);
-        let y = self.y_on_slope(pt, slope, x);
-        Affine { x, y }
-    }
-
-    #[inline(always)]
-    fn chord(ref self: TCurve, pt: @Affine<T>, rhs: Affine<T>) -> T {
-        let Affine { x: x1, y: y1 } = pt;
-        let Affine { x: x2, y: y2 } = rhs;
-        // λ = (y2-y1) / (x2-x1)
-        self.div(self.sub(y2, *y1), self.sub(x2, *x1))
-    }
-    fn tangent(ref self: TCurve, pt: @Affine<T>) -> T {
-        let Affine { x, y } = pt;
-
-        // λ = (3x^2 + a) / 2y
-        // But BN curve has a == 0 so that's one less addition
-        // λ = 3x^2 / 2y
-        let x_2 = self.sqr(*x);
-        self.div(self.add(self.add(x_2, x_2), x_2), self.add(*y, *y))
-    }
-
-    #[inline(always)]
-    fn pt_add(ref self: TCurve, pt: @Affine<T>, rhs: Affine<T>) -> Affine<T> {
-        self.pt_on_slope(pt, self.chord(pt, rhs), rhs.x)
-    }
-
-
-    fn pt_dbl(ref self: TCurve, pt: @Affine<T>) -> Affine<T> {
-        self.pt_on_slope(pt, self.tangent(pt), *pt.x)
-    }
-
-    fn pt_mul(ref self: TCurve, pt: @Affine<T>, mut multiplier: u256) -> Affine<T> {
-        let nz2: NonZero<u256> = 2_u256.try_into().unwrap();
-        let mut dbl_step = *pt;
-        let mut result = One::<Affine<T>>::one();
-        let mut first_add_done = false;
-
-        // TODO: optimise with u128 ops
-        // Replace u256 multiplier loop with 2x u128 loops
-        loop {
-            let (q, r) = DivRem::div_rem(multiplier, nz2);
-
-            if r == 1 {
-                result =
-                    if !first_add_done {
-                        first_add_done = true;
-                        // self is zero, return rhs
-                        dbl_step
-                    } else {
-                        self.pt_add(@result, dbl_step)
-                    }
-            }
-
-            if q == 0 {
-                break;
-            }
-            dbl_step = self.pt_dbl(@dbl_step);
-            multiplier = q;
-        };
-        result
-    }
-
-    #[inline(always)]
-    fn pt_neg(ref self: TCurve, pt: @Affine<T>) -> Affine<T> {
-        Affine { x: *pt.x, y: self.neg(*pt.y) }
     }
 }
