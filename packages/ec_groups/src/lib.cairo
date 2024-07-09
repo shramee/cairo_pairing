@@ -25,7 +25,6 @@ pub struct Groth16MillerG2<TG2> { // Points in <TG2>
     gamma: Affine<TG2>,
 }
 
-
 pub trait ECOperations<TCurve, TFq> {
     fn x_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> TFq;
     fn y_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x: TFq) -> TFq;
