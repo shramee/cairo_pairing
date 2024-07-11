@@ -44,7 +44,6 @@ pub impl AffineOpsBn<
         self.pt_on_slope(pt, self.chord(pt, rhs), rhs.x)
     }
 
-
     fn pt_dbl(ref self: TCurve, pt: Affine<T>) -> Affine<T> {
         self.pt_on_slope(pt, self.tangent(pt), pt.x)
     }

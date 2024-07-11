@@ -33,13 +33,21 @@ pub struct Groth16MillerG2<PtG2> { // Points in G2
 }
 
 #[derive(Copy, Drop, Serde)]
-pub struct Groth16PreCompute<TG1Pts, TG2Pts, TLines, TFq, TFq12> {
+pub struct Groth16PreCompute<TG1Pts, TG1Precomputes, TG2Pts, TLines, TFq12> {
     pub p: TG1Pts,
     pub q: TG2Pts,
-    pub ppc: TG1Pts,
+    pub ppc: TG1Precomputes,
     pub neg_q: TG2Pts,
     pub lines: TLines,
     pub residue_witness: TFq12,
     pub residue_witness_inv: TFq12,
     pub field_nz: NonZero<u256>,
+}
+
+
+#[derive(Drop)]
+pub enum CubicScale {
+    Zero,
+    One,
+    Two,
 }

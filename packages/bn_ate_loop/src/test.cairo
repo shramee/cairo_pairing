@@ -8,11 +8,6 @@ struct MockMillerRunner {}
 type MockAccumulator = felt252;
 
 impl Miller_u256 of MillerRunner<(), MockMillerRunner, MockAccumulator> {
-    // Returns accumulator
-    fn accumulator(self: @MockMillerRunner, ref curve: ()) -> MockAccumulator {
-        1
-    }
-
     // first and second step, O and N
     fn bit_1st_2nd(
         self: @MockMillerRunner, ref curve: (), i1: u32, i2: u32, ref acc: MockAccumulator
@@ -47,6 +42,7 @@ impl Miller_u256 of MillerRunner<(), MockMillerRunner, MockAccumulator> {
 #[test]
 fn test_ate_miller_loop() {
     let mut curve = ();
-    let res: MockAccumulator = ate_miller_loop(ref curve, MockMillerRunner {});
+    let mut acc = 1;
+    let res: MockAccumulator = ate_miller_loop(ref curve, MockMillerRunner {}, ref acc);
     assert(res == 0x19d797039be763ba8, 'wrong value for 6u + 2');
 }

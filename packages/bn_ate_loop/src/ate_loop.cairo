@@ -1,7 +1,4 @@
 pub trait MillerRunner<TCurve, TRunner, TAccumulator> {
-    // Returns accumulator
-    fn accumulator(self: @TRunner, ref curve: TCurve) -> TAccumulator;
-
     // first and second step, O and N
     fn bit_1st_2nd(self: @TRunner, ref curve: TCurve, i1: u32, i2: u32, ref acc: TAccumulator);
 
@@ -26,17 +23,13 @@ pub fn ate_miller_loop<
     +Drop<TRunner>,
     +Drop<TCurve>
 >(
-    ref curve: TCurve, runner: TRunner
+    ref curve: TCurve, runner: TRunner, ref q_acc: TAccumulator
 ) -> TAccumulator {
     core::gas::withdraw_gas().unwrap();
     core::internal::revoke_ap_tracking();
 
-    // Get accumulator from runner
-    let mut q_acc: TAccumulator = runner.accumulator(ref curve);
-
     _loop_inner_1_of_2(@runner, ref curve, ref q_acc);
     _loop_inner_2_of_2(@runner, ref curve, ref q_acc);
-    q_acc
 }
 
 pub fn _loop_inner_1_of_2<
