@@ -37,6 +37,10 @@ pub trait ECOperations<TCurve, TFq> {
     fn pt_neg(ref self: TCurve, pt: @Affine<TFq>) -> Affine<TFq>;
 }
 
+pub trait ECGroupUtils<TCurve, TFq> {
+    fn pt_one(ref self: TCurve) -> Affine<TFq>;
+}
+
 pub impl AffinePartialEq<T, +PartialEq<T>> of PartialEq<Affine<T>> {
     fn eq(lhs: @Affine<T>, rhs: @Affine<T>) -> bool {
         lhs.x == rhs.x && lhs.y == rhs.y

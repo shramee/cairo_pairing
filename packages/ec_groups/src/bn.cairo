@@ -1,6 +1,7 @@
-use super::{Affine, ECOperations, FieldOps, One};
+use super::{Affine, ECOperations, ECGroupUtils, FieldOps, One};
+
 pub impl AffineOpsBn<
-    T, TCurve, +FieldOps<TCurve, T>, +Copy<T>, +Drop<TCurve>, +Drop<T>, +One<Affine<T>>
+    T, TCurve, +FieldOps<TCurve, T>, +Copy<T>, +Drop<TCurve>, +Drop<T>, +ECGroupUtils<TCurve, T>
 > of ECOperations<TCurve, T> {
     #[inline(always)]
     fn x_on_slope(ref self: TCurve, pt: @Affine<T>, slope: T, x2: T) -> T {
@@ -50,7 +51,7 @@ pub impl AffineOpsBn<
     fn pt_mul(ref self: TCurve, pt: @Affine<T>, mut multiplier: u256) -> Affine<T> {
         let nz2: NonZero<u256> = 2_u256.try_into().unwrap();
         let mut dbl_step = *pt;
-        let mut result = One::<Affine<T>>::one();
+        let mut result: Affine<T> = self.pt_one();
         let mut first_add_done = false;
 
         // TODO: optimise with u128 ops
@@ -83,3 +84,4 @@ pub impl AffineOpsBn<
         Affine { x: *pt.x, y: self.neg(*pt.y) }
     }
 }
+
