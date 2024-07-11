@@ -1,5 +1,8 @@
 use fq_types::{Fq2 as Fq2Gen, fq2, Fq3 as Fq3Gen, fq3,};
+pub mod curve;
 pub mod fq_1;
+
+pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn};
 pub use fq_1::{scale_9, Fq, FieldOps, FieldOpsExtended, FieldUtils};
 pub use fq_1::{U256IntoFq, Bn254FqOps, Bn254FqUtils};
 

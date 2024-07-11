@@ -19,7 +19,7 @@ pub struct Groth16MillerG1<TG1> { // Points in G1
 }
 
 #[derive(Copy, Drop)]
-pub struct Groth16MillerG2<TG2> { // Points in <TG2>
+pub struct Groth16MillerG2<TG2> { // Points in G2
     pi_b: Affine<TG2>,
     delta: Affine<TG2>,
     gamma: Affine<TG2>,
