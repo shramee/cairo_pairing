@@ -13,6 +13,7 @@ pub type Fq12 = Fq2Gen<Fq6>;
 pub mod pairing {
     pub mod utils;
     pub mod schzip_miller_runner;
+    pub mod schzip_miller;
 }
 
 pub use pairing::utils::{ICProcess, ICArrayInput, CubicScale};
