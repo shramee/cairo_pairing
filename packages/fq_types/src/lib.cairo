@@ -13,6 +13,14 @@ pub struct Fq3<T> {
     pub c2: T,
 }
 
+pub fn fq2<T>(c0: T, c1: T) -> Fq2<T> {
+    Fq2 { c0, c1 }
+}
+
+pub fn fq3<T>(c0: T, c1: T, c2: T) -> Fq3<T> {
+    Fq3 { c0, c1, c2 }
+}
+
 // Sparse Fq12 element containing only c3 and c4 Fq2 (c0 is 1)
 // Equivalent to,
 // Fq12{

@@ -26,15 +26,15 @@ pub struct Groth16MillerG2<TG2> { // Points in <TG2>
 }
 
 pub trait ECOperations<TCurve, TFq> {
-    fn x_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> TFq;
-    fn y_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x: TFq) -> TFq;
-    fn pt_on_slope(ref self: TCurve, pt: @Affine<TFq>, slope: TFq, x2: TFq) -> Affine<TFq>;
-    fn chord(ref self: TCurve, pt: @Affine<TFq>, rhs: Affine<TFq>) -> TFq;
-    fn tangent(ref self: TCurve, pt: @Affine<TFq>) -> TFq;
-    fn pt_add(ref self: TCurve, pt: @Affine<TFq>, rhs: Affine<TFq>) -> Affine<TFq>;
-    fn pt_dbl(ref self: TCurve, pt: @Affine<TFq>) -> Affine<TFq>;
-    fn pt_mul(ref self: TCurve, pt: @Affine<TFq>, multiplier: u256) -> Affine<TFq>;
-    fn pt_neg(ref self: TCurve, pt: @Affine<TFq>) -> Affine<TFq>;
+    fn x_on_slope(ref self: TCurve, pt: Affine<TFq>, slope: TFq, x2: TFq) -> TFq;
+    fn y_on_slope(ref self: TCurve, pt: Affine<TFq>, slope: TFq, x: TFq) -> TFq;
+    fn pt_on_slope(ref self: TCurve, pt: Affine<TFq>, slope: TFq, x2: TFq) -> Affine<TFq>;
+    fn chord(ref self: TCurve, pt: Affine<TFq>, rhs: Affine<TFq>) -> TFq;
+    fn tangent(ref self: TCurve, pt: Affine<TFq>) -> TFq;
+    fn pt_add(ref self: TCurve, pt: Affine<TFq>, rhs: Affine<TFq>) -> Affine<TFq>;
+    fn pt_dbl(ref self: TCurve, pt: Affine<TFq>) -> Affine<TFq>;
+    fn pt_mul(ref self: TCurve, pt: Affine<TFq>, multiplier: u256) -> Affine<TFq>;
+    fn pt_neg(ref self: TCurve, pt: Affine<TFq>) -> Affine<TFq>;
 }
 
 pub trait ECGroupUtils<TCurve, TFq> {
