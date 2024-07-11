@@ -10,3 +10,6 @@ pub type Fq2 = Fq2Gen<Fq>;
 pub type Fq6 = Fq3Gen<Fq2Gen<Fq>>;
 pub type Fq12 = Fq2Gen<Fq6>;
 
+mod pairing {
+    mod utils;
+}
