@@ -12,8 +12,9 @@ pub type Fq12 = Fq2Gen<Fq6>;
 
 pub mod pairing {
     pub mod utils;
+    pub mod schzip_miller_runner;
 }
 
 pub use pairing::utils::{ICProcess, ICArrayInput, CubicScale};
-pub use pairing::utils::{SchzipCommitment, SchzipPreCompute, SchZipAccumulator};
+pub use pairing::utils::{SZCommitment, SZPreCompute, SZAccumulator};
 pub use pairing::utils::{p_precompute};

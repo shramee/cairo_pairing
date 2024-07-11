@@ -1,4 +1,4 @@
-use ec_groups::ECOperations;
+use ec_groups::{LineFn, LinesArray, LinesArrayGet, ECOperations};
 use bn_ate_loop::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
 use bn254_u256::{Fq, Fq2, Fq12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
 use bn254_u256::{Bn254U256Curve};
@@ -6,25 +6,30 @@ use bn254_u256::{Bn254U256Curve};
 pub use bn_ate_loop::CubicScale;
 
 #[derive(Drop)]
-pub struct SchzipCommitment {
+pub struct SZCommitment {
     pub remainders: Array<u256>,
     pub q_rlc_sum: Array<u256>,
 }
 
 #[derive(Drop)]
-pub struct SchzipPreCompute<TLines> {
+pub struct SZPreCompute<TLines> {
     pub g16_precompute: Groth16PreCompute<
         Groth16MillerG1<PtG1>, Groth16MillerG1<PPrecompute<Fq>>, Groth16MillerG2<PtG2>, TLines, Fq12
     >,
-    pub schzip: SchzipCommitment,
+    pub schzip: SZCommitment,
 }
 
 #[derive(Drop)]
-pub struct SchZipAccumulator {
+pub struct SZAccumulator {
     pub g2: Groth16MillerG2<PtG2>,
     pub schzip_i: u256,
     pub lhs_rhs: Fq,
 }
+
+pub type LnFn = LineFn<Fq>;
+pub type LnArray = LinesArray<LnFn>;
+
+pub type SZPreComLines = SZPreCompute<LnArray>;
 
 // Precomputes p for the pairing function
 pub fn p_precompute(ref self: Bn254U256Curve, p: PtG1) -> PPrecompute<Fq> {
