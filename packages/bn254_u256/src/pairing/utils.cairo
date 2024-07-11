@@ -1,29 +1,59 @@
 use ec_groups::ECOperations;
-use bn_ate_loop::{PPrecompute};
-use bn254_u256::{Fq, Fq2, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
-use bn254_u256::Bn254U256Curve;
+use bn_ate_loop::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
+use bn254_u256::{Fq, Fq2, Fq12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
+use bn254_u256::{Bn254U256Curve};
+
+pub use bn_ate_loop::CubicScale;
+
+#[derive(Drop)]
+pub struct SchzipCommitment {
+    pub remainders: Array<u256>,
+    pub q_rlc_sum: Array<u256>,
+}
+
+#[derive(Drop)]
+pub struct SchzipPreCompute<TLines> {
+    pub g16_precompute: Groth16PreCompute<
+        Groth16MillerG1<PtG1>, Groth16MillerG1<PPrecompute<Fq>>, Groth16MillerG2<PtG2>, TLines, Fq12
+    >,
+    pub schzip: SchzipCommitment,
+}
+
+#[derive(Drop)]
+pub struct SchZipAccumulator {
+    pub g2: Groth16MillerG2<PtG2>,
+    pub schzip_i: u256,
+    pub lhs_rhs: Fq,
+}
+
+// Precomputes p for the pairing function
+pub fn p_precompute(ref self: Bn254U256Curve, p: PtG1) -> PPrecompute<Fq> {
+    let y_inv = self.inv(p.y);
+    let negx = self.neg(p.x);
+    PPrecompute { neg_x_over_y: self.mul(negx, y_inv), y_inv }
+}
 
 // Generic Input constraints processing
-trait ICProcess<TCurve, TIC, TInputs, TG1> {
-    fn process_inputs_and_ic(ref self: TIC, inputs: TInputs, ref curve: TCurve) -> TG1;
+pub trait ICProcess<TCurve, TIC, TInputs, TG1> {
+    fn process_inputs_and_ic(ref self: TCurve, points: TIC, inputs: TInputs) -> TG1;
 }
 
 // Input constraints processing for array of IC paramters
-impl ICArrayInput of ICProcess<Bn254U256Curve, Array<PtG1>, Array<u256>, PtG1> {
+pub impl ICArrayInput of ICProcess<Bn254U256Curve, Array<PtG1>, Array<u256>, PtG1> {
     fn process_inputs_and_ic(
-        ref self: Array<PtG1>, mut inputs: Array<u256>, ref curve: Bn254U256Curve
+        ref self: Bn254U256Curve, mut points: Array<PtG1>, mut inputs: Array<u256>
     ) -> PtG1 {
         // First element is the initial point
-        let mut ic_point = self.pop_front().unwrap();
+        let mut ic_point = points.pop_front().unwrap();
 
-        assert(inputs.len() == self.len(), 'incorrect input length');
+        assert(inputs.len() == points.len(), 'incorrect input length');
 
         if inputs.len() == 0 {
             return ic_point;
         }
 
         loop {
-            match self.pop_front() {
+            match points.pop_front() {
                 Option::Some(point) => { //
                     match inputs.pop_front() {
                         Option::Some(in) => {

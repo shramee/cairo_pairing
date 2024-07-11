@@ -10,6 +10,10 @@ pub type Fq2 = Fq2Gen<Fq>;
 pub type Fq6 = Fq3Gen<Fq2Gen<Fq>>;
 pub type Fq12 = Fq2Gen<Fq6>;
 
-mod pairing {
-    mod utils;
+pub mod pairing {
+    pub mod utils;
 }
+
+pub use pairing::utils::{ICProcess, ICArrayInput, CubicScale};
+pub use pairing::utils::{SchzipCommitment, SchzipPreCompute, SchZipAccumulator};
+pub use pairing::utils::{p_precompute};
