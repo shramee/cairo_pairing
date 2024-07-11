@@ -6,8 +6,21 @@ name = "bn"
 version = "0.1.0"
 
 [[package]]
+name = "bn254_u256"
+version = "0.1.0"
+dependencies = [
+ "bn_ate_loop",
+ "ec_groups",
+ "fq_types",
+]
+
+[[package]]
 name = "bn_ate_loop"
 version = "0.1.0"
+dependencies = [
+ "ec_groups",
+ "fq_types",
+]
 
 [[package]]
 name = "bn_contracts"
@@ -17,13 +30,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ec_groups"
+version = "0.1.0"
+dependencies = [
+ "fq_types",
+]
+
+[[package]]
 name = "fast_mod"
 version = "0.1.0"
 
 [[package]]
 name = "fq_types"
-version = "0.1.0"
-
-[[package]]
-name = "pairing"
 version = "0.1.0"
