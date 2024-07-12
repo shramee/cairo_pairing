@@ -14,7 +14,7 @@ type SchzipAccumulator = felt252;
 type LnFn = LineFn<Fq>;
 
 // Does the verification
-fn schzip_miller<TCurve>(
+fn schzip_miller(
     ref curve: Bn254U256Curve,
     pi_a: PtG1,
     pi_b: PtG2,
@@ -25,7 +25,6 @@ fn schzip_miller<TCurve>(
     setup: Groth16Circuit<PtG1, PtG2, LnArray, InputConstraintPoints, Fq12>,
     schzip_remainders: Array<u256>,
     schzip_qrlc: Array<u256>,
-    field_nz: NonZero<u256>,
 ) -> (Fq12, Fq12, SZPreCompute<LnArray>, SZAccumulator) { //
     // Compute k from ic and public_inputs
     let Groth16Circuit { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
@@ -44,7 +43,7 @@ fn schzip_miller<TCurve>(
         k: p_precompute(ref curve, k),
     };
     let g16_precompute = Groth16PreCompute {
-        p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, field_nz,
+        p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv,
     };
 
     let precomp = SZPreCompute {
@@ -59,8 +58,8 @@ fn schzip_miller<TCurve>(
 }
 
 // Does the verification
-pub fn schzip_base_verify<TCurve, LnArray, +StepLinesGet<LnArray, LineFn<Fq>>, +Drop<LnArray>>(
-    ref curve: TCurve,
+pub fn schzip_base_verify(
+    ref curve: Bn254U256Curve,
     pi_a: PtG1,
     pi_b: PtG2,
     pi_c: PtG1,
@@ -69,13 +68,13 @@ pub fn schzip_base_verify<TCurve, LnArray, +StepLinesGet<LnArray, LineFn<Fq>>, +
     residue_witness_inv: Fq12,
     cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArray, InputConstraintPoints, Fq12>,
-    schzip: Array<u256>,
-    field_nz: NonZero<u256>,
+    schzip_remainders: Array<u256>,
+    schzip_qrlc: Array<u256>,
 ) {
     // residue_witness_inv as starter to incorporate  6 * x + 2 in the miller loop
 
     // miller loop result
-    let (f, alpha_beta, precomp, mut acc) = schzip_miller(
+    schzip_miller(
         ref curve,
         pi_a,
         pi_b,
@@ -84,7 +83,7 @@ pub fn schzip_base_verify<TCurve, LnArray, +StepLinesGet<LnArray, LineFn<Fq>>, +
         residue_witness,
         residue_witness_inv,
         setup,
-        schzip,
-        field_nz
+        schzip_remainders,
+        schzip_qrlc
     );
 }

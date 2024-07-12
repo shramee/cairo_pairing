@@ -41,7 +41,6 @@ pub struct Groth16PreCompute<TG1Pts, TG1Precomputes, TG2Pts, TLines, TFq12> {
     pub lines: TLines,
     pub residue_witness: TFq12,
     pub residue_witness_inv: TFq12,
-    pub field_nz: NonZero<u256>,
 }
 
 
