@@ -3,38 +3,36 @@
 use super::{MillerRunner, ate_miller_loop};
 
 #[derive(Drop)]
-struct MockMillerRunner {}
+struct MockRunner {}
 
 type MockAccumulator = felt252;
 
-impl Miller_u256 of MillerRunner<(), MockMillerRunner, MockAccumulator> {
+impl Miller_u256 of MillerRunner<(), MockRunner, MockAccumulator> {
     // first and second step, O and N
-    fn bit_1st_2nd(
-        self: @MockMillerRunner, ref curve: (), i1: u32, i2: u32, ref acc: MockAccumulator
+    fn miller_bit_1_2(
+        ref self: (), runner: @MockRunner, i1: u32, i2: u32, ref acc: MockAccumulator
     ) { //
-        self.bit_o(ref curve, i1, ref acc);
-        self.bit_n(ref curve, i2, ref acc);
+        self.miller_bit_o(runner, i1, ref acc);
+        self.miller_bit_n(runner, i2, ref acc);
     }
 
     // 0 bit
-    fn bit_o(self: @MockMillerRunner, ref curve: (), i: u32, ref acc: MockAccumulator) { //
+    fn miller_bit_o(ref self: (), runner: @MockRunner, i: u32, ref acc: MockAccumulator) { //
         acc = acc + acc;
     }
 
     // 1 bit
-    fn bit_p(self: @MockMillerRunner, ref curve: (), i: u32, ref acc: MockAccumulator) { //
-        acc = acc + acc;
-        acc = acc + 1;
+    fn miller_bit_p(ref self: (), runner: @MockRunner, i: u32, ref acc: MockAccumulator) { //
+        acc = acc + acc + 1;
     }
 
     // -1 bit
-    fn bit_n(self: @MockMillerRunner, ref curve: (), i: u32, ref acc: MockAccumulator) { //
-        acc = acc + acc;
-        acc = acc - 1;
+    fn miller_bit_n(ref self: (), runner: @MockRunner, i: u32, ref acc: MockAccumulator) { //
+        acc = acc + acc - 1;
     }
 
     // last step
-    fn last(self: @MockMillerRunner, ref curve: (), ref acc: MockAccumulator) { //
+    fn miller_last(ref self: (), runner: @MockRunner, ref acc: MockAccumulator) { //
     // do nothing
     }
 }
@@ -43,6 +41,6 @@ impl Miller_u256 of MillerRunner<(), MockMillerRunner, MockAccumulator> {
 fn test_ate_miller_loop() {
     let mut curve = ();
     let mut acc = 1;
-    let res: MockAccumulator = ate_miller_loop(ref curve, MockMillerRunner {}, ref acc);
+    let res: MockAccumulator = ate_miller_loop(ref curve, MockRunner {}, acc);
     assert(res == 0x19d797039be763ba8, 'wrong value for 6u + 2');
 }

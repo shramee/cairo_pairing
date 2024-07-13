@@ -42,11 +42,3 @@ pub struct Groth16PreCompute<TG1Pts, TG1Precomputes, TG2Pts, TLines, TFq12> {
     pub residue_witness: TFq12,
     pub residue_witness_inv: TFq12,
 }
-
-
-#[derive(Drop)]
-pub enum CubicScale {
-    Zero,
-    One,
-    Two,
-}
