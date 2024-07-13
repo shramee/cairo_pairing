@@ -1,4 +1,4 @@
-use ec_groups::{LineFn, LinesArray, LinesArrayGet, ECOperations};
+use ec_groups::{LineFn, LinesArrays, LinesArrayGet, ECOperations};
 use bn_ate_loop::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
 use bn254_u256::{Fq, Fq2, Fq12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
 use bn254_u256::{Bn254U256Curve};
@@ -24,7 +24,7 @@ pub struct SZAccumulator {
 }
 
 pub type LnFn = LineFn<Fq>;
-pub type LnArray = LinesArray<LnFn>;
+pub type LnArrays = LinesArrays<Array<LnFn>>;
 
 // Precomputes p for the pairing function
 pub fn p_precompute(ref self: Bn254U256Curve, p: PtG1) -> PPrecompute<Fq> {

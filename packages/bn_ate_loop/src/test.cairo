@@ -7,7 +7,7 @@ struct MockRunner {}
 
 type MockAccumulator = felt252;
 
-impl Miller_u256 of MillerRunner<(), MockRunner, MockAccumulator> {
+impl Miller_u of MillerRunner<(), MockRunner, MockAccumulator> {
     // first and second step, O and N
     fn miller_bit_1_2(
         ref self: (), runner: @MockRunner, i: (u32, u32), ref acc: MockAccumulator

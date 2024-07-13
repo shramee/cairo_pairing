@@ -1,12 +1,12 @@
-use ec_groups::{LineFn, LinesArray, LinesArrayGet};
+use ec_groups::{LineFn, LinesArrayGet};
 use bn254_u256::{Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
 use bn254_u256::pairing::utils::{
-    LnArray, SZCommitment, SZPreCompute, SZAccumulator as Accumulator, LnFn
+    LnArrays, SZCommitment, SZPreCompute, SZAccumulator as Accumulator, LnFn
 };
 use bn_ate_loop::MillerRunner;
 use schwartz_zippel::SchZipSteps;
 
-type PreCompute = SZPreCompute<LnArray, SZCommitment>;
+type PreCompute = SZPreCompute<LnArrays, SZCommitment>;
 
 // TODO: +SchZipSteps<Curve, TCommitment, Fq>
 
@@ -40,6 +40,3 @@ pub impl Miller_Bn254_U256 of MillerRunner<Curve, PreCompute, Accumulator> {
     // @TODO
     }
 }
-// Trait has no implementation in context: MillerRunner<Bn254U256Curve, SZPreCompute<LinesArray<LineFn<Fq>>, SZCommitment>, SZAccumulator>
-
-

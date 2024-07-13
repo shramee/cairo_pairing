@@ -3,7 +3,7 @@ pub mod lines;
 use fq_types::{FieldOps};
 use core::num::traits::One;
 pub use bn::AffineOpsBn;
-pub use lines::{LineFn, StepLinesGet, LinesArray, LinesArrayGet};
+pub use lines::{LineFn, StepLinesGet, LinesArrays, LinesArrayGet};
 
 #[derive(Copy, Drop, Serde)]
 pub struct Affine<T> {

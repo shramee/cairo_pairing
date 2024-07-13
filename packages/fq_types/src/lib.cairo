@@ -13,7 +13,7 @@ pub struct Fq3<T> {
     pub c2: T,
 }
 
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, Serde)]
 pub enum CubicScale {
     Zero,
     One,

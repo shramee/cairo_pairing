@@ -1,10 +1,12 @@
 use ec_groups::ECOperations;
-use bn_ate_loop::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
+pub use bn_ate_loop::{
+    PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit
+};
 use bn254_u256::{
     Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve, pairing, CubicScale,
     pairing::{
         schzip_miller_runner::Miller_Bn254_U256,
-        utils::{SZCommitment, SZPreCompute, SZAccumulator, LnArray},
+        utils::{SZCommitment, SZPreCompute, SZAccumulator, LnArrays},
         utils::{ICArrayInput, p_precompute},
     }
 };
@@ -24,7 +26,7 @@ fn schzip_miller(
     inputs: Array<u256>,
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
-    setup: Groth16Circuit<PtG1, PtG2, LnArray, InputConstraintPoints, Fq12>,
+    setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
     schzip: SZCommitment,
 ) -> SZAccumulator { //
     // Compute k from ic and public_inputs
@@ -65,7 +67,7 @@ pub fn schzip_verify(
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
     cubic_scale: CubicScale,
-    setup: Groth16Circuit<PtG1, PtG2, LnArray, InputConstraintPoints, Fq12>,
+    setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
     schzip_remainders: Array<u256>,
     schzip_qrlc: Array<u256>,
 ) {
