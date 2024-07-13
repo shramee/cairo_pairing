@@ -13,6 +13,13 @@ pub struct Fq3<T> {
     pub c2: T,
 }
 
+#[derive(Copy, Drop)]
+pub enum CubicScale {
+    Zero,
+    One,
+    Two,
+}
+
 pub fn fq2<T>(c0: T, c1: T) -> Fq2<T> {
     Fq2 { c0, c1 }
 }

@@ -1,10 +1,10 @@
 use ec_groups::ECOperations;
 use bn_ate_loop::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
-use bn254_u256::{Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve, pairing};
+use bn254_u256::{Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve, pairing, CubicScale};
 use bn254_u256::pairing::schzip_miller_runner::Miller_Bn254_U256;
 use bn254_u256::pairing::utils::{SZCommitment, SZPreCompute, SZAccumulator, LnArray};
 use bn254_u256::pairing::utils::{ICArrayInput, p_precompute};
-use bn_ate_loop::{MillerRunner, ate_miller_loop, CubicScale};
+use bn_ate_loop::{MillerRunner, ate_miller_loop};
 use ec_groups::{LineFn, StepLinesGet, LinesArrayGet};
 
 

@@ -3,8 +3,6 @@ use bn_ate_loop::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16Miller
 use bn254_u256::{Fq, Fq2, Fq12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
 use bn254_u256::{Bn254U256Curve};
 
-pub use bn_ate_loop::CubicScale;
-
 #[derive(Drop)]
 pub struct SZCommitment {
     pub remainders: Array<u256>,
