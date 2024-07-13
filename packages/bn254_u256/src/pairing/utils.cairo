@@ -10,24 +10,21 @@ pub struct SZCommitment {
 }
 
 #[derive(Drop)]
-pub struct SZPreCompute<TLines> {
+pub struct SZPreCompute<TLines, TCommitment> {
     pub g16_precompute: Groth16PreCompute<
         Groth16MillerG1<PtG1>, Groth16MillerG1<PPrecompute<Fq>>, Groth16MillerG2<PtG2>, TLines, Fq12
     >,
-    pub schzip: SZCommitment,
+    pub schzip: TCommitment,
 }
 
 #[derive(Drop)]
 pub struct SZAccumulator {
     pub g2: Groth16MillerG2<PtG2>,
-    pub schzip_i: u256,
-    pub lhs_rhs: Fq,
+    pub schzip: (u32, Fq),
 }
 
 pub type LnFn = LineFn<Fq>;
 pub type LnArray = LinesArray<LnFn>;
-
-pub type SZPreComLines = SZPreCompute<LnArray>;
 
 // Precomputes p for the pairing function
 pub fn p_precompute(ref self: Bn254U256Curve, p: PtG1) -> PPrecompute<Fq> {
@@ -54,13 +51,12 @@ pub impl ICArrayInput of ICProcess<Bn254U256Curve, Array<PtG1>, Array<u256>, PtG
         if inputs.len() == 0 {
             return ic_point;
         }
-
         loop {
             match points.pop_front() {
                 Option::Some(point) => { //
                     match inputs.pop_front() {
                         Option::Some(in) => {
-                            ic_point = curve.pt_add(ic_point, curve.pt_mul(point, in));
+                            ic_point = self.pt_add(ic_point, self.pt_mul(point, in));
                         },
                         Option::None => {} // This wouldn't happen
                     }

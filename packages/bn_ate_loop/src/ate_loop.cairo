@@ -1,6 +1,6 @@
 pub trait MillerRunner<TCurve, TRunner, TAccumulator> {
     // first and second step, O and N
-    fn miller_bit_1_2(ref self: TCurve, runner: @TRunner, i1: u32, i2: u32, ref acc: TAccumulator);
+    fn miller_bit_1_2(ref self: TCurve, runner: @TRunner, i: (u32, u32), ref acc: TAccumulator);
 
     // 0 bit
     fn miller_bit_o(ref self: TCurve, runner: @TRunner, i: u32, ref acc: TAccumulator);
@@ -38,7 +38,7 @@ pub fn _loop_inner_1_of_2<
     runner: @TRunner, ref curve: TCurve, ref q_acc: TAccumulator
 ) {
     // ate_loop[64] = O and ate_loop[63] = N
-    curve.miller_bit_1_2(runner, 64, 63, ref q_acc);
+    curve.miller_bit_1_2(runner, (64, 63), ref q_acc);
     curve.miller_bit_o(runner, 62, ref q_acc); // ate_loop[62] = O
     curve.miller_bit_p(runner, 61, ref q_acc); // ate_loop[61] = P
     curve.miller_bit_o(runner, 60, ref q_acc); // ate_loop[60] = O

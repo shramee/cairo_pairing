@@ -10,8 +10,9 @@ type MockAccumulator = felt252;
 impl Miller_u256 of MillerRunner<(), MockRunner, MockAccumulator> {
     // first and second step, O and N
     fn miller_bit_1_2(
-        ref self: (), runner: @MockRunner, i1: u32, i2: u32, ref acc: MockAccumulator
+        ref self: (), runner: @MockRunner, i: (u32, u32), ref acc: MockAccumulator
     ) { //
+        let (i1, i2) = i;
         self.miller_bit_o(runner, i1, ref acc);
         self.miller_bit_n(runner, i2, ref acc);
     }

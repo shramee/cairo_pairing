@@ -1,34 +1,45 @@
 use ec_groups::{LineFn, LinesArray, LinesArrayGet};
-use bn254_u256::{Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve};
-use bn254_u256::pairing::utils::{SZCommitment, SZPreCompute, SZAccumulator, LnFn, SZPreComLines};
+use bn254_u256::{Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
+use bn254_u256::pairing::utils::{
+    LnArray, SZCommitment, SZPreCompute, SZAccumulator as Accumulator, LnFn
+};
 use bn_ate_loop::MillerRunner;
+use schwartz_zippel::SchZipSteps;
 
-pub impl Miller_Bn254_U256 of MillerRunner<Bn254U256Curve, SZPreComLines, SZAccumulator> {
+type PreCompute = SZPreCompute<LnArray, SZCommitment>;
+
+// TODO: +SchZipSteps<Curve, TCommitment, Fq>
+
+pub impl Miller_Bn254_U256 of MillerRunner<Curve, PreCompute, Accumulator> {
     // first and second step, O and N
-    fn bit_1st_2nd(
-        self: @SZPreComLines, ref curve: Bn254U256Curve, i1: u32, i2: u32, ref acc: SZAccumulator
+    fn miller_bit_1_2(
+        ref self: Curve, runner: @PreCompute, i: (u32, u32), ref acc: Accumulator
     ) { //
-        self.bit_o(ref curve, i1, ref acc);
-        self.bit_n(ref curve, i2, ref acc);
+        let (i1, i2) = i;
+        self.miller_bit_o(runner, i1, ref acc);
+        self.miller_bit_n(runner, i2, ref acc);
     }
 
     // 0 bit
-    fn bit_o(self: @SZPreComLines, ref curve: Bn254U256Curve, i: u32, ref acc: SZAccumulator) { //
+    fn miller_bit_o(ref self: Curve, runner: @PreCompute, i: u32, ref acc: Accumulator) { //
     // @TODO
     }
 
     // 1 bit
-    fn bit_p(self: @SZPreComLines, ref curve: Bn254U256Curve, i: u32, ref acc: SZAccumulator) { //
+    fn miller_bit_p(ref self: Curve, runner: @PreCompute, i: u32, ref acc: Accumulator) { //
     // @TODO
     }
 
     // -1 bit
-    fn bit_n(self: @SZPreComLines, ref curve: Bn254U256Curve, i: u32, ref acc: SZAccumulator) { //
+    fn miller_bit_n(ref self: Curve, runner: @PreCompute, i: u32, ref acc: Accumulator) { //
     // @TODO
     }
 
     // last step
-    fn last(self: @SZPreComLines, ref curve: Bn254U256Curve, ref acc: SZAccumulator) { //
+    fn miller_last(ref self: Curve, runner: @PreCompute, ref acc: Accumulator) { //
     // @TODO
     }
 }
+// Trait has no implementation in context: MillerRunner<Bn254U256Curve, SZPreCompute<LinesArray<LineFn<Fq>>, SZCommitment>, SZAccumulator>
+
+

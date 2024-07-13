@@ -6,6 +6,8 @@ edition = "2023_11"
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 
 [dependencies]
+schwartz_zippel = { path = "../schwartz_zippel" }
+fast_mod = { path = "../fast_mod" }
 bn_ate_loop = { path = "../bn_ate_loop" }
 ec_groups = { path = "../ec_groups" }
 fq_types = { path = "../fq_types" }
