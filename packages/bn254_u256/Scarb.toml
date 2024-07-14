@@ -11,3 +11,4 @@ fast_mod = { path = "../fast_mod" }
 bn_ate_loop = { path = "../bn_ate_loop" }
 ec_groups = { path = "../ec_groups" }
 fq_types = { path = "../fq_types" }
+pairing = { path = "../pairing" }
