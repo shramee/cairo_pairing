@@ -4,12 +4,12 @@ use bn254_u256::{
     Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve, CubicScale,
     pairing::{
         schzip_miller_runner::Miller_Bn254_U256,
-        utils::{SZCommitment, SZPreCompute, SZAccumulator, LnArrays},
-        utils::{ICArrayInput, p_precompute},
+        utils::{SZCommitment, SZPreCompute, SZAccumulator, LnArrays, ICArrayInput},
     }
 };
 use bn_ate_loop::{ate_miller_loop};
 use ec_groups::{LineFn, StepLinesGet, LinesArrayGet};
+use pairing::PairingUtils;
 
 
 pub type InputConstraintPoints = Array<PtG1>;
@@ -39,15 +39,11 @@ fn schzip_miller(
     let q = Groth16MillerG2 { pi_b, gamma, delta };
     let neg_q = Groth16MillerG2 { pi_b: curve.pt_neg(pi_b), gamma: gamma_neg, delta: delta_neg };
     let ppc = Groth16MillerG1 {
-        pi_a: p_precompute(ref curve, pi_a),
-        pi_c: p_precompute(ref curve, pi_c),
-        k: p_precompute(ref curve, k),
+        pi_a: curve.p_precompute(pi_a), pi_c: curve.p_precompute(pi_c), k: curve.p_precompute(k),
     };
-    let g16_precompute = Groth16PreCompute {
-        p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv,
-    };
+    let g16 = Groth16PreCompute { p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, };
 
-    let precomp = SZPreCompute { g16_precompute, schzip, };
+    let precomp = SZPreCompute { g16, schzip, };
 
     // miller accumulator
     let mut q_acc = SZAccumulator { g2: q, schzip: (0, 0_u256.into()) };

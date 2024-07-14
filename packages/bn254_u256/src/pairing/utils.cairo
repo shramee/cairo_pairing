@@ -11,7 +11,7 @@ pub struct SZCommitment {
 
 #[derive(Drop)]
 pub struct SZPreCompute<TLines, TCommitment> {
-    pub g16_precompute: Groth16PreCompute<
+    pub g16: Groth16PreCompute<
         Groth16MillerG1<PtG1>, Groth16MillerG1<PPrecompute<Fq>>, Groth16MillerG2<PtG2>, TLines, Fq12
     >,
     pub schzip: TCommitment,
@@ -25,13 +25,6 @@ pub struct SZAccumulator {
 
 pub type LnFn = LineFn<Fq>;
 pub type LnArrays = LinesArrays<Array<LnFn>>;
-
-// Precomputes p for the pairing function
-pub fn p_precompute(ref self: Bn254U256Curve, p: PtG1) -> PPrecompute<Fq> {
-    let y_inv = self.inv(p.y);
-    let negx = self.neg(p.x);
-    PPrecompute { neg_x_over_y: self.mul(negx, y_inv), y_inv }
-}
 
 // Generic Input constraints processing
 pub trait ICProcess<TCurve, TIC, TInputs, TG1> {

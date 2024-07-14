@@ -19,10 +19,8 @@ pub mod pairing {
 }
 
 pub use pairing::{
-    utils::{
-        p_precompute, ICProcess, ICArrayInput, LnArrays, //
-        {SZCommitment, SZPreCompute, SZAccumulator}
-    },
+    utils::{ICProcess, ICArrayInput, LnArrays, //
+     {SZCommitment, SZPreCompute, SZAccumulator}},
     schzip_miller::{
         schzip_verify, InputConstraintPoints, PPrecompute,
         {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
