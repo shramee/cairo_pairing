@@ -1,4 +1,4 @@
-use ec_groups::{LineFn, LinesArrayGet};
+use pairing::{LineFn, LinesArrayGet};
 use bn254_u256::{Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
 use bn254_u256::pairing::utils::{
     LnArrays, SZCommitment, SZPreCompute, SZAccumulator as Accumulator, LnFn

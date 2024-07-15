@@ -1,4 +1,5 @@
-use ec_groups::{LineFn, LinesArrays, LinesArrayGet, ECOperations};
+use ec_groups::ECOperations;
+use pairing::{LineFn, LinesArrays, LinesArrayGet};
 use pairing::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
 use bn254_u256::{Fq, Fq2, Fq12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
 use bn254_u256::{Bn254U256Curve};
@@ -23,7 +24,7 @@ pub struct SZAccumulator {
     pub schzip: (u32, Fq),
 }
 
-pub type LnFn = LineFn<Fq>;
+pub type LnFn = LineFn<Fq2>;
 pub type LnArrays = LinesArrays<Array<LnFn>>;
 
 // Generic Input constraints processing

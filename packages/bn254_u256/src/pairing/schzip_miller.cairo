@@ -8,7 +8,7 @@ use bn254_u256::{
     }
 };
 use bn_ate_loop::{ate_miller_loop};
-use ec_groups::{LineFn, StepLinesGet, LinesArrayGet};
+use pairing::{LineFn, StepLinesGet, LinesArrayGet};
 use pairing::PairingUtils;
 
 

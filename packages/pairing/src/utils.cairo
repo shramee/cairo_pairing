@@ -1,6 +1,6 @@
 use fq_types::{FieldOps, FieldUtils, Fq2, F12S034};
-use ec_groups::{Affine, ECOperations, LineFn};
-use pairing::PPrecompute;
+use ec_groups::{Affine, ECOperations};
+use pairing::{PPrecompute, LineFn};
 
 type F034<TFq> = F12S034<Fq2<TFq>>;
 
@@ -87,6 +87,8 @@ pub impl PairingUtils<
             c4: self.scale_fq2(c, *ppc.y_inv), // c/y
         }
     }
+
+    // Maybe there's a better place for these functions, here for now
     fn scale_fq2(ref self: TCurve, a: Fq2<TFq>, x: TFq) -> Fq2<TFq> {
         let Fq2 { c0, c1 } = a;
         Fq2 { c0: self.mul(x, c0), c1: self.mul(x, c1) }
@@ -206,3 +208,4 @@ pub impl PairingUtils<
         (d, e)
     }
 }
+
