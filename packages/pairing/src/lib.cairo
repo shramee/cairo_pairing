@@ -7,4 +7,6 @@ pub use utils::{PairingUtils, PairingUtilsTrait, PiMapping};
 pub use lines::{
     // Line function stuff
     {LineFn, StepLinesGet, LinesArrays, LinesArrayGet}, //
+     // Precomputed line function steps
+    {FixedPointLinesTrait, FixedPointLines}
 };
