@@ -20,7 +20,9 @@ pub struct SZPreCompute<TLines, TCommitment> {
 
 #[derive(Drop)]
 pub struct SZAccumulator {
+    pub f: Fq12,
     pub g2: Groth16MillerG2<PtG2>,
+    pub line_index: u32,
     pub schzip: (u32, Fq),
 }
 

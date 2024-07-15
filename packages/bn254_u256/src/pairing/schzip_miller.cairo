@@ -5,18 +5,20 @@ use bn254_u256::{
     pairing::{
         schzip_miller_runner::Miller_Bn254_U256,
         utils::{SZCommitment, SZPreCompute, SZAccumulator, LnArrays, ICArrayInput},
-    }
+    },
+    Bn254SchwartzZippelSteps,
 };
 use bn_ate_loop::{ate_miller_loop};
 use pairing::{LineFn, StepLinesGet, LinesArrayGet};
 use pairing::PairingUtils;
+use schwartz_zippel::SchZipSteps;
 
 
 pub type InputConstraintPoints = Array<PtG1>;
 type LnFn = LineFn<Fq>;
 
 // Does the verification
-fn schzip_miller(
+fn schzip_miller<TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, (u32, Fq), Fq>, +Drop<TSchZip>>(
     ref curve: Bn254U256Curve,
     pi_a: PtG1,
     pi_b: PtG2,
@@ -25,7 +27,7 @@ fn schzip_miller(
     residue_witness: Fq12,
     residue_witness_inv: Fq12,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-    schzip: SZCommitment,
+    schzip: TSchZip,
 ) -> SZAccumulator { //
     // Compute k from ic and public_inputs
     let Groth16Circuit { alpha_beta: _, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
@@ -46,7 +48,9 @@ fn schzip_miller(
     let precomp = SZPreCompute { g16, schzip, };
 
     // miller accumulator
-    let mut q_acc = SZAccumulator { g2: q, schzip: (0, 0_u256.into()) };
+    let mut q_acc = SZAccumulator {
+        f: residue_witness_inv, g2: q, line_index: 0, schzip: (0, 0_u256.into())
+    };
 
     ate_miller_loop(ref curve, precomp, q_acc)
 }
@@ -62,6 +66,7 @@ pub fn schzip_verify(
     residue_witness_inv: Fq12,
     cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
+    // schzip: TSchZip,
     schzip_remainders: Array<u256>,
     schzip_qrlc: Array<u256>,
 ) {
