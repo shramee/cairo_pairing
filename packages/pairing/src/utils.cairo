@@ -37,11 +37,11 @@ pub trait PairingUtilsTrait<TCurve, TFq> {
 #[derive(Copy, Drop)]
 pub struct PiMapping<TFq> {
     // for πₚ mapping
-    PiQ1X2: Fq2<TFq>,
-    PiQ1X3: Fq2<TFq>,
+    pub PiQ1X2: Fq2<TFq>,
+    pub PiQ1X3: Fq2<TFq>,
     // for π² mapping, only Fq2.c0, c1 is 0
-    PiQ2X2: TFq,
-    PiQ2X3: TFq,
+    pub PiQ2X2: TFq,
+    pub PiQ2X3: TFq,
 }
 
 // #[generate_trait]
