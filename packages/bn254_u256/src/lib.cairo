@@ -16,6 +16,7 @@ pub mod pairing {
     pub mod utils;
     pub mod schzip_miller_runner;
     pub mod schzip_miller;
+    pub mod schzip_steps;
 }
 
 pub use pairing::{
@@ -25,6 +26,7 @@ pub use pairing::{
         schzip_verify, InputConstraintPoints, PPrecompute,
         {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
     },
+    schzip_steps::Bn254SchwartzZippelSteps,
 };
 
 pub fn bn254_curve() -> Bn254U256Curve {
