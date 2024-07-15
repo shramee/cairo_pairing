@@ -11,7 +11,17 @@ version = "0.1.0"
 dependencies = [
  "bn_ate_loop",
  "ec_groups",
+ "fast_mod",
  "fq_types",
+ "pairing",
+ "schwartz_zippel",
+]
+
+[[package]]
+name = "bn254_u256_contract"
+version = "0.1.0"
+dependencies = [
+ "bn254_u256",
 ]
 
 [[package]]
@@ -30,6 +40,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "cairo_pairing"
+version = "0.1.0"
+
+[[package]]
 name = "ec_groups"
 version = "0.1.0"
 dependencies = [
@@ -43,3 +57,18 @@ version = "0.1.0"
 [[package]]
 name = "fq_types"
 version = "0.1.0"
+
+[[package]]
+name = "pairing"
+version = "0.1.0"
+dependencies = [
+ "ec_groups",
+ "fq_types",
+]
+
+[[package]]
+name = "schwartz_zippel"
+version = "0.1.0"
+dependencies = [
+ "fq_types",
+]

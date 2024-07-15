@@ -8,9 +8,12 @@ members = [
 version = "0.1.0"
 cairo-version = "2.6.2"
 
+[workspace.dependencies]
+# cairo_test = "2.7.0-rc.0"
+
 [package]
-name = "pairing"
-version.workspace = true
+name = "cairo_pairing" # the name of the package
+version = "0.1.0"    # the current version, obeying semver
 
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 
@@ -19,7 +22,7 @@ new = "scarb new --no-vcs"
 addchain_gen_t = "addchain gen -tmpl addchain/tpl addchain/t"
 contracts = "scarb build -p bn_contracts"
 # Declares class for the contract
-ktn_declare = "starkli declare target/dev/bn_contracts_BN_Pairing.contract_class.json --account katana --rpc=http://localhost:5050"
+ktn_declare = "starkli declare target/dev/bn254_u256_contract_BN_Pairing.contract_class.json"
 # Deploys the contract for input classhash
 ktn_deploy = "starkli deploy --account katana --rpc=http://localhost:5050"
 # Invokes final_exponentiation_bench on input contract address
