@@ -37,6 +37,7 @@ pub fn _loop_inner_1_of_2<
 >(
     runner: @TRunner, ref curve: TCurve, ref q_acc: TAccumulator
 ) {
+    core::internal::revoke_ap_tracking();
     // ate_loop[64] = O and ate_loop[63] = N
     curve.miller_bit_1_2(runner, (64, 63), ref q_acc);
     curve.miller_bit_o(runner, 62, ref q_acc); // ate_loop[62] = O
@@ -51,6 +52,7 @@ pub fn _loop_inner_1_of_2<
     curve.miller_bit_o(runner, 53, ref q_acc); // ate_loop[53] = O
     curve.miller_bit_o(runner, 52, ref q_acc); // ate_loop[52] = O
     curve.miller_bit_n(runner, 51, ref q_acc); // ate_loop[51] = N
+    core::internal::revoke_ap_tracking();
     curve.miller_bit_o(runner, 50, ref q_acc); // ate_loop[50] = O
     curve.miller_bit_p(runner, 49, ref q_acc); // ate_loop[49] = P
     curve.miller_bit_o(runner, 48, ref q_acc); // ate_loop[48] = O
@@ -78,6 +80,7 @@ pub fn _loop_inner_2_of_2<
 >(
     runner: @TRunner, ref curve: TCurve, ref q_acc: TAccumulator
 ) {
+    core::internal::revoke_ap_tracking();
     curve.miller_bit_n(runner, 30, ref q_acc); // ate_loop[30] = N
     curve.miller_bit_o(runner, 29, ref q_acc); // ate_loop[29] = O
     curve.miller_bit_o(runner, 28, ref q_acc); // ate_loop[28] = O
@@ -95,6 +98,7 @@ pub fn _loop_inner_2_of_2<
     curve.miller_bit_o(runner, 16, ref q_acc); // ate_loop[16] = O
     curve.miller_bit_o(runner, 15, ref q_acc); // ate_loop[15] = O
     curve.miller_bit_p(runner, 14, ref q_acc); // ate_loop[14] = P
+    core::internal::revoke_ap_tracking();
     curve.miller_bit_o(runner, 13, ref q_acc); // ate_loop[13] = O
     curve.miller_bit_o(runner, 12, ref q_acc); // ate_loop[12] = O
     curve.miller_bit_o(runner, 11, ref q_acc); // ate_loop[11] = O
