@@ -85,8 +85,9 @@ pub impl Fq2Ops<
         let a1_nr = self.mul_by_nonresidue(a1); // βa1
         let t1 = FqOps::add(ref self, a0, a1_nr); // a0 + βa1
         let t2 = FqOps::mul(ref self, t0, t1); // (a0 + a1) * (a0 + βa1)
+        let t3 = FqOps::sub(ref self, t2, v); // (a0 + a1) * (a0 + βa1) - v - βv
         let v_nr = self.mul_by_nonresidue(v); // βv
-        let c0 = FqOps::sub(ref self, t2, v_nr); // (a0 + a1) * (a0 + βa1) - v - βv
+        let c0 = FqOps::sub(ref self, t3, v_nr); // (a0 + a1) * (a0 + βa1) - v - βv
         // c1 = v + v;
         let c1 = FqOps::add(ref self, v, v); // 2v
         Fq2 { c0, c1 }

@@ -101,15 +101,13 @@ pub impl PairingUtils<
     // https://eprint.iacr.org/2022/1162 (Section 6.1)
     // computes acc = acc + q + acc and line evals for p
     // returns product of line evaluations to multiply with f
-    // #[inline(always)]
     fn step_dbl_add(
         ref self: TCurve, ref acc: Affine<Fq2<TFq>>, q: Affine<Fq2<TFq>>, ppc: @PPrecompute<TFq>
     ) -> (F034<TFq>, F034<TFq>) {
         let s = acc;
-        let Affine { x: x1, y: y1 } = s;
         // s + q
         let slope1 = self.chord(s, q);
-        let x2 = self.x_on_slope(s, slope1, q.x);
+        let x1 = self.x_on_slope(s, slope1, q.x);
         let line1 = self.point_and_slope_at_p(slope1, s, ppc);
 
         // we skip y1 calculation and sub slope1 directly in second slope calculation
@@ -117,17 +115,15 @@ pub impl PairingUtils<
         // (s + q) + s
         // λ2 = (y2-y1)/(x2-x1), subbing y2 = λ(x2-x1)+y1
         // λ2 = -λ1-2y1/(x2-x1)
-        let neg_slope1 = self.neg(slope1); // neg_slope1 = -λ1
-        let y_2x = self.add(y1, y1); // y_2x = 2y1
+        let neg_slope1 = self.neg(slope1); // -λ1
+        let y_2x = self.add(s.y, s.y); // 2s.y
 
-        // x2 - s.x
-        let x_diff = self.sub(x2, s.x); // x_diff = x2 - s.x
+        let x_diff = self.sub(x1, s.x); // x2 - s.x
 
-        // (y1 + y1) / (x2 - s.x)
-        let slope_fraction = self.div(y_2x, x_diff); // slope_fraction = y_2x / x_diff
+        let slope_fraction = self.div(y_2x, x_diff); // y_2x / x_diff
 
         // -λ1 - (y1 + y1) / (x1 - s.x)
-        let slope2 = self.sub(neg_slope1, slope_fraction); // slope2 = neg_slope1 - slope_fraction
+        let slope2 = self.sub(neg_slope1, slope_fraction); // -λ1 - slope_fraction
         acc = self.pt_on_slope(s, slope2, x1);
         let line2 = self.point_and_slope_at_p(slope2, s, ppc);
 
@@ -145,6 +141,7 @@ pub impl PairingUtils<
         let s = acc;
         // λ = 3x²/2y
         let slope = self.tangent(s);
+
         // p = (λ²-2x, λ(x-xr)-y)
         acc = self.pt_on_slope(s, slope, acc.x);
         self.point_and_slope_at_p(slope, s, ppc)

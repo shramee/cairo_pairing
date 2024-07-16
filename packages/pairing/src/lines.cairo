@@ -29,8 +29,6 @@ pub impl LinesArrayGet<
     fn get_gamma_line(
         self: @LinesArrays<Array<LineFn<Fq2<TFq>>>>, line_index: u32
     ) -> LineFn<Fq2<TFq>> {
-        // let l1: LineFn = *self.gamma[line_index];
-        // println!("Get {}.{} {}", step, line_index, l1.slope.c0.c0.low);
         *self.gamma[line_index]
     }
     fn get_delta_line(
