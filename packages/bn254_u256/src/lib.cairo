@@ -12,13 +12,15 @@ pub mod pairing {
 #[cfg(test)]
 mod tests {
     pub mod tests;
+    pub mod test_pairing_utils;
     pub mod fixtures;
 }
 
-use fq_types::{Fq2 as Fq2Gen, Fq3 as Fq3Gen, F12S034, fq3,};
+use fq_types::{Fq2 as Fq2Gen, Fq3 as Fq3Gen, F12S034, fq3, Fq2PartialEq, Fq3PartialEq,};
 pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale};
 pub use fq_1::{
-    {scale_9, Fq, FieldOps, FieldOpsExtended, FieldUtils}, {U256IntoFq, Bn254FqOps, Bn254FqUtils}
+    {U256IntoFq, FqPartialEq, Bn254FqOps, Bn254FqUtils},
+    {scale_9, Fq, FieldOps, FieldOpsExtended, FieldUtils},
 };
 pub use utils::{g1, g2, fq12, fq2};
 

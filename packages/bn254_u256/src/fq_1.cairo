@@ -7,6 +7,18 @@ pub struct Fq {
     pub c0: u256,
 }
 
+pub impl FqPartialEq of PartialEq<Fq> {
+    #[inline(always)]
+    fn eq(lhs: @Fq, rhs: @Fq) -> bool {
+        lhs.c0 == rhs.c0
+    }
+
+    #[inline(always)]
+    fn ne(lhs: @Fq, rhs: @Fq) -> bool {
+        lhs.c0 != rhs.c0
+    }
+}
+
 pub impl U256IntoFq of Into<u256, Fq> {
     #[inline(always)]
     fn into(self: u256) -> Fq {

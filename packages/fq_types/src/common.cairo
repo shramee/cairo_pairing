@@ -1,5 +1,29 @@
 use super::{Fq2, Fq3, FieldOps, FieldUtils};
 
+pub impl Fq2PartialEq<TFq, +PartialEq<TFq>> of PartialEq<Fq2<TFq>> {
+    #[inline(always)]
+    fn eq(lhs: @Fq2<TFq>, rhs: @Fq2<TFq>) -> bool {
+        lhs.c0 == rhs.c0 && lhs.c1 == rhs.c1
+    }
+
+    #[inline(always)]
+    fn ne(lhs: @Fq2<TFq>, rhs: @Fq2<TFq>) -> bool {
+        lhs.c0 != rhs.c0 && lhs.c1 != rhs.c1
+    }
+}
+
+pub impl Fq3PartialEq<TFq, +PartialEq<TFq>> of PartialEq<Fq3<TFq>> {
+    #[inline(always)]
+    fn eq(lhs: @Fq3<TFq>, rhs: @Fq3<TFq>) -> bool {
+        lhs.c0 == rhs.c0 && lhs.c1 == rhs.c1 && lhs.c2 == rhs.c2
+    }
+
+    #[inline(always)]
+    fn ne(lhs: @Fq3<TFq>, rhs: @Fq3<TFq>) -> bool {
+        lhs.c0 != rhs.c0 && lhs.c1 != rhs.c1 && lhs.c2 != rhs.c2
+    }
+}
+
 pub impl Fq2Ops<
     TCurve,
     TFq,

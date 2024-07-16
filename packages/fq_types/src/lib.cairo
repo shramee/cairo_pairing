@@ -74,4 +74,4 @@ pub trait FieldOpsExtended<TCurve, TFq, TFqChildren, TFqU512> {
 pub type Fq12Direct<T> = (T, T, T, T, T, T, T, T, T, T, T, T);
 pub type F12S01234Direct<T> = ((T, T, T, T, T), (T, T, T, T, T));
 
-pub use common::{Fq2Ops, Fq3Ops};
+pub use common::{Fq2Ops, Fq2PartialEq, Fq3Ops, Fq3PartialEq};
