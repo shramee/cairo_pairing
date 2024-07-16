@@ -6,7 +6,7 @@ use bn::curve::groups::{g1, g2, ECGroup};
 use bn::curve::groups::{Affine, AffineG1 as PtG1, AffineG2 as PtG2, AffineOps};
 use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
 use bn::fields::{
-    Fq, fq, Fq2, fq2, Fq6, Fq12, Fq12Utils, Fq12Ops, FqOps, Fq2Utils, Fq2Ops, Fq12Exponentiation,
+    Fq, fq, Fq2, fq2, Fq12, Fq12Utils, Fq12Ops, FqOps, Fq2Utils, Fq2Ops, Fq12Exponentiation,
 };
 use bn::fields::{Fq12Sparse034, Fq12Sparse01234, FqSparse};
 use bn::fields::print::{Fq2Display, Fq12Display, FqDisplay};
@@ -58,17 +58,14 @@ struct LineFn {
 }
 
 mod line_fn {
-    use bn::fields::fq_2::Fq2FrobeniusTrait;
-    use bn::fields::fq_sparse::FqSparseTrait;
+    // use bn::fields::fq_2::Fq2FrobeniusTrait;
+    // use bn::fields::fq_sparse::FqSparseTrait;
     use bn::traits::{FieldShortcuts, FieldUtils};
     use bn::curve::groups::ECOperations;
     use bn::curve::groups::{g1, g2, ECGroup};
     use bn::curve::groups::{Affine, AffineG1 as PtG1, AffineG2 as PtG2, AffineOps};
     use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
-    use bn::fields::{
-        Fq, fq, Fq2, fq2, Fq6, Fq12, Fq12Utils, Fq12Ops, FqOps, Fq2Utils, Fq2Ops,
-        Fq12Exponentiation,
-    };
+    use bn::fields::{Fq, fq, Fq2, fq2, FqOps, Fq2Utils, Fq2Ops};
     use bn::fields::{Fq12Sparse034, Fq12Sparse01234, FqSparse};
     use bn::fields::print::{Fq2Display, Fq12Display, FqDisplay};
     use bn::fields::frobenius::pi;
@@ -119,7 +116,6 @@ mod line_fn {
         let line1 = line_fn(slope1, s);
 
         // we skip y1 calculation and sub slope1 directly in second slope calculation
-
         // s + (s + q)
         // λ2 = (y2-y1)/(x2-x1), subbing y2 = λ(x2-x1)+y1
         // λ2 = -λ1-2y1/(x3-x1)

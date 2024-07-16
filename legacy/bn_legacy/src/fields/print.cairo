@@ -1,5 +1,6 @@
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::traits::TryInto;
+use bn::curve::groups::Affine;
 use bn::fields::{Fq, Fq2, Fq6, Fq12, fq12, FS034, FS01234};
 use integer::u512;
 use debug::PrintTrait;
@@ -10,7 +11,7 @@ use bn::fast_mod::u512Display;
 impl FqDisplay of Display<Fq> {
     fn fmt(self: @Fq, ref f: Formatter) -> Result<(), Error> {
         let base = 16_u256;
-        write!(f, "\n0x").unwrap();
+        write!(f, "\n 0x").unwrap();
         self.c0.append_formatted_to_byte_array(ref f.buffer, base.try_into().unwrap());
         Result::Ok(())
     }
@@ -25,6 +26,18 @@ impl Fq2Display of Display<Fq2> {
 impl F034Display of Display<FS034> {
     fn fmt(self: @FS034, ref f: Formatter) -> Result<(), Error> {
         write!(f, "f034({},{},{},{}\n),", self.c3.c0, self.c3.c1, self.c4.c0, self.c4.c1,)
+    }
+}
+
+impl G1Display of Display<Affine<Fq>> {
+    fn fmt(self: @Affine<Fq>, ref f: Formatter) -> Result<(), Error> {
+        write!(f, "g2({},{}\n),", self.x, self.y)
+    }
+}
+
+impl G2Display of Display<Affine<Fq2>> {
+    fn fmt(self: @Affine<Fq2>, ref f: Formatter) -> Result<(), Error> {
+        write!(f, "g2({},{},{},{}\n),", self.x.c0, self.x.c1, self.y.c0, self.y.c1,)
     }
 }
 

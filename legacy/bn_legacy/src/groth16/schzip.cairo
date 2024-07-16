@@ -10,4 +10,4 @@ use utils::{F034X2, Lines, LinesDbl, SchZipAccumulator, SchzipPreCompute, SchZip
 use utils::{fq12_at_coeffs_index, powers_51};
 use eval::SchZipEval;
 use base::{schzip_base_verify, SchZipMock};
-use v1::{schzip_verify_with_commitments};
+use v1::schzip_verify_with_commitments;

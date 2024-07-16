@@ -8,7 +8,9 @@ use bn::fields::{fq_12::Fq12FrobeniusTrait, fq_12_direct};
 use bn::fields::{Fq, Fq2, Fq6, Fq12, fq12, FS034, FS01234, FS01,};
 use bn::fields::{FqSparseTrait, Fq12Utils, Fq12Exponentiation, Fq12Sparse034, Fq12Sparse01234};
 use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
-use bn::fields::print::{FqDisplay, Fq12Display, Fq6Display, F034Display, F01234Display};
+use bn::fields::print::{
+    FqDisplay, Fq2Display, Fq12Display, Fq6Display, F034Display, F01234Display, G2Display, G1Display
+};
 
 // Field direct
 use fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12IntoFq12Direct, Fq12Direct};
