@@ -9,6 +9,12 @@ pub mod pairing {
     pub mod schzip_steps;
 }
 
+#[cfg(test)]
+mod tests {
+    pub mod tests;
+    pub mod fixtures;
+}
+
 use fq_types::{Fq2 as Fq2Gen, Fq3 as Fq3Gen, F12S034, fq3,};
 pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale};
 pub use fq_1::{
