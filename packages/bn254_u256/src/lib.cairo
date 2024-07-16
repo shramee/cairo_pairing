@@ -1,5 +1,6 @@
 pub mod curve;
 pub mod fq_1;
+pub mod print;
 pub mod pairing {
     pub mod utils;
     pub mod schzip_miller_runner;
