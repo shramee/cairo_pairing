@@ -19,8 +19,8 @@ pub trait StepLinesGet<T, TFq> {
 
 #[derive(Drop, Serde)]
 pub struct LinesArrays<TLinesArray> {
-    gamma: TLinesArray,
-    delta: TLinesArray,
+    pub gamma: TLinesArray,
+    pub delta: TLinesArray,
 }
 
 pub impl LinesArrayGet<

@@ -66,7 +66,6 @@ pub fn schzip_verify(
     residue_witness_inv: Fq12,
     cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-    // schzip: TSchZip,
     schzip_remainders: Array<u256>,
     schzip_qrlc: Array<u256>,
 ) {

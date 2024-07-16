@@ -4,7 +4,7 @@ pub use bn254_u256::Bn254U256Curve;
 
 #[derive(Copy, Drop, Serde, Debug)]
 pub struct Fq {
-    c0: u256,
+    pub c0: u256,
 }
 
 pub impl U256IntoFq of Into<u256, Fq> {
