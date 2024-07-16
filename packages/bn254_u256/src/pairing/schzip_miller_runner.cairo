@@ -97,12 +97,12 @@ fn pi_mapping() -> PiMapping<Fq> {
     // for πₚ mapping
 
     // Fp2::NONRESIDUE^(2((q^1) - 1) / 6)
-    let Q1X2_0: Fq = 0x2fb347984f7911f74c0bec3cf559b143b78cc310c2c3330c99e39557176f553d_u256.into();
-    let Q1X2_1: Fq = 0x16c9e55061ebae204ba4cc8bd75a079432ae2a1d0b7c9dce1665d51c640fcba2_u256.into();
+    let Q1X2_0 = 0x2fb347984f7911f74c0bec3cf559b143b78cc310c2c3330c99e39557176f553d;
+    let Q1X2_1 = 0x16c9e55061ebae204ba4cc8bd75a079432ae2a1d0b7c9dce1665d51c640fcba2;
 
     // Fp2::NONRESIDUE^(3((q^1) - 1) / 6)
-    let Q1X3_0: Fq = 0x63cf305489af5dcdc5ec698b6e2f9b9dbaae0eda9c95998dc54014671a0135a_u256.into();
-    let Q1X3_1: Fq = 0x7c03cbcac41049a0704b5a7ec796f2b21807dc98fa25bd282d37f632623b0e3_u256.into();
+    let Q1X3_0 = 0x63cf305489af5dcdc5ec698b6e2f9b9dbaae0eda9c95998dc54014671a0135a;
+    let Q1X3_1 = 0x7c03cbcac41049a0704b5a7ec796f2b21807dc98fa25bd282d37f632623b0e3;
 
     // -----------------------------------------------------------------
     // for π² mapping
