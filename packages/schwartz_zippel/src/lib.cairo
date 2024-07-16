@@ -1,4 +1,5 @@
-use fq_types::{Fq2, Fq3, F12S034 as FS034, CubicScale};
+use fq_types::{Fq2, Fq3, F12S034 as FS034};
+use pairing::CubicScale;
 
 pub type Lines<T> = (FS034<T>, FS034<T>, FS034<T>);
 pub type F034X2<T> = (FS034<T>, FS034<T>);

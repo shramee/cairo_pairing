@@ -1,6 +1,7 @@
 use bn254_u256::{Fq, U256IntoFq, Fq2, fq2, fq3, Bn254FqOps, Bn254FqUtils};
 use ec_groups::{Affine, ECGroupUtils};
 pub use ec_groups::AffineOpsBn;
+pub use pairing::CubicScale;
 
 #[derive(Drop, Serde)]
 pub struct Bn254U256Curve {

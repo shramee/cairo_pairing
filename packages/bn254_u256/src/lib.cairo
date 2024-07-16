@@ -8,11 +8,10 @@ pub mod pairing {
 }
 
 use fq_types::{Fq2 as Fq2Gen, Fq3 as Fq3Gen, fq3,};
-pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn};
+pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale};
 pub use fq_1::{
     {scale_9, Fq, FieldOps, FieldOpsExtended, FieldUtils}, {U256IntoFq, Bn254FqOps, Bn254FqUtils}
 };
-pub use fq_types::CubicScale;
 
 pub type Fq2 = Fq2Gen<Fq>;
 pub type Fq6 = Fq3Gen<Fq2Gen<Fq>>;
