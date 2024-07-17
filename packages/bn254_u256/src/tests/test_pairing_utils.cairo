@@ -1,6 +1,6 @@
-use ec_groups::ECOperations;
-use bn254_u256::{Bn254FqOps, Bn254U256Curve, PtG1, PtG2, Fq2PartialEq};
-use bn254_u256::{bn254_curve, fq2, g1, g2, AffineOpsBn};
+use ec_groups::{ECOperations, Affine};
+use bn254_u256::{Bn254FqOps, Bn254U256Curve, PtG1, PtG2, AffineOpsBn, Fq2PartialEq};
+use bn254_u256::{bn254_curve, fq2, g1, g2, pi_mapping};
 use bn254_u256::print::{Fq2Display, FqDisplay, G2Display};
 use pairing::{PPrecompute, LineFn};
 use pairing::{PairingUtils, CubicScale};
@@ -53,6 +53,7 @@ fn test_step_double() {
     assert(lines.c3 == expected_c3, 'wrong dbl c3');
     assert(lines.c4 == expected_c4, 'wrong dbl c4');
 }
+
 #[test]
 #[available_gas(25000000)]
 fn test_step_dbl_add() {
@@ -104,54 +105,57 @@ fn test_step_dbl_add() {
     assert(l2.c3 == expected_l2c3, 'wrong dbl_add l2c3');
     assert(l2.c4 == expected_l2c4, 'wrong dbl_add l2c4');
 }
-// #[test]
-// #[available_gas(250000000)]
-// fn test_step_correction() {
-//     let mut curve = bn254_curve();
-//     let (p, q) = points();
-//     let (pc, _): (PreCompute, AffineG2) = (p, q).precompute(get_field_nz());
-//     let mut acc = g2(
-//         0x235817357e89826e377fd16a7f1a2ff53e0df7e86895b1958bd95fb6560fa941,
-//         0x22108c7158743b9927b624e1a61a4aa7ba9b2f717799e4e0c5424e8343de2884,
-//         0x934368739662af976071d3e9152e3172a82cd6012bf0d605f67e735e3b3cdfe,
-//         0x15484f6b2822b319e27f88795c1512a5bf6b1837e4749dffb7086239979f4d21,
-//     );
-//     let (l1, l2) = correction_step(ref acc, @pc.ppc, p, pc.q);
 
-//     // We skip final point operation to save costs
-//     // let expected = g2(
-//     //     0x242898b9a67f64300e584ef995ba56d75a6a66b236ee16145e9b1308dc24e3ce,
-//     //     0x290d75d7b30b60ea7a2809bb7fd095e5c4131719ff499b33ddc8c67d95a743c7,
-//     //     0x275fc70fde9a73de316c4ba654097840197be9141f31d3567188a8de06525572,
-//     //     0x1c79853dd0050acf0f1de573eed5b81d5e287994df2452eb560c6262746e07fc,
-//     // );
+#[test]
+#[available_gas(250000000)]
+fn test_step_correction() {
+    let mut self = bn254_curve();
+    let (p, mut q) = points();
+    let pc = self.p_precompute(p);
+    let mut acc = g2(
+        0x235817357e89826e377fd16a7f1a2ff53e0df7e86895b1958bd95fb6560fa941,
+        0x22108c7158743b9927b624e1a61a4aa7ba9b2f717799e4e0c5424e8343de2884,
+        0x934368739662af976071d3e9152e3172a82cd6012bf0d605f67e735e3b3cdfe,
+        0x15484f6b2822b319e27f88795c1512a5bf6b1837e4749dffb7086239979f4d21,
+    );
 
-//     let expected_l1c3 = fq2(
-//         0xd238aea84f1c5f3cc252629ef407db0ad7b441dd6616b994e374fb8c0413383,
-//         0x304554bb4d99a4cebabe260f60ef18d59e887078e74321d4fdba79a9eeab1ddb,
-//     );
+    let pi_map = pi_mapping();
 
-//     let expected_l1c4 = fq2(
-//         0x907fba323881daa70e1c572f69e77964e70ba22fb812dd9abcf304140574def,
-//         0x404c3e3275e836536af9a08a8dff1fe867efac4a34ca9a42e10706f4d811b8d,
-//     );
+    let (l1, l2) = self.correction_step(ref acc, q, pi_map, @pc);
 
-//     let expected_l2c3 = fq2(
-//         0xd06e75cebbc8df7fd2ee7b4afe5a42586c26a96c3fc205128dfd9184f131d92,
-//         0x1a80e9ca6ed93b661603d4f1acc3c982065301e91154bf63203e815a11befb0f,
-//     );
+    // We skip final point operation to save costs
+    // let expected = g2(
+    //     0x242898b9a67f64300e584ef995ba56d75a6a66b236ee16145e9b1308dc24e3ce,
+    //     0x290d75d7b30b60ea7a2809bb7fd095e5c4131719ff499b33ddc8c67d95a743c7,
+    //     0x275fc70fde9a73de316c4ba654097840197be9141f31d3567188a8de06525572,
+    //     0x1c79853dd0050acf0f1de573eed5b81d5e287994df2452eb560c6262746e07fc,
+    // );
 
-//     let expected_l2c4 = fq2(
-//         0x1fe98cea2f6991fdf8d51c06b75b57ee944309336cb488c4c85e2966afaf5dba,
-//         0x16d794265926a808f8ce74b6d4b31606c9b429603f4f522be6e2cb3fcb069dcd,
-//     );
+    let expected_l1c3 = fq2(
+        0xd238aea84f1c5f3cc252629ef407db0ad7b441dd6616b994e374fb8c0413383,
+        0x304554bb4d99a4cebabe260f60ef18d59e887078e74321d4fdba79a9eeab1ddb,
+    );
 
-//     assert(l1.c3 == expected_l1c3, 'wrong correction l1c3');
-//     assert(l1.c4 == expected_l1c4, 'wrong correction l1c4');
-//     assert(l2.c3 == expected_l2c3, 'wrong correction l2c3');
-//     assert(l2.c4 == expected_l2c4, 'wrong correction l2c4');
-// // We skip final point operation to save costs
-// // assert(q == expected, 'wrong correction point');
-// }
+    let expected_l1c4 = fq2(
+        0x907fba323881daa70e1c572f69e77964e70ba22fb812dd9abcf304140574def,
+        0x404c3e3275e836536af9a08a8dff1fe867efac4a34ca9a42e10706f4d811b8d,
+    );
 
+    let expected_l2c3 = fq2(
+        0xd06e75cebbc8df7fd2ee7b4afe5a42586c26a96c3fc205128dfd9184f131d92,
+        0x1a80e9ca6ed93b661603d4f1acc3c982065301e91154bf63203e815a11befb0f,
+    );
+
+    let expected_l2c4 = fq2(
+        0x1fe98cea2f6991fdf8d51c06b75b57ee944309336cb488c4c85e2966afaf5dba,
+        0x16d794265926a808f8ce74b6d4b31606c9b429603f4f522be6e2cb3fcb069dcd,
+    );
+
+    assert(l1.c3 == expected_l1c3, 'wrong correction l1c3');
+    assert(l1.c4 == expected_l1c4, 'wrong correction l1c4');
+    assert(l2.c3 == expected_l2c3, 'wrong correction l2c3');
+    assert(l2.c4 == expected_l2c4, 'wrong correction l2c4');
+// We skip final point operation to save costs
+// assert(q == expected, 'wrong correction point');
+}
 

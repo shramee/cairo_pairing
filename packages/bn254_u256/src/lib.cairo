@@ -30,13 +30,13 @@ pub type Fq12 = Fq2Gen<Fq6>;
 pub type F034 = F12S034<Fq2>;
 
 pub use pairing::{
-    utils::{ICProcess, ICArrayInput, LnArrays, //
-     {SZCommitment, SZPreCompute, SZAccumulator}},
+    utils::{ICProcess, ICArrayInput, LnArrays, SZCommitment, SZPreCompute, SZAccumulator},
     schzip_miller::{
         schzip_verify, InputConstraintPoints, PPrecompute,
         {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
     },
     schzip_steps::Bn254SchwartzZippelSteps,
+    schzip_miller_runner::{Miller_Bn254_U256, PiMapping, pi_mapping},
 };
 
 pub fn bn254_curve() -> Bn254U256Curve {
