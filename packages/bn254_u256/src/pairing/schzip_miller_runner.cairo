@@ -1,10 +1,11 @@
-use pairing::{LineFn, LinesArrayGet, FixedPointLines, PiMapping};
+use pairing::{LineFn, LinesArrayGet, FixedPointLines};
 use pairing::{PairingUtils};
 use bn254_u256::{Fq, Fq2, fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
 use bn254_u256::print::{FqDisplay, Fq12Display, G2Display};
 use bn254_u256::pairing::utils::{
     LnArrays, SZCommitment, SZPreCompute, SZAccumulator as Accumulator, LnFn
 };
+pub use pairing::PiMapping;
 use bn_ate_loop::MillerRunner;
 use schwartz_zippel::SchZipSteps;
 
@@ -20,7 +21,6 @@ pub impl Miller_Bn254_U256<
         ref self: Curve, runner: @PreCompute<TSchZip>, i: (u32, u32), ref acc: Accumulator
     ) { //
         let (i1, i2) = i;
-        // runner.schzip
         self.miller_bit_o(runner, i1, ref acc);
         self.miller_bit_n(runner, i2, ref acc);
     }
@@ -31,6 +31,7 @@ pub impl Miller_Bn254_U256<
     ) { //
         let g16 = runner.g16;
         let ppc = g16.ppc;
+
         let l1 = self.step_double(ref acc.g2.pi_b, ppc.pi_a);
         let (l2, l3) = g16.lines.with_fxd_pt_line(ref self, g16.ppc, ref acc.line_index);
         self.sz_zero_bit(runner.schzip, ref acc.schzip, ref acc.f, (l1, l2, l3));
@@ -65,24 +66,22 @@ pub impl Miller_Bn254_U256<
             .sz_nz_bit(
                 runner.schzip, ref acc.schzip, ref acc.f, (l1, l2, l3), *g16.residue_witness
             );
-    // println!("n_bit {i}: {}", f);
-
     }
 
     // last step
     fn miller_last(ref self: Curve, runner: @PreCompute<TSchZip>, ref acc: Accumulator) { //
         let g16 = runner.g16;
         let ppc = g16.ppc;
-        // use neg q
-        let pi_b = runner.g16.neg_q.pi_b;
+        let pi_b = runner.g16.q.pi_b;
 
         let l1 = self.correction_step(ref acc.g2.pi_b, *pi_b, pi_mapping(), ppc.pi_a);
+
         let (l2, l3) = g16.lines.with_fxd_pt_lines(ref self, g16.ppc, ref acc.line_index);
         self.sz_last_step(runner.schzip, ref acc.schzip, ref acc.f, (l1, l2, l3));
     }
 }
 
-fn pi_mapping() -> PiMapping<Fq> {
+pub fn pi_mapping() -> PiMapping<Fq> {
     // π (Pi) - Untwist-Frobenius-Twist Endomorphisms on twisted curves
     // -----------------------------------------------------------------
     // BN254_Snarks is a D-Twist: pi1_coef1 = ξ^((p-1)/6)

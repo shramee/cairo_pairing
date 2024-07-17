@@ -12,6 +12,7 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZAcc, Fq>
     ) {
         let (_l1, _l2, _l3) = lines;
     }
+
     fn sz_nz_bit(
         ref self: Curve,
         sz: @SZCommitment,
@@ -20,6 +21,7 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZAcc, Fq>
         lines: LinesDbl<Fq2>,
         witness: Fq12
     ) {}
+
     fn sz_last_step(
         ref self: Curve, sz: @SZCommitment, ref sz_acc: SZAcc, ref f: Fq12, lines: LinesDbl<Fq2>
     ) {}
