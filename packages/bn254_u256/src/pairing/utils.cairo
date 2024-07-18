@@ -6,8 +6,11 @@ use bn254_u256::{Bn254U256Curve};
 
 #[derive(Drop)]
 pub struct SZCommitment {
-    pub remainders: Array<u256>,
-    pub q_rlc_sum: Array<u256>,
+    pub remainders: Array<Fq>,
+    pub qrlc: Array<Fq>,
+    pub rem_fiat_shamir_powers: Array<Fq>,
+    pub fiat_shamir_powers: Array<Fq>,
+    pub p12_x: Fq,
 }
 
 #[derive(Drop)]
@@ -18,12 +21,14 @@ pub struct SZPreCompute<TLines, TCommitment> {
     pub schzip: TCommitment,
 }
 
+pub type SZCommitmentAccumulator = (u32, Fq);
+
 #[derive(Drop)]
 pub struct SZAccumulator {
     pub f: Fq12,
     pub g2: Groth16MillerG2<PtG2>,
     pub line_index: u32,
-    pub schzip: (u32, Fq),
+    pub schzip: SZCommitmentAccumulator,
 }
 
 pub type LnFn = LineFn<Fq2>;

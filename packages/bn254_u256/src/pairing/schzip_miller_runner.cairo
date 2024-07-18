@@ -3,7 +3,8 @@ use pairing::{PairingUtils};
 use bn254_u256::{Fq, Fq2, fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
 use bn254_u256::print::{FqDisplay, Fq12Display, G2Display};
 use bn254_u256::pairing::utils::{
-    LnArrays, SZCommitment, SZPreCompute, SZAccumulator as Accumulator, LnFn
+    LnArrays, SZCommitment, SZCommitmentAccumulator, SZPreCompute, SZAccumulator as Accumulator,
+    LnFn
 };
 pub use pairing::PiMapping;
 use bn_ate_loop::MillerRunner;
@@ -14,7 +15,7 @@ type PreCompute<TSchZip> = SZPreCompute<LnArrays, TSchZip>;
 // TODO: +SchZipSteps<Curve, TCommitment, Fq>
 
 pub impl Miller_Bn254_U256<
-    TSchZip, +SchZipSteps<Curve, TSchZip, (u32, Fq), Fq>
+    TSchZip, +SchZipSteps<Curve, TSchZip, SZCommitmentAccumulator, Fq>
 > of MillerRunner<Curve, PreCompute<TSchZip>, Accumulator> {
     // first and second step, O and N
     fn miller_bit_1_2(

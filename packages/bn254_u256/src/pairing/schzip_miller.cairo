@@ -1,10 +1,14 @@
+use fq_types::FieldOps;
 use ec_groups::ECOperations;
 pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
 use bn254_u256::{
     Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{
         schzip_miller_runner::Miller_Bn254_U256,
-        utils::{SZCommitment, SZPreCompute, SZAccumulator, LnArrays, ICArrayInput},
+        utils::{
+            SZCommitment, SZPreCompute, SZCommitmentAccumulator, SZAccumulator, LnArrays,
+            ICArrayInput
+        },
     },
     Bn254SchwartzZippelSteps,
 };
