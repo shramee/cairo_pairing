@@ -19,7 +19,7 @@ trait IBN_Pairing<T> {
         residue_witness_inv: Fq12,
         cubic_scale: CubicScale,
         setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-        schzip_remainders: Array<Fq>,
+        schzip_remainders: Array<Fq12>,
         schzip_qrlc: Array<Fq>,
     );
 }
@@ -52,7 +52,7 @@ mod BN_Pairing {
             residue_witness_inv: Fq12,
             cubic_scale: CubicScale,
             setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-            schzip_remainders: Array<Fq>,
+            schzip_remainders: Array<Fq12>,
             schzip_qrlc: Array<Fq>,
         ) {
             let mut curve = bn254_curve();

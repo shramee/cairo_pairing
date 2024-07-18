@@ -4,9 +4,9 @@ use pairing::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
 use bn254_u256::{Fq, Fq2, Fq12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
 use bn254_u256::{Bn254U256Curve};
 
-#[derive(Drop)]
+#[derive(Drop, Serde)]
 pub struct SZCommitment {
-    pub remainders: Array<Fq>,
+    pub remainders: Array<Fq12>,
     pub qrlc: Array<Fq>,
     pub rem_fiat_shamir_powers: Array<Fq>,
     pub fiat_shamir_powers: Array<Fq>,

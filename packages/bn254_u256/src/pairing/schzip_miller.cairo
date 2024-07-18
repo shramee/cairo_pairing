@@ -16,6 +16,7 @@ use bn_ate_loop::{ate_miller_loop};
 use pairing::{LineFn, StepLinesGet, LinesArrayGet};
 use pairing::{PairingUtils, CubicScale};
 use core::hash::HashStateTrait;
+use core::poseidon::{PoseidonImpl, HashState};
 use schwartz_zippel::SchZipSteps;
 
 
@@ -62,6 +63,13 @@ fn schzip_miller<
     ate_miller_loop(ref curve, precomp, q_acc)
 }
 
+fn hasher_fq2(ref hasher: HashState, a: Fq2) {
+    hasher = hasher.update(a.c0.c0.low.into());
+    hasher = hasher.update(a.c0.c0.high.into());
+    hasher = hasher.update(a.c1.c0.low.into());
+    hasher = hasher.update(a.c1.c0.high.into());
+}
+
 // Prepares SZ commitment
 // ----------------------
 // Remainders Fiat Shamir is used for RLC (Random Linear Combination).
@@ -74,16 +82,21 @@ fn schzip_miller<
 // So  Any changes in the remainders will change the RLC and equation will not be satisfiable with any QRLC.
 // Fiat Shamir for the final Schwartz Zippel includes all remainders and QRLC for soundness.
 pub fn prepare_sz_commitment(
-    ref curve: Bn254U256Curve, remainders: Array<Fq>, qrlc: Array<Fq>,
+    ref curve: Bn254U256Curve, remainders: Array<Fq12>, qrlc: Array<Fq>,
 ) -> SZCommitment {
     let mut rem_coeff_i = 0;
-    let mut hasher = core::poseidon::PoseidonImpl::new();
+    let mut hasher = PoseidonImpl::new();
     let rem_coeffs_count = remainders.len();
     let rem_snap = @remainders;
     while rem_coeff_i != rem_coeffs_count {
-        let c = *(rem_snap[rem_coeff_i]);
-        hasher = hasher.update(c.c0.low.into());
-        hasher = hasher.update(c.c0.high.into());
+        let Fq12 { c0, c1 } = *(rem_snap[rem_coeff_i]);
+
+        hasher_fq2(ref hasher, c0.c0);
+        hasher_fq2(ref hasher, c0.c1);
+        hasher_fq2(ref hasher, c0.c2);
+        hasher_fq2(ref hasher, c1.c0);
+        hasher_fq2(ref hasher, c1.c1);
+        hasher_fq2(ref hasher, c1.c2);
         rem_coeff_i += 1;
     };
     let remainders_fiat_shamir: u256 = hasher.finalize().into();
@@ -135,7 +148,7 @@ pub fn schzip_verify(
     residue_witness_inv: Fq12,
     cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-    schzip_remainders: Array<Fq>,
+    schzip_remainders: Array<Fq12>,
     schzip_qrlc: Array<Fq>,
 ) {
     let schzip = prepare_sz_commitment(ref curve, schzip_remainders, schzip_qrlc);
