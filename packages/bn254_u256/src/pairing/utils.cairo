@@ -21,7 +21,15 @@ pub struct SZPreCompute<TLines, TCommitment> {
     pub schzip: TCommitment,
 }
 
-pub type SZCommitmentAccumulator = (u32, Fq);
+#[derive(Drop, Serde)]
+pub struct SZCommitmentAccumulator {
+    // index of equation (remainder) being processed, used for rlc
+    pub index: u32,
+    // accumulation of rhs and lhs to compare against qrlc
+    pub rhs_lhs: Fq,
+    // remainder cache for next equation
+    pub rem_cache: Fq,
+}
 
 #[derive(Drop)]
 pub struct SZAccumulator {

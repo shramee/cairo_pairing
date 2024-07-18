@@ -29,6 +29,10 @@ pub fn fq12(
     }
 }
 
+pub fn fq(c0: u256) -> Fq {
+    c0.into()
+}
+
 pub fn fq2(c0: u256, c1: u256) -> Fq2 {
     Fq2 { c0: c0.into(), c1: c1.into() }
 }
