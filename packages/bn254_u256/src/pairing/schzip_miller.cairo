@@ -15,6 +15,7 @@ use bn254_u256::{
 use bn_ate_loop::{ate_miller_loop};
 use pairing::{LineFn, StepLinesGet, LinesArrayGet};
 use pairing::{PairingUtils, CubicScale};
+use core::hash::HashStateTrait;
 use schwartz_zippel::SchZipSteps;
 
 
@@ -22,7 +23,9 @@ pub type InputConstraintPoints = Array<PtG1>;
 type LnFn = LineFn<Fq>;
 
 // Does the verification
-fn schzip_miller<TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, (u32, Fq), Fq>, +Drop<TSchZip>>(
+fn schzip_miller<
+    TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, SZCommitmentAccumulator, Fq>, +Drop<TSchZip>
+>(
     ref curve: Bn254U256Curve,
     pi_a: PtG1,
     pi_b: PtG2,
@@ -59,6 +62,68 @@ fn schzip_miller<TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, (u32, Fq), Fq>, 
     ate_miller_loop(ref curve, precomp, q_acc)
 }
 
+// Prepares SZ commitment
+// ----------------------
+// Remainders Fiat Shamir is used for RLC (Random Linear Combination).
+// The commitment for Schwartz Zippel lemma includes all remainders and an RLC of all quotients (QRLC).
+// The verifier accumulates all the remainders and RHS from miller loop with same RLC as the QRLC.
+// Quotient terms are accumulated in QRLC for all individual equations, and cannot change the terms
+// of remainders in the final clubbed equation.
+// The terms of remainders are between x^0 to x^11, and QRLC terms are all x^12 and up.
+// This is because the terms in the QRLC are all multiplied by a polynomial of degree 12, x^12 + 18x^6 + 82
+// So  Any changes in the remainders will change the RLC and equation will not be satisfiable with any QRLC.
+// Fiat Shamir for the final Schwartz Zippel includes all remainders and QRLC for soundness.
+pub fn prepare_sz_commitment(
+    ref curve: Bn254U256Curve, remainders: Array<Fq>, qrlc: Array<Fq>,
+) -> SZCommitment {
+    let mut rem_coeff_i = 0;
+    let mut hasher = core::poseidon::PoseidonImpl::new();
+    let rem_coeffs_count = remainders.len();
+    let rem_snap = @remainders;
+    while rem_coeff_i != rem_coeffs_count {
+        let c = *(rem_snap[rem_coeff_i]);
+        hasher = hasher.update(c.c0.low.into());
+        hasher = hasher.update(c.c0.high.into());
+        rem_coeff_i += 1;
+    };
+    let remainders_fiat_shamir: u256 = hasher.finalize().into();
+
+    let mut qrlc_coeff_i = 0;
+    let qrlc_count = qrlc.len();
+    let qrlc_snap = @qrlc;
+    // continue with the rest of the coefficients from quotient RLC
+    while qrlc_coeff_i != qrlc_count {
+        let c = *(qrlc_snap[qrlc_coeff_i]);
+        hasher = hasher.update(c.c0.low.into());
+        hasher = hasher.update(c.c0.high.into());
+        qrlc_coeff_i += 1;
+    };
+    let fiat_shamir: u256 = hasher.finalize().into();
+
+    // @TODO
+    let p12_x = 1_u256.into();
+
+    SZCommitment {
+        remainders,
+        fiat_shamir_powers: fs_pow(ref curve, fiat_shamir, 40),
+        rem_fiat_shamir_powers: fs_pow(ref curve, remainders_fiat_shamir, 68),
+        p12_x,
+        qrlc
+    }
+}
+
+pub fn fs_pow(ref curve: Bn254U256Curve, x: u256, powers: u32) -> Array<Fq> {
+    let x_fq: Fq = x.into();
+    let mut arr: Array<Fq> = array![x_fq];
+    let mut i = 0;
+    let powers = powers / 2 + 1;
+    while i != powers {
+        let even_power = curve.sqr(*arr[i]);
+        arr.append(even_power); // even i * 2 power
+        arr.append(curve.mul(even_power, x_fq)); // odd i * 2 + 1 power
+    };
+    arr
+}
 // Does the verification
 pub fn schzip_verify(
     ref curve: Bn254U256Curve,
@@ -70,10 +135,10 @@ pub fn schzip_verify(
     residue_witness_inv: Fq12,
     cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-    schzip_remainders: Array<u256>,
-    schzip_qrlc: Array<u256>,
+    schzip_remainders: Array<Fq>,
+    schzip_qrlc: Array<Fq>,
 ) {
-    let schzip = SZCommitment { remainders: schzip_remainders, q_rlc_sum: schzip_qrlc };
+    let schzip = prepare_sz_commitment(ref curve, schzip_remainders, schzip_qrlc);
 
     // miller loop result
     schzip_miller(

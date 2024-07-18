@@ -1,5 +1,5 @@
 pub use bn254_u256::{
-    schzip_verify, PtG1, PtG2, Fq12, CubicScale, Groth16Circuit, Bn254U256Curve, bn254_curve,
+    schzip_verify, PtG1, PtG2, Fq, Fq12, CubicScale, Groth16Circuit, Bn254U256Curve, bn254_curve,
     LnArrays, InputConstraintPoints
 };
 
@@ -19,8 +19,8 @@ trait IBN_Pairing<T> {
         residue_witness_inv: Fq12,
         cubic_scale: CubicScale,
         setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-        schzip_remainders: Array<u256>,
-        schzip_qrlc: Array<u256>,
+        schzip_remainders: Array<Fq>,
+        schzip_qrlc: Array<Fq>,
     );
 }
 
@@ -29,7 +29,7 @@ mod BN_Pairing {
     use super::{
         schzip_verify, bn254_curve,
         {
-            PtG1, PtG2, Fq12, CubicScale, Groth16Circuit, Bn254U256Curve, LnArrays,
+            PtG1, PtG2, Fq, Fq12, CubicScale, Groth16Circuit, Bn254U256Curve, LnArrays,
             InputConstraintPoints
         }
     };
@@ -52,8 +52,8 @@ mod BN_Pairing {
             residue_witness_inv: Fq12,
             cubic_scale: CubicScale,
             setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-            schzip_remainders: Array<u256>,
-            schzip_qrlc: Array<u256>,
+            schzip_remainders: Array<Fq>,
+            schzip_qrlc: Array<Fq>,
         ) {
             let mut curve = bn254_curve();
             schzip_verify(
