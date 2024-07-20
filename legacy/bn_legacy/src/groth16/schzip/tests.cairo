@@ -17,7 +17,7 @@ use core::hash::HashStateTrait;
 
 #[test]
 #[available_gas(20000000000)]
-fn verify() {
+fn verify_print() {
     // Verification key parameters
     // let (_, _, gamma, delta, albe_miller, mut ic) = vk();
     let circuit_setup: G16CircuitSetup<LinesArray> = fixture::circuit_setup();
@@ -36,7 +36,7 @@ fn verify() {
         residue_witness_inv,
         cubic_pow,
         circuit_setup,
-        SchZipMock { print: false },
+        SchZipMock { print: true, f01234: false },
         get_field_nz()
     );
 

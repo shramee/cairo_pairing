@@ -23,6 +23,7 @@ use bn::curve::{UAddSubTrait, U512BnAdd, U512BnSub, u512, U512Ops};
 use bn::g::{AffineG1, AffineG2,};
 use bn::traits::{MillerPrecompute, MillerSteps};
 use core::hash::HashStateTrait;
+use core::poseidon::{PoseidonImpl, HashState};
 
 // Groth16 utils
 use residue_witness::{ROOT_27TH_DIRECT, ROOT_27TH_SQ_DIRECT, CubicScale};
@@ -317,6 +318,7 @@ pub impl SchZipPolyCommitImpl of SchZipSteps<SchZipCommitments> {
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,
+        hasher: HashState,
         f_nz: NonZero<u256>
     ) -> bool {
         // Verify residue witness and it's inverse
@@ -352,7 +354,7 @@ pub fn schzip_verify_with_commitments<TLines, +StepLinesGet<TLines>, +Drop<TLine
     coefficients: Array<u256>,
 ) -> bool {
     let mut coeff_i = 0;
-    let mut hasher = core::poseidon::PoseidonImpl::new();
+    let mut hasher = PoseidonImpl::new();
     let coeffs = @coefficients;
     let coeffs_count = coeffs.len();
     while coeff_i != coeffs_count {

@@ -2,6 +2,7 @@
 use bn::curve::residue_witness::{CubicScale};
 use bn::groth16::utils::{ICProcess,};
 use bn::groth16::utils::{Groth16MillerG1, Groth16MillerG2, PPrecomputeX3};
+use core::poseidon::{PoseidonImpl, HashState};
 
 // Fields
 use bn::fields::{fq12, Fq12, FS034};
@@ -123,6 +124,7 @@ pub fn powers_51(x: u256, field_nz: NonZero<u256>) -> Array<u256> {
 pub struct SchZipAccumulator {
     g2: Groth16MillerG2,
     coeff_i: u32,
+    rem_hash: HashState,
 }
 
 #[derive(Copy, Drop)]

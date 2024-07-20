@@ -33,10 +33,10 @@ use bn::groth16::utils::{ICProcess, G16CircuitSetup, Groth16MillerG1, Groth16Mil
 use bn::groth16::utils::{StepLinesGet, StepLinesTrait};
 use bn::groth16::utils_line::LineResult01234Trait;
 
-
 #[derive(Drop)]
 pub struct SchZipMock {
     print: bool,
+    f01234: bool,
 }
 
 pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
@@ -284,7 +284,7 @@ fn schzip_miller<
     };
 
     // q points accumulator
-    let mut q_acc = SchZipAccumulator { g2: q, coeff_i: 0 };
+    let mut q_acc = SchZipAccumulator { g2: q, coeff_i: 0, rem_hash: PoseidonImpl::new() };
 
     // let miller_loop_result = precomp.miller_first_second(64, 65, ref acc);
     let (precomp, mut miller_loop_result) = ate_miller_loop_steps_first_half(precomp, ref q_acc);

@@ -9,7 +9,7 @@ use bn::fields::{
     Fq, fq, Fq2, fq2, Fq12, Fq12Utils, Fq12Ops, FqOps, Fq2Utils, Fq2Ops, Fq12Exponentiation,
 };
 use bn::fields::{Fq12Sparse034, Fq12Sparse01234, FqSparse};
-use bn::fields::print::{Fq2Display, Fq12Display, FqDisplay};
+use bn::fields::print::{G2Display, G1Display, Fq2Display, Fq12Display, FqDisplay};
 use bn::fields::frobenius::pi;
 
 // This implementation follows the paper at https://eprint.iacr.org/2022/1162
@@ -67,7 +67,8 @@ mod line_fn {
     use bn::fields::fq_generics::{TFqAdd, TFqSub, TFqMul, TFqDiv, TFqNeg, TFqPartialEq,};
     use bn::fields::{Fq, fq, Fq2, fq2, FqOps, Fq2Utils, Fq2Ops};
     use bn::fields::{Fq12Sparse034, Fq12Sparse01234, FqSparse};
-    use bn::fields::print::{Fq2Display, Fq12Display, FqDisplay};
+    use bn::fields::print::{G2Display, G1Display, Fq2Display, Fq12Display, FqDisplay};
+
     use bn::fields::frobenius::pi;
     use super::{LineFn, PPre, NZNum, F034};
 
