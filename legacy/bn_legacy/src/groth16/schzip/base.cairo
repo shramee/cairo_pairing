@@ -11,6 +11,8 @@ use bn::fields::fq_12_exponentiation::PairingExponentiationTrait;
 use bn::fields::print::{
     FqDisplay, Fq2Display, Fq12Display, Fq6Display, F034Display, F01234Display, G2Display, G1Display
 };
+use core::poseidon::{PoseidonImpl, HashState};
+use core::hash::HashStateTrait;
 
 // Field direct
 use fq_12_direct::{FS034Direct, Fq12DirectIntoFq12, Fq12IntoFq12Direct, Fq12Direct};
@@ -39,12 +41,32 @@ pub struct SchZipMock {
     f01234: bool,
 }
 
+fn fq2_hash(a: Fq, b: Fq, ref hasher: HashState) {
+    hasher = hasher.update(a.c0.low.into());
+    hasher = hasher.update(a.c0.high.into());
+    hasher = hasher.update(b.c0.low.into());
+    hasher = hasher.update(b.c0.high.into());
+}
+
+fn remainder_hash(remainder: Fq12, ref hasher: HashState) {
+    let r_tup = tower_to_direct(remainder);
+    // deconstruct a tuple containing 12 field elements
+    let (r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11) = r_tup;
+    fq2_hash(r0, r1, ref hasher);
+    fq2_hash(r2, r3, ref hasher);
+    fq2_hash(r4, r5, ref hasher);
+    fq2_hash(r6, r7, ref hasher);
+    fq2_hash(r8, r9, ref hasher);
+    fq2_hash(r10, r11, ref hasher);
+}
+
 pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
     #[inline(always)]
     fn sz_init(self: @SchZipMock, ref f: Fq12, f_nz: NonZero<u256>) {
         if *self.print {
+            println!("from schzip_runner import fq12, f034, fq6, sz_print, sz_inv_verify",);
             println!(
-                "from schzip_runner import fq12, f01234, f034, sz_zero_bit, sz_nz_bit, sz_last_step"
+                "from schzip_runner import sz_zero_bit, sz_nz_bit, sz_last_step, sz_post_miller"
             );
         }
     }
@@ -58,7 +80,11 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         let (l1, l2, l3) = lines;
         let l1_l2 = l1.mul_034_by_034(l2, f_nz);
         if *self.print {
-            println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
+            if *self.f01234 {
+                println!("sz_zero_bit(\n{}\n{}\n{}\n)", f, l1_l2, l3);
+            } else {
+                println!("sz_zero_bit(\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3);
+            }
         }
         f = f.sqr();
         f = f.mul(l1_l2.mul_01234_034(l3, f_nz));
@@ -74,11 +100,26 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         f_nz: NonZero<u256>
     ) {
         let (l1, l2, l3) = lines;
+        let ((l10, l11), (l20, l21), (l30, l31)) = lines;
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
         if *self.print {
-            println!("sz_nz_bit(\n{}\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3, witness);
+            if *self.f01234 {
+                println!("sz_nz_bit(\n{}\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3, witness);
+            } else {
+                println!(
+                    "sz_nz_bit(\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n)",
+                    f,
+                    l10,
+                    l11,
+                    l20,
+                    l21,
+                    l30,
+                    l31,
+                    witness
+                );
+            }
         }
         f = f.sqr();
         f = f.mul_01234(l1, f_nz);
@@ -92,13 +133,21 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         self: @SchZipMock, ref f: Fq12, ref i: u32, lines: LinesDbl, f_nz: NonZero<u256>
     ) {
         let (l1, l2, l3) = lines;
+        let ((l10, l11), (l20, l21), (l30, l31)) = lines;
         let l1 = l1.as_01234(f_nz);
         let l2 = l2.as_01234(f_nz);
         let l3 = l3.as_01234(f_nz);
 
         if *self.print {
-            println!("sz_last_step(\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3);
+            if *self.f01234 {
+                println!("sz_last_step(\n{}\n{}\n{}\n{}\n)", f, l1, l2, l3);
+            } else {
+                println!(
+                    "sz_last_step(\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n)", f, l10, l11, l20, l21, l30, l31
+                );
+            }
         }
+
         f = f.mul_01234(l1, f_nz);
         f = f.mul_01234(l2, f_nz);
         f = f.mul_01234(l3, f_nz);
@@ -112,6 +161,7 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,
+        mut hasher: HashState,
         f_nz: NonZero<u256>
     ) -> bool {
         let one = Fq12Utils::one();
@@ -124,8 +174,15 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
             CubicScale::Two => (mul_by_root_27th_sq(f, f_nz), ROOT_27TH_SQ),
         };
 
+        // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
+        // result * residue^q * (1/residue)^(q**2) * residue^q**3
+        let result = result
+            * alpha_beta
+            * residue_inv.frob1()
+            * residue.frob2()
+            * residue_inv.frob3();
+
         if *self.print {
-            println!("sz_residue_inv_verify(\n{}\n{}\n)", residue_inv, residue,);
             println!(
                 "sz_post_miller(\n{}\n{}\n{}\n{}\n{}\n{}\n)",
                 f,
@@ -135,16 +192,14 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
                 residue.frob2(),
                 residue_inv.frob3()
             );
-            println!("sz_print_coeffs()");
-        }
+            remainder_hash(result, ref hasher);
+            println!("sz_inv_verify(\n{}\n{}\n)", residue_inv, residue,);
+            remainder_hash(FieldUtils::one(), ref hasher);
 
-        // Finishing up `q - q**2 + q**3` of `6 * x + 2 + q - q**2 + q**3`
-        // result * residue^q * (1/residue)^(q**2) * residue^q**3
-        let result = result
-            * alpha_beta
-            * residue_inv.frob1()
-            * residue.frob2()
-            * residue_inv.frob3();
+            let remainder_hash = hasher.finalize();
+
+            println!("sz_finalize({})", remainder_hash);
+        }
 
         // return result == 1
         result == one
@@ -167,6 +222,7 @@ pub impl Groth16MillerSteps<
         self: @SchzipPreCompute<TLines, TSchZip>, i1: u32, i2: u32, ref acc: SchZipAccumulator
     ) -> Fq12 { //
         let mut f = *self.residue_witness_inv;
+
         self.schzip.sz_init(ref f, *self.field_nz);
 
         self.sqr_target(i1, ref acc, ref f);
@@ -178,7 +234,6 @@ pub impl Groth16MillerSteps<
 
         // step -1, the next negative one step
         self.miller_bit_n(i2, ref acc, ref f);
-
         f
     }
 
@@ -192,8 +247,7 @@ pub impl Groth16MillerSteps<
         let l1 = step_double(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_line(self.ppc, ref acc.g2, i, f_nz);
         self.schzip.sz_zero_bit(ref f, ref acc.coeff_i, (l1, l2, l3), f_nz);
-    // println!("o_bit {i}: {}", f);
-    // println!("o_bit direct {i}: {}", tower_to_direct(f));
+        remainder_hash(f, ref acc.rem_hash);
     }
 
     // 1 bit
@@ -209,6 +263,7 @@ pub impl Groth16MillerSteps<
         self
             .schzip
             .sz_nz_bit(ref f, ref acc.coeff_i, (l1, l2, l3), *self.residue_witness_inv, f_nz);
+        remainder_hash(f, ref acc.rem_hash);
     }
 
     // -1 bit
@@ -223,6 +278,7 @@ pub impl Groth16MillerSteps<
         let l1 = step_dbl_add(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, i, f_nz);
         self.schzip.sz_nz_bit(ref f, ref acc.coeff_i, (l1, l2, l3), *self.residue_witness, f_nz);
+        remainder_hash(f, ref acc.rem_hash);
     // println!("n_bit {i}: {}", f);
     // println!("n_bit direct {i}: {}", tower_to_direct(f));
     }
@@ -237,6 +293,7 @@ pub impl Groth16MillerSteps<
         let l1 = correction_step(ref acc.g2.pi_b, pi_a_ppc, *self.p.pi_a, *self.q.pi_b, f_nz);
         let (l2, l3) = self.lines.with_fxd_pt_lines(self.ppc, ref acc.g2, 'last', f_nz);
         self.schzip.sz_last_step(ref f, ref acc.coeff_i, (l1, l2, l3), f_nz);
+        remainder_hash(f, ref acc.rem_hash);
     }
 }
 
@@ -325,6 +382,7 @@ pub fn schzip_base_verify<
             residue_witness,
             residue_witness_inv,
             cubic_scale,
+            acc.rem_hash,
             field_nz
         )
 }

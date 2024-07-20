@@ -157,6 +157,7 @@ pub trait SchZipSteps<T> {
         residue: Fq12,
         residue_inv: Fq12,
         cubic_scale: CubicScale,
+        hasher: HashState,
         f_nz: NonZero<u256>
     ) -> bool;
 }
