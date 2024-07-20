@@ -1,4 +1,4 @@
-pub use schwartz_zippel::{Fq12Direct, Fq4Direct};
+pub use fq_types::{Fq12Direct, Fq4Direct};
 use fq_types::{FieldOps, FieldUtils};
 
 pub trait SchZipEvalTrait<TCurve, TFq> {

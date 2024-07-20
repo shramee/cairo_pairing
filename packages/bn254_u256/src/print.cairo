@@ -1,4 +1,4 @@
-use bn254_u256::{Fq, Fq2, Fq12, F034, PtG1, PtG2};
+use bn254_u256::{Fq, Fq2, Fq12, FqD12, F034, PtG1, PtG2};
 
 use core::to_byte_array::AppendFormattedToByteArray;
 use core::fmt::{Display, Formatter, Error};
@@ -25,6 +25,28 @@ pub impl Fq12Display of core::fmt::Display<Fq12> {
             *self.c1.c1.c1,
             *self.c1.c2.c0,
             *self.c1.c2.c1,
+        )
+    }
+}
+
+pub impl FqD12Display of core::fmt::Display<FqD12> {
+    fn fmt(self: @FqD12, ref f: Formatter) -> Result<(), Error> {
+        let ((r0, r1, r2, r3), (r4, r5, r6, r7), (r8, r9, r10, r11)) = self;
+        write!(
+            f,
+            "fq12({},{},{},{},{},{},{},{},{},{},{},{}\n),",
+            *r0,
+            *r1,
+            *r2,
+            *r3,
+            *r4,
+            *r5,
+            *r6,
+            *r7,
+            *r8,
+            *r9,
+            *r10,
+            *r11,
         )
     }
 }
