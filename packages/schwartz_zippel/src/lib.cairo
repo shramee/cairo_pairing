@@ -1,3 +1,5 @@
+pub mod eval;
+pub use eval::{SchZipEvalTrait, SchZipEval};
 pub use fq_types::{Fq2, Fq3, F12S034 as FS034, Fq12};
 use pairing::CubicScale;
 
