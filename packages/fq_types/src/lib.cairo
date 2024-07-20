@@ -13,6 +13,9 @@ pub struct Fq3<T> {
     pub c2: T,
 }
 
+pub type Fq6<T> = Fq3<Fq2<T>>;
+pub type Fq12<T> = Fq2<Fq6<T>>;
+
 pub fn fq2<T>(c0: T, c1: T) -> Fq2<T> {
     Fq2 { c0, c1 }
 }
@@ -71,7 +74,8 @@ pub trait FieldOpsExtended<TCurve, TFq, TFqChildren, TFqU512> {
     fn to_fq(ref self: TCurve, lhs: TFqU512) -> TFq;
 }
 
-pub type Fq12Direct<T> = (T, T, T, T, T, T, T, T, T, T, T, T);
+pub type Fq4Direct<T> = (T, T, T, T);
+pub type Fq12Direct<T> = (Fq4Direct<T>, Fq4Direct<T>, Fq4Direct<T>);
 pub type F12S01234Direct<T> = ((T, T, T, T, T), (T, T, T, T, T));
 
 pub use common::{Fq2Ops, Fq2PartialEq, Fq3Ops, Fq3PartialEq};

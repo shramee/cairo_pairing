@@ -16,7 +16,9 @@ mod tests {
     pub mod fixtures;
 }
 
-use fq_types::{Fq2 as Fq2Gen, Fq3 as Fq3Gen, F12S034, fq3, Fq2PartialEq, Fq3PartialEq,};
+use fq_types::{
+    Fq2 as Fq2Gen, Fq3, F12S034, Fq12Direct, Fq4Direct, fq3, Fq2PartialEq, Fq3PartialEq,
+};
 pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale};
 pub use fq_1::{
     {U256IntoFq, FqPartialEq, Bn254FqOps, Bn254FqUtils},
@@ -25,8 +27,10 @@ pub use fq_1::{
 pub use utils::{g1, g2, fq12, fq2, fq};
 
 pub type Fq2 = Fq2Gen<Fq>;
-pub type Fq6 = Fq3Gen<Fq2>;
+pub type Fq6 = Fq3<Fq2>;
 pub type Fq12 = Fq2Gen<Fq6>;
+pub type FqD12 = Fq12Direct<Fq>;
+pub type FqD4 = Fq4Direct<Fq>;
 pub type F034 = F12S034<Fq2>;
 
 pub use pairing::{

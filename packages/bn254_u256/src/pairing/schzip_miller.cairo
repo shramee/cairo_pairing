@@ -3,7 +3,7 @@ use ec_groups::ECOperations;
 pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
 use bn254_u256::print::{FqDisplay};
 use bn254_u256::{
-    fq, Fq, Fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
+    fq, Fq, Fq2, Fq12, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{
         schzip_miller_runner::Miller_Bn254_U256,
         utils::{
@@ -26,7 +26,9 @@ type LnFn = LineFn<Fq>;
 
 // Does the verification
 fn schzip_miller<
-    TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, SZCommitmentAccumulator, Fq>, +Drop<TSchZip>
+    TSchZip,
+    +SchZipSteps<Bn254U256Curve, TSchZip, SZCommitmentAccumulator, Fq, FqD12>,
+    +Drop<TSchZip>
 >(
     ref curve: Bn254U256Curve,
     pi_a: PtG1,
@@ -103,7 +105,6 @@ pub fn prepare_sz_commitment(
     };
     let remainders_fiat_shamir_felt = hasher.finalize();
     let remainders_fiat_shamir: u256 = remainders_fiat_shamir_felt.into();
-
 
     let mut qrlc_coeff_i = 0;
     let qrlc_count = qrlc.len();

@@ -15,7 +15,7 @@ type PreCompute<TSchZip> = SZPreCompute<LnArrays, TSchZip>;
 // TODO: +SchZipSteps<Curve, TCommitment, Fq>
 
 pub impl Miller_Bn254_U256<
-    TSchZip, +SchZipSteps<Curve, TSchZip, SZCommitmentAccumulator, Fq>
+    TSchZip, +SchZipSteps<Curve, TSchZip, SZCommitmentAccumulator, Fq, FqD12>
 > of MillerRunner<Curve, PreCompute<TSchZip>, Accumulator> {
     // first and second step, O and N
     fn miller_bit_1_2(
