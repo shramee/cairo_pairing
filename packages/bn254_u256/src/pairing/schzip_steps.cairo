@@ -9,7 +9,6 @@ type SZCAcc = SZCommitmentAccumulator;
 
 pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq, FqD12> {
     fn sz_init(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12) {}
-    fn sz_sqr(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12) {}
     fn sz_zero_bit(
         ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12, lines: Lines<Fq2>
     ) {

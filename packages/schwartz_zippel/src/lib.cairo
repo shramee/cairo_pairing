@@ -10,7 +10,6 @@ pub type Residue<T> = (CubicScale, Fq12<T>, Fq12<T>);
 
 pub trait SchZipSteps<TCurve, T, TAcc, TFq, TFq12> {
     fn sz_init(ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12);
-    fn sz_sqr(ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12);
     fn sz_zero_bit(
         ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12, lines: Lines<Fq2<TFq>>
     );
