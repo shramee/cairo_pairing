@@ -88,6 +88,7 @@ fn hash_fq2(ref hasher: HashState, a: Fq, b: Fq) {
 pub fn prepare_sz_commitment(
     ref curve: Bn254U256Curve, remainders: Array<FqD12>, qrlc: Array<Fq>,
 ) -> (SZCommitment, SZCommitmentAccumulator) {
+    core::internal::revoke_ap_tracking();
     let mut rem_coeff_i = 0;
     let mut hasher = PoseidonImpl::new();
     let rem_coeffs_count = remainders.len();
@@ -107,6 +108,7 @@ pub fn prepare_sz_commitment(
     let remainders_fiat_shamir_felt = hasher.finalize();
     println!("remainders_fiat_shamir_felt: {}", remainders_fiat_shamir_felt);
     let remainders_fiat_shamir: u256 = remainders_fiat_shamir_felt.into();
+    core::internal::revoke_ap_tracking();
 
     let mut qrlc_coeff_i = 0;
     let qrlc_count = qrlc.len();

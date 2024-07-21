@@ -30,6 +30,7 @@ pub impl Miller_Bn254_U256<
     fn miller_bit_o(
         ref self: Curve, runner: @PreCompute<TSchZip>, i: u32, ref acc: Accumulator
     ) { //
+        core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
 
@@ -40,6 +41,7 @@ pub impl Miller_Bn254_U256<
 
     // 1 bit
     fn miller_bit_p(ref self: Curve, runner: @PreCompute<TSchZip>, i: u32, ref acc: Accumulator) {
+        core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
         let pi_b = runner.g16.q.pi_b;
@@ -56,6 +58,7 @@ pub impl Miller_Bn254_U256<
     fn miller_bit_n(
         ref self: Curve, runner: @PreCompute<TSchZip>, i: u32, ref acc: Accumulator
     ) { //
+        core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
         // use neg q
@@ -71,6 +74,7 @@ pub impl Miller_Bn254_U256<
 
     // last step
     fn miller_last(ref self: Curve, runner: @PreCompute<TSchZip>, ref acc: Accumulator) { //
+        core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
         let pi_b = runner.g16.q.pi_b;
