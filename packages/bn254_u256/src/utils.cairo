@@ -1,5 +1,5 @@
 use core::traits::Into;
-use bn254_u256::{Fq, Fq2, Fq6, Fq12, U256IntoFq, PtG1, PtG2};
+use bn254_u256::{Fq, Fq2, Fq6, Fq12, FqD12, U256IntoFq, PtG1, PtG2};
 
 pub fn g1(x: u256, y: u256) -> PtG1 {
     let x = x.into();
@@ -31,6 +31,27 @@ pub fn fq12(
 
 pub fn fq(c0: u256) -> Fq {
     c0.into()
+}
+
+pub fn fqd12(
+    r0: u256,
+    r1: u256,
+    r2: u256,
+    r3: u256,
+    r4: u256,
+    r5: u256,
+    r6: u256,
+    r7: u256,
+    r8: u256,
+    r9: u256,
+    r10: u256,
+    r11: u256
+) -> FqD12 {
+    (
+        (r0.into(), r1.into(), r2.into(), r3.into(),),
+        (r4.into(), r5.into(), r6.into(), r7.into(),),
+        (r8.into(), r9.into(), r10.into(), r11.into(),),
+    )
 }
 
 pub fn fq2(c0: u256, c1: u256) -> Fq2 {

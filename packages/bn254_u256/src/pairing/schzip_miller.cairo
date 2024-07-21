@@ -3,7 +3,7 @@ use ec_groups::ECOperations;
 pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
 use bn254_u256::print::{FqDisplay};
 use bn254_u256::{
-    fq, Fq, Fq2, Fq12, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
+    fq, Fq, Fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{
         schzip_miller_runner::Miller_Bn254_U256,
         utils::{
@@ -35,9 +35,9 @@ fn schzip_miller<
     pi_b: PtG2,
     pi_c: PtG1,
     inputs: Array<u256>,
-    residue_witness: Fq12,
-    residue_witness_inv: Fq12,
-    setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
+    residue_witness: FqD12,
+    residue_witness_inv: FqD12,
+    setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
     schzip: TSchZip,
     schzip_acc: SZCommitmentAccumulator,
 ) -> SZAccumulator { //
@@ -67,11 +67,11 @@ fn schzip_miller<
     ate_miller_loop(ref curve, precomp, q_acc)
 }
 
-fn hasher_fq2(ref hasher: HashState, a: Fq2) {
-    hasher = hasher.update(a.c0.c0.low.into());
-    hasher = hasher.update(a.c0.c0.high.into());
-    hasher = hasher.update(a.c1.c0.low.into());
-    hasher = hasher.update(a.c1.c0.high.into());
+fn hash_fq2(ref hasher: HashState, a: Fq, b: Fq) {
+    hasher = hasher.update(a.c0.low.into());
+    hasher = hasher.update(a.c0.high.into());
+    hasher = hasher.update(b.c0.low.into());
+    hasher = hasher.update(b.c0.high.into());
 }
 
 // Prepares SZ commitment
@@ -86,24 +86,26 @@ fn hasher_fq2(ref hasher: HashState, a: Fq2) {
 // So  Any changes in the remainders will change the RLC and equation will not be satisfiable with any QRLC.
 // Fiat Shamir for the final Schwartz Zippel includes all remainders and QRLC for soundness.
 pub fn prepare_sz_commitment(
-    ref curve: Bn254U256Curve, remainders: Array<Fq12>, qrlc: Array<Fq>,
+    ref curve: Bn254U256Curve, remainders: Array<FqD12>, qrlc: Array<Fq>,
 ) -> (SZCommitment, SZCommitmentAccumulator) {
     let mut rem_coeff_i = 0;
     let mut hasher = PoseidonImpl::new();
     let rem_coeffs_count = remainders.len();
     let rem_snap = @remainders;
     while rem_coeff_i != rem_coeffs_count {
-        let Fq12 { c0, c1 } = *(rem_snap[rem_coeff_i]);
+        let rem: FqD12 = *rem_snap[rem_coeff_i];
+        let ((r0, r1, r2, r3), (r4, r5, r6, r7), (r8, r9, r10, r11)) = rem;
 
-        hasher_fq2(ref hasher, c0.c0);
-        hasher_fq2(ref hasher, c0.c1);
-        hasher_fq2(ref hasher, c0.c2);
-        hasher_fq2(ref hasher, c1.c0);
-        hasher_fq2(ref hasher, c1.c1);
-        hasher_fq2(ref hasher, c1.c2);
+        hash_fq2(ref hasher, r0, r1);
+        hash_fq2(ref hasher, r2, r3);
+        hash_fq2(ref hasher, r4, r5);
+        hash_fq2(ref hasher, r6, r7);
+        hash_fq2(ref hasher, r8, r9);
+        hash_fq2(ref hasher, r10, r11);
         rem_coeff_i += 1;
     };
     let remainders_fiat_shamir_felt = hasher.finalize();
+    println!("remainders_fiat_shamir_felt: {}", remainders_fiat_shamir_felt);
     let remainders_fiat_shamir: u256 = remainders_fiat_shamir_felt.into();
 
     let mut qrlc_coeff_i = 0;
@@ -155,11 +157,11 @@ pub fn schzip_verify(
     pi_b: PtG2,
     pi_c: PtG1,
     inputs: Array<u256>,
-    residue_witness: Fq12,
-    residue_witness_inv: Fq12,
+    residue_witness: FqD12,
+    residue_witness_inv: FqD12,
     cubic_scale: CubicScale,
-    setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-    schzip_remainders: Array<Fq12>,
+    setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
+    schzip_remainders: Array<FqD12>,
     schzip_qrlc: Array<Fq>,
 ) { // let p = fs_pow(ref curve, fq(2), 6);
     // println!("{} {} {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5]);

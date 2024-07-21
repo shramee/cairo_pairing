@@ -1,7 +1,7 @@
 use pairing::{LineFn, LinesArrayGet, FixedPointLines};
 use pairing::{PairingUtils};
-use bn254_u256::{Fq, Fq2, fq2, Fq12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
-use bn254_u256::print::{FqDisplay, Fq12Display, G2Display};
+use bn254_u256::{Fq, Fq2, fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
+use bn254_u256::print::{FqDisplay, G2Display};
 use bn254_u256::pairing::utils::{
     LnArrays, SZCommitment, SZCommitmentAccumulator, SZPreCompute, SZAccumulator as Accumulator,
     LnFn
