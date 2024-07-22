@@ -1,25 +1,25 @@
 pub use bn254_u256::{
-    schzip_verify, PtG1, PtG2, Fq, Fq12, CubicScale, Groth16Circuit, Bn254U256Curve, bn254_curve,
+    schzip_verify, PtG1, PtG2, Fq, FqD12, CubicScale, Groth16Circuit, Bn254U256Curve, bn254_curve,
     LnArrays, InputConstraintPoints
 };
 
 #[starknet::interface]
 trait IBN_Pairing<T> {
-    // fn final_exponentiation(self: @T, a: Fq12) -> Fq12;
-    // fn final_exponentiation_bench(self: @T) -> Fq12;
-    // fn pairing_bench(self: @T) -> Fq12;
-    // fn miller_bench(self: @T) -> Fq12;
+    // fn final_exponentiation(self: @T, a: FqD12) -> FqD12;
+    // fn final_exponentiation_bench(self: @T) -> FqD12;
+    // fn pairing_bench(self: @T) -> FqD12;
+    // fn miller_bench(self: @T) -> FqD12;
     fn verify(
         ref self: T,
         pi_a: PtG1,
         pi_b: PtG2,
         pi_c: PtG1,
         inputs: Array<u256>,
-        residue_witness: Fq12,
-        residue_witness_inv: Fq12,
+        residue_witness: FqD12,
+        residue_witness_inv: FqD12,
         cubic_scale: CubicScale,
-        setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-        schzip_remainders: Array<Fq12>,
+        setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
+        schzip_remainders: Array<FqD12>,
         schzip_qrlc: Array<Fq>,
     );
 }
@@ -29,7 +29,7 @@ mod BN_Pairing {
     use super::{
         schzip_verify, bn254_curve,
         {
-            PtG1, PtG2, Fq, Fq12, CubicScale, Groth16Circuit, Bn254U256Curve, LnArrays,
+            PtG1, PtG2, Fq, FqD12, CubicScale, Groth16Circuit, Bn254U256Curve, LnArrays,
             InputConstraintPoints
         }
     };
@@ -48,11 +48,11 @@ mod BN_Pairing {
             pi_b: PtG2,
             pi_c: PtG1,
             inputs: Array<u256>,
-            residue_witness: Fq12,
-            residue_witness_inv: Fq12,
+            residue_witness: FqD12,
+            residue_witness_inv: FqD12,
             cubic_scale: CubicScale,
-            setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, Fq12>,
-            schzip_remainders: Array<Fq12>,
+            setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
+            schzip_remainders: Array<FqD12>,
             schzip_qrlc: Array<Fq>,
         ) {
             let mut curve = bn254_curve();

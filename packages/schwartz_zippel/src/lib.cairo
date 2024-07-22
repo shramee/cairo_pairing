@@ -1,12 +1,12 @@
 pub mod eval;
 pub use eval::{SchZipEvalTrait, SchZipEval};
-pub use fq_types::{Fq2, Fq3, F12S034 as FS034, Fq12};
+pub use fq_types::{Fq2, Fq3, F12S034 as FS034, Fq12Direct};
 use pairing::CubicScale;
 
 pub type Lines<T> = (FS034<T>, FS034<T>, FS034<T>);
 pub type F034X2<T> = (FS034<T>, FS034<T>);
 pub type LinesDbl<T> = (F034X2<T>, F034X2<T>, F034X2<T>);
-pub type Residue<T> = (CubicScale, Fq12<T>, Fq12<T>);
+pub type Residue<T> = (CubicScale, Fq12Direct<T>, Fq12Direct<T>);
 
 pub trait SchZipSteps<TCurve, T, TAcc, TFq, TFq12> {
     fn sz_init(ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12);
