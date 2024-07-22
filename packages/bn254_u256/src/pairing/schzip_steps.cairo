@@ -1,3 +1,5 @@
+use schwartz_zippel::eval::SchZipEvalTrait;
+use bn254_u256::print::{FqDisplay};
 use bn254_u256::{
     Fq, Fq2, Fq3, Fq12, FqD12, FqD4, scale_9, Bn254U256Curve, Bn254FqOps, SZCommitment,
     SZCommitmentAccumulator
@@ -6,6 +8,36 @@ use schwartz_zippel::{SchZipSteps, SchZipEval, Lines, FS034, F034X2, LinesDbl, R
 
 type Curve = Bn254U256Curve;
 type SZCAcc = SZCommitmentAccumulator;
+
+fn acc_mul_eval_12(ref self: Curve, a: FqD12, ref acc: Fq, fiat_shamir: @Array<Fq>) {
+    acc = self.mul(acc, self.eval_fq12(a, fiat_shamir));
+}
+
+fn acc_mul_eval_034_x3(ref self: Curve, lines: Lines<Fq2>, ref acc: Fq, fiat_shamir: @Array<Fq>) {
+    let (l1, l2, l3) = lines;
+    acc = self.mul(acc, self.eval_f1379(direct_f034(ref self, l1), fiat_shamir));
+    acc = self.mul(acc, self.eval_f1379(direct_f034(ref self, l2), fiat_shamir));
+    acc = self.mul(acc, self.eval_f1379(direct_f034(ref self, l3), fiat_shamir));
+}
+
+fn acc_equation_eval(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, mut eval: Fq) {
+    // multiply fiat shamir for rlc
+    eval = self.mul(eval, *sz.rlc_fiat_shamir.at(sz_acc.index));
+
+    // accumulate
+    sz_acc.rhs_lhs = self.add(sz_acc.rhs_lhs, eval);
+    sz_acc.index += 1;
+}
+
+fn acc_equation_lhs_rem(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, mut eval: Fq) {
+    // evaluate remainder and cache it for later
+    sz_acc.rem_cache = self.eval_fq12(*(sz.remainders.at(sz_acc.index)), sz.fiat_shamir_powers);
+
+    // sub remainder from accumulator
+    eval = self.sub(eval, sz_acc.rem_cache);
+
+    acc_equation_eval(ref self, sz, ref sz_acc, eval)
+}
 
 pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq, FqD12> {
     fn sz_init(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12) {}
