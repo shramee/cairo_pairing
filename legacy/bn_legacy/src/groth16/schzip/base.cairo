@@ -64,7 +64,7 @@ pub impl SchZipMockSteps of SchZipSteps<SchZipMock> {
     #[inline(always)]
     fn sz_init(self: @SchZipMock, ref f: Fq12, f_nz: NonZero<u256>) {
         if *self.print {
-            println!("from schzip_runner import fq12, f034, fq6, sz_print, sz_inv_verify",);
+            println!("from schzip_runner import fq12, f034, fq6, sz_finalize, sz_inv_verify",);
             println!(
                 "from schzip_runner import sz_zero_bit, sz_nz_bit, sz_last_step, sz_post_miller"
             );
