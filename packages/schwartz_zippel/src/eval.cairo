@@ -16,10 +16,8 @@ pub impl SchZipEval<
     +Drop<TCurve>
 > of SchZipEvalTrait<TCurve, TFq> {
     fn eval_fq12(ref self: TCurve, a: Fq12Direct<TFq>, fiat_shamir: @Array<TFq>) -> TFq {
-        let ((a0, a1, a2, a3), (a4, a5, a6, a7), (a8, a9, a10, a11)) = a;
-
-        // First term doesn't require multiplication
-        let mut acc = a0;
+        let ((mut acc, a1, a2, a3), (a4, a5, a6, a7), (a8, a9, a10, a11)) = a;
+        // First term a0 doesn't require multiplication and is used as accumulator
 
         // terms 1 to 11
         let term_1 = self.mul((*fiat_shamir[1]), a1);
@@ -66,7 +64,6 @@ pub impl SchZipEval<
         acc = self.add(acc, term_3);
         acc = self.add(acc, term_7);
         acc = self.add(acc, term_9);
-
         acc
     }
 

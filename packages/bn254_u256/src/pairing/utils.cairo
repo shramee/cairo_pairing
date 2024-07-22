@@ -8,7 +8,7 @@ use bn254_u256::{Bn254U256Curve};
 pub struct SZCommitment {
     pub remainders: Array<FqD12>,
     pub qrlc: Array<Fq>,
-    pub rem_fiat_shamir_powers: Array<Fq>,
+    pub rlc_fiat_shamir: Array<Fq>,
     pub fiat_shamir_powers: Array<Fq>,
     pub p12_x: Fq,
 }
