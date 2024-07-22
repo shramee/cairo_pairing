@@ -25,7 +25,7 @@ pub trait SchZipSteps<TCurve, T, TAcc, TFq, TFq12> {
         ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12, lines: LinesDbl<Fq2<TFq>>
     );
 
-    fn sz_post_miller(
+    fn sz_verify(
         ref self: TCurve,
         sz: @T,
         ref sz_acc: TAcc,

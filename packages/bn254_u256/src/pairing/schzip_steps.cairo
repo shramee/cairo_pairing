@@ -40,12 +40,28 @@ fn acc_equation_lhs_rem(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, 
 }
 
 pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq, FqD12> {
-    fn sz_init(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12) {}
+    fn sz_init(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12) { //
+    // Compute next remainder
+    }
     fn sz_zero_bit(
         ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12, lines: Lines<Fq2>
     ) {
-        let (_l1, _l2, _l3) = lines;
-        let _f_eval: Fq = self.eval_fq12(f, sz.fiat_shamir_powers);
+        // equation equivalence with p12 = x^12 + 18x^6 + 82
+        // f * f * lines = q * p12 + remainder
+        // all quotients are combined with rlc, so we isolate q and check equivalence at the end
+        // thus the equation becomes,
+        // f * f * lines - remainder = q * p12
+        // remainder here is f for the next equation so we use it with sz_acc.rem_cache
+        // at the end we multiply it with rem_fiat_shmir for RLC
+
+        // init eval as a square of previous remainder evaluation cache
+        let mut eval: Fq = self.sqr(sz_acc.rem_cache);
+
+        // eval and accumulate lines
+        acc_mul_eval_034_x3(ref self, lines, ref eval, sz.fiat_shamir_powers);
+
+        // accumulate equation and remainder
+        acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval)
     }
 
     fn sz_nz_bit(
@@ -56,17 +72,53 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         lines: LinesDbl<Fq2>,
         witness: FqD12
     ) {
-        let _f_eval: Fq = self.eval_fq12(f, sz.fiat_shamir_powers);
-        let _wit_eval: Fq = self.eval_fq12(witness, sz.fiat_shamir_powers);
+        // equation equivalence with p12 = x^12 + 18x^6 + 82
+        // f * f * lines * witness = q * p12 + remainder
+        // all quotients are combined with rlc, so we isolate q and check equivalence at the end
+        // thus the equation becomes,
+        // f * f * lines * witness - remainder = q * p12
+        // remainder here is f for the next equation so we use it with sz_acc.rem_cache
+        // at the end we multiply it with rem_fiat_shmir for RLC
+
+        // init eval as a square of previous remainder evaluation cache
+        let mut eval: Fq = self.sqr(sz_acc.rem_cache);
+
+        // eval and accumulate lines
+        let ((l10, l11), (l20, l21), (l30, l31)) = lines;
+        acc_mul_eval_034_x3(ref self, (l10, l20, l30), ref eval, sz.fiat_shamir_powers);
+        acc_mul_eval_034_x3(ref self, (l11, l21, l31), ref eval, sz.fiat_shamir_powers);
+
+        // eval and accumulate witness
+        acc_mul_eval_12(ref self, witness, ref eval, sz.fiat_shamir_powers);
+
+        // accumulate equation and remainder
+        acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval)
     }
 
     fn sz_last_step(
         ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12, lines: LinesDbl<Fq2>
     ) {
-        let _f_eval: Fq = self.eval_fq12(f, sz.fiat_shamir_powers);
+        // equation equivalence with p12 = x^12 + 18x^6 + 82
+        // f * f * lines = q * p12 + remainder
+        // all quotients are combined with rlc, so we isolate q and check equivalence at the end
+        // thus the equation becomes,
+        // f * f * lines - remainder = q * p12
+        // remainder here is f for the next equation so we use it with sz_acc.rem_cache
+        // at the end we multiply it with rem_fiat_shmir for RLC
+
+        // init eval as a square of previous remainder evaluation cache
+        let mut eval: Fq = self.sqr(sz_acc.rem_cache);
+
+        // eval and accumulate lines
+        let ((l10, l11), (l20, l21), (l30, l31)) = lines;
+        acc_mul_eval_034_x3(ref self, (l10, l20, l30), ref eval, sz.fiat_shamir_powers);
+        acc_mul_eval_034_x3(ref self, (l11, l21, l31), ref eval, sz.fiat_shamir_powers);
+
+        // accumulate equation and remainder
+        acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval)
     }
 
-    fn sz_post_miller(
+    fn sz_verify(
         ref self: Curve,
         sz: @SZCommitment,
         ref sz_acc: SZCAcc,
@@ -74,9 +126,25 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         alpha_beta: FqD12,
         residue: Residue<Fq>
     ) -> bool {
-        let _f_eval: Fq = self.eval_fq12(f, sz.fiat_shamir_powers);
-        let _albe_eval: Fq = self.eval_fq12(alpha_beta, sz.fiat_shamir_powers);
-        false
+        // println!("sz_verify: {} {} {}", sz_acc.index, sz_acc.rhs_lhs, sz_acc.rem_cache);
+
+        let (cubic_scale, witness, witness_inv) = residue;
+
+        // final step,
+        // f * alpha_beta * cubic_scale
+        // * ```F(x) * RQ(x) * RInvQ2(x) * RQ3(x) * CubicScale(x) = R(x) + Q(x) * P12(x)```
+
+        let mut eval: Fq = self.sqr(sz_acc.rem_cache);
+        acc_mul_eval_12(ref self, witness, ref eval, sz.fiat_shamir_powers);
+
+        // witness * witness_inv = 1 + q * p12
+        // or, isolating q again,
+        // witness * witness_inv - 1 = q * p12
+        let mut eval = self.eval_fq12(witness, sz.fiat_shamir_powers); // witness
+        acc_mul_eval_12(ref self, witness_inv, ref eval, sz.fiat_shamir_powers); // witness_inv
+        eval = self.sub(eval, 1_u256.into());
+        // This is a separate verification and shouldn't change remainder
+        acc_equation_eval(ref self, sz, ref sz_acc, eval);
     }
 }
 
