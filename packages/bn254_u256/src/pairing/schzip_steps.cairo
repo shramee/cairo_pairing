@@ -43,6 +43,14 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
     fn sz_init(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12) { //
     // Compute next remainder
     }
+
+    // Handles Schwartz Zippel verification for zero `O` bits,
+    // * F ∈ Fq12, miller loop aggregation
+    // * L1_L2 ∈ Sparse01234, Loop step lines L1 and L2 multiplied for lower degree
+    // * L3 ∈ Sparse034, Last L3 line
+    // * ```F(x) * F(x) * L1_L2(x) * L3(x) = R(x) + Q(x) * P12(x)```
+    // * Isolating Q(x) for RLC,
+    // * ```F(x) * F(x) * L1_L2(x) * L3(x) - R(x) = Q(x) * P12(x)```
     fn sz_zero_bit(
         ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12, lines: Lines<Fq2>
     ) {
@@ -64,6 +72,13 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval)
     }
 
+    // Handles Schwartz Zippel verification for non-zero `P`/`N` bits,
+    // * F ∈ Fq12, miller loop aggregation
+    // * L1, L2, L3 ∈ Sparse01234, Loop step lines
+    // * Witness ∈ Fq12, Residue witness (or it's inverse based on the bit value)
+    // * ```F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x) = R(x) + Q(x) * P12(x)```
+    // * Isolating Q(x) for RLC,
+    // * ```F(x) * F(x) * L1(x) * L2(x) * L3(x) * Witness(x) - R(x) = Q(x) * P12(x)```
     fn sz_nz_bit(
         ref self: Curve,
         sz: @SZCommitment,
@@ -95,6 +110,12 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval)
     }
 
+    // Handles Schwartz Zippel verification for miller loop correction step,
+    // * F ∈ Fq12, miller loop aggregation
+    // * L1, L2, L3 ∈ Sparse01234, Correction step lines
+    // * ```F(x) * L1(x) * L2(x) * L3(x) = R(x) + Q(x) * P12(x)```
+    // * Isolating Q(x) for RLC,
+    // * ```F(x) * L1(x) * L2(x) * L3(x) - R(x) = Q(x) * P12(x)```
     fn sz_last_step(
         ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12, lines: LinesDbl<Fq2>
     ) {
@@ -118,15 +139,26 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval)
     }
 
-    fn sz_verify(
+    // Handles Schwartz Zippel verification for post miller operation,
+    // * R is just 1 so we have 11 less coefficients
+    // * F ∈ Fq12, miller loop aggregation
+    // * RQ, RIQ2, RQ3 ∈ Fq12, residue witness frobenius maps
+    // * CubicScale ∈ Sparse Fq12, cubic scale factor
+    // * ```F(x) * RQ(x) * RIQ2(x) * RQ3(x) * CubicScale(x) = R(x) + Q(x) * P12(x)```
+    // * For r = 1, ```F(x) * RQ(x) * RIQ2(x) * RQ3(x) * CubicScale(x) = 1 + Q(x) * P12(x)```
+    // * Isolating Q(x) for RLC,
+    // * Or, ```F(x) * RQ(x) * RIQ2(x) * RQ3(x) * CubicScale(x) - 1 = Q(x) * P12(x)```
+    fn sz_final(
         ref self: Curve,
         sz: @SZCommitment,
         ref sz_acc: SZCAcc,
-        f: FqD12,
+        ref f: FqD12,
         alpha_beta: FqD12,
-        residue: Residue<Fq>
-    ) -> bool {
-        // println!("sz_verify: {} {} {}", sz_acc.index, sz_acc.rhs_lhs, sz_acc.rem_cache);
+        r_pow_q: FqD12,
+        r_inv_q2: FqD12,
+        r_pow_q3: FqD12,
+        cubic_scale: CubicScale
+    ) {
 
         let (cubic_scale, witness, witness_inv) = residue;
 
@@ -137,6 +169,21 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         let mut eval: Fq = self.sqr(sz_acc.rem_cache);
         acc_mul_eval_12(ref self, witness, ref eval, sz.fiat_shamir_powers);
 
+    // Handles Schwartz Zippel witness invert verification
+    // * F, FInv ∈ Fq12, miller loop aggregation
+    // * ```F(x) * FInv(x) = 1 + Q(x) * P12(x)```
+    // * Isolating Q(x) for RLC,
+    // * ```F(x) * FInv(x) - 1 = Q(x) * P12(x)```
+    // * Also compares cached rhs_lhs against quotient RLC
+    // * ```rhs_lhs - QRLC(x) = 0```
+    fn sz_verify(
+        ref self: Curve,
+        sz: @SZCommitment,
+        ref sz_acc: SZCAcc,
+        f: FqD12,
+        witness: FqD12,
+        witness_inv: FqD12,
+    ) -> bool {
         // witness * witness_inv = 1 + q * p12
         // or, isolating q again,
         // witness * witness_inv - 1 = q * p12

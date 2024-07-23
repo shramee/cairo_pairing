@@ -25,12 +25,19 @@ pub trait SchZipSteps<TCurve, T, TAcc, TFq, TFq12> {
         ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12, lines: LinesDbl<Fq2<TFq>>
     );
 
-    fn sz_verify(
+    fn sz_final(
         ref self: TCurve,
         sz: @T,
         ref sz_acc: TAcc,
-        f: TFq12,
+        ref f: TFq12,
         alpha_beta: TFq12,
-        residue: Residue<TFq>
+        r_pow_q: TFq12,
+        r_inv_q2: TFq12,
+        r_pow_q3: TFq12,
+        cubic_scale: CubicScale
+    );
+
+    fn sz_verify(
+        ref self: TCurve, sz: @T, ref sz_acc: TAcc, f: TFq12, witness: TFq12, witness_inv: TFq12,
     ) -> bool;
 }
