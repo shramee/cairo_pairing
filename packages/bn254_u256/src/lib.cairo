@@ -11,6 +11,7 @@ pub mod pairing {
 
 #[cfg(test)]
 mod tests {
+    pub mod curve;
     pub mod tests;
     pub mod test_pairing_utils;
     pub mod fixtures;
