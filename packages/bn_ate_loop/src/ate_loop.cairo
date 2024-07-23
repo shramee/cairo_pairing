@@ -23,12 +23,12 @@ pub fn ate_miller_loop<
     +Drop<TRunner>,
     +Drop<TCurve>
 >(
-    ref curve: TCurve, runner: TRunner, mut q_acc: TAccumulator
+    ref curve: TCurve, runner: @TRunner, mut q_acc: TAccumulator
 ) -> TAccumulator {
     core::internal::revoke_ap_tracking();
 
-    _loop_inner_1_of_2(@runner, ref curve, ref q_acc);
-    _loop_inner_2_of_2(@runner, ref curve, ref q_acc);
+    _loop_inner_1_of_2(runner, ref curve, ref q_acc);
+    _loop_inner_2_of_2(runner, ref curve, ref q_acc);
     q_acc
 }
 

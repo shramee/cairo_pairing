@@ -37,10 +37,11 @@ fn schzip_miller<
     inputs: Array<u256>,
     residue_witness: FqD12,
     residue_witness_inv: FqD12,
+    cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
     schzip: TSchZip,
     schzip_acc: SZCommitmentAccumulator,
-) -> (FqD12, SZAccumulator) { //
+) -> SZAccumulator { //
     // Compute k from ic and public_inputs
     let Groth16Circuit { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
@@ -64,8 +65,24 @@ fn schzip_miller<
         f: residue_witness_inv, g2: q, line_index: 0, schzip: schzip_acc
     };
 
-    let q_acc = ate_miller_loop(ref curve, precomp, q_acc);
-    (alpha_beta, q_acc)
+    let mut q_acc = ate_miller_loop(ref curve, @precomp, q_acc);
+
+    let r_pow_q = residue_witness; // @TODO forbenius map q
+    let r_inv_q2 = residue_witness_inv; // @TODO forbenius map q2
+    let r_pow_q3 = residue_witness; // @TODO forbenius map q3
+
+    curve
+        .sz_final(
+            @precomp.schzip,
+            ref q_acc.schzip,
+            ref q_acc.f,
+            alpha_beta,
+            r_pow_q,
+            r_inv_q2,
+            r_pow_q3,
+            cubic_scale
+        );
+    q_acc
 }
 
 fn hash_fq2(ref hasher: HashState, a: Fq, b: Fq) {
@@ -122,7 +139,7 @@ pub fn prepare_sz_commitment(
         qrlc_coeff_i += 1;
     };
     let fiat_shamir: u256 = hasher.finalize().into();
-    let fiat_shamir_powers = fs_pow(ref curve, fq(fiat_shamir), 40);
+    let fiat_shamir_powers = fs_pow(ref curve, fq(fiat_shamir), 76);
 
     // x^12 - 18x^6 + 82
     let _18x6 = curve.mul(fq(18), *fiat_shamir_powers[6]); // 18x^6
@@ -172,16 +189,19 @@ pub fn schzip_verify(
     let sz_snap = @sz;
 
     // miller loop result
-    let (alpha_beta, mut acc) = schzip_miller(
-        ref curve, pi_a, pi_b, pi_c, inputs, residue_witness, residue_witness_inv, setup, sz, sz_acc
+    let mut acc = schzip_miller(
+        ref curve,
+        pi_a,
+        pi_b,
+        pi_c,
+        inputs,
+        residue_witness,
+        residue_witness_inv,
+        cubic_scale,
+        setup,
+        sz,
+        sz_acc
     );
 
-    curve
-        .sz_verify(
-            sz_snap,
-            ref acc.schzip,
-            acc.f,
-            alpha_beta,
-            (cubic_scale, residue_witness, residue_witness_inv,)
-        );
+    curve.sz_verify(sz_snap, ref acc.schzip, acc.f, residue_witness, residue_witness_inv,);
 }
