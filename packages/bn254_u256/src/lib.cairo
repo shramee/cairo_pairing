@@ -19,7 +19,12 @@ mod tests {
 use fq_types::{
     Fq2 as Fq2Gen, Fq3, F12S034, Fq12Direct, Fq4Direct, fq3, Fq2PartialEq, Fq3PartialEq,
 };
-pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale};
+pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale, bn254_curve};
+
+// Frobenius maps
+pub use curve::fq12_frobenius_map;
+pub use fq_types::frobenius_bn254::{FrobFq12, FrobFq6};
+
 pub use fq_1::{
     {U256IntoFq, FqPartialEq, Bn254FqOps, Bn254FqUtils},
     {scale_9, Fq, FieldOps, FieldOpsExtended, FieldUtils},
@@ -45,10 +50,3 @@ pub use pairing::{
     schzip_steps::Bn254SchwartzZippelSteps,
     schzip_miller_runner::{Miller_Bn254_U256, PiMapping, pi_mapping},
 };
-
-pub fn bn254_curve() -> Bn254U256Curve {
-    Bn254U256Curve {
-        q: 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47,
-        qnz: 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47,
-    }
-}
