@@ -4,7 +4,7 @@ use fq_types::{FieldOps, FieldUtils};
 pub trait SchZipEvalTrait<TCurve, TFq> {
     fn eval_fq12(ref self: TCurve, a: Fq12Direct<TFq>, fiat_shamir: @Array<TFq>) -> TFq;
     fn eval_f1379(ref self: TCurve, a: Fq4Direct<TFq>, fiat_shamir: @Array<TFq>) -> TFq;
-    fn eval_poly(ref self: TCurve, a: Array<TFq>, fiat_shamir: @Array<TFq>) -> TFq;
+    fn eval_poly(ref self: TCurve, a: @Array<TFq>, fiat_shamir: @Array<TFq>) -> TFq;
 }
 pub impl SchZipEval<
     TCurve,
@@ -67,7 +67,7 @@ pub impl SchZipEval<
         acc
     }
 
-    fn eval_poly(ref self: TCurve, a: Array<TFq>, fiat_shamir: @Array<TFq>) -> TFq {
+    fn eval_poly(ref self: TCurve, a: @Array<TFq>, fiat_shamir: @Array<TFq>) -> TFq {
         let len = a.len();
 
         if len == 0 {
