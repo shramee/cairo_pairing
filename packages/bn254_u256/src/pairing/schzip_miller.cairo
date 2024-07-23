@@ -11,6 +11,7 @@ use bn254_u256::{
             ICArrayInput
         },
     },
+    {fq12_frobenius_map, FrobFq12, direct_to_tower_fq12, tower_to_direct_fq12}, // Frobenius
     Bn254SchwartzZippelSteps,
 };
 use bn_ate_loop::{ate_miller_loop};
@@ -67,9 +68,13 @@ fn schzip_miller<
 
     let mut q_acc = ate_miller_loop(ref curve, @precomp, q_acc);
 
-    let r_pow_q = residue_witness; // @TODO forbenius map q
-    let r_inv_q2 = residue_witness_inv; // @TODO forbenius map q2
-    let r_pow_q3 = residue_witness; // @TODO forbenius map q3
+    core::internal::revoke_ap_tracking();
+    let frobenius_maps = fq12_frobenius_map();
+    let witness_dir = direct_to_tower_fq12(ref curve, residue_witness);
+    let witness_inv_dir = direct_to_tower_fq12(ref curve, residue_witness_inv);
+    let r_pow_q = curve.frob1(witness_dir, @frobenius_maps);
+    let r_inv_q2 = curve.frob2(witness_inv_dir, @frobenius_maps);
+    let r_pow_q3 = curve.frob3(witness_dir, @frobenius_maps);
 
     curve
         .sz_final(
@@ -77,9 +82,9 @@ fn schzip_miller<
             ref q_acc.schzip,
             ref q_acc.f,
             alpha_beta,
-            r_pow_q,
-            r_inv_q2,
-            r_pow_q3,
+            tower_to_direct_fq12(ref curve, r_pow_q),
+            tower_to_direct_fq12(ref curve, r_inv_q2),
+            tower_to_direct_fq12(ref curve, r_pow_q3),
             cubic_scale
         );
     q_acc
