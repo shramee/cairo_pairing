@@ -30,7 +30,9 @@ pub use fq_1::{
     {U256IntoFq, FqPartialEq, Bn254FqOps, Bn254FqUtils},
     {scale_9, Fq, FieldOps, FieldOpsExtended, FieldUtils},
 };
-pub use utils::{g1, g2, fqd12, fq12, fq2, fq};
+pub use utils::{
+    g1, g2, fqd12, fq12, fq2, fq, tower_to_direct_fq12, direct_to_tower_fq12, direct_f034
+};
 
 pub type Fq2 = Fq2Gen<Fq>;
 pub type Fq6 = Fq3<Fq2>;

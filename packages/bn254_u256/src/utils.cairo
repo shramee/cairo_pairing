@@ -1,5 +1,7 @@
 use core::traits::Into;
-use bn254_u256::{Fq, Fq2, Fq6, Fq12, FqD12, U256IntoFq, PtG1, PtG2};
+use bn254_u256::{Bn254U256Curve, Fq, Fq2, Fq6, Fq12, FqD12, PtG1, PtG2, F034, FqD4};
+use bn254_u256::{U256IntoFq, Bn254FqOps, scale_9};
+use fq_types::fq2 as fq2_from_fq;
 
 pub fn g1(x: u256, y: u256) -> PtG1 {
     let x = x.into();
@@ -56,4 +58,51 @@ pub fn fqd12(
 
 pub fn fq2(c0: u256, c1: u256) -> Fq2 {
     Fq2 { c0: c0.into(), c1: c1.into() }
+}
+
+pub fn tower_to_direct_fq12(ref curve: Bn254U256Curve, a: Fq12) -> FqD12 {
+    let Fq12 { //
+    c0: Fq6 { //
+     c0: Fq2 { c0: a0, c1: a1 }, c1: Fq2 { c0: a2, c1: a3 }, c2: Fq2 { c0: a4, c1: a5 } },
+    c1: Fq6 { //
+     c0: Fq2 { c0: a6, c1: a7 }, c1: Fq2 { c0: a8, c1: a9 }, c2: Fq2 { c0: a10, c1: a11 } } //
+    } =
+        a;
+    (
+        (
+            curve.sub(a0, scale_9(ref curve, a1)),
+            curve.sub(a6, scale_9(ref curve, a7)),
+            curve.sub(a2, scale_9(ref curve, a3)),
+            curve.sub(a8, scale_9(ref curve, a9)),
+        ),
+        (curve.sub(a4, scale_9(ref curve, a5)), curve.sub(a10, scale_9(ref curve, a11)), a1, a7,),
+        (a3, a9, a5, a11,)
+    )
+}
+
+pub fn direct_to_tower_fq12(ref curve: Bn254U256Curve, a: FqD12) -> Fq12 {
+    let ((a0, a1, a2, a3), (a4, a5, a6, a7), (a8, a9, a10, a11)) = a;
+
+    Fq12 {
+        c0: Fq6 {
+            c0: fq2_from_fq(curve.add(a0, scale_9(ref curve, a6)), a6),
+            c1: fq2_from_fq(curve.add(a2, scale_9(ref curve, a8)), a8),
+            c2: fq2_from_fq(curve.add(a4, scale_9(ref curve, a10)), a10),
+        },
+        c1: Fq6 {
+            c0: fq2_from_fq(curve.add(a1, scale_9(ref curve, a7)), a7),
+            c1: fq2_from_fq(curve.add(a3, scale_9(ref curve, a9)), a9),
+            c2: fq2_from_fq(curve.add(a5, scale_9(ref curve, a11)), a11),
+        }
+    }
+}
+
+pub fn direct_f034(ref curve: Bn254U256Curve, a: F034) -> FqD4 {
+    let F034 { c3: Fq2 { c0: a6, c1: a7 }, c4: Fq2 { c0: a8, c1: a9 } } = a;
+    (
+        curve.sub(a6, scale_9(ref curve, a7)), // c1
+        curve.sub(a8, scale_9(ref curve, a9)), // c3
+        a7, // c7
+        a9, // c9
+    )
 }
