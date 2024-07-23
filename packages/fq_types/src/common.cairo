@@ -252,3 +252,49 @@ pub impl Fq3Ops<
         Fq3 { c0: new_c0, c1: new_c1, c2: new_c2 }
     }
 }
+
+pub fn fq3_scale<TCurve, TFq, impl FqOps: FieldOps<TCurve, TFq>, +Drop<TFq>, +Copy<TFq>>(
+    ref curve: TCurve, a: Fq3<TFq>, x: TFq
+) -> Fq3<TFq> {
+    let Fq3 { c0, c1, c2 } = a;
+    Fq3 {
+        c0: FqOps::mul(ref curve, x, c0),
+        c1: FqOps::mul(ref curve, x, c1),
+        c2: FqOps::mul(ref curve, x, c2),
+    }
+}
+
+pub fn fq2_scale<TCurve, TFq, impl FqOps: FieldOps<TCurve, TFq>, +Drop<TFq>, +Copy<TFq>>(
+    ref curve: TCurve, a: Fq2<TFq>, x: TFq
+) -> Fq2<TFq> {
+    let Fq2 { c0, c1 } = a;
+    Fq2 { c0: FqOps::mul(ref curve, x, c0), c1: FqOps::mul(ref curve, x, c1), }
+}
+
+pub fn fq2_conjugate<TCurve, TFq, impl FqOps: FieldOps<TCurve, TFq>, +Drop<TFq>>(
+    ref curve: TCurve, a: Fq2<TFq>
+) -> Fq2<TFq> {
+    let Fq2 { c0, c1 } = a;
+    Fq2 { c0, c1: FqOps::neg(ref curve, c1) }
+}
+
+// Field operation for β = -1
+// More efficient as it replaces mul nr with neg
+pub fn fq2_sqr_nbeta<TCurve, TFq, impl FqOps: FieldOps<TCurve, TFq>, +Drop<TFq>, +Copy<TFq>>(
+    ref self: TCurve, lhs: Fq2<TFq>
+) -> Fq2<TFq> {
+    // Complex squaring
+    let Fq2 { c0: a0, c1: a1 } = lhs;
+    // v = a0 * a1;
+    let v = FqOps::mul(ref self, a0, a1); // a0 * a1
+
+    // (a0 + a1) * (a0 + βa1) - v - βv
+    let t0 = FqOps::add(ref self, a0, a1); // a0 + a1
+    let a1_nr = FqOps::neg(ref self, a1); // βa1
+    let t1 = FqOps::add(ref self, a0, a1_nr); // a0 + βa1
+    let c0 = FqOps::mul(ref self, t0, t1); // (a0 + a1) * (a0 + βa1)
+    // c0 = (a0 + a1) * (a0 + βa1) - v - βv, but β = -1 so - v - βv cancels out
+    // c1 = v + v;
+    let c1 = FqOps::add(ref self, v, v); // 2v
+    Fq2 { c0, c1 }
+}

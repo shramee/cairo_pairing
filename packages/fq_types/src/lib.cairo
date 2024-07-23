@@ -78,4 +78,6 @@ pub type Fq4Direct<T> = (T, T, T, T);
 pub type Fq12Direct<T> = (Fq4Direct<T>, Fq4Direct<T>, Fq4Direct<T>);
 pub type F12S01234Direct<T> = ((T, T, T, T, T), (T, T, T, T, T));
 
-pub use common::{Fq2Ops, Fq2PartialEq, Fq3Ops, Fq3PartialEq};
+pub use common::{
+    Fq2Ops, Fq2PartialEq, Fq3Ops, Fq3PartialEq, fq2_scale, fq3_scale, fq2_conjugate, fq2_sqr_nbeta
+};

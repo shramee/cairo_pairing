@@ -1,4 +1,4 @@
-use fq_types::{FieldOps, FieldUtils, Fq2, F12S034};
+use fq_types::{FieldOps, FieldUtils, Fq2, F12S034, fq2_scale, fq2_conjugate};
 use ec_groups::{Affine, ECOperations};
 use pairing::{PPrecompute, LineFn};
 
@@ -12,8 +12,6 @@ pub trait PairingUtilsTrait<TCurve, TFq> {
     fn point_and_slope_at_p(
         ref self: TCurve, slope: Fq2<TFq>, s: Affine<Fq2<TFq>>, ppc: @PPrecompute<TFq>
     ) -> F034<TFq>;
-    fn scale_fq2(ref self: TCurve, a: Fq2<TFq>, x: TFq) -> Fq2<TFq>;
-    fn conjugate_fq2(ref self: TCurve, a: Fq2<TFq>) -> Fq2<TFq>;
 
     // region point operations
     fn step_dbl_add(
@@ -71,8 +69,8 @@ pub impl PairingUtils<
     #[inline(always)]
     fn line_fn_at_p(ref self: TCurve, line: LineFn<Fq2<TFq>>, ppc: @PPrecompute<TFq>) -> F034<TFq> {
         F034 {
-            c3: self.scale_fq2(line.slope, *ppc.neg_x_over_y),
-            c4: self.scale_fq2(line.c, *ppc.y_inv),
+            c3: fq2_scale(ref self, line.slope, *ppc.neg_x_over_y),
+            c4: fq2_scale(ref self, line.c, *ppc.y_inv),
         }
     }
 
@@ -83,19 +81,9 @@ pub impl PairingUtils<
         // 𝝺x - y
         let c = self.sub(self.mul(slope, s.x), s.y);
         F034 {
-            c3: self.scale_fq2(slope, *ppc.neg_x_over_y), // 𝝺x/y
-            c4: self.scale_fq2(c, *ppc.y_inv), // c/y
+            c3: fq2_scale(ref self, slope, *ppc.neg_x_over_y), // 𝝺x/y
+            c4: fq2_scale(ref self, c, *ppc.y_inv), // c/y
         }
-    }
-
-    // Maybe there's a better place for these functions, here for now
-    fn scale_fq2(ref self: TCurve, a: Fq2<TFq>, x: TFq) -> Fq2<TFq> {
-        let Fq2 { c0, c1 } = a;
-        Fq2 { c0: self.mul(x, c0), c1: self.mul(x, c1) }
-    }
-    fn conjugate_fq2(ref self: TCurve, a: Fq2<TFq>) -> Fq2<TFq> {
-        let Fq2 { c0, c1 } = a;
-        Fq2 { c0, c1: self.neg(c1) }
     }
 
     // https://eprint.iacr.org/2022/1162 (Section 6.1)
@@ -177,13 +165,14 @@ pub impl PairingUtils<
         // πₚ(x,y) = (xp,yp)
         // Q1 = π(Q)
         let q1 = Affine {
-            x: self.mul(self.conjugate_fq2(q.x), pi_map.PiQ1X2),
-            y: self.mul(self.conjugate_fq2(q.y), pi_map.PiQ1X3),
+            x: self.mul(fq2_conjugate(ref self, q.x), pi_map.PiQ1X2),
+            y: self.mul(fq2_conjugate(ref self, q.y), pi_map.PiQ1X3),
         };
 
         // Q2 = -π²(Q)
         let q2 = Affine {
-            x: self.scale_fq2(q.x, pi_map.PiQ2X2), y: self.neg(self.scale_fq2(q.y, pi_map.PiQ2X3)),
+            x: fq2_scale(ref self, q.x, pi_map.PiQ2X2),
+            y: self.neg(fq2_scale(ref self, q.y, pi_map.PiQ2X3)),
         };
 
         // Line 10: if u < 0 then T ← −T, f ← fp6
