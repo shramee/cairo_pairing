@@ -1,4 +1,7 @@
 pub mod common;
+pub mod frobenius;
+
+pub use frobenius::{Frobenius1To3, FrobeniusFq12Maps, FrobeniusFq6Maps};
 
 #[derive(Copy, Drop, Serde)]
 pub struct Fq2<T> {
