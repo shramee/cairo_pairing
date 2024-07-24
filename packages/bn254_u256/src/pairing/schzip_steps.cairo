@@ -1,9 +1,9 @@
 use schwartz_zippel::eval::SchZipEvalTrait;
 use bn254_u256::curve::{ROOT_27TH, ROOT_27TH_SQ};
-use bn254_u256::print::{FqDisplay};
+use bn254_u256::print::{FqDisplay, F034Display, Fq12Display, FqD12Display};
 use bn254_u256::{
-    direct_f034, Fq, Fq2, Fq3, Fq6, Fq12, FqD12, FqD4, scale_9, Bn254U256Curve, Bn254FqOps,
-    SZCommitment, SZCommitmentAccumulator
+    direct_f034, direct_to_tower_fq12, Fq, Fq2, Fq3, Fq6, Fq12, FqD12, FqD4, scale_9,
+    Bn254U256Curve, Bn254FqOps, SZCommitment, SZCommitmentAccumulator
 };
 use schwartz_zippel::{SchZipSteps, SchZipEval, Lines, FS034, F034X2, LinesDbl, Residue};
 use pairing::{CubicScale};
@@ -43,7 +43,8 @@ fn acc_equation_lhs_rem(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, 
 
 pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq, FqD12> {
     fn sz_init(ref self: Curve, sz: @SZCommitment, ref sz_acc: SZCAcc, ref f: FqD12) { //
-    // Compute next remainder
+        // Compute remainder for the first step
+        sz_acc.rem_cache = self.eval_fq12(f, sz.fiat_shamir_powers);
     }
 
     // Handles Schwartz Zippel verification for zero `O` bits,
@@ -137,8 +138,9 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         acc_mul_eval_034_x3(ref self, (l10, l20, l30), ref eval, sz.fiat_shamir_powers);
         acc_mul_eval_034_x3(ref self, (l11, l21, l31), ref eval, sz.fiat_shamir_powers);
 
+        f = *sz.remainders.at(sz_acc.index);
         // accumulate equation and remainder
-        acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval)
+        acc_equation_lhs_rem(ref self, sz, ref sz_acc, eval);
     }
 
     // Handles Schwartz Zippel verification for post miller operation,
@@ -162,7 +164,7 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         cubic_scale: CubicScale
     ) {
         let fiat_shamir = sz.fiat_shamir_powers;
-        // init eval as a square of previous remainder evaluation cache
+        // init eval from previous remainder evaluation cache
         let mut eval = sz_acc.rem_cache;
 
         // eval and accumulate alpha_beta, r_pow_q, r_inv_q2, r_pow_q3
@@ -170,7 +172,6 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         acc_mul_eval_12(ref self, r_pow_q, ref eval, fiat_shamir);
         acc_mul_eval_12(ref self, r_inv_q2, ref eval, fiat_shamir);
         acc_mul_eval_12(ref self, r_pow_q3, ref eval, fiat_shamir);
-
         match cubic_scale {
             CubicScale::Zero => {},
             CubicScale::One => {
@@ -186,7 +187,6 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
                 eval = self.mul(eval, cubic_scale);
             },
         };
-
         // accumulate equation and remainder
         // remainder is one
         eval = self.sub(eval, 1_u256.into());
@@ -209,17 +209,18 @@ pub impl Bn254SchwartzZippelSteps of SchZipSteps<Curve, SZCommitment, SZCAcc, Fq
         witness: FqD12,
         witness_inv: FqD12,
     ) -> bool {
-        // println!("sz_verify: {}", sz_acc.index);
         // witness * witness_inv = 1 + q * p12
         // or, isolating q again,
         // witness * witness_inv - 1 = q * p12
         let mut eval = self.eval_fq12(witness, sz.fiat_shamir_powers); // witness
         acc_mul_eval_12(ref self, witness_inv, ref eval, sz.fiat_shamir_powers); // witness_inv
+
         eval = self.sub(eval, 1_u256.into());
         // This is a separate verification and shouldn't change remainder
         acc_equation_eval(ref self, sz, ref sz_acc, eval);
 
         let qrlc = self.eval_poly(sz.qrlc, sz.fiat_shamir_powers);
+        let qrlc = self.mul(qrlc, *sz.p12_x);
         sz_acc.rhs_lhs == qrlc
     }
 }
