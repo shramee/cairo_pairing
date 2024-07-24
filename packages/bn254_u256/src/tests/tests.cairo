@@ -10,7 +10,7 @@ fn verify() {
     let (_f, residue_witness, residue_witness_inv, _, cubic_scale) = residue_witness();
     let (remainders, q_rlc_sum) = schzip();
 
-    schzip_verify(
+    let _verified = schzip_verify(
         ref curve,
         pi_a,
         pi_b,
@@ -23,5 +23,5 @@ fn verify() {
         remainders,
         q_rlc_sum
     );
-    assert(true, '');
+    assert(_verified, 'verification failed');
 }

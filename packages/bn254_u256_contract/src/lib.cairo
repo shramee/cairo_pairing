@@ -56,19 +56,22 @@ mod BN_Pairing {
             schzip_qrlc: Array<Fq>,
         ) {
             let mut curve = bn254_curve();
-            schzip_verify(
-                ref curve,
-                pi_a,
-                pi_b,
-                pi_c,
-                inputs,
-                residue_witness,
-                residue_witness_inv,
-                cubic_scale,
-                setup,
-                schzip_remainders,
-                schzip_qrlc,
-            )
+            assert(
+                schzip_verify(
+                    ref curve,
+                    pi_a,
+                    pi_b,
+                    pi_c,
+                    inputs,
+                    residue_witness,
+                    residue_witness_inv,
+                    cubic_scale,
+                    setup,
+                    schzip_remainders,
+                    schzip_qrlc,
+                ),
+                'verification failed'
+            );
         }
     }
 }
