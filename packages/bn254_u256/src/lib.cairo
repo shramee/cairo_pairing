@@ -9,12 +9,20 @@ pub mod pairing {
     pub mod schzip_steps;
 }
 
+pub mod fixtures {
+    pub mod lines_fix;
+    pub mod proof_fix;
+    pub mod schzip_fix;
+    pub use proof_fix::{circuit_setup, residue_witness, proof};
+    pub use schzip_fix::{schzip};
+}
+
 #[cfg(test)]
 mod tests {
     pub mod curve;
     pub mod tests;
     pub mod test_pairing_utils;
-    pub mod fixtures;
+    pub use super::fixtures;
 }
 
 use fq_types::{
