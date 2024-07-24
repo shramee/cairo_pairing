@@ -68,7 +68,7 @@ pub impl Fq2Display of Display<Fq2> {
 
 pub impl G1Display of Display<PtG1> {
     fn fmt(self: @PtG1, ref f: Formatter) -> Result<(), Error> {
-        write!(f, "g2({},{}\n),", self.x, self.y)
+        write!(f, "g1({},{}\n),", self.x, self.y)
     }
 }
 

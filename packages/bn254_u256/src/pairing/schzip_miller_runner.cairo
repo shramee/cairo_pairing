@@ -1,7 +1,7 @@
 use pairing::{LineFn, LinesArrayGet, FixedPointLines};
 use pairing::{PairingUtils};
 use bn254_u256::{Fq, Fq2, fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
-use bn254_u256::print::{FqDisplay, G2Display};
+use bn254_u256::print::{FqDisplay, G2Display, G1Display};
 use bn254_u256::pairing::utils::{
     LnArrays, SZCommitment, SZCommitmentAccumulator, SZPreCompute, SZAccumulator as Accumulator,
     LnFn
@@ -21,6 +21,7 @@ pub impl Miller_Bn254_U256<
     fn miller_bit_1_2(
         ref self: Curve, runner: @PreCompute<TSchZip>, i: (u32, u32), ref acc: Accumulator
     ) { //
+        self.sz_init(runner.schzip, ref acc.schzip, ref acc.f);
         let (i1, i2) = i;
         self.miller_bit_o(runner, i1, ref acc);
         self.miller_bit_n(runner, i2, ref acc);

@@ -1,7 +1,7 @@
 use fq_types::FieldOps;
 use ec_groups::ECOperations;
 pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
-use bn254_u256::print::{FqDisplay};
+use bn254_u256::print::{FqDisplay, G1Display, G2Display};
 use bn254_u256::{
     fq, Fq, Fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{
@@ -47,8 +47,6 @@ fn schzip_miller<
     let Groth16Circuit { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
     let k: PtG1 = curve.process_inputs_and_ic(ic, inputs);
-
-    let pi_a = curve.pt_neg(pi_a);
 
     // build precompute
     let p = Groth16MillerG1 { pi_a, pi_c, k, };
@@ -129,7 +127,6 @@ pub fn prepare_sz_commitment(
         rem_coeff_i += 1;
     };
     let remainders_fiat_shamir_felt = hasher.finalize();
-    // println!("remainders_fiat_shamir_felt: {}", remainders_fiat_shamir_felt);
     let remainders_fiat_shamir: u256 = remainders_fiat_shamir_felt.into();
     core::internal::revoke_ap_tracking();
 
@@ -164,7 +161,7 @@ pub fn prepare_sz_commitment(
 }
 
 pub fn fs_pow(ref curve: Bn254U256Curve, x: Fq, powers: u32) -> Array<Fq> {
-    let mut arr: Array<Fq> = array![0_u256.into(), x];
+    let mut arr: Array<Fq> = array![1_u256.into(), x];
     let mut i = 1;
     let powers = powers / 2;
     while i != powers {
@@ -188,7 +185,8 @@ pub fn schzip_verify(
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
     schzip_remainders: Array<FqD12>,
     schzip_qrlc: Array<Fq>,
-) { // let p = fs_pow(ref curve, fq(2), 6);
+) {
+    // let p = fs_pow(ref curve, fq(2), 6);
     // println!("{} {} {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5]);
     let (sz, sz_acc) = prepare_sz_commitment(ref curve, schzip_remainders, schzip_qrlc);
     let sz_snap = @sz;
