@@ -1,7 +1,7 @@
 use fq_types::FieldOps;
 use ec_groups::ECOperations;
 pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
-use bn254_u256::print::{FqDisplay, G1Display, G2Display};
+use bn254_u256::print::{FqDisplay, Fq12Display, G1Display, G2Display};
 use bn254_u256::{
     fq, Fq, Fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{
@@ -68,11 +68,11 @@ fn schzip_miller<
 
     core::internal::revoke_ap_tracking();
     let frobenius_maps = fq12_frobenius_map();
-    let witness_dir = direct_to_tower_fq12(ref curve, residue_witness);
-    let witness_inv_dir = direct_to_tower_fq12(ref curve, residue_witness_inv);
-    let r_pow_q = curve.frob1(witness_dir, @frobenius_maps);
-    let r_inv_q2 = curve.frob2(witness_inv_dir, @frobenius_maps);
-    let r_pow_q3 = curve.frob3(witness_dir, @frobenius_maps);
+    let witness_fq12 = direct_to_tower_fq12(ref curve, residue_witness);
+    let witness_inv_fq12 = direct_to_tower_fq12(ref curve, residue_witness_inv);
+    let r_pow_q = curve.frob1(witness_inv_fq12, @frobenius_maps);
+    let r_inv_q2 = curve.frob2(witness_fq12, @frobenius_maps);
+    let r_pow_q3 = curve.frob3(witness_inv_fq12, @frobenius_maps);
 
     curve
         .sz_final(
@@ -185,7 +185,7 @@ pub fn schzip_verify(
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
     schzip_remainders: Array<FqD12>,
     schzip_qrlc: Array<Fq>,
-) {
+) -> bool {
     // let p = fs_pow(ref curve, fq(2), 6);
     // println!("{} {} {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5]);
     let (sz, sz_acc) = prepare_sz_commitment(ref curve, schzip_remainders, schzip_qrlc);
@@ -206,5 +206,5 @@ pub fn schzip_verify(
         sz_acc
     );
 
-    curve.sz_verify(sz_snap, ref acc.schzip, acc.f, residue_witness, residue_witness_inv,);
+    curve.sz_verify(sz_snap, ref acc.schzip, acc.f, residue_witness, residue_witness_inv,)
 }
