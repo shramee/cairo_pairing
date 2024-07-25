@@ -4,9 +4,11 @@ pub mod utils;
 pub mod print;
 pub mod pairing {
     pub mod utils;
-    pub mod schzip_miller_runner;
-    pub mod schzip_miller;
-    pub mod schzip_steps;
+    pub mod schzip {
+        pub mod miller_runner;
+        pub mod miller;
+        pub mod steps;
+    }
 }
 
 pub mod fixtures {
@@ -54,10 +56,10 @@ pub use pairing::{
         {ICProcess, ICArrayInput, LnArrays},
         {SZCommitment, SZPreCompute, SZAccumulator, SZCommitmentAccumulator}
     },
-    schzip_miller::{
+    schzip::miller::{
         schzip_verify, InputConstraintPoints, PPrecompute,
         {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
     },
-    schzip_steps::Bn254SchwartzZippelSteps,
-    schzip_miller_runner::{Miller_Bn254_U256, PiMapping, pi_mapping},
+    schzip::steps::Bn254SchwartzZippelSteps,
+    schzip::miller_runner::{Miller_Bn254_U256, PiMapping, pi_mapping},
 };

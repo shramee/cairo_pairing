@@ -5,7 +5,7 @@ use bn254_u256::print::{FqDisplay, Fq12Display, G1Display, G2Display};
 use bn254_u256::{
     fq, Fq, Fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{
-        schzip_miller_runner::Miller_Bn254_U256,
+        schzip::miller_runner::Miller_Bn254_U256,
         utils::{
             SZCommitment, SZPreCompute, SZCommitmentAccumulator, SZAccumulator, LnArrays,
             ICArrayInput
