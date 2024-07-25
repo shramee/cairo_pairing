@@ -22,6 +22,7 @@ trait IBN_Pairing<T> {
         schzip_remainders: Array<FqD12>,
         schzip_qrlc: Array<Fq>,
     );
+    fn groth16_verification(ref self: T);
 }
 
 #[starknet::contract]
@@ -33,6 +34,7 @@ mod BN_Pairing {
             InputConstraintPoints
         }
     };
+    use bn254_u256::fixtures::{circuit_setup, residue_witness, proof, schzip};
 
     #[storage]
     struct Storage {}
@@ -72,6 +74,29 @@ mod BN_Pairing {
                 ),
                 'verification failed'
             );
+        }
+
+        fn groth16_verification(ref self: ContractState,) {
+            let mut curve = bn254_curve();
+            let (pi_a, pi_b, pi_c, input, _) = proof();
+            let circuit = circuit_setup();
+            let (_f, residue_witness, residue_witness_inv, _, cubic_scale) = residue_witness();
+            let (remainders, q_rlc_sum) = schzip();
+
+            let _verified = schzip_verify(
+                ref curve,
+                pi_a,
+                pi_b,
+                pi_c,
+                array![input],
+                residue_witness,
+                residue_witness_inv,
+                cubic_scale,
+                circuit,
+                remainders,
+                q_rlc_sum
+            );
+            assert(_verified, 'verification failed');
         }
     }
 }
