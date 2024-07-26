@@ -30,7 +30,8 @@ mod tests {
 use fq_types::{
     Fq2 as Fq2Gen, Fq3, F12S034, Fq12Direct, Fq4Direct, fq3, Fq2PartialEq, Fq3PartialEq,
 };
-pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale, bn254_curve};
+pub use curve::{Bn254U256Curve, PtG1, PtG2, AffineOpsBn, CubicScale, PiMapping};
+pub use curve::{bn254_curve, pi_mapping};
 
 // Frobenius maps
 pub use curve::fq12_frobenius_map;
@@ -60,6 +61,5 @@ pub use pairing::{
         schzip_verify, InputConstraintPoints, PPrecompute,
         {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
     },
-    schzip::steps::Bn254SchwartzZippelSteps,
-    schzip::miller_runner::{Miller_Bn254_U256, PiMapping, pi_mapping},
+    schzip::steps::Bn254SchwartzZippelSteps, schzip::miller_runner::Miller_Bn254_U256
 };

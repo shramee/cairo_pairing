@@ -1,12 +1,13 @@
 use pairing::{LineFn, LinesArrayGet, FixedPointLines};
-use pairing::{PairingUtils};
-use bn254_u256::{Fq, Fq2, fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve};
-use bn254_u256::print::{FqDisplay, G2Display, G1Display};
-use bn254_u256::pairing::utils::{
-    LnArrays, SZCommitment, SZCommitmentAccumulator, SZPreCompute, SZAccumulator as Accumulator,
-    LnFn
+use pairing::{PairingUtils, PiMapping};
+use bn254_u256::{
+    {Fq, Fq2, fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve as Curve,},
+    print::{FqDisplay, G2Display, G1Display}, pi_mapping,
+    pairing::utils::{
+        LnArrays, LnFn,
+        {SZCommitment, SZCommitmentAccumulator, SZPreCompute, SZAccumulator as Accumulator}
+    }
 };
-pub use pairing::PiMapping;
 use bn_ate_loop::MillerRunner;
 use schwartz_zippel::SchZipSteps;
 
@@ -84,45 +85,5 @@ pub impl Miller_Bn254_U256<
 
         let (l2, l3) = g16.lines.with_fxd_pt_lines(ref self, g16.ppc, ref acc.line_index);
         self.sz_last_step(runner.schzip, ref acc.schzip, ref acc.f, (l1, l2, l3));
-    }
-}
-
-pub fn pi_mapping() -> PiMapping<Fq> {
-    // π (Pi) - Untwist-Frobenius-Twist Endomorphisms on twisted curves
-    // -----------------------------------------------------------------
-    // BN254_Snarks is a D-Twist: pi1_coef1 = ξ^((p-1)/6)
-    // https://github.com/mratsim/constantine/blob/976c8bb215a3f0b21ce3d05f894eb506072a6285/constantine/math/constants/bn254_snarks_frobenius.nim#L131
-    // In the link above this is referred to as ψ (Psi)
-
-    // pi2_coef3 is always -1 (mod p^m) with m = embdeg/twdeg
-    // Recap, with ξ (xi) the sextic non-residue for D-Twist or 1/SNR for M-Twist
-    // pi_2 ≡ ξ^((p-1)/6)^2 ≡ ξ^(2(p-1)/6) ≡ ξ^((p-1)/3)
-    // pi_3 ≡ pi_2 * ξ^((p-1)/6) ≡ ξ^((p-1)/3) * ξ^((p-1)/6) ≡ ξ^((p-1)/2)
-
-    // -----------------------------------------------------------------
-    // for πₚ mapping
-
-    // Fp2::NONRESIDUE^(2((q^1) - 1) / 6)
-    let Q1X2_0 = 0x2fb347984f7911f74c0bec3cf559b143b78cc310c2c3330c99e39557176f553d;
-    let Q1X2_1 = 0x16c9e55061ebae204ba4cc8bd75a079432ae2a1d0b7c9dce1665d51c640fcba2;
-
-    // Fp2::NONRESIDUE^(3((q^1) - 1) / 6)
-    let Q1X3_0 = 0x63cf305489af5dcdc5ec698b6e2f9b9dbaae0eda9c95998dc54014671a0135a;
-    let Q1X3_1 = 0x7c03cbcac41049a0704b5a7ec796f2b21807dc98fa25bd282d37f632623b0e3;
-
-    // -----------------------------------------------------------------
-    // for π² mapping
-
-    // Fp2::NONRESIDUE^(2(p^2-1)/6)
-    let PiQ2X2: Fq = 0x30644e72e131a0295e6dd9e7e0acccb0c28f069fbb966e3de4bd44e5607cfd48_u256.into();
-    // Fp2::NONRESIDUE^(3(p^2-1)/6)
-    let PiQ2X3: Fq = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd46_u256.into();
-
-    PiMapping {
-        PiQ1X2: fq2(Q1X2_0, Q1X2_1,), // Fp2::NONRESIDUE^(2((q^1) - 1) / 6)
-        PiQ1X3: fq2(Q1X3_0, Q1X3_1,), // Fp2::NONRESIDUE^(3((q^1) - 1) / 6)
-        // for π² mapping
-        PiQ2X2, // Fp2::NONRESIDUE^(2(p^2-1)/6)
-        PiQ2X3, // Fp2::NONRESIDUE^(3(p^2-1)/6)
     }
 }
