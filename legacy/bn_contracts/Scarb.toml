@@ -1,0 +1,9 @@
+[package]
+name = "bn_contracts"
+version.workspace = true
+
+[dependencies]
+bn = { path = "../bn_legacy" }
+starknet = "2.5.0"
+
+[[target.starknet-contract]]
