@@ -1,13 +1,13 @@
 use fq_types::FieldOps;
 use ec_groups::ECOperations;
-pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
+pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16Precompute, Groth16Circuit};
 use bn254_u256::print::{FqDisplay, Fq12Display, G1Display, G2Display};
 use bn254_u256::{
     fq, Fq, Fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{
         schzip::miller_runner::Miller_Bn254_U256,
         utils::{
-            SZCommitment, SZPreCompute, SZCommitmentAccumulator, SZAccumulator, LnArrays,
+            SZCommitment, SZPrecompute, SZCommitmentAccumulator, SZAccumulator, LnArrays,
             ICArrayInput
         },
     },
@@ -48,16 +48,16 @@ fn schzip_miller<
 
     let k: PtG1 = curve.process_inputs_and_ic(ic, inputs);
 
-    // build precompute
+    // build Precompute
     let p = Groth16MillerG1 { pi_a, pi_c, k, };
     let q = Groth16MillerG2 { pi_b, gamma, delta };
     let neg_q = Groth16MillerG2 { pi_b: curve.pt_neg(pi_b), gamma: gamma_neg, delta: delta_neg };
     let ppc = Groth16MillerG1 {
         pi_a: curve.p_precompute(pi_a), pi_c: curve.p_precompute(pi_c), k: curve.p_precompute(k),
     };
-    let g16 = Groth16PreCompute { p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, };
+    let g16 = Groth16Precompute { p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, };
 
-    let precomp = SZPreCompute { g16, schzip, };
+    let precomp = SZPrecompute { g16, schzip, };
 
     // miller accumulator
     let mut q_acc = SZAccumulator {
@@ -172,6 +172,7 @@ pub fn fs_pow(ref curve: Bn254U256Curve, x: Fq, powers: u32) -> Array<Fq> {
     };
     arr
 }
+
 // Does the verification
 pub fn schzip_verify(
     ref curve: Bn254U256Curve,

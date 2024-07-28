@@ -55,11 +55,11 @@ pub type F034 = F12S034<Fq2>;
 pub use pairing::{
     utils::{
         {ICProcess, ICArrayInput, LnArrays},
-        {SZCommitment, SZPreCompute, SZAccumulator, SZCommitmentAccumulator}
+        {SZCommitment, SZPrecompute, SZAccumulator, SZCommitmentAccumulator}
     },
     schzip::miller::{
         schzip_verify, InputConstraintPoints, PPrecompute,
-        {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
+        {Groth16MillerG1, Groth16MillerG2, Groth16Precompute, Groth16Circuit}
     },
     schzip::steps::Bn254SchwartzZippelSteps, schzip::miller_runner::Miller_Bn254_U256
 };

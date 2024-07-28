@@ -3,7 +3,7 @@ pub mod lines;
 pub mod utils;
 
 pub use types::{
-    PPrecompute, Groth16Circuit, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, CubicScale
+    PPrecompute, Groth16Circuit, Groth16MillerG1, Groth16MillerG2, Groth16Precompute, CubicScale
 };
 pub use utils::{PairingUtils, PairingUtilsTrait, PiMapping};
 pub use lines::{

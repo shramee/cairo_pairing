@@ -5,22 +5,22 @@ use bn254_u256::{
     print::{FqDisplay, G2Display, G1Display}, pi_mapping,
     pairing::utils::{
         LnArrays, LnFn,
-        {SZCommitment, SZCommitmentAccumulator, SZPreCompute, SZAccumulator as Accumulator}
+        {SZCommitment, SZCommitmentAccumulator, SZPrecompute, SZAccumulator as Accumulator}
     }
 };
 use bn_ate_loop::MillerRunner;
 use schwartz_zippel::SchZipSteps;
 
-type PreCompute<TSchZip> = SZPreCompute<LnArrays, TSchZip>;
+type Precompute<TSchZip> = SZPrecompute<LnArrays, TSchZip>;
 
 // TODO: +SchZipSteps<Curve, TCommitment, Fq>
 
 pub impl Miller_Bn254_U256<
     TSchZip, +SchZipSteps<Curve, TSchZip, SZCommitmentAccumulator, Fq, FqD12>
-> of MillerRunner<Curve, PreCompute<TSchZip>, Accumulator> {
+> of MillerRunner<Curve, Precompute<TSchZip>, Accumulator> {
     // first and second step, O and N
     fn miller_bit_1_2(
-        ref self: Curve, runner: @PreCompute<TSchZip>, i: (u32, u32), ref acc: Accumulator
+        ref self: Curve, runner: @Precompute<TSchZip>, i: (u32, u32), ref acc: Accumulator
     ) { //
         self.sz_init(runner.schzip, ref acc.schzip, ref acc.f);
         let (i1, i2) = i;
@@ -30,7 +30,7 @@ pub impl Miller_Bn254_U256<
 
     // 0 bit
     fn miller_bit_o(
-        ref self: Curve, runner: @PreCompute<TSchZip>, i: u32, ref acc: Accumulator
+        ref self: Curve, runner: @Precompute<TSchZip>, i: u32, ref acc: Accumulator
     ) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
@@ -42,7 +42,7 @@ pub impl Miller_Bn254_U256<
     }
 
     // 1 bit
-    fn miller_bit_p(ref self: Curve, runner: @PreCompute<TSchZip>, i: u32, ref acc: Accumulator) {
+    fn miller_bit_p(ref self: Curve, runner: @Precompute<TSchZip>, i: u32, ref acc: Accumulator) {
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
@@ -58,7 +58,7 @@ pub impl Miller_Bn254_U256<
 
     // -1 bit
     fn miller_bit_n(
-        ref self: Curve, runner: @PreCompute<TSchZip>, i: u32, ref acc: Accumulator
+        ref self: Curve, runner: @Precompute<TSchZip>, i: u32, ref acc: Accumulator
     ) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
@@ -75,7 +75,7 @@ pub impl Miller_Bn254_U256<
     }
 
     // last step
-    fn miller_last(ref self: Curve, runner: @PreCompute<TSchZip>, ref acc: Accumulator) { //
+    fn miller_last(ref self: Curve, runner: @Precompute<TSchZip>, ref acc: Accumulator) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
