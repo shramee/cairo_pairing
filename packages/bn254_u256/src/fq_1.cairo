@@ -2,7 +2,7 @@ pub use fq_types::{FieldOps, FieldOpsExtended, FieldUtils};
 pub use fast_mod::{add, sub, mul_nz, sqr_nz, div_nz, inv, neg, scl_nz};
 pub use bn254_u256::Bn254U256Curve;
 
-#[derive(Copy, Drop, Serde, Debug)]
+#[derive(Copy, Drop, Serde, Debug, starknet::Store)]
 pub struct Fq {
     pub c0: u256,
 }
