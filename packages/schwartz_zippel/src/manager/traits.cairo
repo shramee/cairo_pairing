@@ -4,10 +4,17 @@
 
 pub use fq_types::{Fq12Direct, Fq4Direct};
 use fq_types::{FieldOps, FieldUtils};
+use schwartz_zippel::Lines;
 
 pub trait SchZipManagerTrait<TCurve, TFq, TSchZip> {
+    // initiates schwartz zippel manager
+    fn init(ref self: TSchZip, ref curve: TCurve);
+
     // initiates an equation for verification
-    fn start_equation(ref self: TSchZip, ref curve: TCurve, initial_acc: TFq);
+    fn start_equation(ref self: TSchZip, ref curve: TCurve, val_fq12: Fq12Direct<TFq>);
+
+    // initiates an equation for verification
+    fn start_equation_sq(ref self: TSchZip, ref curve: TCurve, val_fq12: Fq12Direct<TFq>);
 
     // evaluate and accumulate Fq12 for verification
     fn mul_fq12(ref self: TSchZip, ref curve: TCurve, val_fq12: Fq12Direct<TFq>);

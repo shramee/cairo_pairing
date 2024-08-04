@@ -1,10 +1,13 @@
 pub use fq_types::{Fq12Direct, Fq4Direct};
 use fq_types::{FieldOps, FieldUtils};
-use schwartz_zippel::{SchZipManagerTrait, SchZipEvalTrait};
+use schwartz_zippel::{Lines, SchZipManagerTrait, SchZipEvalTrait};
 
+#[derive(Drop)]
 pub struct SchZipQRRLC<TFq> {
-    pub fiat_shamir: Array<TFq>,
-    pub rlc: Array<TFq>,
+    pub remainders: @Array<Fq12Direct<TFq>>,
+    pub qrlc: @Array<Fq>,
+    pub fiat_shamir: @Array<TFq>,
+    pub rlc: @Array<TFq>,
     pub eq_count: u32,
     pub eq_acc: TFq,
     pub acc: TFq,
@@ -20,11 +23,17 @@ pub impl SchZipManagerQuoRemRLC<
     +Drop<TFq>
 > of SchZipManagerTrait<TCurve, TFq, SchZipQRRLC<TFq>> {
     // initiates an equation for verification
+    fn init(ref self: SchZipQRRLC<TFq>, ref curve: TCurve) {}
+
     fn start_equation(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, initial_acc: TFq) {
         self.eq_acc = initial_acc;
     }
 
     // evaluate and accumulate Fq12 for verification
+    fn start_equation_sq(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, initial_acc: TFq) {
+        self.eq_acc = curve.sqr(initial_acc);
+    }
+
     fn mul_fq12(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, val_fq12: Fq12Direct<TFq>) { //
         self.eq_acc = curve.mul(self.eq_acc, curve.eval_fq12(val_fq12, @self.fiat_shamir));
     }
