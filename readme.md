@@ -9,7 +9,7 @@
 
 ## Base implementation
 
-Base implementation follows from these papers,
+Base implementation follows from these papers/writeups,
 
 1. Field extensions arithmetic
 	- Multiplication and Squaring on Pairing-Friendly Fields
@@ -35,6 +35,10 @@ Base implementation follows from these papers,
 	- Pairings in Rank-1 Constraint Systems
 	- https://ia.cr/2022/1162
 	- Youssef El Housni, École Polytechnique, ConsenSyS R&D
+7. Extremely well documented verification code putting everything in perspective
+    - Constantine: modular, high-performance, zero-dependency cryptography stack
+    - https://github.com/mratsim/constantine
+    - Mamy Ratsimbazafy
 
 
 ## Residue witness
