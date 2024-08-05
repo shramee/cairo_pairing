@@ -4,13 +4,24 @@ use schwartz_zippel::{Lines, SchZipManagerTrait, SchZipEvalTrait};
 
 #[derive(Drop)]
 pub struct SchZipQRRLC<TFq> {
-    pub remainders: @Array<Fq12Direct<TFq>>,
-    pub qrlc: @Array<Fq>,
-    pub fiat_shamir: @Array<TFq>,
-    pub rlc: @Array<TFq>,
-    pub eq_count: u32,
+    // commitment, fiat shamir and rlc data
+    pub lookup: @SchZipQRRLCPrecompute<TFq>,
+    // temporary equation rhs evaluation
     pub eq_acc: TFq,
+    // index of equation (remainder) being processed, used for rlc
+    pub eq_count: u32,
+    // accumulation of all equation rhs and lhs to compare against qrlc
     pub acc: TFq,
+    // remainder cache for next equation
+    pub rem_cache: TFq,
+}
+
+#[derive(Drop)]
+pub struct SchZipQRRLCPrecompute<TFq> {
+    pub remainders: Array<Fq12Direct<TFq>>,
+    pub qrlc: Array<TFq>,
+    pub fiat_shamir: Array<TFq>,
+    pub rlc: Array<TFq>,
 }
 
 pub impl SchZipManagerQuoRemRLC<
@@ -25,27 +36,27 @@ pub impl SchZipManagerQuoRemRLC<
     // initiates an equation for verification
     fn init(ref self: SchZipQRRLC<TFq>, ref curve: TCurve) {}
 
-    fn start_equation(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, initial_acc: TFq) {
-        self.eq_acc = initial_acc;
+    fn start_equation(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, val_fq12: Fq12Direct<TFq>) {
+        self.eq_acc = self.rem_cache;
     }
 
     // evaluate and accumulate Fq12 for verification
-    fn start_equation_sq(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, initial_acc: TFq) {
-        self.eq_acc = curve.sqr(initial_acc);
+    fn start_equation_sq(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, val_fq12: Fq12Direct<TFq>) {
+        self.eq_acc = curve.sqr(self.rem_cache);
     }
 
     fn mul_fq12(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, val_fq12: Fq12Direct<TFq>) { //
-        self.eq_acc = curve.mul(self.eq_acc, curve.eval_fq12(val_fq12, @self.fiat_shamir));
+        self.eq_acc = curve.mul(self.eq_acc, curve.eval_fq12(val_fq12, self.lookup.fiat_shamir));
     }
 
     // evaluate and accumulate Fq034 for verification
     fn mul_f1379(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, val_f1379: Fq4Direct<TFq>) {
-        self.eq_acc = curve.mul(self.eq_acc, curve.eval_f1379(val_f1379, @self.fiat_shamir));
+        self.eq_acc = curve.mul(self.eq_acc, curve.eval_f1379(val_f1379, self.lookup.fiat_shamir));
     }
 
     // evaluate and accumulate arbitrary polynomial for verification
     fn mul_poly(ref self: SchZipQRRLC<TFq>, ref curve: TCurve, poly: Array<TFq>) {
-        self.eq_acc = curve.mul(self.eq_acc, curve.eval_poly(@poly, @self.fiat_shamir));
+        self.eq_acc = curve.mul(self.eq_acc, curve.eval_poly(@poly, self.lookup.fiat_shamir));
     }
 
     // subtract evaluation from equation
@@ -56,7 +67,7 @@ pub impl SchZipManagerQuoRemRLC<
     // equation completed, store for verification
     fn finish_equation(ref self: SchZipQRRLC<TFq>, ref curve: TCurve) { //
         self.eq_count += 1;
-        let eq_acc = curve.mul(self.eq_acc, *self.rlc.at(self.eq_count));
+        let eq_acc = curve.mul(self.eq_acc, *self.lookup.rlc.at(self.eq_count));
         self.acc = curve.add(self.acc, eq_acc);
     }
 
