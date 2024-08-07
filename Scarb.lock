@@ -44,6 +44,10 @@ name = "cairo_pairing"
 version = "0.1.0"
 
 [[package]]
+name = "circuits"
+version = "0.1.0"
+
+[[package]]
 name = "ec_groups"
 version = "0.1.0"
 dependencies = [
