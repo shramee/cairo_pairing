@@ -31,3 +31,6 @@ ktn_expo = "starkli invoke final_exponentiation_bench --account katana --rpc=htt
 ktn_miller = "starkli invoke miller_bench --account katana --rpc=http://localhost:5050"
 # Invokes pairing_bench on input contract address
 ktn_pair = "starkli invoke pairing_bench --account katana --rpc=http://localhost:5050"
+
+[dev-dependencies]
+cairo_test = "2.7.0"
