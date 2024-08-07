@@ -2,6 +2,7 @@ use core::result::{Result, ResultTrait};
 use super::{utils as u, reduce};
 use u::{u128_overflowing_add, u128_overflowing_sub, u256_overflow_sub, u256_wrapping_add};
 use core::integer::u512;
+use core::num::traits::{OverflowingSub, OverflowingAdd};
 use core::panic_with_felt252;
 
 #[inline(always)]
@@ -41,9 +42,10 @@ pub fn add_nz(mut a: u256, mut b: u256, modulo: NonZero<u256>) -> u256 {
 #[inline(always)]
 pub fn add(mut a: u256, mut b: u256, modulo: u256) -> u256 {
     let res = add_u(a, b);
-    match u256_overflow_sub(res, modulo) {
-        Result::Ok(v) => v,
-        Result::Err(_) => res
+    let (v, overflow) = OverflowingSub::overflowing_sub(res, modulo);
+    match overflow {
+        true => res,
+        false => v,
     }
 }
 

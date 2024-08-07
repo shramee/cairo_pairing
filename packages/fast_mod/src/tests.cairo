@@ -31,6 +31,7 @@ use core::option::OptionTrait;
 use core::traits::TryInto;
 use super as f;
 use f::{u512, u512Display};
+use core::num::traits::WideMul;
 
 const PRIME: u256 = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
 const PRIME_NZ: NonZero<u256> = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
@@ -46,6 +47,7 @@ fn mu512(limb0: u128, limb1: u128, limb2: u128, limb3: u128) -> u512 {
 mod bench {
     use core::option::OptionTrait;
     use core::traits::TryInto;
+    use core::num::traits::WideMul;
     use super::{mu512, f};
     use f::{u512};
     use super::{a, b, PRIME, PRIME_NZ};
@@ -291,13 +293,13 @@ fn test_all_mod_ops() {
     assert(scaled_u512.limb3 == 63, 'u512_scl incorrect limb3');
 
     let (scaled_u512, ovf) = f::u512_scl(mu512(1, 2, 3, 4), a.low);
-    let (alowx1_1, alowx1_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 1);
+    let u256 { high: alowx1_1, low: alowx1_0 } = WideMul::wide_mul(a.low, 1);
     assert(scaled_u512.limb0 == alowx1_0, 'u512_scl incorrect limb0');
-    let (alowx2_1, alowx2_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 2);
+    let u256 { high: alowx2_1, low: alowx2_0 } = WideMul::wide_mul(a.low, 2);
     assert(scaled_u512.limb1 == alowx2_0 + alowx1_1, 'u512_scl incorrect limb1');
-    let (alowx3_1, alowx3_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 3);
+    let u256 { high: alowx3_1, low: alowx3_0 } = WideMul::wide_mul(a.low, 3);
     assert(scaled_u512.limb2 == alowx2_1 + alowx3_0, 'u512_scl incorrect limb2');
-    let (alowx4_1, alowx4_0) = f::mul_scale_sqr::u128_wide_mul(a.low, 4);
+    let u256 { high: alowx4_1, low: alowx4_0 } = WideMul::wide_mul(a.low, 4);
     assert(scaled_u512.limb3 == alowx3_1 + alowx4_0, 'u512_scl incorrect limb3');
     assert(ovf == alowx4_1, 'u512_scl incorrect limb3');
 
