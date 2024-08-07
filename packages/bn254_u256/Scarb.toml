@@ -14,4 +14,4 @@ fq_types = { path = "../fq_types" }
 pairing = { path = "../pairing" }
 
 [dev-dependencies]
-cairo_test = "2.7.0"
+cairo_test.workspace = true

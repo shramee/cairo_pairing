@@ -9,7 +9,7 @@ version = "0.1.0"
 cairo-version = "2.6.2"
 
 [workspace.dependencies]
-# cairo_test = "2.7.0-rc.0"
+cairo_test = "2.7.0"
 
 [package]
 name = "cairo_pairing" # the name of the package
@@ -31,6 +31,3 @@ ktn_expo = "starkli invoke final_exponentiation_bench --account katana --rpc=htt
 ktn_miller = "starkli invoke miller_bench --account katana --rpc=http://localhost:5050"
 # Invokes pairing_bench on input contract address
 ktn_pair = "starkli invoke pairing_bench --account katana --rpc=http://localhost:5050"
-
-[dev-dependencies]
-cairo_test = "2.7.0"

@@ -10,4 +10,4 @@ ec_groups = { path = "../ec_groups" }
 fq_types = { path = "../fq_types" }
 
 [dev-dependencies]
-cairo_test = "2.7.0"
+cairo_test.workspace = true
