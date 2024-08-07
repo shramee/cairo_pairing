@@ -4,12 +4,14 @@
 pub use core::integer::u512;
 
 // util functions
+#[feature("corelib-internal-use")]
 pub mod utils;
 pub use utils::{u256_overflow_add, u256_overflow_sub};
 pub use utils::{Tuple2Add, Tuple2Sub, Tuple3Add, Tuple3Sub, u512Display};
 // endregion util functions
 
 // u512_ops
+#[feature("corelib-internal-use")]
 pub mod u512_ops;
 
 pub use u512_ops::{u512_add, u512_add_overflow, u512_sub, u512_sub_overflow,};

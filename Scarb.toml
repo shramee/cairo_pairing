@@ -9,7 +9,7 @@ version = "0.1.0"
 cairo-version = "2.6.2"
 
 [workspace.dependencies]
-# cairo_test = "2.7.0-rc.0"
+cairo_test = "2.7.0"
 
 [package]
 name = "cairo_pairing" # the name of the package

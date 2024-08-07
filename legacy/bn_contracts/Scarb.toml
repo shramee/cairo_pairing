@@ -4,6 +4,6 @@ version.workspace = true
 
 [dependencies]
 bn = { path = "../bn_legacy" }
-starknet = "2.5.0"
+starknet = "2.7.0"
 
 [[target.starknet-contract]]

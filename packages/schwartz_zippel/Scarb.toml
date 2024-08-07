@@ -7,3 +7,6 @@ edition = "2023_11"
 
 [dependencies]
 fq_types = { path = "../fq_types" }
+
+[dev-dependencies]
+cairo_test.workspace = true
