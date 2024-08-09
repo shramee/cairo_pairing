@@ -7,7 +7,7 @@ use bn254_u256::{
     pairing::{
         schzip::miller_runner::Miller_Bn254_U256,
         utils::{
-            SZCommitment, SZPreCompute, SZCommitmentAccumulator, SZAccumulator, LnArrays,
+            SZCommitment, SZMillerRunner, SZCommitmentAccumulator, SZAccumulator, LnArrays,
             ICArrayInput
         },
     },
@@ -57,14 +57,16 @@ fn schzip_miller<
     };
     let g16 = Groth16PreCompute { p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, };
 
-    let precomp = SZPreCompute { g16, schzip, };
-
     // miller accumulator
-    let mut q_acc = SZAccumulator {
+    let mut acc = SZAccumulator {
         f: residue_witness_inv, g2: q, line_index: 0, schzip: schzip_acc
     };
 
-    let mut q_acc = ate_miller_loop(ref curve, @precomp, q_acc);
+    let mut runner = SZMillerRunner { g16: @g16, schzip: @schzip, acc };
+
+    ate_miller_loop(ref curve, ref runner);
+
+    let mut q_acc = runner.acc;
 
     core::internal::revoke_ap_tracking();
     let frobenius_maps = fq12_frobenius_map();
@@ -76,7 +78,7 @@ fn schzip_miller<
 
     curve
         .sz_final(
-            @precomp.schzip,
+            runner.schzip,
             ref q_acc.schzip,
             ref q_acc.f,
             alpha_beta,
@@ -98,13 +100,15 @@ fn hash_fq2(ref hasher: HashState, a: Fq, b: Fq) {
 // Prepares SZ commitment
 // ----------------------
 // Remainders Fiat Shamir is used for RLC (Random Linear Combination).
-// The commitment for Schwartz Zippel lemma includes all remainders and an RLC of all quotients (QRLC).
+// The commitment for Schwartz Zippel lemma includes all remainders and an RLC of all quotients
+// (QRLC).
 // The verifier accumulates all the remainders and RHS from miller loop with same RLC as the QRLC.
 // Quotient terms are accumulated in QRLC for all individual equations, and cannot change the terms
 // of remainders in the final clubbed equation.
 // The terms of remainders are between x^0 to x^11, and QRLC terms are all x^12 and up.
-// This is because the terms in the QRLC are all multiplied by a polynomial of degree 12, x^12 + 18x^6 + 82
-// So  Any changes in the remainders will change the RLC and equation will not be satisfiable with any QRLC.
+// This is because the terms in the QRLC are all multiplied by a polynomial of degree 12, x^12 +
+// 18x^6 + 82 So  Any changes in the remainders will change the RLC and equation will not be
+// satisfiable with any QRLC.
 // Fiat Shamir for the final Schwartz Zippel includes all remainders and QRLC for soundness.
 pub fn prepare_sz_commitment(
     ref curve: Bn254U256Curve, remainders: Array<FqD12>, qrlc: Array<Fq>,
