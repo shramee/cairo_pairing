@@ -5,7 +5,6 @@ pub mod print;
 pub mod pairing {
     pub mod utils;
     pub mod schzip {
-        pub mod miller_runner;
         pub mod miller;
         pub mod steps;
     }
@@ -61,5 +60,5 @@ pub use pairing::{
         schzip_verify, InputConstraintPoints, PPrecompute,
         {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
     },
-    schzip::steps::Bn254SchwartzZippelSteps, schzip::miller_runner::Miller_Bn254_U256
+    schzip::steps::Bn254SchwartzZippelSteps
 };
