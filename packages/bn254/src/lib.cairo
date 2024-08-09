@@ -66,7 +66,8 @@ pub impl Miller_Bn254_U256<
         let ppc = g16.ppc;
         let pi_b = runner.g16.q.pi_b;
 
-        let l1 = self.correction_step(ref runner.acc.g2.pi_b, *pi_b, pi_mapping(), ppc.pi_a);
+        let l1 = self
+            .correction_step(ref runner.acc.g2.pi_b, *pi_b, runner.g16.pi_mapping, ppc.pi_a);
 
         let (l2, l3) = g16.lines.with_fxd_pt_lines(ref self, g16.ppc, ref runner.acc.line_index);
         self.sz_last_step(ref runner.schzip, ref runner.acc.f, (l1, l2, l3));

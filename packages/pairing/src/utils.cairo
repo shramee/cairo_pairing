@@ -27,7 +27,7 @@ pub trait PairingUtilsTrait<TCurve, TFq> {
         ref self: TCurve,
         ref acc: Affine<Fq2<TFq>>,
         q: Affine<Fq2<TFq>>,
-        pi_map: PiMapping<TFq>,
+        pi_map: @PiMapping<TFq>,
         ppc: @PPrecompute<TFq>
     ) -> (F034<TFq>, F034<TFq>);
 }
@@ -158,21 +158,21 @@ pub impl PairingUtils<
         ref self: TCurve,
         ref acc: Affine<Fq2<TFq>>,
         q: Affine<Fq2<TFq>>,
-        pi_map: PiMapping<TFq>,
+        pi_map: @PiMapping<TFq>,
         ppc: @PPrecompute<TFq>,
     ) -> (F034<TFq>, F034<TFq>) {
         // Line 9: Q1 ← πₚ(Q),Q2 ← πₚ²(Q)
         // πₚ(x,y) = (xp,yp)
         // Q1 = π(Q)
         let q1 = Affine {
-            x: self.mul(fq2_conjugate(ref self, q.x), pi_map.PiQ1X2),
-            y: self.mul(fq2_conjugate(ref self, q.y), pi_map.PiQ1X3),
+            x: self.mul(fq2_conjugate(ref self, q.x), *pi_map.PiQ1X2),
+            y: self.mul(fq2_conjugate(ref self, q.y), *pi_map.PiQ1X3),
         };
 
         // Q2 = -π²(Q)
         let q2 = Affine {
-            x: fq2_scale(ref self, q.x, pi_map.PiQ2X2),
-            y: self.neg(fq2_scale(ref self, q.y, pi_map.PiQ2X3)),
+            x: fq2_scale(ref self, q.x, *pi_map.PiQ2X2),
+            y: self.neg(fq2_scale(ref self, q.y, *pi_map.PiQ2X3)),
         };
 
         // Line 10: if u < 0 then T ← −T, f ← fp6
@@ -184,7 +184,8 @@ pub impl PairingUtils<
         let d = self.step_add(ref acc, q1, ppc);
 
         // e ← (gT,−Q2)(P), T ← T − Q2
-        // we can skip the T ← T − Q2 step coz we don't need the final point, just the line function
+        // we can skip the T ← T − Q2 step coz we don't need the final point, just the line
+        // function
         let slope = self.chord(acc, q2);
         let e = self.point_and_slope_at_p(slope, acc, ppc);
 

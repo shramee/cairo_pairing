@@ -12,7 +12,7 @@ use bn254_u256::{
         },
     },
     {fq12_frobenius_map, FrobFq12, direct_to_tower_fq12, tower_to_direct_fq12}, // Frobenius
-    Bn254SchwartzZippelSteps,
+    Bn254SchwartzZippelSteps, pi_mapping
 };
 use bn_ate_loop::{ate_miller_loop};
 use pairing::{LineFn, StepLinesGet, LinesArrayGet};
@@ -50,7 +50,9 @@ fn schzip_miller<TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, Fq, FqD12>, +Dro
     let ppc = Groth16MillerG1 {
         pi_a: curve.p_precompute(pi_a), pi_c: curve.p_precompute(pi_c), k: curve.p_precompute(k),
     };
-    let g16 = Groth16PreCompute { p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, };
+    let g16 = Groth16PreCompute {
+        p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, pi_mapping: pi_mapping()
+    };
 
     // miller accumulator
     let mut acc = SZAccumulator { f: residue_witness_inv, g2: q, line_index: 0 };
