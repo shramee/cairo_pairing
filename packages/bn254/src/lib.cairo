@@ -1,9 +1,8 @@
-use pairing::{LineFn, LinesArrays, LinesArrayGet, FixedPointLines};
-use pairing::{PairingUtils, PiMapping};
-use fq_types::{Fq2, Fq12Direct,};
-use bn254_u256::{
-    {Fq, Bn254U256Curve as Curve,}, pairing::utils::{SZCommitmentAccumulator, SZMillerRunner}
-};
+use pairing::{LineFn, LinesArrays, LinesArrayGet, FixedPointLinesTrait};
+use pairing::{PairingUtilsTrait, PiMapping};
+use fq_types::{Fq2, Fq12Direct, FieldOps, FieldUtils, Fq2Ops};
+use ec_groups::{Affine, ECOperations};
+use bn254_u256::{Fq, pairing::utils::{SZCommitmentAccumulator, SZMillerRunner}};
 use bn_ate_loop::MillerRunner;
 use schwartz_zippel::SchZipSteps;
 
@@ -15,10 +14,17 @@ type FqD12<T> = Fq12Direct<T>;
 type PreCompute<T, TSchZip> = SZMillerRunner<LnArrays<T>, TSchZip>;
 
 pub impl Miller_Bn254<
-    TSchZip, +SchZipSteps<Curve, TSchZip, SZCommitmentAccumulator, Fq, FqD12<Fq>>
-> of MillerRunner<Curve, PreCompute<Fq, TSchZip>> {
+    TSchZip,
+    TCurve,
+    +FieldOps<TCurve, Fq>,
+    +FieldUtils<TCurve, Fq>,
+    +ECOperations<TCurve, Fq>,
+    +ECOperations<TCurve, Fq2<Fq>>,
+    +FixedPointLinesTrait<LnArrays<Fq>, TCurve, Fq>,
+    +SchZipSteps<TCurve, TSchZip, SZCommitmentAccumulator, Fq, FqD12<Fq>>
+> of MillerRunner<TCurve, PreCompute<Fq, TSchZip>> {
     // first and second step, O and N
-    fn miller_bit_1_2(ref self: Curve, ref runner: PreCompute<Fq, TSchZip>, i: (u32, u32)) { //
+    fn miller_bit_1_2(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: (u32, u32)) { //
         self.sz_init(runner.schzip, ref runner.acc.schzip, ref runner.acc.f);
         let (i1, i2) = i;
         self.miller_bit_o(ref runner, i1);
@@ -26,7 +32,7 @@ pub impl Miller_Bn254<
     }
 
     // 0 bit
-    fn miller_bit_o(ref self: Curve, ref runner: PreCompute<Fq, TSchZip>, i: u32) { //
+    fn miller_bit_o(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: u32) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
@@ -37,7 +43,7 @@ pub impl Miller_Bn254<
     }
 
     // 1 bit
-    fn miller_bit_p(ref self: Curve, ref runner: PreCompute<Fq, TSchZip>, i: u32) {
+    fn miller_bit_p(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: u32) {
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
@@ -49,7 +55,7 @@ pub impl Miller_Bn254<
     }
 
     // -1 bit
-    fn miller_bit_n(ref self: Curve, ref runner: PreCompute<Fq, TSchZip>, i: u32) { //
+    fn miller_bit_n(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: u32) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
@@ -62,7 +68,7 @@ pub impl Miller_Bn254<
     }
 
     // last step
-    fn miller_last(ref self: Curve, ref runner: PreCompute<Fq, TSchZip>) { //
+    fn miller_last(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;

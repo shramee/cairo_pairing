@@ -1,4 +1,4 @@
-use fq_types::{FieldOps, FieldUtils, Fq2, F12S034, fq2_scale, fq2_conjugate};
+use fq_types::{FieldOps, FieldUtils, Fq2, Fq2Ops, F12S034, fq2_scale, fq2_conjugate};
 use ec_groups::{Affine, ECOperations};
 use pairing::{PPrecompute, LineFn};
 
