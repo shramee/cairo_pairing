@@ -55,7 +55,7 @@ pub type F034 = F12S034<Fq2>;
 pub use pairing::{
     utils::{
         {ICProcess, ICArrayInput, LnArrays},
-        {SZCommitment, SZPreCompute, SZAccumulator, SZCommitmentAccumulator}
+        {SZCommitment, SZMillerRunner, SZAccumulator, SZCommitmentAccumulator}
     },
     schzip::miller::{
         schzip_verify, InputConstraintPoints, PPrecompute,

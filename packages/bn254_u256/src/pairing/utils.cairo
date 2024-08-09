@@ -14,15 +14,16 @@ pub struct SZCommitment {
 }
 
 #[derive(Drop)]
-pub struct SZPreCompute<TLines, TCommitment> {
-    pub g16: Groth16PreCompute<
+pub struct SZMillerRunner<TLines, TCommitment> {
+    pub g16: @Groth16PreCompute<
         Groth16MillerG1<PtG1>,
         Groth16MillerG1<PPrecompute<Fq>>,
         Groth16MillerG2<PtG2>,
         TLines,
         FqD12
     >,
-    pub schzip: TCommitment,
+    pub schzip: @TCommitment,
+    pub acc: SZAccumulator,
 }
 
 #[derive(Drop, Serde)]
