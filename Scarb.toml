@@ -1,7 +1,6 @@
 [workspace]
 members = [
 	"packages/*",
-	"legacy/*",
 ]
 
 [workspace.package]
@@ -11,9 +10,9 @@ cairo-version = "2.6.2"
 [workspace.dependencies]
 cairo_test = "2.7.0"
 
-[package]
-name = "cairo_pairing" # the name of the package
-version = "0.1.0"    # the current version, obeying semver
+# [package]
+# name = "cairo_pairing" # the name of the package
+# version = "0.1.0"    # the current version, obeying semver
 
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 

@@ -7,6 +7,7 @@ edition = "2023_11"
 
 [dependencies]
 fq_types = { path = "../fq_types" }
+pairing = { path = "../pairing" }
 
 [dev-dependencies]
 cairo_test.workspace = true

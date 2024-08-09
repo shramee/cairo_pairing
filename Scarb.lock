@@ -2,10 +2,6 @@
 version = 1
 
 [[package]]
-name = "bn"
-version = "0.1.0"
-
-[[package]]
 name = "bn254_u256"
 version = "0.1.0"
 dependencies = [
@@ -33,17 +29,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bn_contracts"
-version = "0.1.0"
-dependencies = [
- "bn",
-]
-
-[[package]]
-name = "cairo_pairing"
-version = "0.1.0"
-
-[[package]]
 name = "circuits"
 version = "0.1.0"
 
@@ -52,6 +37,7 @@ name = "ec_groups"
 version = "0.1.0"
 dependencies = [
  "fq_types",
+ "pairing",
 ]
 
 [[package]]
@@ -75,4 +61,5 @@ name = "schwartz_zippel"
 version = "0.1.0"
 dependencies = [
  "fq_types",
+ "pairing",
 ]
