@@ -8,27 +8,17 @@ pub type F034X2<T> = (FS034<T>, FS034<T>);
 pub type LinesDbl<T> = (F034X2<T>, F034X2<T>, F034X2<T>);
 pub type Residue<T> = (CubicScale, Fq12Direct<T>, Fq12Direct<T>);
 
-pub trait SchZipSteps<TCurve, T, TAcc, TFq, TFq12> {
-    fn sz_init(ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12);
-    fn sz_zero_bit(
-        ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12, lines: Lines<Fq2<TFq>>
-    );
+pub trait SchZipSteps<TCurve, TSZ, TFq, TFq12> {
+    fn sz_init(ref self: TCurve, ref sz: TSZ, ref f: TFq12);
+    fn sz_zero_bit(ref self: TCurve, ref sz: TSZ, ref f: TFq12, lines: Lines<Fq2<TFq>>);
     fn sz_nz_bit(
-        ref self: TCurve,
-        sz: @T,
-        ref sz_acc: TAcc,
-        ref f: TFq12,
-        lines: LinesDbl<Fq2<TFq>>,
-        witness: TFq12
+        ref self: TCurve, ref sz: TSZ, ref f: TFq12, lines: LinesDbl<Fq2<TFq>>, witness: TFq12
     );
-    fn sz_last_step(
-        ref self: TCurve, sz: @T, ref sz_acc: TAcc, ref f: TFq12, lines: LinesDbl<Fq2<TFq>>
-    );
+    fn sz_last_step(ref self: TCurve, ref sz: TSZ, ref f: TFq12, lines: LinesDbl<Fq2<TFq>>);
 
     fn sz_final(
         ref self: TCurve,
-        sz: @T,
-        ref sz_acc: TAcc,
+        ref sz: TSZ,
         ref f: TFq12,
         alpha_beta: TFq12,
         r_pow_q: TFq12,
@@ -38,6 +28,6 @@ pub trait SchZipSteps<TCurve, T, TAcc, TFq, TFq12> {
     );
 
     fn sz_verify(
-        ref self: TCurve, sz: @T, ref sz_acc: TAcc, f: TFq12, witness: TFq12, witness_inv: TFq12,
+        ref self: TCurve, ref sz: TSZ, f: TFq12, witness: TFq12, witness_inv: TFq12,
     ) -> bool;
 }
