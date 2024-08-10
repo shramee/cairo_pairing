@@ -4,17 +4,18 @@ use pairing::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
 use bn254_u256::{Fq, Fq2, Fq12, FqD12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
 use bn254_u256::{Bn254U256Curve};
 
-#[derive(Drop, Serde)]
+#[derive(Drop)]
 pub struct SZCommitment {
-    pub remainders: Array<FqD12>,
-    pub qrlc: Array<Fq>,
-    pub rlc_fiat_shamir: Array<Fq>,
-    pub fiat_shamir_powers: Array<Fq>,
-    pub p12_x: Fq,
+    pub remainders: @Array<FqD12>,
+    pub qrlc: @Array<Fq>,
+    pub rlc_fiat_shamir: @Array<Fq>,
+    pub fiat_shamir_powers: @Array<Fq>,
+    pub p12_x: @Fq,
+    pub acc: SZCommitmentAccumulator,
 }
 
 #[derive(Drop)]
-pub struct SZMillerRunner<TLines, TCommitment> {
+pub struct SZMillerRunner<TLines, TSZ> {
     pub g16: @Groth16PreCompute<
         Groth16MillerG1<PtG1>,
         Groth16MillerG1<PPrecompute<Fq>>,
@@ -22,7 +23,7 @@ pub struct SZMillerRunner<TLines, TCommitment> {
         TLines,
         FqD12
     >,
-    pub schzip: @TCommitment,
+    pub schzip: TSZ,
     pub acc: SZAccumulator,
 }
 
@@ -41,7 +42,6 @@ pub struct SZAccumulator {
     pub f: FqD12,
     pub g2: Groth16MillerG2<PtG2>,
     pub line_index: u32,
-    pub schzip: SZCommitmentAccumulator,
 }
 
 pub type LnFn = LineFn<Fq2>;

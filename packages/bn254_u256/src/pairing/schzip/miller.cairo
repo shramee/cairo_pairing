@@ -26,11 +26,7 @@ pub type InputConstraintPoints = Array<PtG1>;
 type LnFn = LineFn<Fq>;
 
 // Does the verification
-fn schzip_miller<
-    TSchZip,
-    +SchZipSteps<Bn254U256Curve, TSchZip, SZCommitmentAccumulator, Fq, FqD12>,
-    +Drop<TSchZip>
->(
+fn schzip_miller<TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, Fq, FqD12>, +Drop<TSchZip>>(
     ref curve: Bn254U256Curve,
     pi_a: PtG1,
     pi_b: PtG2,
@@ -41,8 +37,7 @@ fn schzip_miller<
     cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
     schzip: TSchZip,
-    schzip_acc: SZCommitmentAccumulator,
-) -> SZAccumulator { //
+) -> SZMillerRunner<LnArrays, TSchZip> { //
     // Compute k from ic and public_inputs
     let Groth16Circuit { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
@@ -58,15 +53,11 @@ fn schzip_miller<
     let g16 = Groth16PreCompute { p, q, ppc, neg_q, lines, residue_witness, residue_witness_inv, };
 
     // miller accumulator
-    let mut acc = SZAccumulator {
-        f: residue_witness_inv, g2: q, line_index: 0, schzip: schzip_acc
-    };
+    let mut acc = SZAccumulator { f: residue_witness_inv, g2: q, line_index: 0 };
 
-    let mut runner = SZMillerRunner { g16: @g16, schzip: @schzip, acc };
+    let mut runner = SZMillerRunner { g16: @g16, schzip: schzip, acc };
 
     ate_miller_loop(ref curve, ref runner);
-
-    let mut q_acc = runner.acc;
 
     core::internal::revoke_ap_tracking();
     let frobenius_maps = fq12_frobenius_map();
@@ -78,16 +69,15 @@ fn schzip_miller<
 
     curve
         .sz_final(
-            runner.schzip,
-            ref q_acc.schzip,
-            ref q_acc.f,
+            ref runner.schzip,
+            ref runner.acc.f,
             alpha_beta,
             tower_to_direct_fq12(ref curve, r_pow_q),
             tower_to_direct_fq12(ref curve, r_inv_q2),
             tower_to_direct_fq12(ref curve, r_pow_q3),
             cubic_scale
         );
-    q_acc
+    runner
 }
 
 fn hash_fq2(ref hasher: HashState, a: Fq, b: Fq) {
@@ -111,15 +101,14 @@ fn hash_fq2(ref hasher: HashState, a: Fq, b: Fq) {
 // satisfiable with any QRLC.
 // Fiat Shamir for the final Schwartz Zippel includes all remainders and QRLC for soundness.
 pub fn prepare_sz_commitment(
-    ref curve: Bn254U256Curve, remainders: Array<FqD12>, qrlc: Array<Fq>,
-) -> (SZCommitment, SZCommitmentAccumulator) {
+    ref curve: Bn254U256Curve, remainders: @Array<FqD12>, qrlc: @Array<Fq>
+) -> SZCommitment {
     core::internal::revoke_ap_tracking();
     let mut rem_coeff_i = 0;
     let mut hasher = PoseidonImpl::new();
     let rem_coeffs_count = remainders.len();
-    let rem_snap = @remainders;
     while rem_coeff_i != rem_coeffs_count {
-        let rem: FqD12 = *rem_snap[rem_coeff_i];
+        let rem: FqD12 = *remainders[rem_coeff_i];
         let ((r0, r1, r2, r3), (r4, r5, r6, r7), (r8, r9, r10, r11)) = rem;
 
         hash_fq2(ref hasher, r0, r1);
@@ -136,32 +125,30 @@ pub fn prepare_sz_commitment(
 
     let mut qrlc_coeff_i = 0;
     let qrlc_count = qrlc.len();
-    let qrlc_snap = @qrlc;
     // continue with the rest of the coefficients from quotient RLC
     while qrlc_coeff_i != qrlc_count {
-        let c = *(qrlc_snap[qrlc_coeff_i]);
+        let c = *qrlc[qrlc_coeff_i];
         hasher = hasher.update(c.c0.low.into());
         hasher = hasher.update(c.c0.high.into());
         qrlc_coeff_i += 1;
     };
     let fiat_shamir: u256 = hasher.finalize().into();
-    let fiat_shamir_powers = fs_pow(ref curve, fq(fiat_shamir), 76);
+    let fiat_shamir_powers = @fs_pow(ref curve, fq(fiat_shamir), 76);
 
     // x^12 - 18x^6 + 82
     let _18x6 = curve.mul(fq(18), *fiat_shamir_powers[6]); // 18x^6
     let _x12_18x6 = curve.sub(*fiat_shamir_powers[12], _18x6); // x^12 - 18x^6
-    let p12_x = curve.add(_x12_18x6, fq(82));
+    let p12_x = @curve.add(_x12_18x6, fq(82));
+    let rlc_fiat_shamir = @fs_pow(ref curve, fq(remainders_fiat_shamir), 68);
 
-    (
-        SZCommitment {
-            remainders,
-            fiat_shamir_powers,
-            rlc_fiat_shamir: fs_pow(ref curve, fq(remainders_fiat_shamir), 68),
-            p12_x,
-            qrlc
-        },
-        SZCommitmentAccumulator { index: 0, rhs_lhs: 0_u256.into(), rem_cache: 0_u256.into() }
-    )
+    (SZCommitment {
+        remainders,
+        fiat_shamir_powers,
+        rlc_fiat_shamir,
+        p12_x,
+        qrlc,
+        acc: SZCommitmentAccumulator { index: 0, rhs_lhs: 0_u256.into(), rem_cache: 0_u256.into() },
+    })
 }
 
 pub fn fs_pow(ref curve: Bn254U256Curve, x: Fq, powers: u32) -> Array<Fq> {
@@ -192,11 +179,10 @@ pub fn schzip_verify(
 ) -> bool {
     // let p = fs_pow(ref curve, fq(2), 6);
     // println!("{} {} {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5]);
-    let (sz, sz_acc) = prepare_sz_commitment(ref curve, schzip_remainders, schzip_qrlc);
-    let sz_snap = @sz;
+    let sz = prepare_sz_commitment(ref curve, @schzip_remainders, @schzip_qrlc);
 
     // miller loop result
-    let mut acc = schzip_miller(
+    let mut runner = schzip_miller(
         ref curve,
         pi_a,
         pi_b,
@@ -206,9 +192,8 @@ pub fn schzip_verify(
         residue_witness_inv,
         cubic_scale,
         setup,
-        sz,
-        sz_acc
+        sz
     );
 
-    curve.sz_verify(sz_snap, ref acc.schzip, acc.f, residue_witness, residue_witness_inv,)
+    curve.sz_verify(ref runner.schzip, runner.acc.f, residue_witness, residue_witness_inv,)
 }
