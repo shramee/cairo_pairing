@@ -1,47 +1,12 @@
 use pairing::{LineFn, LinesArrays, LinesArrayGet, FixedPointLinesTrait};
 use pairing::{PairingUtilsTrait, PiMapping};
-use pairing::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
+use pairing::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2,};
 use fq_types::{Fq2, Fq12Direct, FieldOps, FieldUtils, Fq2Ops};
 use ec_groups::{Affine, ECOperations};
 use bn_ate_loop::MillerRunnerTrait;
 use schwartz_zippel::SchZipSteps;
+pub use pairing::{MillerAcc, MillerRunner, LnArrays, FqD12,};
 
-pub type LnFn<T> = LineFn<Fq2<T>>;
-pub type LnArrays<T> = LinesArrays<Array<LnFn<T>>>;
-
-pub type FqD12<T> = Fq12Direct<T>;
-
-pub type MillerRunner<TFq, TSZ, TAcc> =
-    MillerRunnerGeneric<
-        Groth16PreCompute<
-            Groth16MillerG1<Affine<TFq>>,
-            Groth16MillerG1<PPrecompute<TFq>>,
-            Groth16MillerG2<Affine<Fq2<TFq>>>,
-            LnArrays<TFq>,
-            PiMapping<TFq>,
-            FqD12<TFq>,
-        >,
-        TSZ,
-        TAcc
-    >;
-
-
-#[derive(Drop)]
-pub struct MillerRunnerGeneric<TG16, TSZ, TAcc> {
-    pub g16: @TG16,
-    pub schzip: TSZ,
-    pub acc: TAcc,
-}
-
-
-#[derive(Drop)]
-pub struct MillerAccGeneric<TFq12, TG2Pts> {
-    pub f: TFq12,
-    pub g2: TG2Pts,
-    pub line_index: u32,
-}
-
-pub type MillerAcc<TFq> = MillerAccGeneric<FqD12<TFq>, Groth16MillerG2<Affine<Fq2<TFq>>>>;
 type Acc<TFq> = MillerAcc<TFq>;
 
 

@@ -1,26 +1,14 @@
-use pairing::{Groth16MillerG1, Groth16MillerG2, PPrecompute, PairingUtilsTrait};
+use pairing::{
+    Groth16MillerG1, Groth16MillerG2, PPrecompute, PairingUtilsTrait,
+    {LineFn, LineResult, LnFn, LinesArrays}
+};
 use fq_types::{Fq2, F12S034};
-
-#[derive(Copy, Drop, Serde)]
-pub struct LineFn<TFq> {
-    pub slope: TFq,
-    pub c: TFq,
-}
-
-type LineResult<T> = (F12S034<Fq2<T>>, F12S034<Fq2<T>>);
-type LnFn<T> = LineFn<Fq2<T>>;
 
 pub trait StepLinesGet<T, TFq> {
     fn get_gamma_line(self: @T, line_index: u32) -> LineFn<Fq2<TFq>>;
     fn get_delta_line(self: @T, line_index: u32) -> LineFn<Fq2<TFq>>;
     fn get_gamma_lines(self: @T, line_index: u32) -> (LineFn<Fq2<TFq>>, LineFn<Fq2<TFq>>);
     fn get_delta_lines(self: @T, line_index: u32) -> (LineFn<Fq2<TFq>>, LineFn<Fq2<TFq>>);
-}
-
-#[derive(Drop, Serde)]
-pub struct LinesArrays<TLinesArray> {
-    pub gamma: TLinesArray,
-    pub delta: TLinesArray,
 }
 
 pub impl LinesArrayGet<
