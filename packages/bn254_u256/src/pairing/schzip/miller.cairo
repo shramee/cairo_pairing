@@ -2,7 +2,7 @@ use fq_types::FieldOps;
 use ec_groups::ECOperations;
 pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
 use bn254_u256::print::{FqDisplay, Fq12Display, G1Display, G2Display};
-use bn254::{Miller_Bn254, MillerRunner, MillerAcc};
+use pairing::{MillerRunnerImpl, MillerRunner, MillerAcc};
 use bn254_u256::{
     fq, Fq, Fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
     pairing::{utils::{SZCommitment, SZCommitmentAccumulator, LnArrays, ICArrayInput},},

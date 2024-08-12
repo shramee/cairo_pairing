@@ -1,6 +1,6 @@
 use fq_types::{FieldOps, FieldUtils, Fq2, Fq2Ops, F12S034, fq2_scale, fq2_conjugate};
 use ec_groups::{Affine, ECOperations};
-use pairing::{PPrecompute, LineFn};
+use pairing::{PPrecompute, PiMapping, LineFn};
 
 type F034<TFq> = F12S034<Fq2<TFq>>;
 
@@ -30,16 +30,6 @@ pub trait PairingUtilsTrait<TCurve, TFq> {
         pi_map: @PiMapping<TFq>,
         ppc: @PPrecompute<TFq>
     ) -> (F034<TFq>, F034<TFq>);
-}
-
-#[derive(Copy, Drop)]
-pub struct PiMapping<TFq> {
-    // for πₚ mapping
-    pub PiQ1X2: Fq2<TFq>,
-    pub PiQ1X3: Fq2<TFq>,
-    // for π² mapping, only Fq2.c0, c1 is 0
-    pub PiQ2X2: TFq,
-    pub PiQ2X3: TFq,
 }
 
 // #[generate_trait]
@@ -194,5 +184,22 @@ pub impl PairingUtils<
         // return line functions
         (d, e)
     }
+}
+
+pub trait MillerRunnerTrait<TCurve, TRunner> {
+    // first and second step, O and N
+    fn miller_bit_1_2(ref self: TCurve, ref runner: TRunner, i: (u32, u32));
+
+    // 0 bit
+    fn miller_bit_o(ref self: TCurve, ref runner: TRunner, i: u32);
+
+    // 1 bit
+    fn miller_bit_p(ref self: TCurve, ref runner: TRunner, i: u32);
+
+    // -1 bit
+    fn miller_bit_n(ref self: TCurve, ref runner: TRunner, i: u32);
+
+    // last step
+    fn miller_last(ref self: TCurve, ref runner: TRunner);
 }
 

@@ -1,19 +1,4 @@
-pub trait MillerRunnerTrait<TCurve, TRunner> {
-    // first and second step, O and N
-    fn miller_bit_1_2(ref self: TCurve, ref runner: TRunner, i: (u32, u32));
-
-    // 0 bit
-    fn miller_bit_o(ref self: TCurve, ref runner: TRunner, i: u32);
-
-    // 1 bit
-    fn miller_bit_p(ref self: TCurve, ref runner: TRunner, i: u32);
-
-    // -1 bit
-    fn miller_bit_n(ref self: TCurve, ref runner: TRunner, i: u32);
-
-    // last step
-    fn miller_last(ref self: TCurve, ref runner: TRunner);
-}
+pub use pairing::MillerRunnerTrait;
 
 pub fn ate_miller_loop<
     TCurve, TRunner, +MillerRunnerTrait<TCurve, TRunner>, +Drop<TRunner>, +Drop<TCurve>
@@ -44,10 +29,10 @@ pub fn _loop_inner_1_of_2<TCurve, TRunner, +MillerRunnerTrait<TCurve, TRunner>>(
     curve.miller_bit_o(ref runner, 53); // ate_loop[53] = O
     curve.miller_bit_o(ref runner, 52); // ate_loop[52] = O
     curve.miller_bit_n(ref runner, 51); // ate_loop[51] = N
-    core::internal::revoke_ap_tracking();
     curve.miller_bit_o(ref runner, 50); // ate_loop[50] = O
     curve.miller_bit_p(ref runner, 49); // ate_loop[49] = P
     curve.miller_bit_o(ref runner, 48); // ate_loop[48] = O
+    core::internal::revoke_ap_tracking();
     curve.miller_bit_n(ref runner, 47); // ate_loop[47] = N
     curve.miller_bit_o(ref runner, 46); // ate_loop[46] = O
     curve.miller_bit_o(ref runner, 45); // ate_loop[45] = O
@@ -86,9 +71,9 @@ pub fn _loop_inner_2_of_2<TCurve, TRunner, +MillerRunnerTrait<TCurve, TRunner>>(
     curve.miller_bit_o(ref runner, 18); // ate_loop[18] = O
     curve.miller_bit_n(ref runner, 17); // ate_loop[17] = N
     curve.miller_bit_o(ref runner, 16); // ate_loop[16] = O
+    core::internal::revoke_ap_tracking();
     curve.miller_bit_o(ref runner, 15); // ate_loop[15] = O
     curve.miller_bit_p(ref runner, 14); // ate_loop[14] = P
-    core::internal::revoke_ap_tracking();
     curve.miller_bit_o(ref runner, 13); // ate_loop[13] = O
     curve.miller_bit_o(ref runner, 12); // ate_loop[12] = O
     curve.miller_bit_o(ref runner, 11); // ate_loop[11] = O

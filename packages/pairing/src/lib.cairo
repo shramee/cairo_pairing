@@ -1,14 +1,20 @@
 pub mod types;
 pub mod lines;
 pub mod utils;
+pub mod runner;
 
 pub use types::{
-    PPrecompute, Groth16Circuit, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, CubicScale
+    {PPrecompute, PiMapping, CubicScale,},
+    {Groth16Circuit, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute},
+    {LineFn, LinesArrays, LineResult, LnFn, LnArrays, FqD12,},
+    {MillerRunner, MillerRunnerGeneric, MillerAccGeneric, MillerAcc}
 };
-pub use utils::{PairingUtils, PairingUtilsTrait, PiMapping};
-pub use lines::{
-    // Line function stuff
-    {LineFn, StepLinesGet, LinesArrays, LinesArrayGet}, //
-     // Precomputed line function steps
-    {FixedPointLinesTrait, FixedPointLines}
+pub use utils::{PairingUtils, PairingUtilsTrait, MillerRunnerTrait};
+pub use lines::{ //
+// Line function stuff
+{StepLinesGet, LinesArrayGet}, //
+ // Precomputed line function steps
+{FixedPointLinesTrait, FixedPointLines}, //
 };
+
+pub use runner::MillerRunnerImpl;

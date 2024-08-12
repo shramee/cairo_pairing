@@ -2,21 +2,9 @@
 version = 1
 
 [[package]]
-name = "bn254"
-version = "0.1.0"
-dependencies = [
- "bn_ate_loop",
- "ec_groups",
- "fq_types",
- "pairing",
- "schwartz_zippel",
-]
-
-[[package]]
 name = "bn254_u256"
 version = "0.1.0"
 dependencies = [
- "bn254",
  "bn_ate_loop",
  "ec_groups",
  "fast_mod",
