@@ -1,6 +1,7 @@
 pub mod types;
 pub mod lines;
 pub mod utils;
+pub mod runner;
 
 pub use types::{
     {PPrecompute, PiMapping, CubicScale,},
@@ -8,9 +9,12 @@ pub use types::{
     {LineFn, LinesArrays, LineResult, LnFn, LnArrays, FqD12,},
     {MillerRunner, MillerRunnerGeneric, MillerAccGeneric, MillerAcc}
 };
-pub use utils::{PairingUtils, PairingUtilsTrait};
-pub use lines::{ // Line function stuff
-    {StepLinesGet, LinesArrayGet}, //
-     // Precomputed line function steps
-    {FixedPointLinesTrait, FixedPointLines}
+pub use utils::{PairingUtils, PairingUtilsTrait, MillerRunnerTrait};
+pub use lines::{ //
+// Line function stuff
+{StepLinesGet, LinesArrayGet}, //
+ // Precomputed line function steps
+{FixedPointLinesTrait, FixedPointLines}, //
 };
+
+pub use runner::MillerRunnerImpl;

@@ -10,7 +10,7 @@ pub use pairing::{MillerAcc, MillerRunner, LnArrays, FqD12,};
 type Acc<TFq> = MillerAcc<TFq>;
 
 
-pub impl Miller_Bn254<
+pub impl MillerRunnerImpl<
     TCurve,
     TFq,
     TSZ,

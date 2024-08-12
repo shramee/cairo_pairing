@@ -186,3 +186,20 @@ pub impl PairingUtils<
     }
 }
 
+pub trait MillerRunnerTrait<TCurve, TRunner> {
+    // first and second step, O and N
+    fn miller_bit_1_2(ref self: TCurve, ref runner: TRunner, i: (u32, u32));
+
+    // 0 bit
+    fn miller_bit_o(ref self: TCurve, ref runner: TRunner, i: u32);
+
+    // 1 bit
+    fn miller_bit_p(ref self: TCurve, ref runner: TRunner, i: u32);
+
+    // -1 bit
+    fn miller_bit_n(ref self: TCurve, ref runner: TRunner, i: u32);
+
+    // last step
+    fn miller_last(ref self: TCurve, ref runner: TRunner);
+}
+
