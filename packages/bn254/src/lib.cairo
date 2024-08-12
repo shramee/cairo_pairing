@@ -1,49 +1,89 @@
 use pairing::{LineFn, LinesArrays, LinesArrayGet, FixedPointLinesTrait};
 use pairing::{PairingUtilsTrait, PiMapping};
+use pairing::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
 use fq_types::{Fq2, Fq12Direct, FieldOps, FieldUtils, Fq2Ops};
 use ec_groups::{Affine, ECOperations};
-use bn254_u256::{Fq, pairing::utils::{SZCommitmentAccumulator, SZMillerRunner}};
-use bn_ate_loop::MillerRunner;
+use bn_ate_loop::MillerRunnerTrait;
 use schwartz_zippel::SchZipSteps;
 
 pub type LnFn<T> = LineFn<Fq2<T>>;
 pub type LnArrays<T> = LinesArrays<Array<LnFn<T>>>;
 
-type FqD12<T> = Fq12Direct<T>;
+pub type FqD12<T> = Fq12Direct<T>;
 
-type PreCompute<T, TSchZip> = SZMillerRunner<LnArrays<T>, TSchZip>;
+pub type MillerRunner<TFq, TSZ, TAcc> =
+    MillerRunnerGeneric<
+        Groth16PreCompute<
+            Groth16MillerG1<Affine<TFq>>,
+            Groth16MillerG1<PPrecompute<TFq>>,
+            Groth16MillerG2<Affine<Fq2<TFq>>>,
+            LnArrays<TFq>,
+            PiMapping<TFq>,
+            FqD12<TFq>,
+        >,
+        TSZ,
+        TAcc
+    >;
+
+
+#[derive(Drop)]
+pub struct MillerRunnerGeneric<TG16, TSZ, TAcc> {
+    pub g16: @TG16,
+    pub schzip: TSZ,
+    pub acc: TAcc,
+}
+
+
+#[derive(Drop)]
+pub struct MillerAccGeneric<TFq12, TG2Pts> {
+    pub f: TFq12,
+    pub g2: TG2Pts,
+    pub line_index: u32,
+}
+
+pub type MillerAcc<TFq> = MillerAccGeneric<FqD12<TFq>, Groth16MillerG2<Affine<Fq2<TFq>>>>;
+type Acc<TFq> = MillerAcc<TFq>;
+
 
 pub impl Miller_Bn254<
-    TSchZip,
     TCurve,
-    +FieldOps<TCurve, Fq>,
-    +FieldUtils<TCurve, Fq>,
-    +ECOperations<TCurve, Fq>,
-    +ECOperations<TCurve, Fq2<Fq>>,
-    +FixedPointLinesTrait<LnArrays<Fq>, TCurve, Fq>,
-    +SchZipSteps<TCurve, TSchZip, SZCommitmentAccumulator, Fq, FqD12<Fq>>
-> of MillerRunner<TCurve, PreCompute<Fq, TSchZip>> {
+    TFq,
+    TSZ,
+    +FieldOps<TCurve, TFq>,
+    +FieldUtils<TCurve, TFq>,
+    +ECOperations<TCurve, TFq>,
+    +ECOperations<TCurve, Fq2<TFq>>,
+    impl FxdPtLines: FixedPointLinesTrait<LnArrays<TFq>, TCurve, TFq>,
+    +SchZipSteps<TCurve, TSZ, TFq, FqD12<TFq>>,
+    +Drop<TSZ>,
+    +Copy<TFq>,
+    +Drop<TFq>,
+> of MillerRunnerTrait<TCurve, MillerRunner<TFq, TSZ, Acc<TFq>>> {
     // first and second step, O and N
-    fn miller_bit_1_2(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: (u32, u32)) { //
-        self.sz_init(runner.schzip, ref runner.acc.schzip, ref runner.acc.f);
+    fn miller_bit_1_2(
+        ref self: TCurve, ref runner: MillerRunner<TFq, TSZ, Acc<TFq>>, i: (u32, u32)
+    ) { //
+        self.sz_init(ref runner.schzip, ref runner.acc.f);
         let (i1, i2) = i;
         self.miller_bit_o(ref runner, i1);
         self.miller_bit_n(ref runner, i2);
     }
 
     // 0 bit
-    fn miller_bit_o(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: u32) { //
+    fn miller_bit_o(ref self: TCurve, ref runner: MillerRunner<TFq, TSZ, Acc<TFq>>, i: u32) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
 
+        let _acc = ppc.pi_a;
+
         let l1 = self.step_double(ref runner.acc.g2.pi_b, ppc.pi_a);
-        let (l2, l3) = g16.lines.with_fxd_pt_line(ref self, g16.ppc, ref runner.acc.line_index);
+        let (l2, l3) = g16.lines.with_fxd_pt_line(ref self, ppc, ref runner.acc.line_index);
         self.sz_zero_bit(ref runner.schzip, ref runner.acc.f, (l1, l2, l3));
     }
 
     // 1 bit
-    fn miller_bit_p(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: u32) {
+    fn miller_bit_p(ref self: TCurve, ref runner: MillerRunner<TFq, TSZ, Acc<TFq>>, i: u32) {
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
@@ -55,7 +95,7 @@ pub impl Miller_Bn254<
     }
 
     // -1 bit
-    fn miller_bit_n(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>, i: u32) { //
+    fn miller_bit_n(ref self: TCurve, ref runner: MillerRunner<TFq, TSZ, Acc<TFq>>, i: u32) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;
@@ -68,7 +108,7 @@ pub impl Miller_Bn254<
     }
 
     // last step
-    fn miller_last(ref self: TCurve, ref runner: PreCompute<Fq, TSchZip>) { //
+    fn miller_last(ref self: TCurve, ref runner: MillerRunner<TFq, TSZ, Acc<TFq>>) { //
         core::internal::revoke_ap_tracking();
         let g16 = runner.g16;
         let ppc = g16.ppc;

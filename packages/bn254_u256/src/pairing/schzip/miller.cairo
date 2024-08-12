@@ -2,15 +2,10 @@ use fq_types::FieldOps;
 use ec_groups::ECOperations;
 pub use pairing::{PPrecompute, Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit};
 use bn254_u256::print::{FqDisplay, Fq12Display, G1Display, G2Display};
-use bn254::Miller_Bn254;
+use bn254::{Miller_Bn254, MillerRunner, MillerAcc};
 use bn254_u256::{
     fq, Fq, Fq2, FqD12, PtG1, PtG2, Bn254FqOps, Bn254U256Curve,
-    pairing::{
-        utils::{
-            SZCommitment, SZMillerRunner, SZCommitmentAccumulator, SZAccumulator, LnArrays,
-            ICArrayInput
-        },
-    },
+    pairing::{utils::{SZCommitment, SZCommitmentAccumulator, LnArrays, ICArrayInput},},
     {fq12_frobenius_map, FrobFq12, direct_to_tower_fq12, tower_to_direct_fq12}, // Frobenius
     Bn254SchwartzZippelSteps, pi_mapping
 };
@@ -37,7 +32,7 @@ fn schzip_miller<TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, Fq, FqD12>, +Dro
     cubic_scale: CubicScale,
     setup: Groth16Circuit<PtG1, PtG2, LnArrays, InputConstraintPoints, FqD12>,
     schzip: TSchZip,
-) -> SZMillerRunner<LnArrays, TSchZip> { //
+) -> MillerRunner<Fq, TSchZip, MillerAcc<Fq>> { //
     // Compute k from ic and public_inputs
     let Groth16Circuit { alpha_beta, gamma, gamma_neg, delta, delta_neg, lines, ic, } = setup;
 
@@ -55,9 +50,9 @@ fn schzip_miller<TSchZip, +SchZipSteps<Bn254U256Curve, TSchZip, Fq, FqD12>, +Dro
     };
 
     // miller accumulator
-    let mut acc = SZAccumulator { f: residue_witness_inv, g2: q, line_index: 0 };
+    let mut acc = MillerAcc { f: residue_witness_inv, g2: q, line_index: 0 };
 
-    let mut runner = SZMillerRunner { g16: @g16, schzip: schzip, acc };
+    let mut runner = MillerRunner { g16: @g16, schzip: schzip, acc };
 
     ate_miller_loop(ref curve, ref runner);
 
