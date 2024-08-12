@@ -1,4 +1,4 @@
-pub trait MillerRunner<TCurve, TRunner> {
+pub trait MillerRunnerTrait<TCurve, TRunner> {
     // first and second step, O and N
     fn miller_bit_1_2(ref self: TCurve, ref runner: TRunner, i: (u32, u32));
 
@@ -16,7 +16,7 @@ pub trait MillerRunner<TCurve, TRunner> {
 }
 
 pub fn ate_miller_loop<
-    TCurve, TRunner, +MillerRunner<TCurve, TRunner>, +Drop<TRunner>, +Drop<TCurve>
+    TCurve, TRunner, +MillerRunnerTrait<TCurve, TRunner>, +Drop<TRunner>, +Drop<TCurve>
 >(
     ref curve: TCurve, ref runner: TRunner
 ) {
@@ -26,7 +26,7 @@ pub fn ate_miller_loop<
     _loop_inner_2_of_2(ref runner, ref curve);
 }
 
-pub fn _loop_inner_1_of_2<TCurve, TRunner, +MillerRunner<TCurve, TRunner>>(
+pub fn _loop_inner_1_of_2<TCurve, TRunner, +MillerRunnerTrait<TCurve, TRunner>>(
     ref runner: TRunner, ref curve: TCurve
 ) {
     core::internal::revoke_ap_tracking();
@@ -67,7 +67,7 @@ pub fn _loop_inner_1_of_2<TCurve, TRunner, +MillerRunner<TCurve, TRunner>>(
     curve.miller_bit_o(ref runner, 31); // ate_loop[31] = O
 }
 
-pub fn _loop_inner_2_of_2<TCurve, TRunner, +MillerRunner<TCurve, TRunner>>(
+pub fn _loop_inner_2_of_2<TCurve, TRunner, +MillerRunnerTrait<TCurve, TRunner>>(
     ref runner: TRunner, ref curve: TCurve
 ) {
     core::internal::revoke_ap_tracking();

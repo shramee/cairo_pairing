@@ -33,7 +33,7 @@ pub struct Groth16MillerG2<PtG2> { // Points in G2
 }
 
 #[derive(Copy, Drop, Serde)]
-pub struct Groth16PreCompute<TG1Pts, TG1Precomputes, TG2Pts, TLines, TFq12> {
+pub struct Groth16PreCompute<TG1Pts, TG1Precomputes, TG2Pts, TLines, TPiMap, TFq12> {
     pub p: TG1Pts,
     pub q: TG2Pts,
     pub ppc: TG1Precomputes,
@@ -41,6 +41,7 @@ pub struct Groth16PreCompute<TG1Pts, TG1Precomputes, TG2Pts, TLines, TFq12> {
     pub lines: TLines,
     pub residue_witness: TFq12,
     pub residue_witness_inv: TFq12,
+    pub pi_mapping: TPiMap,
 }
 
 #[derive(Copy, Drop, Serde)]

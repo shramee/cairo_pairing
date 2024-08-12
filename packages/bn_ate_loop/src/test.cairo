@@ -1,13 +1,13 @@
 // [PASS] bn_ate::test::test_ate_miller_loop (gas: ~1) steps: 110
 
-use super::{MillerRunner, ate_miller_loop};
+use super::{MillerRunnerTrait, ate_miller_loop};
 
 #[derive(Drop)]
 struct MockRunner {
     acc: felt252,
 }
 
-impl Miller_u of MillerRunner<(), MockRunner> {
+impl Miller_u of MillerRunnerTrait<(), MockRunner> {
     // first and second step, O and N
     fn miller_bit_1_2(ref self: (), ref runner: MockRunner, i: (u32, u32)) { //
         let (i1, i2) = i;

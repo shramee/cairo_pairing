@@ -5,7 +5,6 @@ pub mod print;
 pub mod pairing {
     pub mod utils;
     pub mod schzip {
-        pub mod miller_runner;
         pub mod miller;
         pub mod steps;
     }
@@ -53,13 +52,10 @@ pub type FqD4 = Fq4Direct<Fq>;
 pub type F034 = F12S034<Fq2>;
 
 pub use pairing::{
-    utils::{
-        {ICProcess, ICArrayInput, LnArrays},
-        {SZCommitment, SZMillerRunner, SZAccumulator, SZCommitmentAccumulator}
-    },
+    utils::{{ICProcess, ICArrayInput, LnArrays}, {SZCommitment, SZCommitmentAccumulator}},
     schzip::miller::{
         schzip_verify, InputConstraintPoints, PPrecompute,
         {Groth16MillerG1, Groth16MillerG2, Groth16PreCompute, Groth16Circuit}
     },
-    schzip::steps::Bn254SchwartzZippelSteps, schzip::miller_runner::Miller_Bn254_U256
+    schzip::steps::Bn254SchwartzZippelSteps
 };

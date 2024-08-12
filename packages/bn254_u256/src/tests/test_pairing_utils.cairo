@@ -121,7 +121,7 @@ fn test_step_correction() {
 
     let pi_map = pi_mapping();
 
-    let (l1, l2) = self.correction_step(ref acc, q, pi_map, @pc);
+    let (l1, l2) = self.correction_step(ref acc, q, @pi_map, @pc);
 
     // We skip final point operation to save costs
     // let expected = g2(
@@ -155,7 +155,7 @@ fn test_step_correction() {
     assert(l1.c4 == expected_l1c4, 'wrong correction l1c4');
     assert(l2.c3 == expected_l2c3, 'wrong correction l2c3');
     assert(l2.c4 == expected_l2c4, 'wrong correction l2c4');
-// We skip final point operation to save costs
+    // We skip final point operation to save costs
 // assert(q == expected, 'wrong correction point');
 }
 

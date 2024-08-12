@@ -1,7 +1,7 @@
 use ec_groups::ECOperations;
 use pairing::{LineFn, LinesArrays, LinesArrayGet};
 use pairing::{PPrecompute, Groth16PreCompute, Groth16MillerG1, Groth16MillerG2};
-use bn254_u256::{Fq, Fq2, Fq12, FqD12, Bn254FqOps, PtG1, PtG2, AffineOpsBn};
+use bn254_u256::{Fq, Fq2, Fq12, FqD12, Bn254FqOps, PtG1, PtG2, AffineOpsBn, PiMapping};
 use bn254_u256::{Bn254U256Curve};
 
 #[derive(Drop)]
@@ -14,19 +14,6 @@ pub struct SZCommitment {
     pub acc: SZCommitmentAccumulator,
 }
 
-#[derive(Drop)]
-pub struct SZMillerRunner<TLines, TSZ> {
-    pub g16: @Groth16PreCompute<
-        Groth16MillerG1<PtG1>,
-        Groth16MillerG1<PPrecompute<Fq>>,
-        Groth16MillerG2<PtG2>,
-        TLines,
-        FqD12
-    >,
-    pub schzip: TSZ,
-    pub acc: SZAccumulator,
-}
-
 #[derive(Drop, Serde)]
 pub struct SZCommitmentAccumulator {
     // index of equation (remainder) being processed, used for rlc
@@ -35,13 +22,6 @@ pub struct SZCommitmentAccumulator {
     pub rhs_lhs: Fq,
     // remainder cache for next equation
     pub rem_cache: Fq,
-}
-
-#[derive(Drop)]
-pub struct SZAccumulator {
-    pub f: FqD12,
-    pub g2: Groth16MillerG2<PtG2>,
-    pub line_index: u32,
 }
 
 pub type LnFn = LineFn<Fq2>;
