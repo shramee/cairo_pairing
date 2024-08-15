@@ -8,6 +8,7 @@ edition = "2023_11"
 [dependencies]
 ec_groups = { path = "../ec_groups" }
 fq_types = { path = "../fq_types" }
+schwartz_zippel = { path = "../schwartz_zippel" }
 
 [dev-dependencies]
 cairo_test.workspace = true
