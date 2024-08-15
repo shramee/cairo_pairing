@@ -26,6 +26,7 @@ version = "0.1.0"
 dependencies = [
  "ec_groups",
  "fq_types",
+ "schwartz_zippel",
 ]
 
 [[package]]
@@ -36,6 +37,7 @@ version = "0.1.0"
 name = "ec_groups"
 version = "0.1.0"
 dependencies = [
+ "bn_ate_loop",
  "fq_types",
  "pairing",
 ]
